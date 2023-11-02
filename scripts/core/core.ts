@@ -1,4 +1,5 @@
 import { BundleManager } from './asset/bundle-manager';
+import { FRAMEWORK_VERSION } from './defines/consts';
 import type { IModule, ModuleClass } from './module/module';
 import { ModuleManager } from './module/module-manager';
 
@@ -19,7 +20,7 @@ export class Core {
 
     init(): void {
         if (!this._isInit) {
-            console.log('Poker Framework init');
+            console.log(`Poker Framework ${FRAMEWORK_VERSION} init`);
 
             ModuleManager.instance.init();
             this._isInit = true;
