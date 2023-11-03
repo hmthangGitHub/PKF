@@ -2,6 +2,7 @@ import { Module } from '../module/module';
 import { bundleEntryManager } from './bundle-entry-manager';
 import { basename } from '../../utils/path';
 import type { Nullable } from '../core-index';
+import { BundleEntry } from '../core-index';
 
 export class BundleManager extends Module {
     static moduleName = 'BundleManager';
@@ -12,26 +13,31 @@ export class BundleManager extends Module {
 		@param nameOrUrl The name or root path of bundle
 		@param options Some optional paramter, same like downloader.downloadFile
      */
-    loadBundle(nameOrUrl: string, options: Record<string, any> = undefined): Promise<cc.AssetManager.Bundle> {
-        return new Promise<cc.AssetManager.Bundle>((resolve, reject) => {
+    loadBundle(nameOrUrl: string, options: Record<string, any> = undefined): Promise<BundleEntry> {
+        return new Promise<BundleEntry>((resolve, reject) => {
             const name = basename(nameOrUrl);
             const bundle = cc.assetManager.getBundle(name);
 
             if (bundle) {
                 // bundle already loaded
-                resolve(bundle);
+                const entry = bundleEntryManager.getEntry(bundle.name);
+                resolve(entry);
             } else {
                 cc.assetManager.loadBundle(nameOrUrl, options, (err, bundle) => {
                     if (err) {
                         reject(err);
                     } else {
-                        const entry = bundleEntryManager.getEntry(bundle.name);
-                        if (entry) {
-                            entry.bundle = bundle;
-                            entry.onLoad();
+                        let entry = bundleEntryManager.getEntry(bundle.name);
+                        if (!entry) {
+                            // no entry registered, add default entry
+                            entry = new BundleEntry();
+                            bundleEntryManager.addEntry(bundle.name, entry);
                         }
 
-                        resolve(bundle);
+                        entry.bundle = bundle;
+                        entry.onLoad();
+
+                        resolve(entry);
                     }
                 });
             }
@@ -52,10 +58,6 @@ export class BundleManager extends Module {
         type: typeof cc.Asset
     ): Promise<T> {
         return new Promise<T>((resolve, reject) => {
-            if (!bundleOrName) {
-                reject(new Error('invalid null bundleOrName'));
-            }
-
             let bundle = this.getBundle(bundleOrName);
             if (!bundle) {
                 reject(new Error(`bundle ${bundleOrName} does not exist`));
@@ -77,10 +79,6 @@ export class BundleManager extends Module {
         type: typeof cc.Asset = cc.Asset
     ): Promise<T[]> {
         return new Promise<T[]>((resolve, reject) => {
-            if (!bundleOrName) {
-                reject(new Error('invalid null bundleOrName'));
-            }
-
             let bundle = this.getBundle(bundleOrName);
             if (!bundle) {
                 reject(new Error(`bundle ${bundleOrName} does not exist`));
@@ -101,6 +99,11 @@ export class BundleManager extends Module {
         type: typeof cc.Asset = cc.Asset
     ): Promise<T[]> {
         return this.loadDir(bundleOrName, '/', type);
+    }
+
+    releaseAll(bundleOrName: cc.AssetManager.Bundle | string) {
+        const bundle = this.getBundle(bundleOrName);
+        bundle?.releaseAll();
     }
 
     getBundle(bundleOrName: cc.AssetManager.Bundle | string): Nullable<cc.AssetManager.Bundle> {

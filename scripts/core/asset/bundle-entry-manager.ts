@@ -11,14 +11,17 @@ export class BundleEntryManager {
 
         let entry = this.getEntry(entryClass.bundleName);
         if (entry) {
-            console.log(`update bundle ${entryClass.bundleName} entry`);
+            console.debug(`update bundle ${entryClass.bundleName} entry`);
             this._entries.delete(entryClass.bundleName);
         }
 
         // eslint-disable-next-line new-cap
         entry = new entryClass();
-        entry.bundleName = entryClass.bundleName;
-        this._entries.set(entry.bundleName, entry);
+        this._entries.set(entryClass.bundleName, entry);
+    }
+
+    addEntry(bundleName: string, entry: BundleEntry): void {
+        this._entries.set(bundleName, entry);
     }
 
     getEntry(bundleName: string): BundleEntry | undefined {

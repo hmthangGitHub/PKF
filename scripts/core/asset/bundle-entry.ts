@@ -6,7 +6,7 @@ export interface EntryClass<T> {
     bundleName: string;
 }
 
-export abstract class BundleEntry {
+export class BundleEntry {
     private _bundle: cc.AssetManager.Bundle = null;
 
     get bundle(): cc.AssetManager.Bundle {
@@ -16,9 +16,9 @@ export abstract class BundleEntry {
         this._bundle = value;
     }
 
-    bundleName: string;
+    // bundleName: string;
 
-    bundleType: BUNDLE_TYPE = BUNDLE_TYPE.BUNDLE_LOBBY;
+    bundleType: BUNDLE_TYPE = BUNDLE_TYPE.BUNDLE_RESOURCE;
 
     private _isRunning = false;
     get isRunning(): boolean {
@@ -33,7 +33,11 @@ export abstract class BundleEntry {
     /** @description
      * Called when enter this bundle. Load resources of this bundle this function.
      */
-    onEnter(): void {}
+    onEnter(): Promise<void> {
+        return new Promise((resolve) => {
+            resolve();
+        });
+    }
 
     /** @description
      * Called when exit this bundle.
