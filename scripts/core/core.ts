@@ -3,11 +3,15 @@ import { FRAMEWORK_VERSION } from './defines/consts';
 import type { IModule, ModuleClass } from './module/module';
 import { ModuleManager } from './module/module-manager';
 
-export class Core {
+class Core {
     private _isInit = false;
 
     constructor() {
         this.registerModule(BundleManager);
+    }
+
+    get bundleManager(): BundleManager {
+        return ModuleManager.instance.get(BundleManager);
     }
 
     registerModule<T extends IModule>(moduleClass: ModuleClass<T>): void {
@@ -36,3 +40,5 @@ export class Core {
 }
 
 export const core = new Core();
+
+export const bundleManager = core.bundleManager;
