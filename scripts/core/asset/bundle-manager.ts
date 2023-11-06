@@ -1,6 +1,5 @@
 import { Module } from '../module/module';
 import { bundleEntryManager } from './bundle-entry-manager';
-import { basename } from '../../utils/path';
 import type { Nullable } from '../core-index';
 import { BundleEntry } from '../core-index';
 
@@ -15,7 +14,7 @@ export class BundleManager extends Module {
      */
     loadBundle(nameOrUrl: string, options: Record<string, any> = undefined): Promise<BundleEntry> {
         return new Promise<BundleEntry>((resolve, reject) => {
-            const name = basename(nameOrUrl);
+            const name = cc.path.basename(nameOrUrl);
             const bundle = cc.assetManager.getBundle(name);
 
             if (bundle) {

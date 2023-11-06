@@ -16,8 +16,6 @@ export class BundleEntry {
         this._bundle = value;
     }
 
-    // bundleName: string;
-
     bundleType: BUNDLE_TYPE = BUNDLE_TYPE.BUNDLE_RESOURCE;
 
     private _isRunning = false;
