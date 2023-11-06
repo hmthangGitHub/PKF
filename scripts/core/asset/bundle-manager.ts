@@ -1,7 +1,7 @@
 import { Module } from '../module/module';
 import { bundleEntryManager } from './bundle-entry-manager';
-import type { Nullable } from '../core-index';
-import { BundleEntry } from '../core-index';
+import type { Nullable } from '../defines/defines-index';
+import { BundleEntry } from './bundle-entry';
 
 export class BundleManager extends Module {
     static moduleName = 'BundleManager';
