@@ -1,4 +1,4 @@
-import { BundleManager } from './asset/bundle-manager';
+import { BundleManager, UpdateManager } from './asset/asset-index';
 import { FRAMEWORK_VERSION } from './defines/consts';
 import type { IModule, ModuleClass } from './module/module';
 import { ModuleManager } from './module/module-manager';
@@ -8,10 +8,15 @@ class Core {
 
     constructor() {
         this.registerModule(BundleManager);
+        this.registerModule(UpdateManager);
     }
 
     get bundleManager(): BundleManager {
         return ModuleManager.instance.get(BundleManager);
+    }
+
+    get updateManager(): UpdateManager {
+        return ModuleManager.instance.get(UpdateManager);
     }
 
     registerModule<T extends IModule>(moduleClass: ModuleClass<T>): void {
@@ -42,3 +47,5 @@ class Core {
 export const core = new Core();
 
 export const bundleManager = core.bundleManager;
+
+export const updateManager = core.updateManager;

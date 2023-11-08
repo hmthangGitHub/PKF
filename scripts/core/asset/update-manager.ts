@@ -1,15 +1,15 @@
 import { BundleManifest } from './bundle-manifest';
+import { Module, ModuleManager } from '../module/module-index';
+import { BundleManager } from './bundle-manager';
 
-export class UpdateManager {
-    private _storagePath = '';
+export class UpdateManager extends Module {
+    static moduleName = 'UpdateManager';
+
+    private _localStoragePath = 'BundleManifest';
 
     private _bundleManifest: BundleManifest = new BundleManifest();
 
     private _isUpdating = false;
-
-    constructor(storagePath: string = 'BundleManifest') {
-        this._storagePath = storagePath;
-    }
 
     get bundleManifest(): BundleManifest {
         return this._bundleManifest;
@@ -20,7 +20,7 @@ export class UpdateManager {
     }
 
     loadLocalManifest(): boolean {
-        const data = cc.sys.localStorage.getItem(this._storagePath);
+        const data = cc.sys.localStorage.getItem(this._localStoragePath);
         if (data) {
             const jsonObj = JSON.parse(data);
 
@@ -33,7 +33,7 @@ export class UpdateManager {
     }
 
     saveLocalManifest(): void {
-        cc.sys.localStorage.setItem(this._storagePath, JSON.stringify(this._bundleManifest.toJson()));
+        cc.sys.localStorage.setItem(this._localStoragePath, JSON.stringify(this._bundleManifest.toJson()));
     }
 
     loadRemoteManifest(): Promise<BundleManifest> {
@@ -89,5 +89,17 @@ export class UpdateManager {
         }
     }
 
-    update(): void {}
+    updateBundles(): void {
+        const bundleManager = ModuleManager.instance.get(BundleManager);
+
+        this._bundleManifest.bundles.forEach((bundleInfo, bundleName) => {
+            const url = this._bundleManifest.bundleServerAddress + bundleName;
+
+            const options = {
+                version: bundleInfo.md5
+            };
+
+            bundleManager.loadBundle(url, options);
+        });
+    }
 }
