@@ -1,7 +1,7 @@
 export interface IBundleInfo {
     version?: string;
     md5?: string;
-    url?: string;
+    // url?: string;
 }
 
 export class BundleManifest {
@@ -9,6 +9,7 @@ export class BundleManifest {
     engineVersion = '';
     frameworkVersion = '';
     remoteManifestUrl: string = '';
+    bundleServerAddress: string = '';
 
     private _bundles = new Map<string, IBundleInfo>();
     get bundles(): Map<string, IBundleInfo> {
@@ -24,6 +25,7 @@ export class BundleManifest {
         this.remoteManifestUrl = json.remoteManifestUrl ?? '';
         this.frameworkVersion = json.frameworkVersion ?? '';
         this.engineVersion = json.engineVersion ?? '';
+        this.bundleServerAddress = json.bundleServerAddress ?? '';
 
         Object.entries(json.bundles).forEach(([key, value]) => {
             const bundle = {};
@@ -38,6 +40,7 @@ export class BundleManifest {
             engineVersion: this.engineVersion,
             frameworkVersion: this.frameworkVersion,
             remoteManifestUrl: this.remoteManifestUrl,
+            bundleServerAddress: this.bundleServerAddress,
             bundles: Object.fromEntries(this._bundles)
         };
     }

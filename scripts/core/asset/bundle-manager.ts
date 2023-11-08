@@ -2,9 +2,15 @@ import { Module } from '../module/module';
 import { bundleEntryManager } from './bundle-entry-manager';
 import type { Nullable } from '../defines/defines-index';
 import { BundleEntry } from './bundle-entry';
+import { UpdateManager } from './update-manager';
 
 export class BundleManager extends Module {
     static moduleName = 'BundleManager';
+
+    private _updateManager = new UpdateManager();
+    get updateManager() {
+        return this._updateManager;
+    }
 
     /** @description
   		load bundle

@@ -28,6 +28,10 @@ export class BundleEntryManager {
         return this._entries.get(bundleName);
     }
 
+    getEntries(): Map<string, BundleEntry> {
+        return this._entries;
+    }
+
     enterBundle(bundleName: string): void {
         const entry = this.getEntry(bundleName);
         if (entry) {
