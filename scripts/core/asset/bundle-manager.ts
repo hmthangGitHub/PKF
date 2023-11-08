@@ -114,4 +114,16 @@ export class BundleManager extends Module {
     getBundle(bundleOrName: cc.AssetManager.Bundle | string): Nullable<cc.AssetManager.Bundle> {
         return bundleOrName instanceof cc.AssetManager.Bundle ? bundleOrName : cc.assetManager.getBundle(bundleOrName);
     }
+
+    setDefaultManifest(jsonObj: any): void {
+        this._updateManager.setDefaultManifest(jsonObj);
+    }
+
+    async checkUpdate(): Promise<void> {
+        await this._updateManager.checkUpdate();
+    }
+
+    updateBundles(): void {
+        this._updateManager.update();
+    }
 }

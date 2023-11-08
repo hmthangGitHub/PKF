@@ -17,7 +17,6 @@ export class UpdateManager {
 
     setDefaultManifest(jsonObj: any): void {
         this._bundleManifest.fromJson(jsonObj);
-        cc.log('default mainifest', this._bundleManifest);
     }
 
     loadLocalManifest(): boolean {
@@ -27,8 +26,6 @@ export class UpdateManager {
 
             this._bundleManifest.fromJson(jsonObj);
 
-            cc.log('locad local mainifest', this._bundleManifest);
-
             return true;
         } else {
             return false;
@@ -36,20 +33,60 @@ export class UpdateManager {
     }
 
     saveLocalManifest(): void {
-        cc.log(`save local manifest to ${this._storagePath}`);
         cc.sys.localStorage.setItem(this._storagePath, JSON.stringify(this._bundleManifest.toJson()));
     }
 
-    loadRemoteManifest(): void {}
+    loadRemoteManifest(): Promise<BundleManifest> {
+        return new Promise<any>((resolve, reject) => {
+            if (this._bundleManifest.remoteManifestUrl.length <= 0) {
+                reject(new Error('No remote manifest url exist!!'));
+            } else {
+                const url = this._bundleManifest.remoteManifestUrl + 'bundle.json';
+                cc.assetManager.loadRemote<cc.JsonAsset>(url, (err, asset) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        const bundleManifest = new BundleManifest();
+                        bundleManifest.fromJson(asset.json);
+                        resolve(bundleManifest);
+                    }
+                });
+            }
+        });
+    }
 
-    checkUpdate(): void {
+    async checkUpdate(): Promise<void> {
         if (!this.loadLocalManifest()) {
             this.saveLocalManifest();
         }
 
-        this.loadRemoteManifest();
+        const remoteManifest = await this.loadRemoteManifest();
 
-        // compare bundle version
+        let update = false;
+
+        if (this._bundleManifest.remoteManifestUrl !== remoteManifest.remoteManifestUrl) {
+            this._bundleManifest.remoteManifestUrl = remoteManifest.remoteManifestUrl;
+            update = true;
+        }
+
+        if (this._bundleManifest.bundleServerAddress !== remoteManifest.bundleServerAddress) {
+            this._bundleManifest.bundleServerAddress = remoteManifest.bundleServerAddress;
+            update = true;
+        }
+
+        this._bundleManifest.bundles.forEach((bundleInfo, name) => {
+            const remoteBundleInfo = remoteManifest.bundles.get(name);
+            if (remoteBundleInfo) {
+                if (bundleInfo.md5 !== remoteBundleInfo.md5) {
+                    bundleInfo.md5 = remoteBundleInfo.md5;
+                    update = true;
+                }
+            }
+        });
+
+        if (update) {
+            this.saveLocalManifest();
+        }
     }
 
     update(): void {}
