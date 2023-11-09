@@ -9,6 +9,8 @@ class Core {
     constructor() {
         this.registerModule(BundleManager);
         this.registerModule(UpdateManager);
+
+        this.init();
     }
 
     get bundleManager(): BundleManager {
