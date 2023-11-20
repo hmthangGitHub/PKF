@@ -34,9 +34,14 @@ export class BundleManager extends Module {
                         }
 
                         entry.bundle = bundle;
-                        entry.onLoad();
-
-                        resolve(entry);
+                        entry
+                            .onLoad()
+                            .then(() => {
+                                resolve(entry);
+                            })
+                            .catch((err) => {
+                                reject(err);
+                            });
                     }
                 });
             }

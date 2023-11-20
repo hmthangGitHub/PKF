@@ -24,8 +24,11 @@ export class BundleEntry {
     }
 
     /** @description Called when bundle is loaded */
-    onLoad(): void {
+    onLoad(): Promise<void> {
         this._isRunning = true;
+        return new Promise((resolve) => {
+            resolve();
+        });
     }
 
     /** @description

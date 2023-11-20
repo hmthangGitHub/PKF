@@ -1,5 +1,6 @@
-import { BundleManager, UpdateManager } from './asset/asset-index';
 import { FRAMEWORK_VERSION } from './defines/consts';
+import { BundleManager, UpdateManager } from './asset/asset-index';
+import { AddressableAssetManager } from './addressable/addressable-index';
 import type { IModule, ModuleClass } from './module/module';
 import { ModuleManager } from './module/module-manager';
 
@@ -9,6 +10,7 @@ class Core {
     constructor() {
         this.registerModule(BundleManager);
         this.registerModule(UpdateManager);
+        this.registerModule(AddressableAssetManager);
 
         this.init();
     }
@@ -19,6 +21,10 @@ class Core {
 
     get updateManager(): UpdateManager {
         return ModuleManager.instance.get(UpdateManager);
+    }
+
+    get addressableAssetManager(): AddressableAssetManager {
+        return ModuleManager.instance.get(AddressableAssetManager);
     }
 
     registerModule<T extends IModule>(moduleClass: ModuleClass<T>): void {
@@ -51,3 +57,5 @@ export const core = new Core();
 export const bundleManager = core.bundleManager;
 
 export const updateManager = core.updateManager;
+
+export const addressableAssetManager = core.addressableAssetManager;
