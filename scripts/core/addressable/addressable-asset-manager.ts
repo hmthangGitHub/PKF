@@ -1,14 +1,18 @@
+import { BundleManager } from './../asset/bundle-manager';
 import { Module } from '../module/module';
+import type { IAssetLocation } from './asset-location';
 import { LocationIndicator } from './asset-location';
 import { AddressableAssetGroup } from './addressable-group';
-import { bundleManager } from '../core';
+
 import { AssetTypeMapper } from './asset-type-mapper';
+import { ModuleManager } from '../core-index';
 
 export class AddressableAssetManager extends Module {
     static moduleName = 'AddressableAssetManager';
 
     private _addressableGroups = new Map<string, AddressableAssetGroup>();
     private _assets = new Map<string, cc.Asset>();
+    private _bundleManager = ModuleManager.instance.get(BundleManager);
 
     registerfromJosn(json: any) {
         Object.entries(json.groups).forEach(([key, value]) => {
@@ -51,11 +55,9 @@ export class AddressableAssetManager extends Module {
                 return;
             }
 
-            bundleManager
+            this._bundleManager
                 .loadAsset<T>(group.bundle, location.path, AssetTypeMapper.toCCType(location.type))
                 .then((asset: T) => {
-                    cc.log(asset);
-
                     this._assets.set(key, asset);
                     resolve(asset);
                 })
@@ -65,7 +67,28 @@ export class AddressableAssetManager extends Module {
         });
     }
 
+    async loadAssetByLocation<T extends cc.Asset>(
+        bundleOrName: cc.AssetManager.Bundle | string,
+        group: string,
+        location: IAssetLocation
+    ): Promise<T> {
+        const asset = await this._bundleManager.loadAsset<T>(
+            bundleOrName,
+            location.path,
+            AssetTypeMapper.toCCType(location.type)
+        );
+
+        const key = `${group}.${location.name}`;
+        this._assets.set(key, asset);
+
+        return asset;
+    }
+
     getAsset<T extends cc.Asset>(key: string): T | undefined {
         return this._assets.get(key) as T;
+    }
+
+    getAddressableAssetGroup(group: string): AddressableAssetGroup | undefined {
+        return this._addressableGroups.get(group);
     }
 }

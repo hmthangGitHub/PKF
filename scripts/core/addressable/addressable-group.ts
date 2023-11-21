@@ -7,6 +7,9 @@ export class AddressableAssetGroup {
     }
 
     private _assetLocations = new Map<string, IAssetLocation>();
+    get assetLocations() {
+        return this._assetLocations;
+    }
 
     getAssetLocation(name: string): IAssetLocation | undefined {
         return this._assetLocations.get(name);
