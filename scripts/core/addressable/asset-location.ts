@@ -12,16 +12,30 @@ export class LocationIndicator {
     assetName: string = '';
     groupName: string = '';
 
-    constructor(key: string) {
-        this.key = key;
-
-        // split group and asset name
-        const index = key.indexOf('.');
+    // split key to group and asset name
+    parseKey(): void {
+        const index = this.key.indexOf('.');
         if (index >= 0) {
-            this.groupName = key.substring(0, index);
-            this.assetName = key.substring(index + 1);
+            this.groupName = this.key.substring(0, index);
+            this.assetName = this.key.substring(index + 1);
         } else {
-            this.assetName = key;
+            this.assetName = this.key;
         }
+    }
+
+    static fromKey(key: string): LocationIndicator {
+        const indicator = new LocationIndicator();
+        indicator.key = key;
+        indicator.parseKey();
+        return indicator;
+    }
+
+    static fromGroupAndName(group: string, name): LocationIndicator {
+        const key = `${group}.${name}`;
+        const indicator = new LocationIndicator();
+        indicator.key = key;
+        indicator.groupName = group;
+        indicator.assetName = name;
+        return indicator;
     }
 }

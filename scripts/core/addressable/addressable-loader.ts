@@ -52,7 +52,7 @@ export class AddressalbeAssetLoader {
             throw new Error('Cannot add task in a runnig AddressalbeAssetLoader');
         }
 
-        const indicator = new LocationIndicator(key);
+        const indicator = LocationIndicator.fromKey(key);
         if (indicator.groupName.length === 0) {
             cc.warn('Invalid key format. Please use "Group.AssetName" as a key.');
             return;

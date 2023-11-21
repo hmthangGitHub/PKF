@@ -37,7 +37,7 @@ export class AddressableAssetManager extends Module {
                 return;
             }
 
-            const indicator = new LocationIndicator(key);
+            const indicator = LocationIndicator.fromKey(key);
             if (indicator.groupName.length === 0) {
                 reject(new Error('Invalid key format. Please use "Group.AssetName" as a key.'));
                 return;
@@ -55,15 +55,21 @@ export class AddressableAssetManager extends Module {
                 return;
             }
 
-            this._bundleManager
-                .loadAsset<T>(group.bundle, location.path, AssetTypeMapper.toCCType(location.type))
-                .then((asset: T) => {
-                    this._assets.set(key, asset);
-                    resolve(asset);
-                })
-                .catch((err) => {
-                    reject(err);
-                });
+            const asset = this._assets.get(key) as T;
+            if (asset) {
+                // asset already loaded, return directly
+                resolve(asset);
+            } else {
+                this._bundleManager
+                    .loadAsset<T>(group.bundle, location.path, AssetTypeMapper.toCCType(location.type))
+                    .then((asset: T) => {
+                        this._assets.set(key, asset);
+                        resolve(asset);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    });
+            }
         });
     }
 
@@ -72,14 +78,20 @@ export class AddressableAssetManager extends Module {
         group: string,
         location: IAssetLocation
     ): Promise<T> {
-        const asset = await this._bundleManager.loadAsset<T>(
+        const indicator = LocationIndicator.fromGroupAndName(group, location.name);
+        let asset = this._assets.get(indicator.key) as T;
+        if (asset) {
+            // asset already loaded, return directly
+            return asset;
+        }
+
+        asset = await this._bundleManager.loadAsset<T>(
             bundleOrName,
             location.path,
             AssetTypeMapper.toCCType(location.type)
         );
 
-        const key = `${group}.${location.name}`;
-        this._assets.set(key, asset);
+        this._assets.set(indicator.key, asset);
 
         return asset;
     }
