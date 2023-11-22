@@ -1,11 +1,9 @@
 import { BundleManager } from './../asset/bundle-manager';
-import { Module } from '../module/module';
 import type { IAssetLocation } from './asset-location';
 import { LocationIndicator } from './asset-location';
 import { AddressableAssetGroup } from './addressable-group';
-
 import { AssetTypeMapper } from './asset-type-mapper';
-import { ModuleManager } from '../core-index';
+import { ModuleManager, Module } from '../module/module-index';
 
 export class AddressableAssetManager extends Module {
     static moduleName = 'AddressableAssetManager';
