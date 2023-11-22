@@ -11,7 +11,6 @@ export class AddressableAssetManager extends Module {
     static moduleName = 'AddressableAssetManager';
 
     private _addressableGroups = new Map<string, AddressableAssetGroup>();
-    private _assets = new Map<string, cc.Asset>();
     private _bundleManager = ModuleManager.instance.get(BundleManager);
 
     registerfromJosn(json: any) {
@@ -55,21 +54,14 @@ export class AddressableAssetManager extends Module {
                 return;
             }
 
-            const asset = this._assets.get(key) as T;
-            if (asset) {
-                // asset already loaded, return directly
-                resolve(asset);
-            } else {
-                this._bundleManager
-                    .loadAsset<T>(group.bundle, location.path, AssetTypeMapper.toCCType(location.type))
-                    .then((asset: T) => {
-                        this._assets.set(key, asset);
-                        resolve(asset);
-                    })
-                    .catch((err) => {
-                        reject(err);
-                    });
-            }
+            this._bundleManager
+                .loadAsset<T>(group.bundle, location.path, AssetTypeMapper.toCCType(location.type))
+                .then((asset: T) => {
+                    resolve(asset);
+                })
+                .catch((err) => {
+                    reject(err);
+                });
         });
     }
 
@@ -78,26 +70,29 @@ export class AddressableAssetManager extends Module {
         group: string,
         location: IAssetLocation
     ): Promise<T> {
-        const indicator = LocationIndicator.fromGroupAndName(group, location.name);
-        let asset = this._assets.get(indicator.key) as T;
-        if (asset) {
-            // asset already loaded, return directly
-            return asset;
-        }
-
-        asset = await this._bundleManager.loadAsset<T>(
+        const asset = await this._bundleManager.loadAsset<T>(
             bundleOrName,
             location.path,
             AssetTypeMapper.toCCType(location.type)
         );
 
-        this._assets.set(indicator.key, asset);
-
         return asset;
     }
 
     getAsset<T extends cc.Asset>(key: string): T | undefined {
-        return this._assets.get(key) as T;
+        const indicator = LocationIndicator.fromKey(key);
+
+        const group = this._addressableGroups.get(indicator.groupName);
+        if (!group) {
+            return undefined;
+        }
+
+        const location = group.getAssetLocation(indicator.assetName);
+        if (!location) {
+            return undefined;
+        }
+
+        return this._bundleManager.getAsset(group.bundle, location.path, AssetTypeMapper.toCCType(location.type)) as T;
     }
 
     getAddressableAssetGroup(group: string): AddressableAssetGroup | undefined {

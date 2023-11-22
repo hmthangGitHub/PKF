@@ -113,4 +113,17 @@ export class BundleManager extends Module {
     getBundle(bundleOrName: cc.AssetManager.Bundle | string): Nullable<cc.AssetManager.Bundle> {
         return bundleOrName instanceof cc.AssetManager.Bundle ? bundleOrName : cc.assetManager.getBundle(bundleOrName);
     }
+
+    getAsset<T extends cc.Asset = cc.Asset>(
+        bundleOrName: cc.AssetManager.Bundle | string,
+        path: string,
+        type?: typeof cc.Asset
+    ): T | undefined {
+        const bundle = this.getBundle(bundleOrName);
+        if (!bundle) {
+            return undefined;
+        }
+
+        return bundle.get<T>(path, type) as T;
+    }
 }
