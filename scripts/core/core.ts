@@ -3,6 +3,7 @@ import { BundleManager, UpdateManager } from './asset/asset-index';
 import { AddressableAssetManager } from './addressable/addressable-index';
 import type { IModule, ModuleClass } from './module/module';
 import { ModuleManager } from './module/module-manager';
+import { AudioManager } from './audio/audio-manager';
 
 class Core {
     private _isInit = false;
@@ -11,6 +12,7 @@ class Core {
         this.registerModule(BundleManager);
         this.registerModule(UpdateManager);
         this.registerModule(AddressableAssetManager);
+        this.registerModule(AudioManager);
 
         this.init();
     }
@@ -25,6 +27,10 @@ class Core {
 
     get addressableAssetManager(): AddressableAssetManager {
         return ModuleManager.instance.get(AddressableAssetManager);
+    }
+
+    get audioManager(): AudioManager {
+        return ModuleManager.instance.get(AudioManager);
     }
 
     registerModule<T extends IModule>(moduleClass: ModuleClass<T>): void {
@@ -59,3 +65,5 @@ export const bundleManager = core.bundleManager;
 export const updateManager = core.updateManager;
 
 export const addressableAssetManager = core.addressableAssetManager;
+
+export const audioManager = core.audioManager;
