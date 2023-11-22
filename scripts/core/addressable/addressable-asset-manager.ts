@@ -103,4 +103,32 @@ export class AddressableAssetManager extends Module {
     getAddressableAssetGroup(group: string): AddressableAssetGroup | undefined {
         return this._addressableGroups.get(group);
     }
+
+    releaseAsset(key: string) {
+        const indicator = LocationIndicator.fromKey(key);
+
+        const group = this._addressableGroups.get(indicator.groupName);
+        if (!group) {
+            return;
+        }
+
+        const location = group.getAssetLocation(indicator.assetName);
+        if (!location) {
+            return;
+        }
+
+        this._bundleManager.releaseAsset(group.bundle, location.path, AssetTypeMapper.toCCType(location.type));
+    }
+
+    releaseGroupAssets(groupName: string) {
+        const group = this._addressableGroups.get(groupName);
+        if (!group) {
+            return;
+        }
+
+        const bundle = this._bundleManager.getBundle(group.bundle);
+        group.assetLocations.forEach((location) => {
+            bundle.release(location.path, AssetTypeMapper.toCCType(location.type));
+        });
+    }
 }

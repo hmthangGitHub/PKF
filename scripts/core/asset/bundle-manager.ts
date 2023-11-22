@@ -59,7 +59,7 @@ export class BundleManager extends Module {
     loadAsset<T extends cc.Asset>(
         bundleOrName: cc.AssetManager.Bundle | string,
         path: string,
-        type: typeof cc.Asset
+        type: typeof cc.Asset = cc.Asset
     ): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             let bundle = this.getBundle(bundleOrName);
@@ -103,6 +103,11 @@ export class BundleManager extends Module {
         type: typeof cc.Asset = cc.Asset
     ): Promise<T[]> {
         return this.loadDir(bundleOrName, '/', type);
+    }
+
+    releaseAsset(bundleOrName: cc.AssetManager.Bundle | string, path: string, type?: typeof cc.Asset) {
+        const bundle = this.getBundle(bundleOrName);
+        bundle?.release(path, type);
     }
 
     releaseAll(bundleOrName: cc.AssetManager.Bundle | string) {
