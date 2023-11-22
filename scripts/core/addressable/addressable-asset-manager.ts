@@ -15,18 +15,23 @@ export class AddressableAssetManager extends Module {
 
     registerfromJosn(json: any) {
         Object.entries(json.groups).forEach(([key, value]) => {
-            const group = AddressableAssetGroup.createFromJson(value);
+            const newGroup = AddressableAssetGroup.createFromJson(value);
 
-            this.register(group);
+            const group = this._addressableGroups.get(key);
+            if (group) {
+                group.merge(newGroup);
+            } else {
+                this.register(key, newGroup);
+            }
         });
     }
 
-    register(group: AddressableAssetGroup) {
-        this._addressableGroups.set(group.bundle, group);
+    register(groupName: string, group: AddressableAssetGroup) {
+        this._addressableGroups.set(groupName, group);
     }
 
-    upregister(group: string) {
-        this._addressableGroups.delete(group);
+    upregister(groupName: string) {
+        this._addressableGroups.delete(groupName);
     }
 
     loadAsset<T extends cc.Asset>(key: string): Promise<T> {

@@ -15,6 +15,12 @@ export class AddressableAssetGroup {
         return this._assetLocations.get(name);
     }
 
+    merge(other: AddressableAssetGroup): void {
+        other._assetLocations.forEach((value, key) => {
+            this._assetLocations.set(key, value);
+        });
+    }
+
     static createFromJson(json: any): AddressableAssetGroup {
         const group = new AddressableAssetGroup();
 
