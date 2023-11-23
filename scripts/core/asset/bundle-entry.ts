@@ -6,6 +6,14 @@ export interface EntryClass<T> {
     bundleName: string;
 }
 
+export interface IBundleOptions {
+    /// bundle version
+    version?: string;
+    language?: string;
+    /// scene load this bundle
+    sceneFrom?: string;
+}
+
 export class BundleEntry {
     private _bundle: cc.AssetManager.Bundle = null;
 
@@ -24,7 +32,7 @@ export class BundleEntry {
     }
 
     /** @description Called when bundle is loaded */
-    onLoad(): Promise<void> {
+    onLoad(options?: IBundleOptions): Promise<void> {
         this._isRunning = true;
         return new Promise((resolve) => {
             resolve();
@@ -34,7 +42,7 @@ export class BundleEntry {
     /** @description
      * Called when enter this bundle. Load resources of this bundle this function.
      */
-    onEnter(): Promise<void> {
+    onEnter(options?: IBundleOptions): Promise<void> {
         return new Promise((resolve) => {
             resolve();
         });

@@ -1,6 +1,7 @@
 import { Module } from '../module/module';
 import { bundleEntryManager } from './bundle-entry-manager';
 import type { Nullable } from '../defines/defines-index';
+import type { IBundleOptions } from './bundle-entry';
 import { BundleEntry } from './bundle-entry';
 
 export class BundleManager extends Module {
@@ -10,9 +11,9 @@ export class BundleManager extends Module {
   		load bundle
 		
 		@param nameOrUrl The name or root path of bundle
-		@param options Some optional paramter, same like downloader.downloadFile
+		@param options Some optional paramters
      */
-    loadBundle(nameOrUrl: string, options: Record<string, any> = undefined): Promise<BundleEntry> {
+    loadBundle(nameOrUrl: string, options?: IBundleOptions): Promise<BundleEntry> {
         return new Promise<BundleEntry>((resolve, reject) => {
             const name = cc.path.basename(nameOrUrl);
             const bundle = cc.assetManager.getBundle(name);
@@ -35,7 +36,7 @@ export class BundleManager extends Module {
 
                         entry.bundle = bundle;
                         entry
-                            .onLoad()
+                            .onLoad(options)
                             .then(() => {
                                 resolve(entry);
                             })
@@ -48,7 +49,7 @@ export class BundleManager extends Module {
         });
     }
 
-    enterBundle(name: string): void {
+    enterBundle(name: string, options?: IBundleOptions): void {
         bundleEntryManager.enterBundle(name);
     }
 

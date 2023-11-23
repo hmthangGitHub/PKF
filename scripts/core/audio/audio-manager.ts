@@ -50,7 +50,7 @@ export class AudioManager extends Module {
             .then((audioClip) => {
                 cc.audioEngine.playMusic(audioClip, loop);
             })
-            .then((err) => {
+            .catch((err) => {
                 cc.warn(`fail to play audio ${key}: ${err}`);
             });
     }

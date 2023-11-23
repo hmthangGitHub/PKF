@@ -1,4 +1,4 @@
-import type { BundleEntry, EntryClass } from './bundle-entry';
+import type { BundleEntry, EntryClass, IBundleOptions } from './bundle-entry';
 
 export class BundleEntryManager {
     moduleName: string;
@@ -32,10 +32,10 @@ export class BundleEntryManager {
         return this._entries;
     }
 
-    enterBundle(bundleName: string): void {
+    enterBundle(bundleName: string, options?: IBundleOptions): void {
         const entry = this.getEntry(bundleName);
         if (entry) {
-            entry.onEnter();
+            entry.onEnter(options);
         }
     }
 
