@@ -7,7 +7,7 @@ export class AudioManager extends Module {
     private _addressableAssetManager = ModuleManager.instance.get(AddressableAssetManager);
 
     // cache state of last played music
-    private _musicClip: cc.AudioClip = null;
+    private _latestMusic = '';
     private _isMusicLoop = true;
 
     private _enableMusic = true;
@@ -18,8 +18,9 @@ export class AudioManager extends Module {
         this._enableMusic = value;
 
         if (this._enableMusic) {
-            if (this._musicClip) {
-                cc.audioEngine.playMusic(this._musicClip, this._isMusicLoop);
+            if (this._latestMusic.length > 0) {
+                /// restore playing music
+                this.playMusic(this._latestMusic, this._isMusicLoop);
             }
         } else {
             if (cc.audioEngine.isMusicPlaying()) {
@@ -36,16 +37,22 @@ export class AudioManager extends Module {
     }
 
     playMusic(key: string, loop = true): void {
+        // cache lastet played music
+        this._latestMusic = key;
+        this._isMusicLoop = loop;
+
         if (!this._enableMusic) {
             return;
         }
 
-        this._addressableAssetManager.loadAsset<cc.AudioClip>(key).then((audioClip) => {
-            cc.audioEngine.playMusic(audioClip, loop);
-
-            this._musicClip = audioClip;
-            this._isMusicLoop = loop;
-        });
+        this._addressableAssetManager
+            .loadAsset<cc.AudioClip>(key)
+            .then((audioClip) => {
+                cc.audioEngine.playMusic(audioClip, loop);
+            })
+            .then((err) => {
+                cc.warn(`fail to play audio ${key}: ${err}`);
+            });
     }
 
     pauseMusic(): void {
@@ -58,7 +65,7 @@ export class AudioManager extends Module {
 
     stopMusic(): void {
         cc.audioEngine.stopMusic();
-        this._musicClip = null;
+        this._latestMusic = '';
     }
 
     getMusicVolume(): number {
@@ -103,5 +110,6 @@ export class AudioManager extends Module {
 
     stopAll(): void {
         cc.audioEngine.stopAll();
+        this._latestMusic = '';
     }
 }
