@@ -1,33 +1,45 @@
-import type { IAssetLocation } from './asset-location';
+import type { IAssetLocator } from './asset-locator';
 
 export class AddressableAssetGroup {
+    private _name;
     private _bundle: string;
     get bundle(): string {
         return this._bundle;
     }
 
-    private _assetLocations = new Map<string, IAssetLocation>();
-    get assetLocations() {
-        return this._assetLocations;
+    constructor(name: string) {
+        this._name = name;
     }
 
-    getAssetLocation(name: string): IAssetLocation | undefined {
-        return this._assetLocations.get(name);
+    private _assetLocators = new Map<string, IAssetLocator>();
+    get assetLocators() {
+        return this._assetLocators;
+    }
+
+    getAssetLocator(name: string): IAssetLocator | undefined {
+        return this._assetLocators.get(name);
+    }
+
+    addAssetLocator(locator: IAssetLocator): void {
+        if (this._assetLocators.has(locator.name)) {
+            cc.warn(`locator '${locator.name}' already exists in group ${this._name} . It will be overwrited.`);
+        }
+        this._assetLocators.set(locator.name, locator);
     }
 
     merge(other: AddressableAssetGroup): void {
-        other._assetLocations.forEach((value, key) => {
-            this._assetLocations.set(key, value);
+        other._assetLocators.forEach((value, key) => {
+            this.addAssetLocator(value);
         });
     }
 
-    static createFromJson(json: any): AddressableAssetGroup {
-        const group = new AddressableAssetGroup();
+    static createFromJson(name: string, json: any): AddressableAssetGroup {
+        const group = new AddressableAssetGroup(name);
 
         group._bundle = json.bundle ?? '';
 
-        json.assets.forEach((element: IAssetLocation) => {
-            group._assetLocations.set(element.name, element);
+        json.assets.forEach((locator: IAssetLocator) => {
+            group.addAssetLocator(locator);
         });
 
         return group;

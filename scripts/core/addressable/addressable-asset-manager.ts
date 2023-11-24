@@ -1,6 +1,6 @@
 import { BundleManager } from './../asset/bundle-manager';
-import type { IAssetLocation } from './asset-location';
-import { LocationIndicator } from './asset-location';
+import type { IAssetLocator } from './asset-locator';
+import { LocationIndicator } from './asset-locator';
 import { AddressableAssetGroup } from './addressable-group';
 import { AssetTypeMapper } from './asset-type-mapper';
 import { ModuleManager, Module } from '../module/module-index';
@@ -13,7 +13,9 @@ export class AddressableAssetManager extends Module {
 
     registerfromJosn(json: any) {
         Object.entries(json.groups).forEach(([key, value]) => {
-            const newGroup = AddressableAssetGroup.createFromJson(value);
+            cc.log(`register addressable asset group ${key}`);
+
+            const newGroup = AddressableAssetGroup.createFromJson(key, value);
 
             const group = this._addressableGroups.get(key);
             if (group) {
@@ -51,7 +53,7 @@ export class AddressableAssetManager extends Module {
                 return;
             }
 
-            const location = group.getAssetLocation(indicator.assetName);
+            const location = group.getAssetLocator(indicator.assetName);
             if (!location) {
                 reject(new Error(`Asset ${indicator.assetName} does not exist!`));
                 return;
@@ -71,7 +73,7 @@ export class AddressableAssetManager extends Module {
     async loadAssetByLocation<T extends cc.Asset>(
         bundleOrName: cc.AssetManager.Bundle | string,
         group: string,
-        location: IAssetLocation
+        location: IAssetLocator
     ): Promise<T> {
         const asset = await this._bundleManager.loadAsset<T>(
             bundleOrName,
@@ -90,7 +92,7 @@ export class AddressableAssetManager extends Module {
             return undefined;
         }
 
-        const location = group.getAssetLocation(indicator.assetName);
+        const location = group.getAssetLocator(indicator.assetName);
         if (!location) {
             return undefined;
         }
@@ -110,7 +112,7 @@ export class AddressableAssetManager extends Module {
             return;
         }
 
-        const location = group.getAssetLocation(indicator.assetName);
+        const location = group.getAssetLocator(indicator.assetName);
         if (!location) {
             return;
         }
@@ -125,7 +127,7 @@ export class AddressableAssetManager extends Module {
         }
 
         const bundle = this._bundleManager.getBundle(group.bundle);
-        group.assetLocations.forEach((location) => {
+        group.assetLocators.forEach((location) => {
             bundle.release(location.path, AssetTypeMapper.toCCType(location.type));
         });
     }

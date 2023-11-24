@@ -1,6 +1,9 @@
 import { Module, ModuleManager } from '../module/module-index';
 import { AddressableAssetManager } from '../addressable/addressable-index';
 
+const DEFAULT_MUSIC_VOLUME = 0.5;
+const DEFAULT_SOUND_EFFECT_VOLUME = 0.5;
+
 export class AudioManager extends Module {
     static moduleName = 'AudioManager';
 
@@ -34,6 +37,12 @@ export class AudioManager extends Module {
     }
     set enalbeSoundEffect(value) {
         this._enalbeSoundEffect = value;
+    }
+
+    constructor() {
+        super();
+        this.setMusicVolume(DEFAULT_MUSIC_VOLUME);
+        this.setSoundEffectVolume(DEFAULT_SOUND_EFFECT_VOLUME);
     }
 
     playMusic(key: string, loop = true): void {

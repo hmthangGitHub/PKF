@@ -1,4 +1,4 @@
-export interface IAssetLocation {
+export interface IAssetLocator {
     // name of this location
     name: string;
     // asset type

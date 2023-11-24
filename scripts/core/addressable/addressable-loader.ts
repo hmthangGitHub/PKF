@@ -1,6 +1,6 @@
 import { AddressableAssetManager } from './addressable-asset-manager';
-import { LocationIndicator } from './asset-location';
-import type { IAssetLocation } from './asset-location';
+import { LocationIndicator } from './asset-locator';
+import type { IAssetLocator } from './asset-locator';
 import { ModuleManager } from '../module/module-manager';
 import { BundleManager } from '../asset/bundle-manager';
 
@@ -13,9 +13,9 @@ enum LoadState {
 
 class AddressalbeAssetLoadTask {
     state = LoadState.None;
-    assetLocation: IAssetLocation = null;
+    assetLocation: IAssetLocator = null;
 
-    constructor(location: IAssetLocation) {
+    constructor(location: IAssetLocator) {
         this.assetLocation = location;
     }
 }
@@ -64,7 +64,7 @@ export class AddressalbeAssetLoader {
             return;
         }
 
-        const location = group.getAssetLocation(indicator.assetName);
+        const location = group.getAssetLocator(indicator.assetName);
         if (!location) {
             cc.warn(`Asset ${indicator.assetName} does not exist!`);
             return;
@@ -92,7 +92,7 @@ export class AddressalbeAssetLoader {
             this._loadTaskGroups.set(addressableGroup.bundle, taskGroup);
         }
 
-        addressableGroup.assetLocations.forEach((location) => {
+        addressableGroup.assetLocators.forEach((location) => {
             taskGroup.tasks.push(new AddressalbeAssetLoadTask(location));
         });
     }
