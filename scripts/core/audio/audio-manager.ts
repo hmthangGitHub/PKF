@@ -18,6 +18,8 @@ export class AudioManager extends Module {
         return this._enableMusic;
     }
     set enableMusic(value) {
+        if (this._enableMusic === value) return;
+
         this._enableMusic = value;
 
         if (this._enableMusic) {
