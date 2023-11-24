@@ -1,15 +1,23 @@
+import type { Nullable } from './../defines/types';
 import { BundleManifest } from './bundle-manifest';
 import { Module, ModuleManager } from '../module/module-index';
 import { BundleManager } from './bundle-manager';
+import { LocalStorage } from '../storage/localStorage';
 
 export class UpdateManager extends Module {
     static moduleName = 'UpdateManager';
 
-    private _localStoragePath = 'BundleManifest';
+    private _localStorageKey = 'BundleManifest';
 
     private _bundleManifest: BundleManifest = new BundleManifest();
 
+    private _localStorage: Nullable<LocalStorage> = null;
+
     private _isUpdating = false;
+
+    init(): void {
+        this._localStorage = ModuleManager.instance.get(LocalStorage);
+    }
 
     get bundleManifest(): BundleManifest {
         return this._bundleManifest;
@@ -20,7 +28,7 @@ export class UpdateManager extends Module {
     }
 
     loadLocalManifest(): boolean {
-        const data = cc.sys.localStorage.getItem(this._localStoragePath);
+        const data = this._localStorage.getItem(this._localStorageKey);
         if (data) {
             const jsonObj = JSON.parse(data);
 
@@ -33,7 +41,7 @@ export class UpdateManager extends Module {
     }
 
     saveLocalManifest(): void {
-        cc.sys.localStorage.setItem(this._localStoragePath, JSON.stringify(this._bundleManifest.toJson()));
+        this._localStorage.setItem(this._localStorageKey, this._bundleManifest.toJson());
     }
 
     loadRemoteManifest(): Promise<BundleManifest> {

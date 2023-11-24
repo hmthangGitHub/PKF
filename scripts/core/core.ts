@@ -4,6 +4,7 @@ import { AddressableAssetManager } from './addressable/addressable-index';
 import type { IModule, ModuleClass } from './module/module';
 import { ModuleManager } from './module/module-manager';
 import { AudioManager } from './audio/audio-manager';
+import { LocalStorage } from './storage/localStorage';
 
 class Core {
     private _isInit = false;
@@ -13,6 +14,7 @@ class Core {
         this.registerModule(UpdateManager);
         this.registerModule(AddressableAssetManager);
         this.registerModule(AudioManager);
+        this.registerModule(LocalStorage);
 
         this.init();
     }
@@ -31,6 +33,10 @@ class Core {
 
     get audioManager(): AudioManager {
         return ModuleManager.instance.get(AudioManager);
+    }
+
+    get localStorage(): LocalStorage {
+        return ModuleManager.instance.get(LocalStorage);
     }
 
     registerModule<T extends IModule>(moduleClass: ModuleClass<T>): void {
@@ -67,3 +73,5 @@ export const updateManager = core.updateManager;
 export const addressableAssetManager = core.addressableAssetManager;
 
 export const audioManager = core.audioManager;
+
+export const localStorage = core.localStorage;
