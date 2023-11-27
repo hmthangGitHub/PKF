@@ -1,6 +1,6 @@
 import { FRAMEWORK_VERSION } from './defines/consts';
 import { BundleManager, UpdateManager } from './asset/asset-index';
-import { AddressableAssetManager } from './addressable/addressable-index';
+import { AddressableAssetManager } from './addressable/addressable-asset-manager';
 import type { IModule, ModuleClass } from './module/module';
 import { ModuleManager } from './module/module-manager';
 import { AudioManager } from './audio/audio-manager';

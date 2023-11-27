@@ -4,12 +4,17 @@ import { LocationIndicator } from './asset-locator';
 import { AddressableAssetGroup } from './addressable-group';
 import { AssetTypeMapper } from './asset-type-mapper';
 import { ModuleManager, Module } from '../module/module-index';
+import type { Nullable } from '../defines/types';
 
 export class AddressableAssetManager extends Module {
     static moduleName = 'AddressableAssetManager';
 
     private _addressableGroups = new Map<string, AddressableAssetGroup>();
-    private _bundleManager = ModuleManager.instance.get(BundleManager);
+    private _bundleManager: Nullable<BundleManager>;
+
+    init(): void {
+        this._bundleManager = ModuleManager.instance.get(BundleManager);
+    }
 
     registerfromJosn(json: any) {
         Object.entries(json.groups).forEach(([key, value]) => {

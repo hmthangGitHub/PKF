@@ -1,6 +1,6 @@
 import type { Nullable } from './../defines/types';
 import { Module } from '../module/module-index';
-import { Util } from '../core-index';
+import { Util } from '../utils/util';
 
 const DEFAULT_MUSIC_VOLUME = 0.5;
 const DEFAULT_SOUND_EFFECT_VOLUME = 0.5;
