@@ -31,4 +31,35 @@ export class UIUtil {
         }
         return size;
     }
+
+    /**
+     * 适配 widget(当前帧立即生效)
+     * @param node          要适配的节点
+     * @param bTransChild   是否遍历适配子节点(默认 false)
+     * @param isKeepEnable  是否保持widget的enable状态，默认不保持
+     */
+    static adaptWidget(node: cc.Node, bTransChild?: boolean, isKeepEnable = false): void {
+        if (!node) return;
+
+        if (!(node instanceof cc.Scene)) {
+            // 加个过滤，Scene调用getComponent有警告
+            let widget: cc.Widget = node.getComponent(cc.Widget);
+            if (widget && cc.isValid(widget, true)) {
+                if (isKeepEnable) {
+                    if (widget.enabled) widget.updateAlignment();
+                } else {
+                    widget.enabled = true;
+                    widget.updateAlignment();
+                    widget.enabled = false;
+                }
+            }
+        }
+
+        if (bTransChild) {
+            // eslint-disable-next-line @typescript-eslint/prefer-for-of
+            for (let i = 0; i < node.children.length; ++i) {
+                this.adaptWidget(node.children[i], bTransChild, isKeepEnable);
+            }
+        }
+    }
 }
