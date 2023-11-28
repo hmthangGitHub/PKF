@@ -1,3 +1,4 @@
+import type { Nullable } from './../defines/types';
 import { Module, ModuleManager } from '../module/module-index';
 import { AddressableAssetManager } from '../addressable/addressable-index';
 
@@ -7,7 +8,7 @@ const DEFAULT_SOUND_EFFECT_VOLUME = 0.5;
 export class AudioManager extends Module {
     static moduleName = 'AudioManager';
 
-    private _addressableAssetManager = ModuleManager.instance.get(AddressableAssetManager);
+    private _addressableAssetManager: Nullable<AddressableAssetManager> = null;
 
     // cache state of last played music
     private _latestMusic = '';
@@ -45,6 +46,10 @@ export class AudioManager extends Module {
         super();
         this.setMusicVolume(DEFAULT_MUSIC_VOLUME);
         this.setSoundEffectVolume(DEFAULT_SOUND_EFFECT_VOLUME);
+    }
+
+    init(): void {
+        this._addressableAssetManager = ModuleManager.instance.get(AddressableAssetManager);
     }
 
     playMusic(key: string, loop = true): void {
