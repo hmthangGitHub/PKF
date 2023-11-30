@@ -1,1 +1,1 @@
-export * from './http/http-index';
+export * as http from './http/http-index';

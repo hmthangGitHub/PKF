@@ -1,4 +1,5 @@
-import type { Input, Options, HttpResponse } from './http-types';
+import { type Input, type Options, type Response, defaultOptions } from './http-types';
+import { ContentType } from './http-constants';
 
 export class Http {
     protected _request: Request;
@@ -11,21 +12,37 @@ export class Http {
             throw new TypeError('`input` must be a string, URL, or Request');
         }
         this._input = input;
-        this._options = options;
+
+        // copy defulat options
+        this._options = { ...defaultOptions };
+        if (options) {
+            // overwirte otions
+            Object.assign(this._options, options);
+        }
+
         this._retryCount = 0;
 
         this._request = new Request(this._input, this._options);
     }
 
-    async request(): Promise<HttpResponse> {
+    async request(): Promise<Response> {
         const fetchResponse = await fetch(this._input, this._options);
         if (!fetchResponse.ok) {
             throw new Error(`HTTP error! Status: ${fetchResponse.status}`);
         }
 
-        const obj = await fetchResponse.json();
+        let obj = null;
+        if (fetchResponse.headers.get('Content-Type').includes(ContentType.json)) {
+            obj = await fetchResponse.json();
+        } else {
+            console.warn('upimplement content type');
+        }
 
-        const response: HttpResponse = { data: obj, status: fetchResponse.status, url: fetchResponse.url };
+        const response: Response = {
+            data: obj,
+            status: fetchResponse.status,
+            url: fetchResponse.url
+        };
         return response;
     }
 
