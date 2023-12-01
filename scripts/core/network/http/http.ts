@@ -1,5 +1,6 @@
 import type { Options, ResponsePromise } from './http-types';
 import { Http } from './http-implement';
+import { HttpMethod } from './http-constants';
 
 export function request(url: string, options?: Options): ResponsePromise {
     const impl = Http.create(url, options);
@@ -7,13 +8,14 @@ export function request(url: string, options?: Options): ResponsePromise {
 }
 
 export function get(url: string, options?: Options): ResponsePromise {
-    if (options) {
-        options.method = 'GET';
-    }
-    return request(url, options);
+    const opts: Options = { ...options, method: HttpMethod.Get };
+
+    return request(url, opts);
 }
 
-export function post(url: string, data: any, options?: Options): ResponsePromise {
-    const impl = Http.create(url, options);
+export function post(url: string, options?: Options): ResponsePromise {
+    const opts = { ...options, method: HttpMethod.Post };
+
+    const impl = Http.create(url, opts);
     return impl.request();
 }

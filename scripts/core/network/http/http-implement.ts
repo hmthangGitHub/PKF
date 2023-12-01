@@ -1,5 +1,5 @@
 import { type Input, type Options, type Response, defaultOptions } from './http-types';
-import { ContentType } from './http-constants';
+import { ContentType, MaxTimeout } from './http-constants';
 
 export class Http {
     protected _request: Request;
@@ -22,7 +22,10 @@ export class Http {
             Object.assign(this._options, options);
         }
 
-        if (this._options.timeout) {
+        if (this._options.timeout && this._options.timeout > 0) {
+            if (this._options.timeout > MaxTimeout) {
+                throw new RangeError(`The \`timeout\` option cannot be greater than ${MaxTimeout}`);
+            }
             this._abortController = new globalThis.AbortController();
             this._options.signal = this._abortController.signal;
         }
@@ -57,7 +60,7 @@ export class Http {
         return new Promise<globalThis.Response>((resolve, reject) => {
             // set up timeout abort controller
             if (this._abortController) {
-                this._timeoutID = setTimeout(() => {
+                this._timeoutID = window.setTimeout(() => {
                     this._abortController.abort();
                     reject(new Error(`timeout of request ${this._request.url}`));
                 }, this._options.timeout as number);
