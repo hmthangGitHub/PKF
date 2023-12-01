@@ -7,6 +7,9 @@ export function request(url: string, options?: Options): ResponsePromise {
 }
 
 export function get(url: string, options?: Options): ResponsePromise {
+    if (options) {
+        options.method = 'GET';
+    }
     return request(url, options);
 }
 
