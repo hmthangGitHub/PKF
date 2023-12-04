@@ -40,19 +40,21 @@ export class Http {
         if (!fetchResponse.ok) {
             throw new Error(`HTTP error! Status: ${fetchResponse.status}`);
         }
-
         let obj = null;
-        if (fetchResponse.headers.get('Content-Type').includes(ContentType.json)) {
-            obj = await fetchResponse.json();
-        } else {
-            console.warn('upimplement content type');
+        if (fetchResponse.status !== 204) {
+            // response has content, decode content
+            if (fetchResponse.headers.get('Content-Type').includes(ContentType.json)) {
+                obj = await fetchResponse.json();
+            } else {
+                console.warn('upimplement content type');
+            }
         }
-
         const response: Response = {
             data: obj,
             status: fetchResponse.status,
             url: fetchResponse.url
         };
+
         return response;
     }
 

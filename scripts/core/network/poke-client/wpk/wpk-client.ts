@@ -1,8 +1,11 @@
 import 'url-search-params-polyfill';
 import type { PokeClient } from '../poke-client';
 import type { ClientOptions } from '../poke-client-types';
+import type { LoginData } from './wpk-api';
+import type { ISession } from '../session';
 import * as http from '../../http/http-index';
 import * as md5 from 'md5';
+import { WPKSession } from './wpk-session';
 
 export class WPKClient implements PokeClient {
     _appVersion = '';
@@ -30,7 +33,7 @@ export class WPKClient implements PokeClient {
         }
     }
 
-    async login(username: string, password: string): Promise<void> {
+    async login(username: string, password: string): Promise<ISession> {
         const url = this._baseUrl + '/user/phone_login';
 
         const data = {
@@ -41,14 +44,21 @@ export class WPKClient implements PokeClient {
             deviceType: this._deviceType
         };
 
-        await this.request(url, data);
+        const response = await this.request(url, data);
+        const loginData = response.data as LoginData;
+
+        const session = new WPKSession(loginData.sessionToken, loginData.user.userId.toString());
+        session.userInfo = { ...loginData.user };
+        session.userSecurityInfo = { ...loginData.userSecurityInfo };
+        session.pkwAuthData = { ...loginData.pkwAuthData };
+        return session;
     }
 
-    async request(url: string, data: any): Promise<void> {
+    async request(url: string, data: any): Promise<http.Response> {
         data['sign'] = this.getSign(data);
         const searchParams = new URLSearchParams(data);
 
-        http.post(url, {
+        return await http.post(url, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
             },
