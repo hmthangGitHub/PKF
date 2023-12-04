@@ -6,6 +6,7 @@ import { ModuleManager } from './module/module-manager';
 import { AudioManager } from './audio/audio-manager';
 import { LocalStorage } from './storage/localStorage';
 import { LanguageManager } from './language/language-manager';
+import { ServiceManager } from './service/service-manager';
 
 class Core {
     private _isInit = false;
@@ -17,6 +18,7 @@ class Core {
         this.registerModule(AudioManager);
         this.registerModule(LocalStorage);
         this.registerModule(LanguageManager);
+        this.registerModule(ServiceManager);
 
         this.init();
     }
@@ -43,6 +45,10 @@ class Core {
 
     get languageManager(): LanguageManager {
         return ModuleManager.instance.get(LanguageManager);
+    }
+
+    get serviceManager(): ServiceManager {
+        return ModuleManager.instance.get(ServiceManager);
     }
 
     registerModule<T extends IModule>(moduleClass: ModuleClass<T>): void {
@@ -83,3 +89,5 @@ export const audioManager = core.audioManager;
 export const localStorage = core.localStorage;
 
 export const languageManager = core.languageManager;
+
+export const serviceManager = core.serviceManager;

@@ -68,9 +68,13 @@ export interface PkwAuthData {
     is_in_room: boolean;
 }
 
-export interface LoginData {
+export interface ResposeData {
+    errorCode: number;
     errMsg: string;
     sysTime: number;
+}
+
+export interface LoginData extends ResposeData {
     sessionToken: string;
     timestamp_L: number;
     failureTime_L: number;
