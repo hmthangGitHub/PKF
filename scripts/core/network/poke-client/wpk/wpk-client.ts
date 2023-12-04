@@ -1,47 +1,56 @@
+import type { Nullable } from './../../../defines/types';
 import 'url-search-params-polyfill';
-import type { PokeClient } from '../poke-client';
+import type { IPokeClient } from '../poke-client';
 import type { ClientOptions } from '../poke-client-types';
-import type { LoginData } from './wpk-api';
+import type { LoginData, PostParams, LoginParams } from './wpk-api';
 import type { ISession } from '../session';
 import * as http from '../../http/http-index';
 import * as md5 from 'md5';
 import { WPKSession } from './wpk-session';
 
-export class WPKClient implements PokeClient {
+export class WPKClient implements IPokeClient {
     _appVersion = '';
-    _deviceType = 0;
+    _deviceType: number;
+    _deviceId: string;
     _scheme = 'http://';
     _baseUrl: string;
+    _language: string;
 
-    constructor(host: string, options: ClientOptions) {
-        this._baseUrl = options && options.port ? `${this._scheme}${host}:${options.port}` : `${this._scheme}${host}`;
+    _session: Nullable<WPKSession> = null;
+
+    constructor(host: string, options?: ClientOptions) {
+        const opts: ClientOptions = {
+            langauage: 'zh',
+            basePath: 'wepoker'
+        };
+
+        if (options) {
+            Object.assign(opts, options);
+        }
 
         this._baseUrl = `${this._scheme}${host}`;
+        if (opts.port) {
+            this._baseUrl += `:${opts.port}`;
+        }
+        if (opts.basePath) {
+            this._baseUrl += `/${opts.basePath}`;
+        }
 
-        if (options.appVersion) {
-            this._appVersion = options.appVersion;
-        }
-        if (options.deviceType) {
-            this._deviceType = options.deviceType;
+        if (opts.appVersion) {
+            this._appVersion = opts.appVersion;
         }
 
-        if (options.port) {
-            this._baseUrl += `:${options.port}`;
-        }
-        if (options.basePath) {
-            this._baseUrl += `/${options.basePath}`;
-        }
+        this._deviceType = opts.deviceType ?? 1;
+        this._deviceId = opts.deviceId ?? '';
     }
 
     async login(username: string, password: string): Promise<ISession> {
         const url = this._baseUrl + '/user/phone_login';
 
-        const data = {
-            version: this._appVersion,
+        const data: LoginParams = {
             account: username,
             password: this.encryptPassword(password),
-            time: new Date().getTime(),
-            deviceType: this._deviceType
+            isAutoLogin: true
         };
 
         const response = await this.request(url, data);
@@ -54,9 +63,21 @@ export class WPKClient implements PokeClient {
         return session;
     }
 
-    async request(url: string, data: any): Promise<http.Response> {
+    async request(url: string, data: PostParams): Promise<http.Response> {
+        if (this._session) {
+            data.userId = this._session.userId;
+            data.sessionToken = this._session.token;
+        }
+
+        data.version = this._appVersion;
+        data.deviceType = this._deviceType;
+        // TODO: fill natvie info
+        data.platform = 'unknow';
+        data.idfa = 0;
+        data.time = new Date().getTime();
+        // sign param
         data['sign'] = this.getSign(data);
-        const searchParams = new URLSearchParams(data);
+        const searchParams = new URLSearchParams(data as any);
 
         return await http.post(url, {
             headers: {

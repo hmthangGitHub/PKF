@@ -1,6 +1,34 @@
 /// data struct definition of wpk http api
 // TODO: generate theses definitions by tool like open api
 
+export interface PostParams {
+    userId?: string;
+    sessionToken?: string;
+    version?: string;
+    appVersionCode?: number;
+    platform?: string;
+    lang?: string;
+    deviceId?: string;
+    deviceType?: number;
+    idfa?: number;
+    channel?: number;
+    time?: number;
+    sign?: string;
+}
+
+export interface LoginParams extends PostParams {
+    account: string;
+    password: string;
+    aesKey?: string;
+    deviceVersion?: string;
+    isAutoLogin?: boolean;
+    isSimulator?: boolean;
+    networkOper?: string;
+    packageName?: string;
+    signVersion?: string;
+    phoneModel?: string;
+}
+
 export interface UserInfo {
     userId: number;
     avatar: string;
