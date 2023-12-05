@@ -16,7 +16,7 @@ export class WPKSocket implements ISocket {
             return Promise.resolve();
         }
 
-        const opts = {
+        const opts: SocketOptions = {
             domainIndex: 0
         };
 
@@ -24,11 +24,20 @@ export class WPKSocket implements ISocket {
             Object.assign(opts, options);
         }
 
-        if (this._session.pkwAuthData.gate_addr.length <= opts.domainIndex) {
-            return Promise.reject(new Error(''));
+        let url: string = null;
+        if (opts.url) {
+            url = opts.url;
+        } else {
+            if (this._session.pkwAuthData.gate_addr.length <= opts.domainIndex) {
+                return Promise.reject(new RangeError(`gate address of domain ${opts.domainIndex} does not exist!`));
+            }
+            url = this._session.pkwAuthData.gate_addr[opts.domainIndex];
         }
-
-        this._webSocket = new WebSocket(this._session.pkwAuthData.gate_addr[opts.domainIndex]);
+        if (url.indexOf('wss') === 0 && opts.cert) {
+            this._webSocket = new WebSocket(url, ['chat', opts.cert]);
+        } else {
+            this._webSocket = new WebSocket(url);
+        }
         this._webSocket.binaryType = 'arraybuffer';
 
         this._sequenceNo = 0;

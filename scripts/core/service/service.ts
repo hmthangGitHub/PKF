@@ -10,6 +10,9 @@ export interface IService {
 export abstract class Service implements IService {
     name: string;
 
+    constructor(name: string) {
+        this.name = name;
+    }
     // init(): void {
     //     cc.log(`${this.name} init`);
     // }
@@ -20,7 +23,7 @@ export abstract class Service implements IService {
 }
 
 export interface ServiceClass<T> {
-    new (): T;
+    new (client?: any): T;
 
-    name: string;
+    serviceName: string;
 }

@@ -1,8 +1,8 @@
 import 'url-search-params-polyfill';
 import type { Nullable } from './../../../defines/types';
-import { ServerError } from './../../../defines/errors';
+import { ServerError, InvalidOperationError } from './../../../defines/errors';
 import type { IPokeClient } from '../poke-client';
-import type { ClientOptions, RequestOtpions, ISession, ISocket } from '../poke-client-types';
+import type { ClientOptions, RequestOtpions, ISession, ISocket, User } from '../poke-client-types';
 import type { LoginData, PostParams, LoginParams } from './wpk-api';
 import * as http from '../../http/http-index';
 import { WPKSession } from './wpk-session';
@@ -64,7 +64,7 @@ export class WPKClient implements IPokeClient {
             return Promise.reject(new ServerError(loginData.errMsg, loginData.errorCode));
         }
 
-        const session = new WPKSession(loginData.sessionToken, loginData.user.userId.toString());
+        const session = new WPKSession(loginData.sessionToken, loginData.user.userId);
         session.userInfo = { ...loginData.user };
         session.userSecurityInfo = { ...loginData.userSecurityInfo };
         session.pkwAuthData = { ...loginData.pkwAuthData };
@@ -73,7 +73,23 @@ export class WPKClient implements IPokeClient {
         return session;
     }
 
-    async request(url: string, data: PostParams): Promise<http.Response> {
+    GetCurrentUser(): User {
+        if (!this._session) {
+            throw new InvalidOperationError('Session does not exist! Call this function after login.');
+        }
+
+        const user: User = {
+            userId: this._session.userInfo.userId,
+            username: this._session.userInfo.account,
+            nickname: this._session.userInfo.nickname,
+            sex: this._session.userInfo.sex,
+            avatarURL: this._session.userInfo.avatar
+        };
+
+        return user;
+    }
+
+    protected async request(url: string, data: PostParams): Promise<http.Response> {
         if (this._session) {
             data.userId = this._session.userId;
             data.sessionToken = this._session.token;

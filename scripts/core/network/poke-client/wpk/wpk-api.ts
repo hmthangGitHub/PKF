@@ -2,7 +2,7 @@
 // TODO: generate theses definitions by tool like open api
 
 export interface PostParams {
-    userId?: string;
+    userId?: number;
     sessionToken?: string;
     version?: string;
     appVersionCode?: number;

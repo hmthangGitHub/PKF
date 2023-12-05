@@ -3,13 +3,13 @@ import type { UserInfo, UserSecurityInfo, PkwAuthData } from './wpk-api';
 
 export class WPKSession implements ISession {
     token: string;
-    userId: string;
+    userId: number;
 
     userInfo: UserInfo;
     userSecurityInfo: UserSecurityInfo;
     pkwAuthData: PkwAuthData;
 
-    constructor(token: string, userId: string) {
+    constructor(token: string, userId: number) {
         this.token = token;
         this.userId = userId;
     }

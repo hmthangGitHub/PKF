@@ -16,7 +16,7 @@ export interface RequestOtpions {
 /** A user in the system. */
 export interface User {
     userId: number;
-    userName: string;
+    username: string;
     nickname: string;
     avatarURL: string;
     sex: number;
@@ -24,11 +24,12 @@ export interface User {
 
 export interface ISession {
     readonly token: string;
-    readonly userId: string;
+    readonly userId: number;
 }
 
 export interface SocketOptions {
     url?: string;
+    cert?: string;
     domainIndex?: number;
 }
 

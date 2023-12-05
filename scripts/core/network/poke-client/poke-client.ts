@@ -1,8 +1,10 @@
 import { WPKClient } from './poke-client-index';
-import type { ClientOptions, RequestOtpions, ISocket, ISession, ServerType } from './poke-client-types';
+import type { ClientOptions, RequestOtpions, ISocket, ISession, ServerType, User } from './poke-client-types';
 
 export interface IPokeClient {
     login(username: string, password: string, options?: RequestOtpions): Promise<ISession>;
+
+    GetCurrentUser(): User;
 
     createSocket(): ISocket;
 }
