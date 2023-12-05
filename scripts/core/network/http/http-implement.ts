@@ -1,5 +1,6 @@
 import { type Input, type Options, type Response, defaultOptions } from './http-types';
 import { ContentType, MaxTimeout } from './http-constants';
+import { HttpError, TimeoutError } from '../../defines/errors';
 
 export class Http {
     protected _request: Request;
@@ -38,7 +39,7 @@ export class Http {
     async request(): Promise<Response> {
         const fetchResponse = await this._fetch();
         if (!fetchResponse.ok) {
-            throw new Error(`HTTP error! Status: ${fetchResponse.status}`);
+            return Promise.reject(new HttpError(`HTTP error! Status: ${fetchResponse.status}`, fetchResponse.status));
         }
         let obj = null;
         if (fetchResponse.status !== 204) {
@@ -64,7 +65,7 @@ export class Http {
             if (this._abortController) {
                 this._timeoutID = window.setTimeout(() => {
                     this._abortController.abort();
-                    reject(new Error(`timeout of request ${this._request.url}`));
+                    reject(new TimeoutError(`timeout of request ${this._request.url}`));
                 }, this._options.timeout as number);
             }
 

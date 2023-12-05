@@ -1,6 +1,6 @@
 import 'url-search-params-polyfill';
 import type { Nullable } from './../../../defines/types';
-import { PokeServerError } from './../../../defines/errors';
+import { ServerError } from './../../../defines/errors';
 import type { IPokeClient } from '../poke-client';
 import type { ClientOptions, RequestOtpions, ISession, ISocket } from '../poke-client-types';
 import type { LoginData, PostParams, LoginParams } from './wpk-api';
@@ -61,7 +61,7 @@ export class WPKClient implements IPokeClient {
         const response = await this.request(url, data);
         const loginData = response.data as LoginData;
         if (loginData.errorCode !== 0) {
-            return Promise.reject(new PokeServerError(loginData.errMsg, loginData.errorCode));
+            return Promise.reject(new ServerError(loginData.errMsg, loginData.errorCode));
         }
 
         const session = new WPKSession(loginData.sessionToken, loginData.user.userId.toString());
@@ -89,7 +89,6 @@ export class WPKClient implements IPokeClient {
         data['sign'] = WPKUtil.sign(data);
         const searchParams = new URLSearchParams(data as any);
 
-        console.log(data);
         return await http.post(url, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'

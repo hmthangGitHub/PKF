@@ -1,3 +1,10 @@
+export class TimeoutError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'TimeoutError';
+    }
+}
+
 export class HttpError extends Error {
     statusCode: number;
 
@@ -8,11 +15,11 @@ export class HttpError extends Error {
     }
 }
 
-export class PokeServerError extends Error {
+export class ServerError extends Error {
     errorCode: number;
     constructor(message: string, errorCode: number) {
         super(message);
-        this.name = 'PokeServerError';
+        this.name = 'ServerError';
         this.errorCode = errorCode;
     }
 }
