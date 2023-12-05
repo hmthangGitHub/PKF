@@ -15,6 +15,16 @@ export class HttpError extends Error {
     }
 }
 
+export class WebSocketError extends Error {
+    event: Event;
+
+    constructor(message: string, event: Event) {
+        super(message);
+        this.name = 'WebSocketError';
+        this.event = event;
+    }
+}
+
 export class ServerError extends Error {
     errorCode: number;
     constructor(message: string, errorCode: number) {

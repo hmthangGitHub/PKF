@@ -1,18 +1,23 @@
+/* eslint-disable camelcase */
+import { WebSocketError } from './../../../defines/errors';
 import type { Nullable } from './../../../defines/types';
 import type { ISocket, SocketOptions } from '../poke-client-types';
 import type { WPKSession } from './wpk-session';
+import { WebSocketAdapter } from '../websocket-adapter';
+
+import * as ws_protocol from './pb/ws_protocol';
+const pb = ws_protocol.pb;
 
 export class WPKSocket implements ISocket {
     private _session: Nullable<WPKSession> = null;
-    private _webSocket: Nullable<WebSocket> = null;
-    private _sequenceNo = 0;
+    private _webSocket: WebSocketAdapter = new WebSocketAdapter();
 
     constructor(session: WPKSession) {
         this._session = session;
     }
 
     connect(options?: SocketOptions): Promise<void> {
-        if (this.isOpen()) {
+        if (this._webSocket.isOpen()) {
             return Promise.resolve();
         }
 
@@ -34,45 +39,36 @@ export class WPKSocket implements ISocket {
             url = this._session.pkwAuthData.gate_addr[opts.domainIndex];
         }
         if (url.indexOf('wss') === 0 && opts.cert) {
-            this._webSocket = new WebSocket(url, ['chat', opts.cert]);
+            this._webSocket.connect(url, ['chat', opts.cert]);
         } else {
-            this._webSocket = new WebSocket(url);
+            this._webSocket.connect(url);
         }
-        this._webSocket.binaryType = 'arraybuffer';
-
-        this._sequenceNo = 0;
 
         this._webSocket.onmessage = this.handleMessage.bind(this);
 
-        this._webSocket.onerror = this.handleError.bind(this);
-
         return new Promise<void>((resolve, reject) => {
             this._webSocket.onopen = (ev: Event) => {
+                this._webSocket.onerror = this.handleError.bind(this);
                 resolve();
             };
             this._webSocket.onerror = (ev: Event) => {
-                this.close();
-                reject(ev);
+                this.disconnect();
+                reject(new WebSocketError('Websocket error!', ev));
             };
         });
     }
 
     disconnect(): void {
-        this.close();
+        this._webSocket.disconnect();
     }
 
-    protected isOpen(): boolean {
-        return this._webSocket?.readyState === WebSocket.OPEN;
+    send(data: any): void {
+        this._webSocket.send(data);
     }
 
-    protected close() {
-        if (this._webSocket) {
-            this._webSocket.close();
-            this._webSocket = null;
-        }
+    protected handleMessage(msg: MessageEvent) {
+        console.log(msg);
     }
-
-    protected handleMessage(msg: MessageEvent) {}
 
     protected handleError(ev: Event) {
         cc.warn(ev);
