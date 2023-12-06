@@ -1,4 +1,4 @@
-import type { ISession } from '../poke-client-types';
+import type { ISession } from '../poker-client-types';
 import type { UserInfo, UserSecurityInfo, PkwAuthData } from './wpk-api';
 
 export class WPKSession implements ISession {

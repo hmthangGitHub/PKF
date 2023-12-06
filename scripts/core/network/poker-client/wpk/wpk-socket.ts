@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
-import { WebSocketError } from './../../../defines/errors';
-import type { Nullable } from './../../../defines/types';
-import type { ISocket, SocketOptions } from '../poke-client-types';
+import { WebSocketError } from '../../../defines/errors';
+import type { Nullable } from '../../../defines/types';
+import type { ISocket, SocketOptions } from '../poker-socket';
 import type { WPKSession } from './wpk-session';
 import { WebSocketAdapter } from '../websocket-adapter';
 
@@ -62,7 +62,9 @@ export class WPKSocket implements ISocket {
         this._webSocket.disconnect();
     }
 
-    send(data: any): void {
+    login() {}
+
+    protected send(data: any): void {
         this._webSocket.send(data);
     }
 

@@ -1,10 +1,10 @@
 import { Service } from '../core/service/service';
-import type { Nullable, IPokeClient, RequestOtpions, User } from '../core/core-index';
+import type { Nullable, IPokerClient, RequestOtpions, User } from '../core/core-index';
 
 export class AuthService extends Service {
     static readonly serviceName = 'AuthService';
 
-    _client: Nullable<IPokeClient> = null;
+    _client: Nullable<IPokerClient> = null;
 
     private _currentUser: Nullable<User> = null;
 
@@ -12,7 +12,7 @@ export class AuthService extends Service {
         return this._currentUser;
     }
 
-    constructor(client: IPokeClient) {
+    constructor(client: IPokerClient) {
         super(AuthService.serviceName);
         this._client = client;
     }

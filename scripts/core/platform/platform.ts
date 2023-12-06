@@ -1,5 +1,5 @@
 export class Platform {
-    static get isNative(): boolean {
+    static isNative(): boolean {
         return cc.sys.isNative;
     }
 }
