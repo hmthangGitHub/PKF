@@ -2,28 +2,31 @@ import 'url-search-params-polyfill';
 import type { Nullable } from '../../../defines/types';
 import { ServerError, InvalidOperationError } from '../../../defines/errors';
 import type { IPokerClient } from '../poker-client';
-import type { ClientOptions, RequestOtpions, ISession, User } from '../poker-client-types';
+import type { IClientOptions, ISocketOptions, RequestOtpions, ISession, User } from '../poker-client-types';
+import { SystemInfo } from '../poker-client-types';
 import type { ISocket } from '../poker-socket';
 import type { LoginData, PostParams, LoginParams } from './wpk-api';
 import * as http from '../../http/http-index';
 import { WPKSession } from './wpk-session';
 import { WPKSocket } from './wpk-socket';
 import { WPKUtil } from './wpk-util';
+import { Util } from '../../../utils/util';
 
 export class WPKClient implements IPokerClient {
-    _appVersion = '';
     _deviceType: number;
     _deviceId: string;
     _scheme = 'http://';
     _baseUrl: string;
-    _language: string;
+    _systemInfo: SystemInfo = new SystemInfo();
 
     _session: Nullable<WPKSession> = null;
 
-    constructor(host: string, options?: ClientOptions) {
-        const opts: ClientOptions = {
-            langauage: 'zh',
-            basePath: 'wepoker'
+    constructor(host: string, options?: IClientOptions) {
+        const opts: IClientOptions = {
+            langauage: 'zh_CN',
+            basePath: 'wepoker',
+            deviceType: 1,
+            deviceId: ''
         };
 
         if (options) {
@@ -38,12 +41,10 @@ export class WPKClient implements IPokerClient {
             this._baseUrl += `/${opts.basePath}`;
         }
 
-        if (opts.appVersion) {
-            this._appVersion = opts.appVersion;
-        }
+        this._deviceType = opts.deviceType;
+        this._deviceId = opts.deviceId;
 
-        this._deviceType = opts.deviceType ?? 1;
-        this._deviceId = opts.deviceId ?? '';
+        Util.override(this._systemInfo, opts);
     }
 
     async login(username: string, password: string, options?: RequestOtpions): Promise<ISession> {
@@ -69,6 +70,7 @@ export class WPKClient implements IPokerClient {
         session.userInfo = { ...loginData.user };
         session.userSecurityInfo = { ...loginData.userSecurityInfo };
         session.pkwAuthData = { ...loginData.pkwAuthData };
+        session.pkwAuthData.token = WPKUtil.encryptPKWToken(session.pkwAuthData.token);
 
         this._session = session;
         return session;
@@ -96,7 +98,7 @@ export class WPKClient implements IPokerClient {
             data.sessionToken = this._session.token;
         }
 
-        data.version = this._appVersion;
+        data.version = this._systemInfo.appVersion;
         data.deviceType = this._deviceType;
         // TODO: fill natvie info
         data.platform = 'unknow';
@@ -114,7 +116,8 @@ export class WPKClient implements IPokerClient {
         });
     }
 
-    createSocket(): ISocket {
-        return new WPKSocket(this._session);
+    createSocket(options?: ISocketOptions): ISocket {
+        const opts = { ...this._systemInfo, options };
+        return new WPKSocket(this._session, opts);
     }
 }

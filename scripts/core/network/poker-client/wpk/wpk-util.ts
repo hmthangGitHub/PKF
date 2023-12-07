@@ -44,4 +44,9 @@ export class WPKUtil {
         // console.log('------_sign后:------' + sign);
         return sign;
     }
+
+    static encryptPKWToken(toekn: string): string {
+        // md5 twice
+        return md5(md5(toekn));
+    }
 }

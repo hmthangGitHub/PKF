@@ -25,7 +25,7 @@ export type SocketOpenHandler = (this: WebSocket, evt: Event) => void;
 
 export class WebSocketAdapter {
     private _webSocket: Nullable<WebSocket> = null;
-    private _sequenceNo = 0;
+    private _sequence = 0;
 
     get onopen(): Nullable<SocketOpenHandler> {
         return this._webSocket ? this._webSocket.onopen : null;
@@ -83,7 +83,7 @@ export class WebSocketAdapter {
         this._webSocket = new WebSocket(url, protocols);
         this._webSocket.binaryType = 'arraybuffer';
 
-        this._sequenceNo = 0;
+        this._sequence = 0;
 
         return new Promise<void>((resolve, reject) => {
             this._webSocket.onopen = (ev: Event) => {
@@ -109,6 +109,12 @@ export class WebSocketAdapter {
 
     isOpen(): boolean {
         return this._webSocket?.readyState === WebSocket.OPEN;
+    }
+
+    getNextSequence(): number {
+        const sequence = this._sequence;
+        this._sequence += 1;
+        return sequence;
     }
 
     protected close() {

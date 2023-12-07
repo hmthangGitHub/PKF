@@ -1,10 +1,7 @@
-export interface SocketOptions {
-    url?: string;
-    cert?: string;
-    domainIndex?: number;
-}
+import type { ISocketOptions } from './poker-client-types';
 
 export interface ISocket {
-    connect(options?: SocketOptions): Promise<void>;
+    connect(options?: ISocketOptions): Promise<void>;
     disconnect(): void;
+    login(): void;
 }

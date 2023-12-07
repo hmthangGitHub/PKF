@@ -1,5 +1,5 @@
 import { WPKClient } from './wpk/wpk-client';
-import type { ClientOptions, RequestOtpions, ISession, ServerType, User } from './poker-client-types';
+import type { IClientOptions, ISocketOptions, RequestOtpions, ISession, ServerType, User } from './poker-client-types';
 import type { ISocket } from './poker-socket';
 
 export interface IPokerClient {
@@ -7,11 +7,11 @@ export interface IPokerClient {
 
     GetCurrentUser(): User;
 
-    createSocket(): ISocket;
+    createSocket(options?: ISocketOptions): ISocket;
 }
 
 export class PokerClient {
-    static create(serverType: ServerType, host: string, options: ClientOptions): IPokerClient {
+    static create(serverType: ServerType, host: string, options: IClientOptions): IPokerClient {
         if (serverType === 'wpk') {
             return new WPKClient(host, options);
         } else {

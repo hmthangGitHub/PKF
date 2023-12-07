@@ -13,4 +13,13 @@ export class Util {
     static String(value: any): string {
         return value === null || typeof value === 'undefined' ? '' : String(value);
     }
+
+    /** Override source properties to dest with the same key */
+    static override(dest: any, source: any) {
+        Object.keys(dest).forEach((key) => {
+            if (source.hasOwnProperty(key)) {
+                dest[key] = source[key];
+            }
+        });
+    }
 }
