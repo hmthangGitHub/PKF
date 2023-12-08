@@ -1,16 +1,21 @@
 /* eslint-disable camelcase */
 import type { Nullable } from '../../../defines/types';
-import type { ISocket } from '../poker-socket';
+import type { ISocket, ILoginResponse } from '../poker-socket';
 import type { WPKSession } from './wpk-session';
 import type { ISocketOptions, ProtobutClass } from '../poker-client-types';
-import { SeverType, GameId } from '../poker-client-types';
+import { SeverType, GameId, SocketServerErrorCode } from '../poker-client-types';
 import { SystemInfo } from '../poker-client-types';
 import { WebSocketAdapter } from '../websocket-adapter';
 import { Util } from './../../../utils/util';
 import { SocketMessage, SocketMessageHeader } from '../poker-socket-message';
+import { ServerError } from './../../../defines/errors';
+import { AsyncOperation } from '../../../async/async-operation';
 
 import * as ws_protocol from './pb/ws_protocol';
-const pb = ws_protocol.pb;
+import pb = ws_protocol.pb;
+
+type ResponseHandler = (buf: Uint8Array) => void;
+type AsyncResponseHandler<ProtobufType, ReturnType> = (buf: ProtobufType, asyncOp: AsyncOperation<ReturnType>) => void;
 
 export class WPKSocket implements ISocket {
     private _webSocket: WebSocketAdapter = new WebSocketAdapter();
@@ -18,6 +23,8 @@ export class WPKSocket implements ISocket {
     private _systemInfo: SystemInfo = new SystemInfo();
     private _writeArrayBuffer: ArrayBuffer;
     private _verbose = true;
+
+    private _responseHandlers = new Map<number, ResponseHandler>();
 
     constructor(session: WPKSession, options?: ISocketOptions) {
         this._session = session;
@@ -60,7 +67,7 @@ export class WPKSocket implements ISocket {
         await this._webSocket.disconnect();
     }
 
-    login(): void {
+    login(): Promise<ILoginResponse> {
         const pbMsg = new pb.RequestLogon();
         pbMsg.version = this._systemInfo.appVersion;
         pbMsg.token = this._session.pkwAuthData.token;
@@ -71,23 +78,75 @@ export class WPKSocket implements ISocket {
         pbMsg.os = this._systemInfo.os;
         pbMsg.os_version = this._systemInfo.osVersion;
 
-        const sequence = this.sendMessage(pb.MSGID.MsgID_Logon_Request, pbMsg, pb.RequestLogon);
+        return this.sendRequest(
+            pb.MSGID.MsgID_Logon_Request,
+            pbMsg,
+            pb.RequestLogon,
+            pb.MSGID.MsgID_Logon_Response,
+            pb.ResponseLogon,
+            this.loginResponse.bind(this)
+        );
     }
 
-    protected sendMessage<T>(messageId: number, protobuf: T, protobufClass: ProtobutClass<T>): number {
+    loginResponse(pbbuf: pb.ResponseLogon, asyncOp: AsyncOperation<ILoginResponse>): void {
+        if (pbbuf.error !== SocketServerErrorCode.OK) {
+            asyncOp.reject(new ServerError(`Login failed: ${pbbuf.error}`, pbbuf.error));
+        } else {
+            const response = { ...pbbuf };
+            asyncOp.resolve(response);
+        }
+    }
+
+    // protected sendMessage<T>(messageId: number, protobuf: T, protobufClass: ProtobutClass<T>): number {
+    //     // create message header
+    //     const sequence = this._webSocket.getNextSequence();
+    //     const header = new SocketMessageHeader(
+    //         SeverType.SeverType_World,
+    //         GameId.World,
+    //         messageId,
+    //         sequence,
+    //         this._session.pkwAuthData.uid,
+    //         0
+    //     );
+
+    //     // encode payload
+    //     const payload = this.encodeProtobuf(protobuf, protobufClass);
+
+    //     // create message
+    //     const message = new SocketMessage(header, payload);
+
+    //     // pack message
+    //     const data = SocketMessage.encode(message, this._writeArrayBuffer);
+
+    //     if (this._verbose) {
+    //         console.log('send message', message.header, protobuf);
+    //     }
+
+    //     this.send(data);
+
+    //     return sequence;
+    // }
+
+    protected sendRequest<RequestProtoType, ResponseProtoType, ResponseType>(
+        requestMessageId: number,
+        requestProto: RequestProtoType,
+        requestProtoClass: ProtobutClass<RequestProtoType>,
+        responseMessageId: number,
+        responseProtoClass: ProtobutClass<ResponseProtoType>,
+        handler: AsyncResponseHandler<ResponseProtoType, ResponseType>
+    ): Promise<ResponseType> {
         // create message header
-        const sequence = this._webSocket.getNextSequence();
         const header = new SocketMessageHeader(
             SeverType.SeverType_World,
             GameId.World,
-            messageId,
-            sequence,
+            requestMessageId,
+            this._webSocket.getNextSequence(),
             this._session.pkwAuthData.uid,
             0
         );
 
         // encode payload
-        const payload = this.encodeProtobuf(protobuf, protobufClass);
+        const payload = this.encodeProtobuf(requestProto, requestProtoClass);
 
         // create message
         const message = new SocketMessage(header, payload);
@@ -96,11 +155,26 @@ export class WPKSocket implements ISocket {
         const data = SocketMessage.encode(message, this._writeArrayBuffer);
 
         if (this._verbose) {
-            console.log('send message', message.header, protobuf);
+            console.log('send message', message.header, requestProto);
         }
+
+        // create response handler
+        const asyncOp = new AsyncOperation<ResponseType>();
+
+        const preHandle = this._responseHandlers.get(responseMessageId);
+        if (preHandle) {
+            console.warn(`handler of message ${responseMessageId} is overwrited!`);
+        }
+
+        this._responseHandlers.set(responseMessageId, (buf: Uint8Array) => {
+            const protobuf = this.decodeProtobuf<ResponseProtoType>(buf, responseProtoClass);
+
+            handler(protobuf, asyncOp);
+        });
+
         this.send(data);
 
-        return sequence;
+        return asyncOp.promise;
     }
 
     protected send(data: Uint8Array): void {
@@ -114,24 +188,13 @@ export class WPKSocket implements ISocket {
         return payload;
     }
 
-    protected packMessage<T>(messageId: number, protobuf: T, protobufClass: ProtobutClass<T>): Uint8Array {
-        const header = new SocketMessageHeader(
-            SeverType.SeverType_World,
-            GameId.World,
-            messageId,
-            this._webSocket.getNextSequence(),
-            this._session.pkwAuthData.uid,
-            0
-        );
-
-        const payload = protobufClass.encode(protobuf).finish();
-        // TODO:encrypt payload
-
-        const message = new SocketMessage(header, payload);
-        if (this._verbose) {
-            console.log('send message', message.header, protobuf);
+    protected decodeProtobuf<T>(buf: Uint8Array | string, protobufClass: ProtobutClass<T>): T {
+        if (buf instanceof Uint8Array) {
+            return protobufClass.decode(buf);
+        } else {
+            // TODO:encrypt payload
+            return null;
         }
-        return SocketMessage.encode(message, this._writeArrayBuffer);
     }
 
     protected onMessage(msg: MessageEvent) {
@@ -145,19 +208,16 @@ export class WPKSocket implements ISocket {
 
     protected handleMessage(msg: SocketMessage): void {
         if (msg.header.serverId === GameId.World) {
-            if (msg.header.messageId === pb.MSGID.MsgID_Logon_Response) {
-                this.onLoginResponse(msg.payload as Uint8Array);
-            } else if (msg.header.messageId === pb.MSGID.MsgID_Login_Notice) {
-                this.onNoticeLogin(msg.payload as Uint8Array);
+            const handler = this._responseHandlers.get(msg.header.messageId);
+            if (handler) {
+                handler(msg.payload as Uint8Array);
+                this._responseHandlers.delete(msg.header.messageId);
+            } else {
+                // handle notice
             }
         } else {
-            // dispatch message
+            // dispatch message to other server
         }
-    }
-
-    protected onLoginResponse(buf: Uint8Array) {
-        const msg = pb.ResponseLogon.decode(buf);
-        console.log('onLoginResponse', msg);
     }
 
     protected onNoticeLogin(buf: Uint8Array) {

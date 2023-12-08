@@ -268,6 +268,11 @@ export interface IProtobutWriter {
     finish(): Uint8Array;
 }
 
+export interface IProtobutReader {
+    finish(): Uint8Array;
+}
+
 export interface ProtobutClass<T> {
     encode(protbuf: T, w?: IProtobutWriter): IProtobutWriter;
+    decode(r: Uint8Array, l?: number): T;
 }
