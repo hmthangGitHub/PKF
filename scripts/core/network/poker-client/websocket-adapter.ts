@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { InvalidOperationError } from '../../defines/errors';
+import { InvalidOperationError, WebSocketError } from '../../defines/errors';
 import type { Nullable } from '../../defines/types';
 
 /**
@@ -91,13 +91,24 @@ export class WebSocketAdapter {
             };
             this._webSocket.onerror = (ev: Event) => {
                 this.close();
-                reject(ev);
+                reject(new WebSocketError('Websocket error!', ev));
             };
         });
     }
 
-    disconnect(): void {
-        this.close();
+    disconnect(): Promise<void> {
+        if (!this.isOpen()) {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve, reject) => {
+            this._webSocket.addEventListener('close', (ev) => {
+                resolve();
+                console.log('websocke closed');
+            });
+
+            this.close();
+        });
     }
 
     send(data: any): void {

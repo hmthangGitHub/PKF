@@ -1,5 +1,4 @@
 /* eslint-disable camelcase */
-import { WebSocketError } from '../../../defines/errors';
 import type { Nullable } from '../../../defines/types';
 import type { ISocket } from '../poker-socket';
 import type { WPKSession } from './wpk-session';
@@ -29,7 +28,7 @@ export class WPKSocket implements ISocket {
         this._writeArrayBuffer = new ArrayBuffer(SocketMessage.MAX_PAYLOAD_LENGTH);
     }
 
-    connect(options?: ISocketOptions): Promise<void> {
+    async connect(options?: ISocketOptions): Promise<void> {
         if (this._webSocket.isOpen()) {
             return Promise.resolve();
         }
@@ -52,27 +51,16 @@ export class WPKSocket implements ISocket {
             url = this._session.pkwAuthData.gate_addr[opts.domainIndex];
         }
         if (url.indexOf('wss') === 0 && opts.cert) {
-            this._webSocket.connect(url, ['chat', opts.cert]);
+            await this._webSocket.connect(url, ['chat', opts.cert]);
         } else {
-            this._webSocket.connect(url);
+            await this._webSocket.connect(url);
         }
 
         this._webSocket.onmessage = this.onMessage.bind(this);
-
-        return new Promise<void>((resolve, reject) => {
-            this._webSocket.onopen = (ev: Event) => {
-                this._webSocket.onerror = this.handleError.bind(this);
-                resolve();
-            };
-            this._webSocket.onerror = (ev: Event) => {
-                this.disconnect();
-                reject(new WebSocketError('Websocket error!', ev));
-            };
-        });
     }
 
-    disconnect(): void {
-        this._webSocket.disconnect();
+    async disconnect(): Promise<void> {
+        await this._webSocket.disconnect();
     }
 
     login(): void {
@@ -86,12 +74,47 @@ export class WPKSocket implements ISocket {
         pbMsg.os = this._systemInfo.os;
         pbMsg.os_version = this._systemInfo.osVersion;
 
-        const data = this.packMessage(pb.MSGID.MsgID_Logon_Request, pbMsg, pb.RequestLogon);
+        const sequence = this.sendMessage(pb.MSGID.MsgID_Logon_Request, pbMsg, pb.RequestLogon);
+    }
+
+    protected sendMessage<T>(messageId: number, protobuf: T, protobufClass: ProtobutClass<T>): number {
+        // create message header
+        const sequence = this._webSocket.getNextSequence();
+        const header = new SocketMessageHeader(
+            SeverType.SeverType_World,
+            GameId.World,
+            messageId,
+            sequence,
+            this._session.pkwAuthData.uid,
+            0
+        );
+
+        // encode payload
+        const payload = this.encodeProtobuf(protobuf, protobufClass);
+
+        // create message
+        const message = new SocketMessage(header, payload);
+
+        // pack message
+        const data = SocketMessage.encode(message, this._writeArrayBuffer);
+
+        if (this._verbose) {
+            console.log('send message', message.header, protobuf);
+        }
         this.send(data);
+
+        return sequence;
     }
 
     protected send(data: Uint8Array): void {
         this._webSocket.send(data);
+    }
+
+    protected encodeProtobuf<T>(protobuf: T, protobufClass: ProtobutClass<T>): string | Uint8Array {
+        const payload = protobufClass.encode(protobuf).finish();
+        // TODO:encrypt payload
+
+        return payload;
     }
 
     protected packMessage<T>(messageId: number, protobuf: T, protobufClass: ProtobutClass<T>): Uint8Array {
@@ -155,14 +178,25 @@ export class WPKSocket implements ISocket {
     }
 
     protected handleMessage(msg: SocketMessage): void {
-        if (msg.header.messageId === pb.MSGID.MsgID_Logon_Response) {
-            this.onLoginResponse(msg.payload as Uint8Array);
+        if (msg.header.serverId === GameId.World) {
+            if (msg.header.messageId === pb.MSGID.MsgID_Logon_Response) {
+                this.onLoginResponse(msg.payload as Uint8Array);
+            } else if (msg.header.messageId === pb.MSGID.MsgID_Login_Notice) {
+                this.onNoticeLogin(msg.payload as Uint8Array);
+            }
+        } else {
+            // dispatch message
         }
     }
 
     protected onLoginResponse(buf: Uint8Array) {
         const msg = pb.ResponseLogon.decode(buf);
         console.log('onLoginResponse', msg);
+    }
+
+    protected onNoticeLogin(buf: Uint8Array) {
+        const msg = pb.NoticeLogin.decode(buf);
+        console.log('onNoticeLogin', msg);
     }
 
     protected handleError(ev: Event) {
