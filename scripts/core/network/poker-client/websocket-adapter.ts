@@ -1,3 +1,4 @@
+import { AsyncOperation } from './../../async/async-operation';
 /* eslint-disable camelcase */
 import { InvalidOperationError, WebSocketError } from '../../defines/errors';
 import type { Nullable } from '../../defines/types';
@@ -101,14 +102,15 @@ export class WebSocketAdapter {
             return Promise.resolve();
         }
 
-        return new Promise((resolve, reject) => {
-            this._webSocket.addEventListener('close', (ev) => {
-                resolve();
-                console.log('websocke closed');
-            });
+        const asyncOp = new AsyncOperation();
 
-            this.close();
+        this._webSocket.addEventListener('close', (ev) => {
+            asyncOp.resolve();
         });
+
+        this.close();
+
+        return asyncOp.promise;
     }
 
     send(data: any): void {
