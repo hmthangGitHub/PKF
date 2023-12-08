@@ -92,45 +92,42 @@ export class BitHandler {
         return (bin1 << bin2BitSize) | bin2;
     }
 
-    static RunTestFunc() {
-        let data = 3481132477;
-        console.log('###################current data :' + data);
-        console.log('###################current data :' + data.toString(2));
+    // 数据操作
+    // opType: 操作类型 0、对指定数据进行异或操作 1、数据翻转 2、相邻两位数据互换 3、数据取反
+    // bitSize: 当前数据操作位数 16 or 32
+    // value： 操作数据值
+    static getValueByOp(opType: number, bitSize: number, value: number, xorValue: number): number {
+        if (opType === 0) {
+            // 不操作
+            if (bitSize === 8) {
+                return (value ^ xorValue) & 0xff;
+            } else if (bitSize === 16) {
+                return (value ^ xorValue) & 0xffff;
+            } else if (bitSize === 32) {
+                return value ^ xorValue;
+            }
+        } else if (opType === 1) {
+            // 数据位翻转
+            return BitHandler.reverse_bits(value, bitSize);
+        } else if (opType === 2) {
+            // 数据位相邻两位互换
+            if (bitSize === 8) {
+                return BitHandler.swapoddeven_8bits(value);
+            } else if (bitSize === 16) {
+                return BitHandler.swapoddeven_16bits(value);
+            } else if (bitSize === 32) {
+                return BitHandler.swapoddeven_32bits(value);
+            }
+        } else if (opType === 3) {
+            // 对数据进行取反
 
-        let rd1 = this.readLeftBitFromByte(data, 32, 3);
-        console.log('###################current rd1 :' + rd1);
-        console.log('###################current rd1 :' + rd1.toString(2));
-
-        let rd2 = this.readRightBitFromByte(data, 32, 3);
-        console.log('###################current rd2 :' + rd2);
-        console.log('###################current rd2 :' + rd2.toString(2));
-
-        let rd3 = this.getReadMidNumFromByte(data, 32, 4, 15);
-        console.log('###################current rd3 :' + rd3);
-        console.log('###################current rd3 :' + rd3.toString(2));
-
-        /*
-        let num1 = 3481132477;
-        let num2 = 3014278315;
-        console.log("###################current num1 :" + num1);
-        console.log("###################current num1 :" + num1.toString(2));
-        console.log("###################current num2 :" + num2);
-        console.log("###################current num2 :" + num2.toString(2));
-
-        let rd1 = this.readRightBitFromByte(num1, 32, 3);
-        let rd2 = this.readLeftBitFromByte(num2, 32, 3);
-        console.log("###################read num1 最后3位:" + rd1.toString(2));
-        console.log("###################read num2 开始3位:" + rd2.toString(2));
-
-        let _newNum = this.concatBinaryNumber(rd1, rd2, 3);
-        console.log("###################read _newNum:" + _newNum);
-        console.log("###################read _newNum:" + _newNum.toString(2));
-        */
-
-        // let rd3 = 34;
-        // console.log("###################read rd3:" + rd3.toString(2));
-        // let rd4 = this.reverse_bits(rd3, 8);
-        // console.log("###################read rd4:" + rd4);
-        // console.log("###################read rd4:" + rd4.toString(2));
+            if (bitSize === 8) {
+                return ~value & 0xff;
+            } else if (bitSize === 16) {
+                return ~value & 0xffff;
+            } else if (bitSize === 32) {
+                return ~value;
+            }
+        }
     }
 }

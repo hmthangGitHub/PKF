@@ -94,23 +94,6 @@ export class WPKSocket implements ISocket {
         this._webSocket.send(data);
     }
 
-    // protected packMessage(messageId: number, payload: Uint8Array): Uint8Array {
-    //     const header = new SocketMessageHeader(
-    //         SeverType.SeverType_World,
-    //         GameId.World,
-    //         messageId,
-    //         this._webSocket.getNextSequence(),
-    //         this._session.pkwAuthData.uid,
-    //         0
-    //     );
-
-    //     const message = new SocketMessage(header, payload);
-    //     if (this._verbose) {
-    //         console.log('send message', message.header);
-    //     }
-    //     return SocketMessage.encode(message, this._writeArrayBuffer);
-    // }
-
     protected packMessage<T>(messageId: number, protobuf: T, protobufClass: ProtobutClass<T>): Uint8Array {
         const header = new SocketMessageHeader(
             SeverType.SeverType_World,
@@ -131,10 +114,8 @@ export class WPKSocket implements ISocket {
         return SocketMessage.encode(message, this._writeArrayBuffer);
     }
 
-    protected onMessage(msg: MessageEvent) {
-        // console.log('receive message', msg.data, new Uint8Array(msg.data).toString());
-
-        const reader = new ArrayBufferReader(msg.data);
+    protected uppackMessage(data: ArrayBuffer): SocketMessage {
+        const reader = new ArrayBufferReader(data);
 
         let policyData1 = reader.readUint32();
         let policyData2 = reader.readUint32();
@@ -155,13 +136,22 @@ export class WPKSocket implements ISocket {
             retHeaderArray[6]
         );
 
-        const payload = new Uint8Array(msg.data, reader.offest, msg.data.byteLength - reader.offest);
+        const payload = new Uint8Array(data, reader.offest, data.byteLength - reader.offest);
         const message = new SocketMessage(header, payload);
         if (this._verbose) {
             console.log('receive message:', message.header);
         }
 
-        this.handleMessage(message);
+        return message;
+    }
+
+    protected onMessage(msg: MessageEvent) {
+        // const socketMessage = this.uppackMessage(msg.data);
+        const socketMessage = SocketMessage.decode(msg.data);
+        if (this._verbose) {
+            console.log('receive message:', socketMessage.header);
+        }
+        this.handleMessage(socketMessage);
     }
 
     protected handleMessage(msg: SocketMessage): void {
