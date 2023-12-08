@@ -46,7 +46,7 @@ export enum SeverType {
     SeverType_RANK = 101
 }
 
-export enum ServerError {
+export enum SocketServerErrorCode {
     ZERO = 0,
     OK = 1,
     Version_Not_Lastest = 2,
@@ -262,4 +262,12 @@ export interface User {
 export interface ISession {
     readonly token: string;
     readonly userId: number;
+}
+
+export interface IProtobutWriter {
+    finish(): Uint8Array;
+}
+
+export interface ProtobutClass<T> {
+    encode(protbuf: T, w?: IProtobutWriter): IProtobutWriter;
 }

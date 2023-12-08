@@ -3,7 +3,7 @@ import { WebSocketError } from '../../../defines/errors';
 import type { Nullable } from '../../../defines/types';
 import type { ISocket } from '../poker-socket';
 import type { WPKSession } from './wpk-session';
-import type { ISocketOptions } from '../poker-client-types';
+import type { ISocketOptions, ProtobutClass } from '../poker-client-types';
 import { SeverType, GameId } from '../poker-client-types';
 import { SystemInfo } from '../poker-client-types';
 import { WebSocketAdapter } from '../websocket-adapter';
@@ -85,14 +85,8 @@ export class WPKSocket implements ISocket {
         pbMsg.CurrentLanguage = this._systemInfo.langauage;
         pbMsg.os = this._systemInfo.os;
         pbMsg.os_version = this._systemInfo.osVersion;
-        const payload = pb.RequestLogon.encode(pbMsg).finish();
 
-        const data = this.createPackageData(pb.MSGID.MsgID_Logon_Request, payload);
-
-        // console.log('pbMsg:', pbMsg);
-        // console.log('payload length', payload.byteLength);
-        // console.log(`packageData length:${data.byteLength}`, data.toString());
-
+        const data = this.packMessage(pb.MSGID.MsgID_Logon_Request, pbMsg, pb.RequestLogon);
         this.send(data);
     }
 
@@ -100,7 +94,24 @@ export class WPKSocket implements ISocket {
         this._webSocket.send(data);
     }
 
-    protected createPackageData(messageId: number, payload: Uint8Array): Uint8Array {
+    // protected packMessage(messageId: number, payload: Uint8Array): Uint8Array {
+    //     const header = new SocketMessageHeader(
+    //         SeverType.SeverType_World,
+    //         GameId.World,
+    //         messageId,
+    //         this._webSocket.getNextSequence(),
+    //         this._session.pkwAuthData.uid,
+    //         0
+    //     );
+
+    //     const message = new SocketMessage(header, payload);
+    //     if (this._verbose) {
+    //         console.log('send message', message.header);
+    //     }
+    //     return SocketMessage.encode(message, this._writeArrayBuffer);
+    // }
+
+    protected packMessage<T>(messageId: number, protobuf: T, protobufClass: ProtobutClass<T>): Uint8Array {
         const header = new SocketMessageHeader(
             SeverType.SeverType_World,
             GameId.World,
@@ -110,9 +121,12 @@ export class WPKSocket implements ISocket {
             0
         );
 
+        const payload = protobufClass.encode(protobuf).finish();
+        // TODO:encrypt payload
+
         const message = new SocketMessage(header, payload);
         if (this._verbose) {
-            console.log('send message', message.header);
+            console.log('send message', message.header, protobuf);
         }
         return SocketMessage.encode(message, this._writeArrayBuffer);
     }
@@ -121,12 +135,6 @@ export class WPKSocket implements ISocket {
         // console.log('receive message', msg.data, new Uint8Array(msg.data).toString());
 
         const reader = new ArrayBufferReader(msg.data);
-        // const flag = reader.readUint8();
-        // console.log('flag=0x%s', flag.toString(16));
-        // if (flag !== 0x8c && flag !== 0x7a) {
-        //     console.warn('recieve unknow message', msg);
-        //     return;
-        // }
 
         let policyData1 = reader.readUint32();
         let policyData2 = reader.readUint32();
@@ -137,14 +145,6 @@ export class WPKSocket implements ISocket {
             console.warn('Error: onmessage retHeaderArray is null.');
             return;
         }
-
-        let U32serverType = retHeaderArray[0];
-        let U32serverid = retHeaderArray[1];
-        let u16PackLen = retHeaderArray[2];
-        let u16Msgid = retHeaderArray[3];
-        let u32seq = retHeaderArray[4];
-        let U32playerid = retHeaderArray[5];
-        let U32roomid = retHeaderArray[6];
 
         const header = new SocketMessageHeader(
             retHeaderArray[0],

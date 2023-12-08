@@ -1,14 +1,14 @@
 import { ArrayBufferWriter, ArrayBufferReader } from './poker-buffer';
 
 export class SocketMessageHeader {
-    static readonly HEADER_LENGTH = 20;
+    static readonly PACKAGE_LENGTH = 20;
 
     // u16
     serverType: number;
     // u16
     serverId: number;
     // u16
-    packageLength: number = SocketMessageHeader.HEADER_LENGTH;
+    packageLength: number = SocketMessageHeader.PACKAGE_LENGTH;
     // u16
     messageId: number;
     // u32
@@ -55,26 +55,6 @@ export class SocketMessage {
         }
     }
 
-    // encode(arrayBuffer: ArrayBuffer): Uint8Array {
-    //     const writer = new ArrayBufferWriter(arrayBuffer);
-    //     writer.writeUint16(this.header.serverType);
-    //     writer.writeUint16(this.header.serverId);
-    //     writer.writeUint16(this.header.packageLength);
-    //     writer.writeUint16(this.header.messageId);
-    //     writer.writeUint32(this.header.sequence);
-    //     writer.writeUint32(this.header.playerId);
-    //     writer.writeUint32(this.header.roomId);
-
-    //     if (this.payload) {
-    //         if (this.payload instanceof Uint8Array) {
-    //             writer.write(this.payload);
-    //         } else {
-    //             // TODO: implement string payload
-    //         }
-    //     }
-    //     return writer.finish();
-    // }
-
     static encode(message: SocketMessage, arrayBuffer: ArrayBuffer): Uint8Array {
         const writer = new ArrayBufferWriter(arrayBuffer);
         writer.writeUint16(message.header.serverType);
@@ -102,4 +82,25 @@ export class SocketMessage {
 
         return null;
     }
+}
+
+export class GateMessageHeader {
+    static readonly PACKAGE_LENGTH = 28;
+
+    // uint64
+    policyData: number;
+    // uint16 code 0
+    serverType: number;
+    // uint16  code 1
+    serverId: number;
+    // uint16 code 2
+    packageLen: number;
+    // uint16 code 3
+    msgID: number;
+    // uint32 code 4
+    seq: number;
+    // uint32 code 5
+    playerID: number;
+    // uint32 code 6
+    roomID: number;
 }
