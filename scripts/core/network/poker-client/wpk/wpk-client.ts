@@ -11,6 +11,7 @@ import { WPKSession } from './wpk-session';
 import { WPKSocket } from './wpk-socket';
 import { WPKUtil } from './wpk-util';
 import { Util } from '../../../utils/util';
+import { WebSocketAdapter } from '../websocket-adapter';
 
 export class WPKClient implements IPokerClient {
     _deviceType: number;
@@ -118,6 +119,6 @@ export class WPKClient implements IPokerClient {
 
     createSocket(options?: ISocketOptions): ISocket {
         const opts = { ...this._systemInfo, options };
-        return new WPKSocket(this._session, opts);
+        return new WPKSocket(new WebSocketAdapter(), this._session, opts);
     }
 }

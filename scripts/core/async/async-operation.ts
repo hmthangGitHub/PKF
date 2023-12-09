@@ -1,4 +1,9 @@
-export class AsyncOperation<T = void> {
+export interface IAsyncOperation<T> {
+    resolve(value: T): void;
+    reject(reason?: any): void;
+}
+
+export class AsyncOperation<T = void> implements IAsyncOperation<T> {
     private _promise: Promise<T>;
     get promise(): Promise<T> {
         return this._promise;
@@ -13,11 +18,11 @@ export class AsyncOperation<T = void> {
         });
     }
 
-    resolve(value: T | PromiseLike<T>): void {
+    resolve(value: T): void {
         this._resolve(value);
     }
 
-    reject(reason?: any) {
+    reject(reason?: any): void {
         this._reject(reason);
     }
 }
