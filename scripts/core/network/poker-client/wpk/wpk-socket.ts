@@ -8,7 +8,6 @@ import type { WebSocketAdapter } from '../websocket-adapter';
 import { Util } from './../../../utils/util';
 import { SocketMessage } from '../poker-socket-message';
 import { ServerError } from './../../../defines/errors';
-import type { AsyncOperation } from '../../../async/async-operation';
 import { SocketMessageProcessor } from '../socket-message-processor';
 
 import * as ws_protocol from './pb/ws_protocol';
@@ -61,46 +60,48 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         await this._webSocket.disconnect();
     }
 
-    login(): Promise<ILoginResponse> {
-        const pbMsg = new pb.RequestLogon();
-        pbMsg.version = this._systemInfo.appVersion;
-        pbMsg.token = this._session.pkwAuthData.token;
-        pbMsg.device_info = this._systemInfo.deviceInfo;
-        pbMsg.invitation_code = '';
-        pbMsg.client_type = this._systemInfo.clientType;
-        pbMsg.CurrentLanguage = this._systemInfo.langauage;
-        pbMsg.os = this._systemInfo.os;
-        pbMsg.os_version = this._systemInfo.osVersion;
+    async login(): Promise<ILoginResponse> {
+        const requestProto = new pb.RequestLogon();
+        requestProto.version = this._systemInfo.appVersion;
+        requestProto.token = this._session.pkwAuthData.token;
+        requestProto.device_info = this._systemInfo.deviceInfo;
+        requestProto.invitation_code = '';
+        requestProto.client_type = this._systemInfo.clientType;
+        requestProto.CurrentLanguage = this._systemInfo.langauage;
+        requestProto.os = this._systemInfo.os;
+        requestProto.os_version = this._systemInfo.osVersion;
 
-        return this.sendRequest(
+        const response = await this.sendRequest(
             pb.MSGID.MsgID_Logon_Request,
-            pbMsg,
+            requestProto,
             pb.RequestLogon,
             pb.MSGID.MsgID_Logon_Response,
-            pb.ResponseLogon,
-            this.loginResponse.bind(this)
+            pb.ResponseLogon
         );
-    }
 
-    loginResponse(pbbuf: pb.ResponseLogon, asyncOp: AsyncOperation<ILoginResponse>): void {
-        if (pbbuf.error !== SocketServerErrorCode.OK) {
-            asyncOp.reject(new ServerError(`Login failed: ${pbbuf.error}`, pbbuf.error));
+        const responseProto = response.payload;
+
+        if (responseProto.error !== SocketServerErrorCode.OK) {
+            throw new ServerError(`Login failed: ${responseProto.error}`, responseProto.error);
         } else {
-            const response = { ...pbbuf };
-            asyncOp.resolve(response);
+            // convert respose data
+            const response = { ...responseProto };
+            return response;
         }
     }
 
     protected onMessage(msg: MessageEvent) {
-        // const socketMessage = this.uppackMessage(msg.data);
+        // uppack message
         const socketMessage = SocketMessage.decode(msg.data);
         if (this._verbose) {
             console.log('receive message:', socketMessage.header);
         }
+
         if (socketMessage.header.serverId === GameId.World) {
+            // process world messages
             this.handleMessage(socketMessage);
         } else {
-            // dispatch message to other server
+            // dispatch other server message to game sessions
         }
     }
 

@@ -6,13 +6,17 @@ import type { IAsyncOperation } from '../../async/async-operation';
 import { AsyncOperation } from '../../async/async-operation';
 
 type ResponseProcess = (buf: Uint8Array) => void;
-type AsyncResponseHandler<ProtobufType, ReturnType> = (buf: ProtobufType, asyncOp: AsyncOperation<ReturnType>) => void;
+// type AsyncResponseHandler<ProtobufType, ReturnType> = (buf: ProtobufType, asyncOp: AsyncOperation<ReturnType>) => void;
 
 interface IRequest {
     requestId: number;
     responseId: number;
     asyncOp: IAsyncOperation<any>;
-    process: ResponseProcess;
+    handler: ResponseProcess;
+}
+
+interface IResponse<T> {
+    payload: T;
 }
 
 /** This class turn websocket request/response message to promise function call */
@@ -32,17 +36,15 @@ export class SocketMessageProcessor {
         this._webSocket = websocketAdapter;
     }
 
-    /** Send a request and wait for response */
-    // eslint-disable-next-line max-params
-    protected sendRequest<RequestProtoType, ResponseProtoType, ResponseType>(
+    /** Send a request and return response protobuf with Promise */
+    protected sendRequest<RequestProtoType, ResponseProtoType>(
         requestId: number,
         requestProto: RequestProtoType,
         requestProtoClass: ProtobutClass<RequestProtoType>,
         responseId: number,
         responseProtoClass: ProtobutClass<ResponseProtoType>,
-        handler: AsyncResponseHandler<ResponseProtoType, ResponseType>,
         roomId = 0
-    ): Promise<ResponseType> {
+    ): Promise<IResponse<ResponseProtoType>> {
         // create message header
         const header = new SocketMessageHeader(
             this._serverType,
@@ -66,9 +68,6 @@ export class SocketMessageProcessor {
             console.log('send message', message.header, requestProto);
         }
 
-        // create response handler
-        const asyncOp = new AsyncOperation<ResponseType>();
-
         // cancel previous request
         const request = this._requests.get(responseId);
         if (request) {
@@ -77,14 +76,17 @@ export class SocketMessageProcessor {
             );
         }
 
+        // create response handler
+        const asyncOp = new AsyncOperation<IResponse<ResponseProtoType>>();
+
         this._requests.set(responseId, {
             requestId,
             responseId,
             asyncOp,
-            process: (buf: Uint8Array) => {
+            handler: (buf: Uint8Array) => {
                 const protobuf = this.decodeProtobuf<ResponseProtoType>(buf, responseProtoClass);
 
-                handler(protobuf, asyncOp);
+                asyncOp.resolve({ payload: protobuf });
             }
         });
 
@@ -118,7 +120,7 @@ export class SocketMessageProcessor {
         if (request) {
             // handel request
             this._requests.delete(msg.header.messageId);
-            request.process(msg.payload as Uint8Array);
+            request.handler(msg.payload as Uint8Array);
         } else {
             // handle notice
         }
