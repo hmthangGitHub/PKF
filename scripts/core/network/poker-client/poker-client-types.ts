@@ -38,7 +38,7 @@ export enum ClientType {
     PC = 15 // PC
 }
 
-export enum SeverType {
+export enum ServerType {
     SeverType_None = 0,
     SeverType_World,
     SeverType_Game,
@@ -212,7 +212,7 @@ export enum SocketServerErrorCode {
     GEOCOMPLY_SERVICE_ERROR = 31120
 }
 
-export type ServerType = 'wpk' | 'pkw';
+export type PlatformType = 'wpk' | 'pkw';
 
 export interface ISystemInfoOptions {
     appVersion?: string;

@@ -1,8 +1,6 @@
 import type { BundleEntry, EntryClass, IBundleOptions } from './bundle-entry';
 
 export class BundleEntryManager {
-    moduleName: string;
-
     private _entries: Map<string, BundleEntry> = new Map<string, BundleEntry>();
 
     /** @description regiser boundle entry */

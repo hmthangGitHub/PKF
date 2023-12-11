@@ -60,7 +60,7 @@ export class SocketMessageHeader {
 }
 
 export class SocketMessage {
-    static readonly MAX_PAYLOAD_LENGTH = 1024;
+    static readonly MAX_PAYLOAD_LENGTH = 2048;
 
     header: SocketMessageHeader;
     payload: string | Uint8Array | null = null;
@@ -73,7 +73,8 @@ export class SocketMessage {
             this.header.packageLength += this.payload.length;
             if (this.header.packageLength > SocketMessage.MAX_PAYLOAD_LENGTH) {
                 throw new RangeError(
-                    `server ${this.header.serverType} messge ${this.header.messageId} over max message length!`
+                    `server ${this.header.serverType} messge ${this.header.messageId} 
+                    length ${this.header.packageLength} is over max message length!`
                 );
             }
         }

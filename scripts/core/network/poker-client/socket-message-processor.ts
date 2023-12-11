@@ -6,7 +6,6 @@ import type { IAsyncOperation } from '../../async/async-operation';
 import { AsyncOperation } from '../../async/async-operation';
 
 type ResponseProcess = (buf: Uint8Array) => void;
-// type AsyncResponseHandler<ProtobufType, ReturnType> = (buf: ProtobufType, asyncOp: AsyncOperation<ReturnType>) => void;
 
 interface IRequest {
     requestId: number;
@@ -36,10 +35,14 @@ export class SocketMessageProcessor {
         this._webSocket = websocketAdapter;
     }
 
+    get serverId(): number {
+        return this._serverId;
+    }
+
     /** Send a request and return response protobuf with Promise */
     protected sendRequest<RequestProtoType, ResponseProtoType>(
-        requestId: number,
         requestProto: RequestProtoType,
+        requestId: number,
         requestProtoClass: ProtobutClass<RequestProtoType>,
         responseId: number,
         responseProtoClass: ProtobutClass<ResponseProtoType>,
@@ -115,7 +118,7 @@ export class SocketMessageProcessor {
         }
     }
 
-    protected handleMessage(msg: SocketMessage): void {
+    handleMessage(msg: SocketMessage): void {
         const request = this._requests.get(msg.header.messageId);
         if (request) {
             // handel request
@@ -123,12 +126,15 @@ export class SocketMessageProcessor {
             request.handler(msg.payload as Uint8Array);
         } else {
             // handle notice
+            this.handleNotification(msg);
         }
     }
 
-    protected cleanupRequests(reason: string): void {
+    cleanupRequests(reason: string): void {
         this._requests.forEach((item) => {
             item.asyncOp.reject(new Error(reason));
         });
     }
+
+    private handleNotification(msg: SocketMessage): void {}
 }

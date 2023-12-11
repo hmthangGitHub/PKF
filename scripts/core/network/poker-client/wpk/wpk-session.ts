@@ -9,7 +9,7 @@ export class WPKSession implements ISession {
     userSecurityInfo: UserSecurityInfo;
     pkwAuthData: PkwAuthData;
 
-    constructor(token: string, userId: number) {
+    constructor(token: string = '', userId: number = 0) {
         this.token = token;
         this.userId = userId;
     }
