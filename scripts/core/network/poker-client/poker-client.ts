@@ -15,6 +15,8 @@ export interface IPokerClient {
     GetCurrentUser(): User;
 
     createSocket(options?: ISocketOptions): ISocket;
+
+    getSocket(): ISocket;
 }
 
 export class PokerClient {

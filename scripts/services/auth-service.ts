@@ -4,12 +4,16 @@ import type { Nullable, IPokerClient, RequestOtpions, User } from '../core/core-
 export class AuthService extends Service {
     static readonly serviceName = 'AuthService';
 
-    _client: Nullable<IPokerClient> = null;
+    _client: IPokerClient;
 
     private _currentUser: Nullable<User> = null;
 
     get currentUser(): Nullable<User> {
         return this._currentUser;
+    }
+
+    get client(): IPokerClient {
+        return this._client;
     }
 
     constructor(client: IPokerClient) {

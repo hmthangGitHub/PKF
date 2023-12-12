@@ -1,4 +1,5 @@
 import { BUNDLE_TYPE } from '../defines/enums';
+import type { ISocket } from './../network/poker-client/poker-socket';
 
 export interface EntryClass<T> {
     new (): T;
@@ -12,10 +13,13 @@ export interface IBundleOptions {
     language?: string;
     /// scene load this bundle
     sceneFrom?: string;
+    socket?: ISocket;
 }
 
 export class BundleEntry {
     private _bundle: cc.AssetManager.Bundle = null;
+
+    exitCallback: () => void;
 
     get bundle(): cc.AssetManager.Bundle {
         return this._bundle;
@@ -51,7 +55,11 @@ export class BundleEntry {
     /** @description
      * Called when exit this bundle.
      */
-    onExit(): void {}
+    onExit(): void {
+        if (this.exitCallback) {
+            this.exitCallback();
+        }
+    }
 
     /** @description
      * Called when unload bundle. Unload all resources of this bundle in this function.

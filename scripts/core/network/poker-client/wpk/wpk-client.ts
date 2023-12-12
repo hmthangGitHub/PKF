@@ -22,6 +22,8 @@ export class WPKClient implements IPokerClient {
 
     _session: Nullable<WPKSession> = null;
 
+    _socket: Nullable<WPKSocket> = null;
+
     constructor(host: string, options?: IClientOptions) {
         const opts: IClientOptions = {
             langauage: 'zh_CN',
@@ -119,6 +121,11 @@ export class WPKClient implements IPokerClient {
 
     createSocket(options?: ISocketOptions): ISocket {
         const opts = { ...this._systemInfo, options };
-        return new WPKSocket(new WebSocketAdapter(), this._session, opts);
+        this._socket = new WPKSocket(new WebSocketAdapter(), this._session, opts);
+        return this._socket;
+    }
+
+    getSocket(): ISocket {
+        return this._socket;
     }
 }

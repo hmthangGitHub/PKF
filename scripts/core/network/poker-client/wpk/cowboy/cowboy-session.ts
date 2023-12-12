@@ -200,13 +200,9 @@ export class CowboySession extends GameSession {
     }
 
     protected handleDataSync(protobuf: pb.GameDataSynNotify) {
-        // eslint-disable-next-line prefer-object-spread
-        const data = Object.assign({}, protobuf);
-        this._notification.emit('dataSyncNotify', data);
+        const dataSync: IGameDataSynNotify = { ...protobuf };
 
-        // const dataSync: IGameDataSynNotify = { ...protobuf };
-
-        // this._notification.emit('dataSyncNotify', dataSync);
+        this._notification.emit('dataSyncNotify', dataSync);
     }
 
     protected handleBetNotify(protobuf: pb.BetNotify) {
