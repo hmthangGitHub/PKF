@@ -73,6 +73,10 @@ export class CowboySession extends GameSession {
         this._session = { ...(session as WPKSession) };
     }
 
+    protected registerNotificationHandlers(): void {
+        this.registerNotificationHandler(pb.CMD.GAME_DATA_SYN, pb.GameDataSynNotify, this.handleDataSync.bind(this));
+    }
+
     async login(): Promise<ILoginResponse> {
         const requestProto = new pb.LoginReq();
         requestProto.token = requestProto.token = this._session.pkwAuthData.token;
@@ -204,6 +208,10 @@ export class CowboySession extends GameSession {
 
         // convert and return respose data
         return { ...responseProto };
+    }
+
+    protected handleDataSync(protobuf: pb.GameDataSynNotify) {
+        console.log('handleDataSync', protobuf);
     }
 
     protected checkResponseCode(code: pb.ErrorCode, requestName: string) {

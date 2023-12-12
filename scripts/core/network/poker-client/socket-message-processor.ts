@@ -5,13 +5,16 @@ import { SocketMessage, SocketMessageHeader } from './poker-socket-message';
 import type { IAsyncOperation } from '../../async/async-operation';
 import { AsyncOperation } from '../../async/async-operation';
 
-type ResponseProcess = (buf: Uint8Array) => void;
+export type MessageHandler = (msg: SocketMessage) => void;
+
+export type ResponseHandler = (buf: Uint8Array) => void;
+export type NotificationHandler<T> = (protobuf: T) => void;
 
 interface IRequest {
     requestId: number;
     responseId: number;
     asyncOp: IAsyncOperation<any>;
-    handler: ResponseProcess;
+    handler: ResponseHandler;
 }
 
 interface IResponse<T> {
@@ -22,6 +25,7 @@ interface IResponse<T> {
 export class SocketMessageProcessor {
     protected _webSocket: WebSocketAdapter = null;
     protected _requests = new Map<number, IRequest>();
+    protected _messageHandlers = new Map<number, MessageHandler>();
     protected _verbose = true;
     protected _writeArrayBuffer: ArrayBuffer = new ArrayBuffer(SocketMessage.MAX_PAYLOAD_LENGTH);
     protected _serverType: number;
@@ -33,6 +37,8 @@ export class SocketMessageProcessor {
         this._serverId = serverId;
         this._playId = playerId;
         this._webSocket = websocketAdapter;
+
+        this.registerNotificationHandlers();
     }
 
     get serverId(): number {
@@ -136,5 +142,25 @@ export class SocketMessageProcessor {
         });
     }
 
-    private handleNotification(msg: SocketMessage): void {}
+    protected registerNotificationHandler<T>(
+        id: number,
+        protoClass: ProtobutClass<T>,
+        handler: NotificationHandler<T>
+    ): void {
+        this._messageHandlers.set(id, (msg) => {
+            const protobuf = protoClass.decode(msg.payload as Uint8Array);
+
+            handler(protobuf);
+        });
+    }
+
+    protected registerNotificationHandlers(): void {}
+
+    protected handleNotification(msg: SocketMessage): void {
+        console.log('handle ', msg);
+        const handler = this._messageHandlers.get(msg.header.messageId);
+        if (handler) {
+            handler(msg);
+        }
+    }
 }
