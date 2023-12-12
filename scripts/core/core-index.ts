@@ -8,4 +8,5 @@ export * from './language/language-index';
 export * from './network/network-index';
 export * from './service/service-index';
 export * from './system/system';
+export * from './event/event-emitter';
 export * from './core';

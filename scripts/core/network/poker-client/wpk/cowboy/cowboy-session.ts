@@ -1,52 +1,28 @@
 /* eslint-disable camelcase */
-import { GameSession } from '../game-session';
-import { WPKSession } from './wpk-session';
-import type { WebSocketAdapter } from '../websocket-adapter';
-import type { ISession, SystemInfo } from '../poker-client-types';
-import { ServerType, GameId } from '../poker-client-types';
+import { GameSession } from '../../game-session';
+import { WPKSession } from '../wpk-session';
+import type { WebSocketAdapter } from '../../websocket-adapter';
+import type { ISession, SystemInfo } from '../../poker-client-types';
+import { ServerType, GameId } from '../../poker-client-types';
 import type {
     IHeartBeatResponse,
     ILoginResponse,
     IJoinRoomResponse,
     ILeaveRoomResp,
-    IPlayerListResp,
-    IGameSessionResponse
-} from '../game-session';
-import { InvalidOperationError, ServerError } from '../../../defines/errors';
+    IPlayerListResp
+} from '../../game-session';
+import { InvalidOperationError, ServerError } from '../../../../defines/errors';
+import type { IBetNotify, IBetResponse, IGameDataSynNotify } from './cowboy-session-types';
+
+import type { TypeSafeEventEmitter } from '../../../../event/event-emitter';
+import { createEventEmitter } from '../../../../event/event-emitter';
 
 import * as cb_protocol from './pb/cowboy';
 import pb = cb_protocol.cowboy_proto_hall;
 
-export enum BetZoneOption {
-    BetZoneOption_DUMMY = 0,
-    WIN_BEGIN = 100,
-    RED_WIN = 101,
-    BLUE_WIN = 102,
-    EQUAL = 103,
-    WIN_END = 199,
-    HOLE_BEGIN = 200,
-    HOLE_SAME = 203,
-    HOLE_A = 205,
-    HOLE_3_TONG_SAME_SHUN = 206,
-    HOLE_END = 299,
-    FIVE_BEGIN = 300,
-    FIVE_NONE_1DUI = 301,
-    FIVE_2DUI = 302,
-    FIVE_3_SHUN_TONG_HUA = 303,
-    FIVE_3_2 = 304,
-    FIVE_KING_TONG_HUA_SHUN_4 = 305,
-    FIVE_END = 399
-}
-
-export interface IBillInfo {
-    BillNo?: string | null;
-    time?: number | null;
-}
-
-export interface IBetResp extends IGameSessionResponse {
-    CalmDownLeftSeconds?: number | null;
-    CalmDownDeadLineTimeStamp?: number | null;
-    bill?: IBillInfo;
+export interface ICowboyNotificationEvents {
+    dataSyncNotify: (data: IGameDataSynNotify) => void;
+    betNotify: (data: IBetNotify) => void;
 }
 
 export class CowboySession extends GameSession {
@@ -55,6 +31,12 @@ export class CowboySession extends GameSession {
     _session: WPKSession;
 
     _roomId = 0;
+
+    private _notification: TypeSafeEventEmitter<ICowboyNotificationEvents> =
+        createEventEmitter<ICowboyNotificationEvents>();
+    get notification(): TypeSafeEventEmitter<ICowboyNotificationEvents> {
+        return this._notification;
+    }
 
     // eslint-disable-next-line max-params
     constructor(websocketAdapter: WebSocketAdapter, session: ISession, systemInfo: SystemInfo) {
@@ -75,6 +57,7 @@ export class CowboySession extends GameSession {
 
     protected registerNotificationHandlers(): void {
         this.registerNotificationHandler(pb.CMD.GAME_DATA_SYN, pb.GameDataSynNotify, this.handleDataSync.bind(this));
+        this.registerNotificationHandler(pb.CMD.BET_NOTIFY, pb.BetNotify, this.handleBetNotify.bind(this));
     }
 
     async login(): Promise<ILoginResponse> {
@@ -164,7 +147,7 @@ export class CowboySession extends GameSession {
         return { ...responseProto };
     }
 
-    async bet(option: number, betAmount: number): Promise<IBetResp> {
+    async bet(option: number, betAmount: number): Promise<IBetResponse> {
         if (this._roomId === 0) {
             return Promise.reject<IPlayerListResp>(new InvalidOperationError(`${this.name} does not join room yet!`));
         }
@@ -210,13 +193,25 @@ export class CowboySession extends GameSession {
         return { ...responseProto };
     }
 
-    protected handleDataSync(protobuf: pb.GameDataSynNotify) {
-        console.log('handleDataSync', protobuf);
-    }
-
     protected checkResponseCode(code: pb.ErrorCode, requestName: string) {
         if (code !== pb.ErrorCode.OK) {
             throw new ServerError(`${requestName} failed: ${code}`, code);
         }
+    }
+
+    protected handleDataSync(protobuf: pb.GameDataSynNotify) {
+        // eslint-disable-next-line prefer-object-spread
+        const data = Object.assign({}, protobuf);
+        this._notification.emit('dataSyncNotify', data);
+
+        // const dataSync: IGameDataSynNotify = { ...protobuf };
+
+        // this._notification.emit('dataSyncNotify', dataSync);
+    }
+
+    protected handleBetNotify(protobuf: pb.BetNotify) {
+        const data: IBetNotify = { ...protobuf };
+
+        this._notification.emit('betNotify', data);
     }
 }
