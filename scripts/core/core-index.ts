@@ -9,4 +9,6 @@ export * from './network/network-index';
 export * from './service/service-index';
 export * from './system/system';
 export * from './event/event-emitter';
+export * from './async/async-operation';
+export * from './network/network-index';
 export * from './core';

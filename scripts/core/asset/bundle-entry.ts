@@ -14,6 +14,7 @@ export interface IBundleOptions {
     /// scene load this bundle
     sceneFrom?: string;
     socket?: ISocket;
+    roomId?: number;
 }
 
 export class BundleEntry {

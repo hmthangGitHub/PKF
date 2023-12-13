@@ -41,6 +41,13 @@ export class InvalidOperationError extends Error {
     }
 }
 
+export class InvalidParameterError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'InvalidParameterError';
+    }
+}
+
 export class NotImplementError extends Error {
     constructor(message: string) {
         super(message);
