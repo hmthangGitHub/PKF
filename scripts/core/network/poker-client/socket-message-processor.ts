@@ -45,6 +45,10 @@ export class SocketMessageProcessor {
         return this._serverId;
     }
 
+    get userId(): number {
+        return this._playId;
+    }
+
     /** Send a request and return response protobuf with Promise */
     protected sendRequest<RequestProtoType, ResponseProtoType>(
         requestProto: RequestProtoType,

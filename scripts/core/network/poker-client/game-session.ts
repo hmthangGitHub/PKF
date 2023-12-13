@@ -45,6 +45,8 @@ export interface IHeartBeatResponse {
 }
 
 export interface IGameSession {
+    userId: number;
+
     login(): Promise<ILoginResponse>;
     joinRoom(roomId: number): Promise<IJoinRoomResponse>;
     leaveRoom(): Promise<ILeaveRoomResp>;
