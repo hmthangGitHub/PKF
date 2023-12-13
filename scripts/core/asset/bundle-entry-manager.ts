@@ -33,14 +33,14 @@ export class BundleEntryManager {
     enterBundle(bundleName: string, options?: IBundleOptions): void {
         const entry = this.getEntry(bundleName);
         if (entry) {
-            entry.onEnter(options);
+            entry.enter(options);
         }
     }
 
     exitBundle(bundleName: string): void {
         const entry = this.getEntry(bundleName);
         if (entry) {
-            entry.onExit();
+            entry.exit();
         }
     }
 }

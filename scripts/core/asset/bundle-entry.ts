@@ -11,8 +11,6 @@ export interface IBundleOptions {
     /// bundle version
     version?: string;
     language?: string;
-    /// scene load this bundle
-    sceneFrom?: string;
     socket?: ISocket;
     roomId?: number;
 }
@@ -20,7 +18,7 @@ export interface IBundleOptions {
 export class BundleEntry {
     private _bundle: cc.AssetManager.Bundle = null;
 
-    exitCallback: () => void;
+    onBeforeExit: () => void;
 
     get bundle(): cc.AssetManager.Bundle {
         return this._bundle;
@@ -38,16 +36,28 @@ export class BundleEntry {
 
     /** @description Called when bundle is loaded */
     onLoad(options?: IBundleOptions): Promise<void> {
-        this._isRunning = true;
+        this.afterLoad();
         return new Promise((resolve) => {
             resolve();
         });
     }
 
+    async enter(options?: IBundleOptions): Promise<void> {
+        await this.onEnter(options);
+    }
+
+    exit(): void {
+        if (this.onBeforeExit) {
+            this.onBeforeExit();
+        }
+
+        this.onExit();
+    }
+
     /** @description
      * Called when enter this bundle. Load resources of this bundle this function.
      */
-    onEnter(options?: IBundleOptions): Promise<void> {
+    protected onEnter(options?: IBundleOptions): Promise<void> {
         return new Promise((resolve) => {
             resolve();
         });
@@ -56,10 +66,10 @@ export class BundleEntry {
     /** @description
      * Called when exit this bundle.
      */
-    onExit(): void {
-        if (this.exitCallback) {
-            this.exitCallback();
-        }
+    protected onExit(): void {
+        // if (this.exitCallback) {
+        //     this.exitCallback();
+        // }
     }
 
     /** @description
@@ -67,5 +77,9 @@ export class BundleEntry {
      */
     onUnload(): void {
         this._isRunning = false;
+    }
+
+    afterLoad(): void {
+        this._isRunning = true;
     }
 }
