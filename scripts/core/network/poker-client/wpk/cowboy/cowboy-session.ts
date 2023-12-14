@@ -14,13 +14,12 @@ import type {
 import { InvalidOperationError, ServerError } from '../../../../defines/errors';
 import type { IBetNotify, IBetResponse, IGameDataSynNotify } from './cowboy-session-types';
 
-import type { TypeSafeEventEmitter } from '../../../../event/event-emitter';
-import { createEventEmitter } from '../../../../event/event-emitter';
+import { TypeSafeEventEmitter } from '../../../../event/event-emitter';
 
 import * as cb_protocol from './pb/cowboy';
 import pb = cb_protocol.cowboy_proto_hall;
 
-export interface ICowboyNotificationEvents {
+export interface CowboyNotificationEvents {
     dataSyncNotify: (data: IGameDataSynNotify) => void;
     betNotify: (data: IBetNotify) => void;
 }
@@ -32,9 +31,8 @@ export class CowboySession extends GameSession {
 
     _roomId = 0;
 
-    private _notification: TypeSafeEventEmitter<ICowboyNotificationEvents> =
-        createEventEmitter<ICowboyNotificationEvents>();
-    get notification(): TypeSafeEventEmitter<ICowboyNotificationEvents> {
+    private _notification = new TypeSafeEventEmitter<CowboyNotificationEvents>();
+    get notification(): TypeSafeEventEmitter<CowboyNotificationEvents> {
         return this._notification;
     }
 
