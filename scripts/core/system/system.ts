@@ -1,9 +1,14 @@
-interface IDeviceInfo {
+export interface IDeviceInfo {
     dmodel: string;
     dname: string;
     duuid: string;
     dversion: string;
     disroot: boolean;
+}
+
+export interface GeolocationCoordinates {
+    latitude: number;
+    longitude: number;
 }
 
 export class System {
@@ -38,5 +43,12 @@ export class System {
         };
 
         return JSON.stringify(deviceInfo);
+    }
+
+    static getLocation(): GeolocationCoordinates {
+        return {
+            latitude: 10,
+            longitude: 10
+        };
     }
 }

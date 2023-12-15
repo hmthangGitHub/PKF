@@ -1,6 +1,12 @@
 /* eslint-disable camelcase */
 import type { Nullable } from '../../../defines/types';
-import type { ISocket, ILoginResponse, IMiniGamesListResponse, IGameRoomListResponse } from '../poker-socket';
+import type {
+    ISocket,
+    ILoginResponse,
+    IMiniGamesListResponse,
+    IGameRoomListResponse,
+    IResponseHeartBeat
+} from '../poker-socket';
 import type { WPKSession } from './wpk-session';
 import type { ISocketOptions } from '../poker-client-types';
 import { ServerType, GameId, SocketServerErrorCode, SystemInfo } from '../poker-client-types';
@@ -19,6 +25,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     private _systemInfo: SystemInfo = new SystemInfo();
     private _gameSessions = new Map<string, GameSession>();
     private _messageProcessors = new Map<number, SocketMessageProcessor>();
+    private _heartBeatTimeout: Nullable<NodeJS.Timeout> = null;
 
     constructor(websocketAdatper: WebSocketAdapter, session: WPKSession, options?: ISocketOptions) {
         super(ServerType.SeverType_World, GameId.World, session?.pkwAuthData?.uid, websocketAdatper);
@@ -88,6 +95,8 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         this._webSocket.onmessage = this.onMessage.bind(this);
 
         this._webSocket.onclose = this.onClose.bind(this);
+
+        this._webSocket.onerror = this.onError.bind(this);
     }
 
     async disconnect(): Promise<void> {
@@ -116,6 +125,8 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.error, 'login');
+
+        this.startHeartBeat();
 
         return { ...responseProto };
 
@@ -181,6 +192,50 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         return { ...responseProto };
     }
 
+    async sendHeartBeat(): Promise<IResponseHeartBeat> {
+        const requestProto = new pb.RequestHeartBeat();
+
+        requestProto.uid = this._session.userId;
+
+        const pos = new pb.PositionInfo();
+        pos.ip = this._session.pkwAuthData.appIP;
+        pos.latitude = this._systemInfo.coord.latitude;
+        pos.longtitude = this._systemInfo.coord.longitude;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_HeartBeat_Request,
+            pb.RequestHeartBeat,
+            pb.MSGID.MsgID_HeartBeat_Response,
+            pb.ResponseHeartBeat
+        );
+
+        const responseProto = response.payload;
+
+        return { ...responseProto };
+    }
+
+    startHeartBeat(): void {
+        this._heartBeatTimeout = setTimeout(() => {
+            this.heartBeat();
+        }, 12000);
+    }
+
+    stopHeartBeat(): void {
+        if (this._heartBeatTimeout) {
+            clearTimeout(this._heartBeatTimeout);
+            this._heartBeatTimeout = null;
+        }
+    }
+
+    heartBeat(): void {
+        this.sendHeartBeat().then(() => {
+            this._heartBeatTimeout = setTimeout(() => {
+                this.heartBeat();
+            }, 8000);
+        });
+    }
+
     protected onMessage(msg: MessageEvent) {
         // uppack message
         const socketMessage = SocketMessage.decode(msg.data);
@@ -205,12 +260,21 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         console.log('onNoticeLogin', msg);
     }
 
-    protected handleError(ev: Event) {
+    protected onError(ev: Event) {
         cc.warn(ev);
     }
 
     protected onClose(evt: CloseEvent) {
-        this.cleanupRequests(`WebSocket closed: ${evt}`);
+        if (evt.code !== 1006) {
+            console.warn(`socket is close abnormally : ${evt.code} `);
+        }
+        this.cleanupRequests(`WebSocket closed: ${evt.code}`);
+
+        this.stopHeartBeat();
+
+        this._gameSessions.forEach((session) => {
+            session.onDisconnect();
+        });
     }
 
     protected checkResponseCode(code: number, requestName: string) {

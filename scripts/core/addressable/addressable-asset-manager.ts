@@ -60,7 +60,7 @@ export class AddressableAssetManager extends Module {
 
             const location = group.getAssetLocator(indicator.assetName);
             if (!location) {
-                reject(new Error(`Asset ${indicator.assetName} does not exist!`));
+                reject(new Error(`AssetLocator of ${indicator.assetName} does not exist!`));
                 return;
             }
 

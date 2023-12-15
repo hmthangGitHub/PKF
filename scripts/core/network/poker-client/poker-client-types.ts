@@ -214,6 +214,11 @@ export enum SocketServerErrorCode {
 
 export type PlatformType = 'wpk' | 'pkw';
 
+export interface GeolocationCoord {
+    readonly latitude: number;
+    readonly longitude: number;
+}
+
 export interface ISystemInfoOptions {
     appVersion?: string;
     langauage?: string;
@@ -221,6 +226,7 @@ export interface ISystemInfoOptions {
     os?: string;
     osVersion?: string;
     deviceInfo?: string;
+    coord?: GeolocationCoord;
 }
 
 export class SystemInfo implements ISystemInfoOptions {
@@ -230,6 +236,10 @@ export class SystemInfo implements ISystemInfoOptions {
     os = '';
     osVersion = '';
     deviceInfo = '';
+    coord = {
+        latitude: 10,
+        longitude: 10
+    };
 }
 
 export interface IClientOptions extends ISystemInfoOptions {

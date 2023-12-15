@@ -11,6 +11,7 @@ import type {
     ILeaveRoomResp,
     IPlayerListResp
 } from '../../game-session';
+import type { Nullable } from '../../../../defines/types';
 import { InvalidOperationError, ServerError } from '../../../../defines/errors';
 import type {
     IBetNotify,
@@ -39,6 +40,8 @@ export class CowboySession extends GameSession {
     _session: WPKSession;
 
     _roomId = 0;
+
+    private _heartBeatTimeout: Nullable<NodeJS.Timeout> = null;
 
     private _notification = new TypeSafeEventEmitter<CowboyNotificationEvents>();
     get notification(): TypeSafeEventEmitter<CowboyNotificationEvents> {
@@ -100,6 +103,8 @@ export class CowboySession extends GameSession {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.code, 'login');
+
+        this.startHeartBeat();
 
         return { ...responseProto };
     }
@@ -214,6 +219,31 @@ export class CowboySession extends GameSession {
 
         // convert and return respose data
         return { ...responseProto };
+    }
+
+    startHeartBeat(): void {
+        this._heartBeatTimeout = setTimeout(() => {
+            this.heartBeat();
+        }, 12000);
+    }
+
+    stopHeartBeat(): void {
+        if (this._heartBeatTimeout) {
+            clearTimeout(this._heartBeatTimeout);
+            this._heartBeatTimeout = null;
+        }
+    }
+
+    heartBeat(): void {
+        this.sendHeartBeat().then(() => {
+            this._heartBeatTimeout = setTimeout(() => {
+                this.heartBeat();
+            }, 8000);
+        });
+    }
+
+    onDisconnect(): void {
+        this.stopHeartBeat();
     }
 
     protected checkResponseCode(code: pb.ErrorCode, requestName: string) {

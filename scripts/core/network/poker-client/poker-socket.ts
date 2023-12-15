@@ -61,6 +61,11 @@ export interface IGameRoomListResponse {
     videoGames?: IGameRoom[] | null;
 }
 
+export interface IResponseHeartBeat {
+    uid?: number | null;
+    timestamp?: number | null;
+}
+
 export interface ISocket {
     connect(options?: ISocketOptions): Promise<void>;
     disconnect(): Promise<void>;

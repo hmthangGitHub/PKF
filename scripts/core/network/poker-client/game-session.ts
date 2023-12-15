@@ -47,6 +47,8 @@ export interface IHeartBeatResponse {
 export interface IGameSession {
     userId: number;
 
+    verbose: boolean;
+
     login(): Promise<ILoginResponse>;
     joinRoom(roomId: number): Promise<IJoinRoomResponse>;
     leaveRoom(): Promise<ILeaveRoomResp>;
@@ -75,6 +77,8 @@ export abstract class GameSession extends SocketMessageProcessor implements IGam
     abstract joinRoom(roomId: number): Promise<IJoinRoomResponse>;
     abstract leaveRoom(): Promise<ILeaveRoomResp>;
     abstract getPlayerList(): Promise<IPlayerListResp>;
+
+    abstract onDisconnect(): void;
 }
 
 export interface GameSessionClass<T> {

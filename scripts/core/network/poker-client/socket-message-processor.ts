@@ -27,6 +27,7 @@ export class SocketMessageProcessor {
     protected _requests = new Map<number, IRequest>();
     protected _messageHandlers = new Map<number, MessageHandler>();
     protected _verbose = true;
+
     protected _writeArrayBuffer: ArrayBuffer = new ArrayBuffer(SocketMessage.MAX_PAYLOAD_LENGTH);
     protected _serverType: number;
     protected _serverId: number;
@@ -47,6 +48,13 @@ export class SocketMessageProcessor {
 
     get userId(): number {
         return this._playId;
+    }
+
+    get verbose() {
+        return this._verbose;
+    }
+    set verbose(value) {
+        this._verbose = value;
     }
 
     /** Send a request and return response protobuf with Promise */
@@ -161,7 +169,9 @@ export class SocketMessageProcessor {
     protected registerNotificationHandlers(): void {}
 
     protected handleNotification(msg: SocketMessage): void {
-        console.log('handle ', msg);
+        if (this._verbose) {
+            console.log('handle notification', msg);
+        }
         const handler = this._messageHandlers.get(msg.header.messageId);
         if (handler) {
             handler(msg);
