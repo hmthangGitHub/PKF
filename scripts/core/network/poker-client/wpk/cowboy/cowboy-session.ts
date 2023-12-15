@@ -12,7 +12,13 @@ import type {
     IPlayerListResp
 } from '../../game-session';
 import { InvalidOperationError, ServerError } from '../../../../defines/errors';
-import type { IBetNotify, IBetResponse, IGameDataSynNotify } from './cowboy-session-types';
+import type {
+    IBetNotify,
+    IBetResponse,
+    IGameDataSynNotify,
+    IGameRoundEndNotify,
+    IStartBetNotify
+} from './cowboy-session-types';
 
 import { TypeSafeEventEmitter } from '../../../../event/event-emitter';
 
@@ -20,8 +26,11 @@ import * as cb_protocol from './pb/cowboy';
 import pb = cb_protocol.cowboy_proto_hall;
 
 export interface CowboyNotificationEvents {
-    dataSyncNotify: (data: IGameDataSynNotify) => void;
-    betNotify: (data: IBetNotify) => void;
+    dataSync: (data: IGameDataSynNotify) => void;
+    bet: (data: IBetNotify) => void;
+    startBet: (data: IStartBetNotify) => void;
+    startSettlement: () => void;
+    gameRoundEnd: (data: IGameRoundEndNotify) => void;
 }
 
 export class CowboySession extends GameSession {
@@ -55,6 +64,22 @@ export class CowboySession extends GameSession {
 
     protected registerNotificationHandlers(): void {
         this.registerNotificationHandler(pb.CMD.GAME_DATA_SYN, pb.GameDataSynNotify, this.handleDataSync.bind(this));
+        this.registerNotificationHandler(
+            pb.CMD.START_BET_NOTIFY,
+            pb.StartBetNotify,
+            this.handleStartBetNotify.bind(this)
+        );
+        this.registerNotificationHandler(
+            pb.CMD.START_SETTLEMENT_NOTIFY,
+            pb.StartSettlementNotify,
+            this.handleStartSettlementNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.CMD.GAME_ROUND_END_NOTIFY,
+            pb.GameRoundEndNotify,
+            this.handleGameRoundEndNotify.bind(this)
+        );
         this.registerNotificationHandler(pb.CMD.BET_NOTIFY, pb.BetNotify, this.handleBetNotify.bind(this));
     }
 
@@ -200,12 +225,28 @@ export class CowboySession extends GameSession {
     protected handleDataSync(protobuf: pb.GameDataSynNotify) {
         const dataSync: IGameDataSynNotify = { ...protobuf };
 
-        this._notification.emit('dataSyncNotify', dataSync);
+        this._notification.emit('dataSync', dataSync);
     }
 
     protected handleBetNotify(protobuf: pb.BetNotify) {
         const data: IBetNotify = { ...protobuf };
 
-        this._notification.emit('betNotify', data);
+        this._notification.emit('bet', data);
+    }
+
+    protected handleStartBetNotify(protobuf: pb.StartBetNotify) {
+        const data: IStartBetNotify = { ...protobuf };
+
+        this._notification.emit('startBet', data);
+    }
+
+    protected handleStartSettlementNotify(protobuf: pb.StartSettlementNotify) {
+        this._notification.emit('startSettlement');
+    }
+
+    protected handleGameRoundEndNotify(protobuf: pb.GameRoundEndNotify) {
+        const data: IGameRoundEndNotify = { ...protobuf };
+
+        this._notification.emit('gameRoundEnd', data);
     }
 }

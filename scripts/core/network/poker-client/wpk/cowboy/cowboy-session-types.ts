@@ -131,7 +131,7 @@ export interface IPlayerHoleCard {
     option?: BetZoneOption | null;
 }
 
-interface IZoneSettleDetail {
+export interface IZoneSettleDetail {
     zone?: BetZone | null;
     option?: BetZoneOption | null;
     betAmount?: number | null;
@@ -140,7 +140,7 @@ interface IZoneSettleDetail {
     betGameCoin?: number | null;
 }
 
-interface IPlayerSettle {
+export interface IPlayerSettle {
     uid?: number | null;
     settle?: IZoneSettleDetail[] | null;
     totalWinAmount?: number | null;
@@ -223,4 +223,25 @@ export interface IBetNotify {
     selfBet?: number | null;
     totalBet?: number | null;
     curUsdt?: number | null;
+}
+
+export interface IStartBetNotify {
+    nextRoundEndStamp?: number | null;
+    leftSeconds?: number | null;
+}
+
+export interface IGameRoundEndNotify {
+    playerHoleCard?: IPlayerHoleCard[] | null;
+    publicCards?: ICardItem[] | null;
+    playerSettle?: IPlayerSettle[] | null;
+    roundResult?: IRoundResult | null;
+    nextRoundEndStamp?: number | null;
+    matchOption?: BetZoneOption[] | null;
+    stopWorld?: number | null;
+    leftSeconds?: number | null;
+    otherPlayers?: IPlayerSettle | null;
+    openRoads?: boolean | null;
+    optionResult?: IOptionResult[] | null;
+    change_points?: number | null;
+    idle_roomid?: number | null;
 }
