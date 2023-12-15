@@ -1,3 +1,4 @@
+import type { BetZoneOption } from './../../../../../../../bundles/cowboy/scripts/CowboyEnum';
 /* eslint-disable camelcase */
 import { GameSession } from '../../game-session';
 import { WPKSession } from '../wpk-session';
@@ -16,6 +17,7 @@ import { InvalidOperationError, ServerError } from '../../../../defines/errors';
 import type {
     IBetNotify,
     IBetResponse,
+    IDealNotify,
     IGameDataSynNotify,
     IGameRoundEndNotify,
     IStartBetNotify
@@ -32,6 +34,7 @@ export interface CowboyNotificationEvents {
     startBet: (data: IStartBetNotify) => void;
     startSettlement: () => void;
     gameRoundEnd: (data: IGameRoundEndNotify) => void;
+    deal: (data: IDealNotify) => void;
 }
 
 export class CowboySession extends GameSession {
@@ -84,6 +87,7 @@ export class CowboySession extends GameSession {
             this.handleGameRoundEndNotify.bind(this)
         );
         this.registerNotificationHandler(pb.CMD.BET_NOTIFY, pb.BetNotify, this.handleBetNotify.bind(this));
+        this.registerNotificationHandler(pb.CMD.DEAL_NOTIFY, pb.DealNotify, this.handleDealNotify.bind(this));
     }
 
     async login(): Promise<ILoginResponse> {
@@ -106,7 +110,7 @@ export class CowboySession extends GameSession {
 
         this.startHeartBeat();
 
-        return { ...responseProto };
+        return responseProto;
     }
 
     async joinRoom(roomId: number): Promise<IJoinRoomResponse> {
@@ -129,7 +133,7 @@ export class CowboySession extends GameSession {
             this._roomId = responseProto.roomid;
         }
 
-        return { ...responseProto };
+        return responseProto;
     }
     async leaveRoom(): Promise<ILeaveRoomResp> {
         const requestProto = new pb.LeaveRoomReq();
@@ -149,7 +153,7 @@ export class CowboySession extends GameSession {
 
         this._roomId = 0;
 
-        return { ...responseProto };
+        return responseProto;
     }
 
     async getPlayerList(): Promise<IPlayerListResp> {
@@ -172,10 +176,10 @@ export class CowboySession extends GameSession {
 
         this.checkResponseCode(responseProto.code, 'getPlayerList');
 
-        return { ...responseProto };
+        return responseProto;
     }
 
-    async bet(option: number, betAmount: number): Promise<IBetResponse> {
+    async bet(option: BetZoneOption, betAmount: number): Promise<IBetResponse> {
         if (this._roomId === 0) {
             return Promise.reject<IPlayerListResp>(new InvalidOperationError(`${this.name} does not join room yet!`));
         }
@@ -199,7 +203,7 @@ export class CowboySession extends GameSession {
 
         this.checkResponseCode(responseProto.code, 'bet');
 
-        return { ...responseProto };
+        return responseProto;
     }
 
     async sendHeartBeat(): Promise<IHeartBeatResponse> {
@@ -218,7 +222,7 @@ export class CowboySession extends GameSession {
         const responseProto = response.payload;
 
         // convert and return respose data
-        return { ...responseProto };
+        return responseProto;
     }
 
     startHeartBeat(): void {
@@ -253,21 +257,15 @@ export class CowboySession extends GameSession {
     }
 
     protected handleDataSync(protobuf: pb.GameDataSynNotify) {
-        const dataSync: IGameDataSynNotify = { ...protobuf };
-
-        this._notification.emit('dataSync', dataSync);
+        this._notification.emit('dataSync', protobuf);
     }
 
     protected handleBetNotify(protobuf: pb.BetNotify) {
-        const data: IBetNotify = { ...protobuf };
-
-        this._notification.emit('bet', data);
+        this._notification.emit('bet', protobuf);
     }
 
     protected handleStartBetNotify(protobuf: pb.StartBetNotify) {
-        const data: IStartBetNotify = { ...protobuf };
-
-        this._notification.emit('startBet', data);
+        this._notification.emit('startBet', protobuf);
     }
 
     protected handleStartSettlementNotify(protobuf: pb.StartSettlementNotify) {
@@ -275,8 +273,10 @@ export class CowboySession extends GameSession {
     }
 
     protected handleGameRoundEndNotify(protobuf: pb.GameRoundEndNotify) {
-        const data: IGameRoundEndNotify = { ...protobuf };
+        this._notification.emit('gameRoundEnd', protobuf);
+    }
 
-        this._notification.emit('gameRoundEnd', data);
+    protected handleDealNotify(protobuf: pb.DealNotify) {
+        this._notification.emit('deal', protobuf);
     }
 }

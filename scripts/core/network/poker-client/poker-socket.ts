@@ -67,6 +67,8 @@ export interface IResponseHeartBeat {
 }
 
 export interface ISocket {
+    verbose: boolean;
+
     connect(options?: ISocketOptions): Promise<void>;
     disconnect(): Promise<void>;
 

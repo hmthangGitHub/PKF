@@ -245,3 +245,14 @@ export interface IGameRoundEndNotify {
     change_points?: number | null;
     idle_roomid?: number | null;
 }
+
+export interface IDealNotify {
+    card?: ICardItem | null;
+    nextRoundEndStamp?: number | null;
+    players?: IGamePlayer[] | null;
+    param?: IRoomParam | null;
+    changed?: boolean | null;
+    lastResult?: BetZoneOption[] | null;
+    leftSeconds?: number | null;
+    canAuto?: boolean | null;
+}
