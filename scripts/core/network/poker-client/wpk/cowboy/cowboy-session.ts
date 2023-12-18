@@ -15,8 +15,9 @@ import type {
 import type { Nullable } from '../../../../defines/types';
 import { InvalidOperationError, ServerError } from '../../../../defines/errors';
 import type {
-    IBetNotify,
     IBetResponse,
+    IAutoBetResp,
+    IBetNotify,
     IDealNotify,
     IGameDataSynNotify,
     IGameRoundEndNotify,
@@ -202,6 +203,29 @@ export class CowboySession extends GameSession {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.code, 'bet');
+
+        return responseProto;
+    }
+
+    async startAutoBet(): Promise<IAutoBetResp> {
+        if (this._roomId === 0) {
+            return Promise.reject<IPlayerListResp>(new InvalidOperationError(`${this.name} does not join room yet!`));
+        }
+
+        const requestProto = new pb.AutoBetReq();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.AUTO_BET_REQ,
+            pb.AutoBetReq,
+            pb.CMD.AUTO_BET_RESP,
+            pb.AutoBetResp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'startAutoBet');
 
         return responseProto;
     }
