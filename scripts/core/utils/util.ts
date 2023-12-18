@@ -22,4 +22,16 @@ export class Util {
             }
         });
     }
+
+    static cloneDeep(dest: any, source: any) {
+        Object.keys(source).forEach((key) => {
+            if (typeof source[key] === 'object') {
+                dest[key] = Array.isArray(source[key]) ? [] : {};
+                Util.cloneDeep(dest[key], source[key]);
+            } else {
+                // primitive type
+                dest[key] = source[key];
+            }
+        });
+    }
 }
