@@ -60,6 +60,41 @@ export enum AutoBetLevel {
     Level_Advance = 1
 }
 
+export enum ErrorCode {
+    ErrorCode_DUMMY = 0,
+    OK = 1,
+    ROOM_WITHOUT_YOU = 31000,
+    LOW_VERSION = 31001,
+    INVALID_TOKEN = 31002,
+    SERVER_BUSY = 31003,
+    WITHOUT_LOGIN = 31004,
+    ROOM_NOT_MATCH = 31005,
+    ROOM_NOT_EXIST = 31006,
+    BET_EXCEED_LIMIT = 31007,
+    ROOM_PLAYER_LIMIT = 31008,
+    NO_BET = 31009,
+    BET_AMOUNT_NOT_MATCH = 31010,
+    NO_MONEY = 31011,
+    BET_BAD_PARAM = 31012,
+    STOP_SERVICE = 31013,
+    NOT_BET_WHEN_AUTO_BET = 31014,
+    BET_TOO_SMALL = 31015,
+    BET_COUNT_LIMIT = 31016,
+    AUTO_BET_LIMIT = 31017,
+    TOO_MANY_PEOPLE = 31018,
+    BAD_REQ_PARAM = 31019,
+    NO_SET_ADVANCE_AUTO_BET = 31020,
+    AUTO_BET_COUNT_LIMIT = 31021,
+    AUTO_BET_NO_MONEY = 31022,
+    AUTO_BET_EXCEED_LIMIT = 31023,
+    ROOM_SYSTEM_FORCE_CLOSED = 31024,
+    IN_CALM_DOWN = 31025,
+    REACH_LIMIT_BET = 31026,
+    C2CPAYMENT_LIST_GET_ERROR = 31117,
+    C2CPAYMENT_NOT_ALLOW = 31118,
+    CAN_NOT_LEAVE_IN_BETTING = 31119
+}
+
 export interface IBillInfo {
     BillNo?: string | null;
     time?: number | null;
@@ -69,6 +104,14 @@ export interface IBetResponse extends IGameSessionResponse {
     CalmDownLeftSeconds?: number | null;
     CalmDownDeadLineTimeStamp?: number | null;
     bill?: IBillInfo;
+}
+
+export interface IAutoBetResp {
+    code?: ErrorCode | null;
+    canAuto?: boolean | null;
+    CalmDownLeftSeconds?: number | null;
+    CalmDownDeadLineTimeStamp?: number | null;
+    bill?: IBillInfo | null;
 }
 
 export interface IOddsDetail {
