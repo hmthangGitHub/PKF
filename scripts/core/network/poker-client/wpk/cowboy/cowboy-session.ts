@@ -179,9 +179,9 @@ export class CowboySession extends GameSession {
         return responseProto;
     }
 
-    async bet(option: BetZoneOption, betAmount: number): Promise<IBetResponse> {
+    async bet(option: BetZoneOption, betAmount: number): Promise<void> {
         if (this._roomId === 0) {
-            return Promise.reject<IPlayerListResp>(new InvalidOperationError(`${this.name} does not join room yet!`));
+            return Promise.reject(new InvalidOperationError(`${this.name} does not join room yet!`));
         }
 
         const requestProto = new pb.BetReq();
@@ -190,20 +190,7 @@ export class CowboySession extends GameSession {
             betAmount
         };
 
-        const response = await this.sendRequest(
-            requestProto,
-            pb.CMD.BET_REQ,
-            pb.BetReq,
-            pb.CMD.BET_RESP,
-            pb.BetResp,
-            this._roomId
-        );
-
-        const responseProto = response.payload;
-
-        this.checkResponseCode(responseProto.code, 'bet');
-
-        return responseProto;
+        return await this.sendRequestWithoutResponse(requestProto, pb.CMD.BET_REQ, pb.BetReq, this._roomId);
     }
 
     async sendHeartBeat(): Promise<IHeartBeatResponse> {

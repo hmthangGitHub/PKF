@@ -116,6 +116,40 @@ export class SocketMessageProcessor {
         return asyncOp.promise;
     }
 
+    protected sendRequestWithoutResponse<RequestProtoType>(
+        requestProto: RequestProtoType,
+        requestId: number,
+        requestProtoClass: ProtobutClass<RequestProtoType>,
+        roomId = 0
+    ): Promise<void> {
+        // create message header
+        const header = new SocketMessageHeader(
+            this._serverType,
+            this._serverId,
+            requestId,
+            this._webSocket.getNextSequence(),
+            this._playId,
+            roomId
+        );
+
+        // encode payload
+        const payload = this.encodeProtobuf(requestProto, requestProtoClass);
+
+        // create message
+        const message = new SocketMessage(header, payload);
+
+        // pack message
+        const data = SocketMessage.encode(message, this._writeArrayBuffer);
+
+        if (this._verbose) {
+            console.log('send message', message.header, requestProto);
+        }
+
+        this.send(data);
+
+        return Promise.resolve();
+    }
+
     protected send(data: Uint8Array): void {
         this._webSocket.send(data);
     }
