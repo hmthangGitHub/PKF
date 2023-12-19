@@ -15,13 +15,14 @@ import type {
 import type { Nullable } from '../../../../defines/types';
 import { InvalidOperationError, ServerError } from '../../../../defines/errors';
 import type {
-    IBetResponse,
     IAutoBetResp,
+    IAdvanceAutoBetRsp,
     IBetNotify,
     IDealNotify,
     IGameDataSynNotify,
     IGameRoundEndNotify,
-    IStartBetNotify
+    IStartBetNotify,
+    IMergeAutoBetNotify
 } from './cowboy-session-types';
 
 import { TypeSafeEventEmitter } from '../../../../event/event-emitter';
@@ -36,6 +37,7 @@ export interface CowboyNotificationEvents {
     startSettlement: () => void;
     gameRoundEnd: (data: IGameRoundEndNotify) => void;
     deal: (data: IDealNotify) => void;
+    mergeAutoBet(data: IMergeAutoBetNotify);
 }
 
 export class CowboySession extends GameSession {
@@ -89,6 +91,11 @@ export class CowboySession extends GameSession {
         );
         this.registerNotificationHandler(pb.CMD.BET_NOTIFY, pb.BetNotify, this.handleBetNotify.bind(this));
         this.registerNotificationHandler(pb.CMD.DEAL_NOTIFY, pb.DealNotify, this.handleDealNotify.bind(this));
+        this.registerNotificationHandler(
+            pb.CMD.MERGE_AUTO_BET_NOTIFY,
+            pb.MergeAutoBetNotify,
+            this.handleMergeAutoBetNotify.bind(this)
+        );
     }
 
     async login(): Promise<ILoginResponse> {
@@ -194,9 +201,9 @@ export class CowboySession extends GameSession {
         return await this.sendRequestWithoutResponse(requestProto, pb.CMD.BET_REQ, pb.BetReq, this._roomId);
     }
 
-    async startAutoBet(): Promise<IAutoBetResp> {
+    async autoBet(): Promise<IAutoBetResp> {
         if (this._roomId === 0) {
-            return Promise.reject<IPlayerListResp>(new InvalidOperationError(`${this.name} does not join room yet!`));
+            return Promise.reject<IAutoBetResp>(new InvalidOperationError(`${this.name} does not join room yet!`));
         }
 
         const requestProto = new pb.AutoBetReq();
@@ -213,6 +220,31 @@ export class CowboySession extends GameSession {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.code, 'startAutoBet');
+
+        console.log('start autobet response', responseProto);
+
+        return responseProto;
+    }
+
+    async startAdavnceAutoBet(): Promise<IAdvanceAutoBetRsp> {
+        if (this._roomId === 0) {
+            return Promise.reject<IPlayerListResp>(new InvalidOperationError(`${this.name} does not join room yet!`));
+        }
+
+        const requestProto = new pb.AdvanceAutoBetReq();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.ADVANCE_AUTO_BET_REQ,
+            pb.AdvanceAutoBetReq,
+            pb.CMD.ADVANCE_AUTO_BET_RSP,
+            pb.AdvanceAutoBetRsp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'startAdavnceAutoBet');
 
         return responseProto;
     }
@@ -289,5 +321,9 @@ export class CowboySession extends GameSession {
 
     protected handleDealNotify(protobuf: pb.DealNotify) {
         this._notification.emit('deal', protobuf);
+    }
+
+    protected handleMergeAutoBetNotify(protobuf: pb.MergeAutoBetNotify) {
+        this._notification.emit('mergeAutoBet', protobuf);
     }
 }

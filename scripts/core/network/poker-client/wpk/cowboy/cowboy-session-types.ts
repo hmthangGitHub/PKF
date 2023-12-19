@@ -114,6 +114,14 @@ export interface IAutoBetResp {
     bill?: IBillInfo | null;
 }
 
+export interface IAdvanceAutoBetRsp {
+    code?: ErrorCode | null;
+    usedAutoBetCount?: number | null;
+    CalmDownLeftSeconds?: number | null;
+    CalmDownDeadLineTimeStamp?: number | null;
+    bill?: IBillInfo | null;
+}
+
 export interface IOddsDetail {
     zone?: BetZone | null;
     option?: BetZoneOption | null;
@@ -266,6 +274,10 @@ export interface IBetNotify {
     selfBet?: number | null;
     totalBet?: number | null;
     curUsdt?: number | null;
+}
+
+export interface IMergeAutoBetNotify {
+    notify?: IBetNotify[] | null;
 }
 
 export interface IStartBetNotify {
