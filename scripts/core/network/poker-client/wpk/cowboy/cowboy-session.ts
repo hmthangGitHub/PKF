@@ -1,4 +1,3 @@
-import type { BetZoneOption } from './../../../../../../../bundles/cowboy/scripts/CowboyEnum';
 /* eslint-disable camelcase */
 import { GameSession } from '../../game-session';
 import { WPKSession } from '../wpk-session';
@@ -15,14 +14,19 @@ import type {
 import type { Nullable } from '../../../../defines/types';
 import { InvalidOperationError, ServerError } from '../../../../defines/errors';
 import type {
-    IAutoBetResp,
-    IAdvanceAutoBetRsp,
+    IAutoBetResponse,
+    ISetGameOptionResponse,
+    IAdvanceAutoBetResponse,
+    ISetAdvanceAutoBetCountResponse,
+    IAddAdvanceAutoBetCountResponse,
     IBetNotify,
     IDealNotify,
     IGameDataSynNotify,
     IGameRoundEndNotify,
     IStartBetNotify,
-    IMergeAutoBetNotify
+    IMergeAutoBetNotify,
+    AutoBetLevel,
+    BetZoneOption
 } from './cowboy-session-types';
 
 import { TypeSafeEventEmitter } from '../../../../event/event-emitter';
@@ -198,12 +202,12 @@ export class CowboySession extends GameSession {
             betAmount
         };
 
-        return await this.sendRequestWithoutResponse(requestProto, pb.CMD.BET_REQ, pb.BetReq, this._roomId);
+        return await this.sendMessage(requestProto, pb.CMD.BET_REQ, pb.BetReq, this._roomId);
     }
 
-    async autoBet(): Promise<IAutoBetResp> {
+    async autoBet(): Promise<IAutoBetResponse> {
         if (this._roomId === 0) {
-            return Promise.reject<IAutoBetResp>(new InvalidOperationError(`${this.name} does not join room yet!`));
+            return Promise.reject<IAutoBetResponse>(new InvalidOperationError(`${this.name} does not join room yet!`));
         }
 
         const requestProto = new pb.AutoBetReq();
@@ -221,14 +225,43 @@ export class CowboySession extends GameSession {
 
         this.checkResponseCode(responseProto.code, 'startAutoBet');
 
-        console.log('start autobet response', responseProto);
+        return responseProto;
+    }
+
+    async setGameOption(autoBetLevel: AutoBetLevel, betCoinOptions: number[]): Promise<ISetGameOptionResponse> {
+        if (this._roomId === 0) {
+            return Promise.reject<ISetGameOptionResponse>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
+        }
+
+        const requestProto = new pb.SetGameOptionReq();
+        requestProto.autoLevel = autoBetLevel;
+        requestProto.betCoinOption = betCoinOptions;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.SET_GAME_OPTION_REQ,
+            pb.SetGameOptionReq,
+            pb.CMD.SET_GAME_OPTION_RSP,
+            pb.SetGameOptionResp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'setGameOption');
+
+        console.log('setGameOption AdavnceAutoBet', responseProto);
 
         return responseProto;
     }
 
-    async startAdavnceAutoBet(): Promise<IAdvanceAutoBetRsp> {
+    async startAdavnceAutoBet(): Promise<IAdvanceAutoBetResponse> {
         if (this._roomId === 0) {
-            return Promise.reject<IPlayerListResp>(new InvalidOperationError(`${this.name} does not join room yet!`));
+            return Promise.reject<IAdvanceAutoBetResponse>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
         }
 
         const requestProto = new pb.AdvanceAutoBetReq();
@@ -245,6 +278,83 @@ export class CowboySession extends GameSession {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.code, 'startAdavnceAutoBet');
+
+        console.log('startAdavnceAutoBet');
+
+        return responseProto;
+    }
+
+    async stopAdavnceAutoBet(): Promise<void> {
+        if (this._roomId === 0) {
+            return Promise.reject(new InvalidOperationError(`${this.name} does not join room yet!`));
+        }
+
+        const requestProto = new pb.CancelAdvanceAutoBetReq();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.CANCEL_ADVANCE_AUTO_BET_REQ,
+            pb.CancelAdvanceAutoBetReq,
+            pb.CMD.CANCEL_ADVANCE_AUTO_BET_RSP,
+            pb.CancelAdvanceAutoBetRsp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'startAdavnceAutoBet');
+    }
+
+    async setAdavnceAutoBetCount(count: number): Promise<ISetAdvanceAutoBetCountResponse> {
+        if (this._roomId === 0) {
+            return Promise.reject<ISetAdvanceAutoBetCountResponse>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
+        }
+
+        const requestProto = new pb.AdvanceAutoBetSetReq();
+        requestProto.count = count;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.ADVANCE_AUTO_BET_SET_REQ,
+            pb.AdvanceAutoBetSetReq,
+            pb.CMD.ADVANCE_AUTO_BET_SET_RSP,
+            pb.AdvanceAutoBetSetRsp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'startAdavnceAutoBet');
+
+        console.log('setAdavnceAutoBetCount', requestProto.count);
+
+        return responseProto;
+    }
+
+    async addAdavnceAutoBetCount(count: number): Promise<IAddAdvanceAutoBetCountResponse> {
+        if (this._roomId === 0) {
+            return Promise.reject<IAddAdvanceAutoBetCountResponse>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
+        }
+
+        const requestProto = new pb.AdvanceAutoBetSetReq();
+        requestProto.count = count;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.ADVANCE_AUTO_BET_ADD_REQ,
+            pb.AdvanceAutoBetSetReq,
+            pb.CMD.ADVANCE_AUTO_BET_ADD_RSP,
+            pb.AdvanceAutoBetAddRsp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'addAdavnceAutoBetCount');
 
         return responseProto;
     }

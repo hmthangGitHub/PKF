@@ -239,9 +239,9 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     protected onMessage(msg: MessageEvent) {
         // uppack message
         const socketMessage = SocketMessage.decode(msg.data);
-        if (this._verbose) {
-            console.log('receive message:', socketMessage.header);
-        }
+        // if (this._verbose) {
+        //     console.log('receive message:', socketMessage.header);
+        // }
 
         if (socketMessage.header.serverId === GameId.World) {
             // process world messages

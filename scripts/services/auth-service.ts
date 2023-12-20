@@ -1,5 +1,5 @@
 import { Service } from '../core/service/service';
-import type { Nullable, IPokerClient, RequestOtpions, User } from '../core/core-index';
+import type { Nullable, IPokerClient, RequestOtpions, User, ISession } from '../core/core-index';
 
 export class AuthService extends Service {
     static readonly serviceName = 'AuthService';
@@ -21,9 +21,11 @@ export class AuthService extends Service {
         this._client = client;
     }
 
-    async login(username: string, password: string, options?: RequestOtpions): Promise<void> {
-        await this._client.login(username, password, options);
+    async login(username: string, password: string, options?: RequestOtpions): Promise<ISession> {
+        const session = await this._client.login(username, password, options);
 
         this._currentUser = this._client.GetCurrentUser();
+
+        return session;
     }
 }

@@ -106,7 +106,7 @@ export interface IBetResponse extends IGameSessionResponse {
     bill?: IBillInfo;
 }
 
-export interface IAutoBetResp {
+export interface IAutoBetResponse {
     code?: ErrorCode | null;
     canAuto?: boolean | null;
     CalmDownLeftSeconds?: number | null;
@@ -114,12 +114,32 @@ export interface IAutoBetResp {
     bill?: IBillInfo | null;
 }
 
-export interface IAdvanceAutoBetRsp {
+export interface IAdvanceAutoBetResponse {
     code?: ErrorCode | null;
     usedAutoBetCount?: number | null;
     CalmDownLeftSeconds?: number | null;
     CalmDownDeadLineTimeStamp?: number | null;
     bill?: IBillInfo | null;
+}
+
+export interface ISetGameOptionResponse {
+    code?: ErrorCode | null;
+    autoLevel?: AutoBetLevel | null;
+    betCoinOption?: number[] | null;
+}
+
+export interface ISetAdvanceAutoBetCountResponse {
+    code?: ErrorCode | null;
+    count?: number | null;
+    CalmDownLeftSeconds?: number | null;
+    CalmDownDeadLineTimeStamp?: number | null;
+}
+
+export interface IAddAdvanceAutoBetCountResponse {
+    code?: ErrorCode | null;
+    autoBetCount?: number | null;
+    usedAutoBetCount?: number | null;
+    numberHandAdded?: number | null;
 }
 
 export interface IOddsDetail {

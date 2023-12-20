@@ -85,10 +85,6 @@ export class SocketMessageProcessor {
         // pack message
         const data = SocketMessage.encode(message, this._writeArrayBuffer);
 
-        if (this._verbose) {
-            console.log('send message', message.header, requestProto);
-        }
-
         // cancel previous request
         const request = this._requests.get(responseId);
         if (request) {
@@ -111,12 +107,16 @@ export class SocketMessageProcessor {
             }
         });
 
+        if (this._verbose) {
+            console.log(`send request ${message.header.messageId}`, message.header, requestProto);
+        }
+
         this.send(data);
 
         return asyncOp.promise;
     }
 
-    protected sendRequestWithoutResponse<RequestProtoType>(
+    protected sendMessage<RequestProtoType>(
         requestProto: RequestProtoType,
         requestId: number,
         requestProtoClass: ProtobutClass<RequestProtoType>,
@@ -142,7 +142,7 @@ export class SocketMessageProcessor {
         const data = SocketMessage.encode(message, this._writeArrayBuffer);
 
         if (this._verbose) {
-            console.log('send message', message.header, requestProto);
+            console.log(`send message ${message.header.messageId}`, message.header, requestProto);
         }
 
         this.send(data);
@@ -171,6 +171,10 @@ export class SocketMessageProcessor {
     }
 
     handleMessage(msg: SocketMessage): void {
+        if (this._verbose) {
+            console.log(`receive message ${msg.header.messageId}`, msg.header, msg.header);
+        }
+
         const request = this._requests.get(msg.header.messageId);
         if (request) {
             // handel request
@@ -204,7 +208,7 @@ export class SocketMessageProcessor {
 
     protected handleNotification(msg: SocketMessage): void {
         if (this._verbose) {
-            console.log('handle notification', msg);
+            console.log(`handle notification ${msg.header.messageId}`, msg);
         }
         const handler = this._messageHandlers.get(msg.header.messageId);
         if (handler) {
