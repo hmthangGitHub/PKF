@@ -69,7 +69,7 @@ export interface IResponseHeartBeat {
 export interface ISocket {
     verbose: boolean;
 
-    connect(options?: ISocketOptions): Promise<void>;
+    connect(url: string, options?: ISocketOptions): Promise<void>;
     disconnect(): Promise<void>;
 
     createGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T;

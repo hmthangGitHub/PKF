@@ -64,30 +64,13 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         }
     }
 
-    async connect(options?: ISocketOptions): Promise<void> {
+    async connect(url: string, options?: ISocketOptions): Promise<void> {
         if (this._webSocket.isOpen()) {
             return Promise.resolve();
         }
 
-        const opts: ISocketOptions = {
-            domainIndex: 0
-        };
-
-        if (options) {
-            Object.assign(opts, options);
-        }
-
-        let url: string = null;
-        if (opts.url) {
-            url = opts.url;
-        } else {
-            if (this._session.pkwAuthData.gate_addr.length <= opts.domainIndex) {
-                return Promise.reject(new RangeError(`gate address of domain ${opts.domainIndex} does not exist!`));
-            }
-            url = this._session.pkwAuthData.gate_addr[opts.domainIndex];
-        }
-        if (url.indexOf('wss') === 0 && opts.cert) {
-            await this._webSocket.connect(url, ['chat', opts.cert]);
+        if (url.indexOf('wss') === 0 && options?.cert) {
+            await this._webSocket.connect(url, ['chat', options.cert]);
         } else {
             await this._webSocket.connect(url);
         }
@@ -129,14 +112,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         this.startHeartBeat();
 
         return { ...responseProto };
-
-        // if (responseProto.error !== SocketServerErrorCode.OK) {
-        //     throw new ServerError(`Login failed: ${responseProto.error}`, responseProto.error);
-        // } else {
-        //     // convert respose data
-        //     const response = { ...responseProto };
-        //     return response;
-        // }
     }
 
     async getMiniGamesList(): Promise<IMiniGamesListResponse> {

@@ -250,9 +250,9 @@ export interface IClientOptions extends ISystemInfoOptions {
 }
 
 export interface ISocketOptions extends ISystemInfoOptions {
-    url?: string;
+    // url?: string;
+    // domainIndex?: number;
     cert?: string;
-    domainIndex?: number;
 }
 
 export interface RequestOtpions {
