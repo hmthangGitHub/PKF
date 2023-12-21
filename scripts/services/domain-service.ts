@@ -24,4 +24,8 @@ export class DomainService extends Service {
     getDomainInfo(): DomainInfo {
         return this._domainInfo;
     }
+
+    getAvatarUrl(avatarPath: string): string {
+        return this._domainInfo.avatarServerAddress + avatarPath;
+    }
 }
