@@ -58,7 +58,11 @@ export class LanguageManager extends Module {
 
     getString(key: string): string | undefined {
         if (this._currentLanguageGroup) {
-            return this._currentLanguageGroup.getString(key);
+            const str = this._currentLanguageGroup.getString(key);
+            if (str === undefined) {
+                cc.warn(`String ${key} does not defined!`);
+            }
+            return str;
         } else {
             cc.warn('current language is null! please the current language before use it.');
             return undefined;
