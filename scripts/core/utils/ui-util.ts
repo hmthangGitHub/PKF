@@ -62,4 +62,21 @@ export class UIUtil {
             }
         }
     }
+
+    /**
+     * 判断当前帧指引擎对象实例是否有效
+     * @param node
+     * @returns true:表示有效
+     */
+    static isValidNode(obj: any): boolean {
+        return obj && cc.isValid(obj, true);
+    }
+
+    /**
+     * 安全销毁指定节点
+     * @param node
+     */
+    static destroyNode(node: cc.Node) {
+        if (this.isValidNode(node)) node.destroy();
+    }
 }
