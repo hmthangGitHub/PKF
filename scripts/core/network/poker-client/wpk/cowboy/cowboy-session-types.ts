@@ -142,6 +142,13 @@ export interface IAddAdvanceAutoBetCountResponse {
     numberHandAdded?: number | null;
 }
 
+export interface ICancelAdvanceAutoBetResponse {
+    code?: ErrorCode | null;
+    is_manual?: boolean | null;
+}
+
+export type IAdvanceAutoBetCancelNotify = ICancelAdvanceAutoBetResponse;
+
 export interface IOddsDetail {
     zone?: BetZone | null;
     option?: BetZoneOption | null;

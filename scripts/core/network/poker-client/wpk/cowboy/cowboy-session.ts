@@ -19,6 +19,7 @@ import type {
     IAdvanceAutoBetResponse,
     ISetAdvanceAutoBetCountResponse,
     IAddAdvanceAutoBetCountResponse,
+    ICancelAdvanceAutoBetResponse,
     IBetNotify,
     IDealNotify,
     IGameDataSynNotify,
@@ -26,7 +27,8 @@ import type {
     IStartBetNotify,
     IMergeAutoBetNotify,
     AutoBetLevel,
-    BetZoneOption
+    BetZoneOption,
+    IAdvanceAutoBetCancelNotify
 } from './cowboy-session-types';
 
 import { TypeSafeEventEmitter } from '../../../../event/event-emitter';
@@ -35,13 +37,14 @@ import * as cb_protocol from './pb/cowboy';
 import pb = cb_protocol.cowboy_proto_hall;
 
 export interface CowboyNotificationEvents {
-    dataSync: (data: IGameDataSynNotify) => void;
-    bet: (data: IBetNotify) => void;
-    startBet: (data: IStartBetNotify) => void;
+    dataSync: (notify: IGameDataSynNotify) => void;
+    bet: (notify: IBetNotify) => void;
+    startBet: (notify: IStartBetNotify) => void;
     startSettlement: () => void;
-    gameRoundEnd: (data: IGameRoundEndNotify) => void;
-    deal: (data: IDealNotify) => void;
-    mergeAutoBet(data: IMergeAutoBetNotify);
+    gameRoundEnd: (notify: IGameRoundEndNotify) => void;
+    deal: (notify: IDealNotify) => void;
+    mergeAutoBet: (notify: IMergeAutoBetNotify) => void;
+    advanceAutoBetCancel: (notify: IAdvanceAutoBetCancelNotify) => void;
 }
 
 export class CowboySession extends GameSession {
@@ -99,6 +102,15 @@ export class CowboySession extends GameSession {
             pb.CMD.MERGE_AUTO_BET_NOTIFY,
             pb.MergeAutoBetNotify,
             this.handleMergeAutoBetNotify.bind(this)
+        );
+
+        // NOTE:
+        // server will send CANCEL_ADVANCE_AUTO_BET_RSP when advance auto bet finished
+        // handle this as a notification
+        this.registerNotificationHandler(
+            pb.CMD.CANCEL_ADVANCE_AUTO_BET_RSP,
+            pb.CancelAdvanceAutoBetRsp,
+            this.handleAdvanceAutoBetCancel.bind(this)
         );
     }
 
@@ -202,6 +214,9 @@ export class CowboySession extends GameSession {
             betAmount
         };
 
+        // NOTE:
+        // server does not send response of BET_REQ
+        // but send notification BET_NOTIFY
         return await this.sendMessage(requestProto, pb.CMD.BET_REQ, pb.BetReq, this._roomId);
     }
 
@@ -252,12 +267,10 @@ export class CowboySession extends GameSession {
 
         this.checkResponseCode(responseProto.code, 'setGameOption');
 
-        console.log('setGameOption AdavnceAutoBet', responseProto);
-
         return responseProto;
     }
 
-    async startAdavnceAutoBet(): Promise<IAdvanceAutoBetResponse> {
+    async adavnceAutoBet(): Promise<IAdvanceAutoBetResponse> {
         if (this._roomId === 0) {
             return Promise.reject<IAdvanceAutoBetResponse>(
                 new InvalidOperationError(`${this.name} does not join room yet!`)
@@ -277,14 +290,12 @@ export class CowboySession extends GameSession {
 
         const responseProto = response.payload;
 
-        this.checkResponseCode(responseProto.code, 'startAdavnceAutoBet');
-
-        console.log('startAdavnceAutoBet');
+        this.checkResponseCode(responseProto.code, 'adavnceAutoBet');
 
         return responseProto;
     }
 
-    async stopAdavnceAutoBet(): Promise<void> {
+    async cancelAdavnceAutoBet(): Promise<ICancelAdvanceAutoBetResponse> {
         if (this._roomId === 0) {
             return Promise.reject(new InvalidOperationError(`${this.name} does not join room yet!`));
         }
@@ -302,7 +313,15 @@ export class CowboySession extends GameSession {
 
         const responseProto = response.payload;
 
-        this.checkResponseCode(responseProto.code, 'startAdavnceAutoBet');
+        // NOTE:
+        // server will send CANCEL_ADVANCE_AUTO_BET_RSP when advance auto bet finished
+        // send the response to be a notificaiton
+        // so that all CANCEL_ADVANCE_AUTO_BET_RSP message could be handled by notification
+        this._notification.emit('advanceAutoBetCancel', responseProto);
+
+        this.checkResponseCode(responseProto.code, 'cancelAdavnceAutoBet');
+
+        return responseProto;
     }
 
     async setAdavnceAutoBetCount(count: number): Promise<ISetAdvanceAutoBetCountResponse> {
@@ -327,8 +346,6 @@ export class CowboySession extends GameSession {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.code, 'startAdavnceAutoBet');
-
-        console.log('setAdavnceAutoBetCount', requestProto.count);
 
         return responseProto;
     }
@@ -374,7 +391,6 @@ export class CowboySession extends GameSession {
 
         const responseProto = response.payload;
 
-        // convert and return respose data
         return responseProto;
     }
 
@@ -435,5 +451,9 @@ export class CowboySession extends GameSession {
 
     protected handleMergeAutoBetNotify(protobuf: pb.MergeAutoBetNotify) {
         this._notification.emit('mergeAutoBet', protobuf);
+    }
+
+    protected handleAdvanceAutoBetCancel(protobuf: pb.CancelAdvanceAutoBetRsp) {
+        this._notification.emit('advanceAutoBetCancel', protobuf);
     }
 }
