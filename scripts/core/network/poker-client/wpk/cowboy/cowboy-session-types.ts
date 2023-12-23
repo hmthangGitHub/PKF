@@ -338,3 +338,9 @@ export interface IDealNotify {
     leftSeconds?: number | null;
     canAuto?: boolean | null;
 }
+
+export interface IKickNotify {
+    kickType?: Kick | null;
+    desc?: string | null;
+    idle_roomid?: number | null;
+}

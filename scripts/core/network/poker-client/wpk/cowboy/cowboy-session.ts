@@ -26,6 +26,7 @@ import type {
     IGameRoundEndNotify,
     IStartBetNotify,
     IMergeAutoBetNotify,
+    IKickNotify,
     AutoBetLevel,
     BetZoneOption,
     IAdvanceAutoBetCancelNotify
@@ -45,6 +46,7 @@ export interface CowboyNotificationEvents {
     deal: (notify: IDealNotify) => void;
     mergeAutoBet: (notify: IMergeAutoBetNotify) => void;
     advanceAutoBetCancel: (notify: IAdvanceAutoBetCancelNotify) => void;
+    kicked: (notify: IKickNotify) => void;
 }
 
 export class CowboySession extends GameSession {
@@ -112,6 +114,8 @@ export class CowboySession extends GameSession {
             pb.CancelAdvanceAutoBetRsp,
             this.handleAdvanceAutoBetCancel.bind(this)
         );
+
+        this.registerNotificationHandler(pb.CMD.KICK_NOTIFY, pb.KickNotify, this.handleKickNotify.bind(this));
     }
 
     async login(): Promise<ILoginResponse> {
@@ -455,5 +459,9 @@ export class CowboySession extends GameSession {
 
     protected handleAdvanceAutoBetCancel(protobuf: pb.CancelAdvanceAutoBetRsp) {
         this._notification.emit('advanceAutoBetCancel', protobuf);
+    }
+
+    protected handleKickNotify(protobuf: pb.KickNotify) {
+        this._notification.emit('kicked', protobuf);
     }
 }
