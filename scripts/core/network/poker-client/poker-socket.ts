@@ -61,7 +61,13 @@ export interface IGameRoomListResponse {
     videoGames?: IGameRoom[] | null;
 }
 
-export interface IResponseHeartBeat {
+export interface IGetRankResponse {
+    error?: number | null;
+    list?: string[] | null;
+    owner?: string | null;
+}
+
+export interface IHeartBeatResponse {
     uid?: number | null;
     timestamp?: number | null;
 }
@@ -83,4 +89,6 @@ export interface ISocket {
     getMiniGamesList(): Promise<IMiniGamesListResponse>;
 
     getRoomList(gameId: number): Promise<IGameRoomListResponse>;
+
+    getRank(randId: number): Promise<IGetRankResponse>;
 }

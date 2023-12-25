@@ -3,7 +3,8 @@ import type { ISession } from '../core/core-index';
 import { WPKSession } from '../core/network/poker-client/wpk/wpk-session';
 
 export class DomainInfo {
-    avatarServerAddress: string = '';
+    imageServer = '';
+    avatarServer = '';
     gateAddresses: string[] = [];
 }
 
@@ -16,7 +17,8 @@ export class DomainService extends Service {
         super(DomainService.serviceName);
 
         if (session instanceof WPKSession) {
-            this._domainInfo.avatarServerAddress = session.pkwAuthData.avatar_addr;
+            this._domainInfo.imageServer = session.pkwAuthData.pkw_file_addr;
+            this._domainInfo.avatarServer = session.pkwAuthData.avatar_addr;
             this._domainInfo.gateAddresses = session.pkwAuthData.gate_addr.slice();
         }
     }
@@ -25,7 +27,17 @@ export class DomainService extends Service {
         return this._domainInfo;
     }
 
-    getAvatarUrl(avatarPath: string): string {
-        return this._domainInfo.avatarServerAddress + avatarPath;
+    getAvatarUrl(avatarPath: string, plat: number): string {
+        let host = '';
+        if (plat === 1) {
+            host = this._domainInfo.avatarServer;
+        } else if (plat === 0 || plat === 3) {
+            host = this._domainInfo.imageServer;
+        }
+
+        if (host.at(host.length - 1) !== '/' && avatarPath.at(0) !== '/') {
+            return host + '/' + avatarPath;
+        }
+        return host + avatarPath;
     }
 }

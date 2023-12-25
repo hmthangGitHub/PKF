@@ -23,7 +23,7 @@ export abstract class Service implements IService {
 }
 
 export interface ServiceClass<T> {
-    new (client?: any): T;
+    new (...params: any): T;
 
     serviceName: string;
 }

@@ -21,6 +21,8 @@ interface IResponse<T> {
     payload: T;
 }
 
+const WRITE_BUFFER_LENGTH = 1024;
+
 /** This class turn websocket request/response message to promise function call */
 export class SocketMessageProcessor {
     protected _webSocket: WebSocketAdapter = null;
@@ -28,7 +30,7 @@ export class SocketMessageProcessor {
     protected _messageHandlers = new Map<number, MessageHandler>();
     protected _verbose = true;
 
-    protected _writeArrayBuffer: ArrayBuffer = new ArrayBuffer(SocketMessage.MAX_PAYLOAD_LENGTH);
+    protected _writeArrayBuffer: ArrayBuffer = new ArrayBuffer(WRITE_BUFFER_LENGTH);
     protected _serverType: number;
     protected _serverId: number;
     protected _playId: number = 0;

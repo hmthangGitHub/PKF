@@ -60,7 +60,7 @@ export class SocketMessageHeader {
 }
 
 export class SocketMessage {
-    static readonly MAX_PAYLOAD_LENGTH = 2048;
+    // static readonly MAX_PAYLOAD_LENGTH = 2048;
 
     header: SocketMessageHeader;
     payload: string | Uint8Array | null = null;
@@ -71,16 +71,16 @@ export class SocketMessage {
         if (payloay) {
             this.payload = payloay;
             this.header.packageLength += this.payload.length;
-            if (this.header.packageLength > SocketMessage.MAX_PAYLOAD_LENGTH) {
-                throw new RangeError(
-                    `server ${this.header.serverType} messge ${this.header.messageId} 
-                    length ${this.header.packageLength} is over max message length!`
-                );
-            }
         }
     }
 
     static encode(message: SocketMessage, arrayBuffer: ArrayBuffer): Uint8Array {
+        if (message.header.packageLength > arrayBuffer.byteLength) {
+            throw new RangeError(
+                `server ${message.header.serverType} messge ${message.header.messageId} 
+                length ${message.header.packageLength} is over write buffer length!`
+            );
+        }
         const writer = new ArrayBufferWriter(arrayBuffer);
         writer.writeUint16(message.header.serverType);
         writer.writeUint16(message.header.serverId);

@@ -5,7 +5,8 @@ import type {
     ILoginResponse,
     IMiniGamesListResponse,
     IGameRoomListResponse,
-    IResponseHeartBeat
+    IGetRankResponse,
+    IHeartBeatResponse
 } from '../poker-socket';
 import type { WPKSession } from './wpk-session';
 import type { ISocketOptions } from '../poker-client-types';
@@ -111,7 +112,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
         this.startHeartBeat();
 
-        return { ...responseProto };
+        return responseProto;
     }
 
     async getMiniGamesList(): Promise<IMiniGamesListResponse> {
@@ -129,7 +130,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
         this.checkResponseCode(responseProto.error, 'getMiniGamesList');
 
-        return { ...responseProto };
+        return responseProto;
     }
 
     async getRoomList(gameId: number): Promise<IGameRoomListResponse> {
@@ -167,7 +168,27 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         return { ...responseProto };
     }
 
-    async sendHeartBeat(): Promise<IResponseHeartBeat> {
+    async getRank(randId: number): Promise<IGetRankResponse> {
+        const requestProto = new pb.GetRankRequest();
+
+        requestProto.rankId = randId;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_GetRank_Request,
+            pb.GetRankRequest,
+            pb.MSGID.MsgID_GetRank_Response,
+            pb.GetRankResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getRank');
+
+        return responseProto;
+    }
+
+    async sendHeartBeat(): Promise<IHeartBeatResponse> {
         const requestProto = new pb.RequestHeartBeat();
 
         requestProto.uid = this._session.userId;
@@ -214,9 +235,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     protected onMessage(msg: MessageEvent) {
         // uppack message
         const socketMessage = SocketMessage.decode(msg.data);
-        // if (this._verbose) {
-        //     console.log('receive message:', socketMessage.header);
-        // }
 
         if (socketMessage.header.serverId === GameId.World) {
             // process world messages
