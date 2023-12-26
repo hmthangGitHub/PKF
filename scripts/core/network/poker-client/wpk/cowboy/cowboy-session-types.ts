@@ -374,3 +374,7 @@ export interface IRoomTrendNotice {
     lastRow?: number | null;
     lastCol?: number | null;
 }
+
+export interface IUserPointsChangeNotice {
+    change_points?: number | null;
+}

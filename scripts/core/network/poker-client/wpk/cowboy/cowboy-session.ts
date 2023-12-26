@@ -50,6 +50,7 @@ export interface CowboyNotificationEvents {
     advanceAutoBetCancel: (notify: IAdvanceAutoBetCancelNotify) => void;
     kicked: (notify: IKickNotify) => void;
     trendNotice: (notice: IRoomTrendNotice) => void;
+    userPointChange: (changePoints: number) => void;
 }
 
 export class CowboySession extends GameSession {
@@ -124,6 +125,12 @@ export class CowboySession extends GameSession {
             pb.CMD.ROOM_TREND_NOTICE,
             pb.RoomTrendNotice,
             this.handleTrendNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.CMD.USER_POINTS_CHANGE_NOTICE,
+            pb.UserPointsChangeNotice,
+            this.handleUserPointsChangeNotice.bind(this)
         );
     }
 
@@ -511,5 +518,9 @@ export class CowboySession extends GameSession {
 
     protected handleTrendNotify(protobuf: pb.RoomTrendNotice) {
         this._notification.emit('trendNotice', protobuf);
+    }
+
+    protected handleUserPointsChangeNotice(protobuf: pb.UserPointsChangeNotice) {
+        this._notification.emit('userPointChange', protobuf.change_points);
     }
 }
