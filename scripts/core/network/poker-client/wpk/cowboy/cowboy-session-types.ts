@@ -344,3 +344,33 @@ export interface IKickNotify {
     desc?: string | null;
     idle_roomid?: number | null;
 }
+
+export interface ITrendData {
+    win?: BetZoneOption | null;
+    win_patterns?: number | null;
+    hand_num?: number | null;
+}
+
+export interface IDailyStat {
+    betzone_type?: BetZoneOption | null;
+    count?: number | null;
+    win_pattern?: number | null;
+}
+
+export interface ITrendRoadInfo {
+    win?: string | null;
+    eqc?: number | null;
+}
+
+export interface ITrendRoad {
+    road_row?: ITrendRoadInfo[] | null;
+}
+
+export interface IRoomTrendNotice {
+    roomuuid?: number | null;
+    trend?: ITrendData[] | null;
+    stats?: IDailyStat[] | null;
+    road?: ITrendRoad[] | null;
+    lastRow?: number | null;
+    lastCol?: number | null;
+}

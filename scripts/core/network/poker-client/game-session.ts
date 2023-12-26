@@ -18,7 +18,9 @@ export interface IJoinRoomResponse extends IGameSessionResponse {
     roomuuid?: number | null;
 }
 
-export type ILeaveRoomResp = IGameSessionResponse;
+export type ILeaveRoomResponse = IGameSessionResponse;
+
+export type IRoomTrendResponse = IGameSessionResponse;
 
 export interface IGamePlayer {
     uid?: number | null;
@@ -51,7 +53,7 @@ export interface IGameSession {
 
     login(): Promise<ILoginResponse>;
     joinRoom(roomId: number): Promise<IJoinRoomResponse>;
-    leaveRoom(): Promise<ILeaveRoomResp>;
+    leaveRoom(): Promise<ILeaveRoomResponse>;
     getPlayerList(): Promise<IPlayerListResp>;
 }
 
@@ -75,7 +77,7 @@ export abstract class GameSession extends SocketMessageProcessor implements IGam
 
     abstract login(): Promise<ILoginResponse>;
     abstract joinRoom(roomId: number): Promise<IJoinRoomResponse>;
-    abstract leaveRoom(): Promise<ILeaveRoomResp>;
+    abstract leaveRoom(): Promise<ILeaveRoomResponse>;
     abstract getPlayerList(): Promise<IPlayerListResp>;
 
     abstract onDisconnect(): void;

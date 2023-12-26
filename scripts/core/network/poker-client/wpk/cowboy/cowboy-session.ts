@@ -8,8 +8,9 @@ import type {
     IHeartBeatResponse,
     ILoginResponse,
     IJoinRoomResponse,
-    ILeaveRoomResp,
-    IPlayerListResp
+    ILeaveRoomResponse,
+    IPlayerListResp,
+    IRoomTrendResponse
 } from '../../game-session';
 import type { Nullable } from '../../../../defines/types';
 import { InvalidOperationError, ServerError } from '../../../../defines/errors';
@@ -29,7 +30,8 @@ import type {
     IKickNotify,
     AutoBetLevel,
     BetZoneOption,
-    IAdvanceAutoBetCancelNotify
+    IAdvanceAutoBetCancelNotify,
+    IRoomTrendNotice
 } from './cowboy-session-types';
 
 import { TypeSafeEventEmitter } from '../../../../event/event-emitter';
@@ -47,6 +49,7 @@ export interface CowboyNotificationEvents {
     mergeAutoBet: (notify: IMergeAutoBetNotify) => void;
     advanceAutoBetCancel: (notify: IAdvanceAutoBetCancelNotify) => void;
     kicked: (notify: IKickNotify) => void;
+    trendNotice: (notice: IRoomTrendNotice) => void;
 }
 
 export class CowboySession extends GameSession {
@@ -116,6 +119,12 @@ export class CowboySession extends GameSession {
         );
 
         this.registerNotificationHandler(pb.CMD.KICK_NOTIFY, pb.KickNotify, this.handleKickNotify.bind(this));
+
+        this.registerNotificationHandler(
+            pb.CMD.ROOM_TREND_NOTICE,
+            pb.RoomTrendNotice,
+            this.handleTrendNotify.bind(this)
+        );
     }
 
     async login(): Promise<ILoginResponse> {
@@ -142,6 +151,10 @@ export class CowboySession extends GameSession {
     }
 
     async joinRoom(roomId: number): Promise<IJoinRoomResponse> {
+        if (this._roomId !== 0) {
+            return Promise.reject<IJoinRoomResponse>(new InvalidOperationError(`${this.name} already join room!`));
+        }
+
         const requestProto = new pb.JoinRoomReq();
         requestProto.roomid = roomId;
 
@@ -163,7 +176,13 @@ export class CowboySession extends GameSession {
 
         return responseProto;
     }
-    async leaveRoom(): Promise<ILeaveRoomResp> {
+    async leaveRoom(): Promise<ILeaveRoomResponse> {
+        if (this._roomId === 0) {
+            return Promise.reject<ILeaveRoomResponse>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
+        }
+
         const requestProto = new pb.LeaveRoomReq();
 
         const response = await this.sendRequest(
@@ -380,6 +399,31 @@ export class CowboySession extends GameSession {
         return responseProto;
     }
 
+    async getTrend(): Promise<IRoomTrendResponse> {
+        if (this._roomId === 0) {
+            return Promise.reject<IRoomTrendResponse>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
+        }
+
+        const requestProto = new pb.RoomTrendReq();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.ROOM_TREND_REQ,
+            pb.RoomTrendReq,
+            pb.CMD.ROOM_TREND_RSP,
+            pb.RoomTrendRsp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'getTrend');
+
+        return responseProto;
+    }
+
     async sendHeartBeat(): Promise<IHeartBeatResponse> {
         const requestProto = new pb.HeartBeatReq();
 
@@ -463,5 +507,9 @@ export class CowboySession extends GameSession {
 
     protected handleKickNotify(protobuf: pb.KickNotify) {
         this._notification.emit('kicked', protobuf);
+    }
+
+    protected handleTrendNotify(protobuf: pb.RoomTrendNotice) {
+        this._notification.emit('trendNotice', protobuf);
     }
 }

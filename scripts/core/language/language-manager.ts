@@ -1,8 +1,12 @@
 import type { Nullable } from './../defines/types';
 import { LanguageGroup } from './language-group';
-import { Module } from '../module/module-index';
+import { EmittableModule } from '../module/module-index';
 
-export class LanguageManager extends Module {
+export interface LanguageEvents {
+    languageChange: () => void;
+}
+
+export class LanguageManager extends EmittableModule<LanguageEvents> {
     static moduleName = 'AddressableALanguageManagerssetManager';
 
     private _languageGroups = new Map<string, LanguageGroup>();
@@ -14,14 +18,15 @@ export class LanguageManager extends Module {
         return this._currentLanguage;
     }
     set currentLanguage(value: string) {
-        this._currentLanguage = value;
-
-        const lang = this._languageGroups.get(value);
-        if (lang) {
-            this._currentLanguageGroup = lang;
-        } else {
-            cc.warn(`languae ${value} does not exist`);
-            this._currentLanguage = null;
+        if (this._currentLanguage !== value) {
+            const lang = this._languageGroups.get(value);
+            if (lang) {
+                this._currentLanguageGroup = lang;
+                this._currentLanguage = value;
+                this.emit('languageChange');
+            } else {
+                cc.warn(`languae ${value} does not exist`);
+            }
         }
     }
 
