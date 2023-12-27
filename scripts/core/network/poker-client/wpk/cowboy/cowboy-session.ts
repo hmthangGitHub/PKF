@@ -39,7 +39,7 @@ import { TypeSafeEventEmitter } from '../../../../event/event-emitter';
 import * as cb_protocol from './pb/cowboy';
 import pb = cb_protocol.cowboy_proto_hall;
 
-export interface CowboyNotificationEvents {
+export interface CowboyNotifications {
     dataSync: (notify: IGameDataSynNotify) => void;
     bet: (notify: IBetNotify) => void;
     startBet: (notify: IStartBetNotify) => void;
@@ -51,6 +51,7 @@ export interface CowboyNotificationEvents {
     kicked: (notify: IKickNotify) => void;
     trendNotice: (notice: IRoomTrendNotice) => void;
     userPointChange: (changePoints: number) => void;
+    serverError: (code: number) => void;
 }
 
 export class CowboySession extends GameSession {
@@ -62,8 +63,8 @@ export class CowboySession extends GameSession {
 
     private _heartBeatTimeout: Nullable<NodeJS.Timeout> = null;
 
-    private _notification = new TypeSafeEventEmitter<CowboyNotificationEvents>();
-    get notification(): TypeSafeEventEmitter<CowboyNotificationEvents> {
+    private _notification = new TypeSafeEventEmitter<CowboyNotifications>();
+    get notification(): TypeSafeEventEmitter<CowboyNotifications> {
         return this._notification;
     }
 
@@ -476,6 +477,7 @@ export class CowboySession extends GameSession {
 
     protected checkResponseCode(code: pb.ErrorCode, requestName: string) {
         if (code !== pb.ErrorCode.OK) {
+            this.notification.emit('serverError', code);
             throw new ServerError(`${requestName} failed: ${code}`, code);
         }
     }
