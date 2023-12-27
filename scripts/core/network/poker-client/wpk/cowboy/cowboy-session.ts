@@ -9,8 +9,7 @@ import type {
     ILoginResponse,
     IJoinRoomResponse,
     ILeaveRoomResponse,
-    IPlayerListResp,
-    IRoomTrendResponse
+    IPlayerListResp
 } from '../../game-session';
 import type { Nullable } from '../../../../defines/types';
 import { InvalidOperationError, ServerError } from '../../../../defines/errors';
@@ -407,29 +406,16 @@ export class CowboySession extends GameSession {
         return responseProto;
     }
 
-    async getTrend(): Promise<IRoomTrendResponse> {
+    async getTrend(): Promise<void> {
         if (this._roomId === 0) {
-            return Promise.reject<IRoomTrendResponse>(
-                new InvalidOperationError(`${this.name} does not join room yet!`)
-            );
+            return Promise.reject(new InvalidOperationError(`${this.name} does not join room yet!`));
         }
 
         const requestProto = new pb.RoomTrendReq();
-
-        const response = await this.sendRequest(
-            requestProto,
-            pb.CMD.ROOM_TREND_REQ,
-            pb.RoomTrendReq,
-            pb.CMD.ROOM_TREND_RSP,
-            pb.RoomTrendRsp,
-            this._roomId
-        );
-
-        const responseProto = response.payload;
-
-        this.checkResponseCode(responseProto.code, 'getTrend');
-
-        return responseProto;
+        // NOTE:
+        // server does not send response of ROOM_TREND_RSP
+        // but send notification ROOM_TREND_NOTICE
+        return await this.sendMessage(requestProto, pb.CMD.ROOM_TREND_REQ, pb.RoomTrendReq, this._roomId);
     }
 
     async sendHeartBeat(): Promise<IHeartBeatResponse> {

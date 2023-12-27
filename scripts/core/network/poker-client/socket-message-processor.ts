@@ -104,7 +104,6 @@ export class SocketMessageProcessor {
             asyncOp,
             handler: (buf: Uint8Array) => {
                 const protobuf = this.decodeProtobuf<ResponseProtoType>(buf, responseProtoClass);
-
                 asyncOp.resolve({ payload: protobuf });
             }
         });
