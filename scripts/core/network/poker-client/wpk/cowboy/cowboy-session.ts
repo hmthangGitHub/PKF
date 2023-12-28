@@ -406,7 +406,7 @@ export class CowboySession extends GameSession {
         return responseProto;
     }
 
-    async getTrend(): Promise<void> {
+    async queryTrend(): Promise<void> {
         if (this._roomId === 0) {
             return Promise.reject(new InvalidOperationError(`${this.name} does not join room yet!`));
         }
