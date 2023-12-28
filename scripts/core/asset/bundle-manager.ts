@@ -49,12 +49,22 @@ export class BundleManager extends Module {
         });
     }
 
-    enterBundle(name: string, options?: IBundleOptions): void {
-        bundleEntryManager.enterBundle(name);
+    async enterBundle(nameOrUrl: string, options?: IBundleOptions): Promise<void> {
+        const name = cc.path.basename(nameOrUrl);
+        let entry = bundleEntryManager.getEntry(name);
+        if (!entry) {
+            entry = await this.loadBundle(nameOrUrl);
+        }
+        return await entry.enter(options);
+        // bundleEntryManager.enterBundle(name);
     }
 
     exitBundle(name: string): void {
-        bundleEntryManager.exitBundle(name);
+        const entry = bundleEntryManager.getEntry(name);
+        if (entry) {
+            entry.exit();
+        }
+        // bundleEntryManager.exitBundle(name);
     }
 
     loadAsset<T extends cc.Asset>(

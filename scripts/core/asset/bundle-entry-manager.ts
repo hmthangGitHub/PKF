@@ -1,4 +1,4 @@
-import type { BundleEntry, EntryClass, IBundleOptions } from './bundle-entry';
+import type { BundleEntry, EntryClass } from './bundle-entry';
 
 export class BundleEntryManager {
     private _entries: Map<string, BundleEntry> = new Map<string, BundleEntry>();
@@ -30,19 +30,19 @@ export class BundleEntryManager {
         return this._entries;
     }
 
-    enterBundle(bundleName: string, options?: IBundleOptions): void {
-        const entry = this.getEntry(bundleName);
-        if (entry) {
-            entry.enter(options);
-        }
-    }
+    // enterBundle(bundleName: string, options?: IBundleOptions): void {
+    //     const entry = this.getEntry(bundleName);
+    //     if (entry) {
+    //         entry.enter(options);
+    //     }
+    // }
 
-    exitBundle(bundleName: string): void {
-        const entry = this.getEntry(bundleName);
-        if (entry) {
-            entry.exit();
-        }
-    }
+    // exitBundle(bundleName: string): void {
+    //     const entry = this.getEntry(bundleName);
+    //     if (entry) {
+    //         entry.exit();
+    //     }
+    // }
 }
 
 export const bundleEntryManager = new BundleEntryManager();

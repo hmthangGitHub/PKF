@@ -59,6 +59,8 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         if (session) {
             session.cleanupRequests('session removed!');
 
+            session.onDisconnect();
+
             this._gameSessions.delete(session.name);
 
             this._messageProcessors.delete(session.serverId);

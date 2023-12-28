@@ -18,7 +18,9 @@ export interface IBundleOptions {
 export class BundleEntry {
     private _bundle: cc.AssetManager.Bundle = null;
 
-    onBeforeExit: () => void;
+    onBeforeExit: () => void = null;
+
+    onAfterExit: () => void = null;
 
     get bundle(): cc.AssetManager.Bundle {
         return this._bundle;
@@ -46,12 +48,16 @@ export class BundleEntry {
         await this.onEnter(options);
     }
 
-    exit(): void {
+    async exit(): Promise<void> {
         if (this.onBeforeExit) {
             this.onBeforeExit();
         }
 
-        this.onExit();
+        await this.onExit();
+
+        if (this.onAfterExit) {
+            this.onAfterExit();
+        }
     }
 
     /** @description
@@ -66,7 +72,10 @@ export class BundleEntry {
     /** @description
      * Called when exit this bundle.
      */
-    protected onExit(): void {
+    protected onExit(): Promise<void> {
+        return new Promise((resolve) => {
+            resolve();
+        });
         // if (this.exitCallback) {
         //     this.exitCallback();
         // }
