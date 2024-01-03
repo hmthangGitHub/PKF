@@ -1,5 +1,7 @@
 import type { ISocketOptions } from './poker-client-types';
 import type { GameSession, GameSessionClass } from './game-session';
+import type { TypeSafeEventEmitter } from '../../event/event-emitter';
+import type { GameId, MsgType } from './poker-client-types';
 
 export interface ILoginResponse {
     error?: number | null;
@@ -72,8 +74,38 @@ export interface IHeartBeatResponse {
     timestamp?: number | null;
 }
 
+export interface INoticeNotifyUserGoldNum {
+    uid?: number | null;
+    changeNum?: number | null;
+    goldNum?: number | null;
+    game_coin?: number | null;
+    total_amount?: number | null;
+    total_points?: number | null;
+    usdt?: number | null;
+    diamond?: number | null;
+}
+
+export interface INoticeGlobalMessage {
+    repeat_count?: number | null;
+    msg?: string | null;
+    source_type?: GameId[] | null;
+    msg_type?: MsgType | null;
+    mtt_id?: number | null;
+    mttGameName?: string | null;
+    mttRemainTime?: number | null;
+}
+
+export interface SocketNotifications {
+    userGoldNum: (notify: INoticeNotifyUserGoldNum) => void;
+    globalMessage: (notify: INoticeGlobalMessage) => void;
+}
+
 export interface ISocket {
     verbose: boolean;
+
+    notification: TypeSafeEventEmitter<SocketNotifications>;
+
+    userId: number;
 
     connect(url: string, options?: ISocketOptions): Promise<void>;
     disconnect(): Promise<void>;

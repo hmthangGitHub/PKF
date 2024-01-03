@@ -2,6 +2,7 @@
 import type { Nullable } from '../../../defines/types';
 import type {
     ISocket,
+    SocketNotifications,
     ILoginResponse,
     IMiniGamesListResponse,
     IGameRoomListResponse,
@@ -17,6 +18,7 @@ import { SocketMessage } from '../poker-socket-message';
 import { InvalidOperationError, ServerError } from './../../../defines/errors';
 import { SocketMessageProcessor } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../game-session';
+import { TypeSafeEventEmitter } from '../../../event/event-emitter';
 
 import * as ws_protocol from './pb/ws_protocol';
 import pb = ws_protocol.pb;
@@ -27,6 +29,10 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     private _gameSessions = new Map<string, GameSession>();
     private _messageProcessors = new Map<number, SocketMessageProcessor>();
     private _heartBeatTimeout: Nullable<NodeJS.Timeout> = null;
+    private _notification = new TypeSafeEventEmitter<SocketNotifications>();
+    get notification(): TypeSafeEventEmitter<SocketNotifications> {
+        return this._notification;
+    }
 
     constructor(websocketAdatper: WebSocketAdapter, session: WPKSession, options?: ISocketOptions) {
         super(ServerType.SeverType_World, GameId.World, session?.pkwAuthData?.uid, websocketAdatper);
@@ -250,11 +256,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         }
     }
 
-    protected onNoticeLogin(buf: Uint8Array) {
-        const msg = pb.NoticeLogin.decode(buf);
-        console.log('onNoticeLogin', msg);
-    }
-
     protected onError(ev: Event) {
         cc.warn(ev);
     }
@@ -276,5 +277,28 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         if (code !== SocketServerErrorCode.OK) {
             throw new ServerError(`${requestName} failed: ${code}`, code);
         }
+    }
+
+    protected registerNotificationHandlers(): void {
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_NotifyUserGoldNum_Notice,
+            pb.NoticeNotifyUserGoldNum,
+            this.handleUserGoldNumNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_GlobalMessage_Notice,
+            pb.NoticeGlobalMessage,
+            this.handleGlobalMessageNotify.bind(this)
+        );
+    }
+
+    protected handleUserGoldNumNotify(protobuf: pb.NoticeNotifyUserGoldNum) {
+        this._notification.emit('userGoldNum', protobuf);
+    }
+
+    protected handleGlobalMessageNotify(protobuf: pb.NoticeGlobalMessage) {
+        console.log('global message', protobuf);
+        this._notification.emit('globalMessage', protobuf);
     }
 }

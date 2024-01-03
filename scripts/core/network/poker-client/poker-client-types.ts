@@ -1,22 +1,45 @@
+// export enum GameId {
+//     GameId_Dummy = 0, // 初始值
+//     World = 1, // 世界服
+//     Texas = 2, // 德州
+//     StarSeat = 3, // 德州明星桌
+//     CowBoy = 10, // 牛仔
+//     Allin = 20, // AOF
+//     HumanBoy = 30, // 百人
+//     ZoomTexas = 40, // 极速游戏
+//     ZoomTexasMax = 49, // 极速游戏
+//     VideoCowboy = 50, // 视屏牛仔
+//     Bet = 60, // 必下
+//     PokerMaster = 70, // 大师
+//     Jackfruit = 80, // 菠萝蜜
+//     Plo = 90, // 奥马哈
+//     Mtt = 900, // mtt
+//     BlackJackDual = 1020, // 21点
+//     BlackJack = 1021, // 21点
+//     Data = 10101 // 数据服
+// }
+
 export enum GameId {
-    GameId_Dummy = 0, // 初始值
-    World = 1, // 世界服
-    Texas = 2, // 德州
-    StarSeat = 3, // 德州明星桌
-    CowBoy = 10, // 牛仔
-    Allin = 20, // AOF
-    HumanBoy = 30, // 百人
-    ZoomTexas = 40, // 极速游戏
-    ZoomTexasMax = 49, // 极速游戏
-    VideoCowboy = 50, // 视屏牛仔
-    Bet = 60, // 必下
-    PokerMaster = 70, // 大师
-    Jackfruit = 80, // 菠萝蜜
-    Plo = 90, // 奥马哈
-    Mtt = 900, // mtt
-    BlackJackDual = 1020, // 21点
-    BlackJack = 1021, // 21点
-    Data = 10101 // 数据服
+    GameId_Dummy = 0,
+    World = 1,
+    Texas = 2,
+    StarSeat = 3,
+    DataServer = 10101,
+    CowBoy = 10,
+    Allin = 20,
+    HumanBoy = 30,
+    ZoomTexas = 40,
+    ZoomTexasMax = 49,
+    VideoCowboy = 50,
+    Bet = 60,
+    PokerMaster = 70,
+    Jackfruit = 80,
+    PLO = 90,
+    BlMtt = 900,
+    Sports = 1000,
+    TopMatches = 1001,
+    PocketGames = 1010,
+    BlackJack = 1020
 }
 
 // 客户端类型(详情参见"Config.ts"注释)
@@ -210,6 +233,12 @@ export enum SocketServerErrorCode {
     Not_Implemented = 700,
     GEOCOMPLY_INVAILD = 31119,
     GEOCOMPLY_SERVICE_ERROR = 31120
+}
+
+export enum MsgType {
+    common = 0,
+    medal = 1,
+    mtt_game_start = 2
 }
 
 export type PlatformType = 'wpk' | 'pkw';

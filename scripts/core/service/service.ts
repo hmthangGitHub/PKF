@@ -1,3 +1,4 @@
+import { TypeSafeEventEmitter } from './../event/event-emitter';
 /** */
 export interface IService {
     name: string;
@@ -20,6 +21,15 @@ export abstract class Service implements IService {
     // destroy(): void {
     //     cc.log(`${this.name} destroy`);
     // }
+}
+
+export abstract class EmittableService<EventType> extends TypeSafeEventEmitter<EventType> implements IService {
+    name: string;
+
+    constructor(name: string) {
+        super();
+        this.name = name;
+    }
 }
 
 export interface ServiceClass<T> {
