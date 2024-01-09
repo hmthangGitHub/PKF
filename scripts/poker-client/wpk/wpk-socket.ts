@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import type { Nullable } from '../../../defines/types';
+import type { Nullable } from '../../core/defines/types';
 import type {
     ISocket,
     SocketNotifications,
@@ -13,12 +13,12 @@ import type { WPKSession } from './wpk-session';
 import type { ISocketOptions } from '../poker-client-types';
 import { ServerType, GameId, SocketServerErrorCode, SystemInfo } from '../poker-client-types';
 import type { WebSocketAdapter } from '../websocket-adapter';
-import { Util } from './../../../utils/util';
+import { Util } from '../../core/utils/util';
 import { SocketMessage } from '../poker-socket-message';
-import { InvalidOperationError, ServerError } from './../../../defines/errors';
+import { InvalidOperationError, ServerError } from '../../core/defines/errors';
 import { SocketMessageProcessor } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../game-session';
-import { TypeSafeEventEmitter } from '../../../event/event-emitter';
+import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 
 import * as ws_protocol from './pb/ws_protocol';
 import pb = ws_protocol.pb;

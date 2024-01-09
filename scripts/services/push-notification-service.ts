@@ -1,7 +1,7 @@
 import { EmittableService } from '../core/core-index';
-import type { GameId } from '../core/network/poker-client/poker-client-types';
-import { MsgType } from '../core/network/poker-client/poker-client-types';
-import type { ISocket, INoticeGlobalMessage } from '../core/network/poker-client/poker-socket';
+import type { GameId } from '../poker-client/poker-client-types';
+import { MsgType } from '../poker-client/poker-client-types';
+import type { ISocket, INoticeGlobalMessage } from '../poker-client/poker-socket';
 
 export class PushNotification {
     repeatCount: number;

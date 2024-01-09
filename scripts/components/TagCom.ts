@@ -6,33 +6,31 @@ const { ccclass, property } = cc._decorator;
 export class TagCom extends cc.Component {
     @property({
         type: cc.Integer,
-        tooltip: "自定义数字型索引"
+        tooltip: '自定义数字型索引'
     })
     nIdx: number = 0;
 
     @property({
         type: cc.Float,
-        tooltip: "自定义数字型标签"
+        tooltip: '自定义数字型标签'
     })
     nTag: number = 0;
 
     @property({
-        //type: cc.Boolean, (不注释编译时总是弹出警告, 提示要注释此行)
-        tooltip: "自定义布尔型标签"
+        // type: cc.Boolean, (不注释编译时总是弹出警告, 提示要注释此行)
+        tooltip: '自定义布尔型标签'
     })
     bTag: boolean = false;
 
     @property({
-        //type: cc.String, (不注释编译时总是弹出警告, 提示要注释此行)
-        tooltip: "自定义字符型标签"
+        // type: cc.String, (不注释编译时总是弹出警告, 提示要注释此行)
+        tooltip: '自定义字符型标签'
     })
-    sTag: string = "";
+    sTag: string = '';
 
-    protected onLoad(): void {
-    }
+    protected onLoad(): void {}
 
-    protected start(): void {
-    }
+    protected start(): void {}
 
     /**
      * 重置默认值
@@ -40,7 +38,7 @@ export class TagCom extends cc.Component {
     reset(): void {
         this.nIdx = 0;
         this.nTag = 0;
-        this.sTag = "";
+        this.sTag = '';
         this.bTag = false;
     }
 }

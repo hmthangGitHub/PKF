@@ -1,6 +1,6 @@
 import { Service } from '../core/service/service';
 import type { ISession } from '../core/core-index';
-import { WPKSession } from '../core/network/poker-client/wpk/wpk-session';
+import { WPKSession } from '../poker-client/wpk/wpk-session';
 
 export class DomainInfo {
     imageServer = '';

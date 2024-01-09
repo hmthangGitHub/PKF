@@ -1,7 +1,7 @@
-import { AsyncOperation } from './../../async/async-operation';
+import { AsyncOperation } from '../core/async/async-operation';
 /* eslint-disable camelcase */
-import { InvalidOperationError, WebSocketError } from '../../defines/errors';
-import type { Nullable } from '../../defines/types';
+import { InvalidOperationError, WebSocketError } from '../core/defines/errors';
+import type { Nullable } from '../core/defines/types';
 
 /**
  * SocketCloseHandler defines a lambda that handles WebSocket close events.

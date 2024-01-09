@@ -2,8 +2,8 @@
 import type { ProtobutClass } from './poker-client-types';
 import type { WebSocketAdapter } from './websocket-adapter';
 import { SocketMessage, SocketMessageHeader } from './poker-socket-message';
-import type { IAsyncOperation } from '../../async/async-operation';
-import { AsyncOperation } from '../../async/async-operation';
+import type { IAsyncOperation } from '../core/async/async-operation';
+import { AsyncOperation } from '../core/async/async-operation';
 
 export type MessageHandler = (msg: SocketMessage) => void;
 

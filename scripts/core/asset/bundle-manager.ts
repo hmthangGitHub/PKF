@@ -42,6 +42,9 @@ export class BundleManager extends Module {
                             })
                             .catch((err) => {
                                 reject(err);
+                            })
+                            .finally(() => {
+                                entry.afterOnLoad();
                             });
                     }
                 });

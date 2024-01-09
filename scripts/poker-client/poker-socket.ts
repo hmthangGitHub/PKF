@@ -1,6 +1,6 @@
 import type { ISocketOptions } from './poker-client-types';
 import type { GameSession, GameSessionClass } from './game-session';
-import type { TypeSafeEventEmitter } from '../../event/event-emitter';
+import type { TypeSafeEventEmitter } from '../core/event/event-emitter';
 import type { GameId, MsgType } from './poker-client-types';
 
 export interface ILoginResponse {

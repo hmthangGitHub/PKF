@@ -11,8 +11,8 @@ import type {
     ILeaveRoomResponse,
     IPlayerListResp
 } from '../../game-session';
-import type { Nullable } from '../../../../defines/types';
-import { InvalidOperationError, ServerError } from '../../../../defines/errors';
+import type { Nullable } from '../../../core/defines/types';
+import { InvalidOperationError, ServerError } from '../../../core/defines/errors';
 import type {
     IAutoBetResponse,
     ISetGameOptionResponse,
@@ -33,7 +33,7 @@ import type {
     IRoomTrendNotice
 } from './cowboy-session-types';
 
-import { TypeSafeEventEmitter } from '../../../../event/event-emitter';
+import { TypeSafeEventEmitter } from '../../../core/event/event-emitter';
 
 import * as cb_protocol from './pb/cowboy';
 import pb = cb_protocol.cowboy_proto_hall;

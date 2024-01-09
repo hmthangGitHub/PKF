@@ -1,5 +1,4 @@
 import { BUNDLE_TYPE } from '../defines/enums';
-import type { ISocket } from './../network/poker-client/poker-socket';
 
 export interface EntryClass<T> {
     new (): T;
@@ -11,7 +10,6 @@ export interface IBundleOptions {
     /// bundle version
     version?: string;
     language?: string;
-    socket?: ISocket;
     roomId?: number;
 }
 
@@ -38,7 +36,6 @@ export class BundleEntry {
 
     /** @description Called when bundle is loaded */
     onLoad(options?: IBundleOptions): Promise<void> {
-        this.afterLoad();
         return new Promise((resolve) => {
             resolve();
         });
@@ -76,9 +73,6 @@ export class BundleEntry {
         return new Promise((resolve) => {
             resolve();
         });
-        // if (this.exitCallback) {
-        //     this.exitCallback();
-        // }
     }
 
     /** @description
@@ -88,7 +82,7 @@ export class BundleEntry {
         this._isRunning = false;
     }
 
-    afterLoad(): void {
+    afterOnLoad(): void {
         this._isRunning = true;
     }
 }

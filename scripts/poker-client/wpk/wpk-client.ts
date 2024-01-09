@@ -1,16 +1,16 @@
 import 'url-search-params-polyfill';
-import type { Nullable } from '../../../defines/types';
-import { ServerError, InvalidOperationError } from '../../../defines/errors';
+import type { Nullable } from '../../core/defines/types';
+import { ServerError, InvalidOperationError } from '../../core/defines/errors';
 import type { IPokerClient } from '../poker-client';
 import type { IClientOptions, ISocketOptions, RequestOtpions, ISession, User } from '../poker-client-types';
 import { SystemInfo } from '../poker-client-types';
 import type { ISocket } from '../poker-socket';
 import type { LoginData, PostParams, LoginParams } from './wpk-api';
-import * as http from '../../http/http-index';
+import * as http from '../../core/network/http/http-index';
 import { WPKSession } from './wpk-session';
 import { WPKSocket } from './wpk-socket';
 import { WPKUtil } from './wpk-util';
-import { Util } from '../../../utils/util';
+import { Util } from '../../core/utils/util';
 import { WebSocketAdapter } from '../websocket-adapter';
 
 export class WPKClient implements IPokerClient {
