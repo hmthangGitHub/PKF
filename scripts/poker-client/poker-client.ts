@@ -8,6 +8,7 @@ import type {
     User
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
+import { PKWClient } from './pkw/pkw-client';
 
 export interface IPokerClient {
     login(username: string, password: string, options?: RequestOtpions): Promise<ISession>;
@@ -21,6 +22,9 @@ export interface IPokerClient {
 
 export class PokerClient {
     static create(serverType: PlatformType, host: string, options: IClientOptions): IPokerClient {
+        if (serverType === 'pkw') {
+            return new PKWClient(host, options);
+        }
         if (serverType === 'wpk') {
             return new WPKClient(host, options);
         } else {
