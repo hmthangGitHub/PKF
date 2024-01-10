@@ -1,28 +1,27 @@
 require('url-search-params-polyfill');
 import type { Nullable } from '../../core/defines/types';
-import { ServerError, InvalidOperationError } from '../../core/defines/errors';
+import { InvalidOperationError } from '../../core/defines/errors';
 import type { IPokerClient } from '../poker-client';
 import type { IClientOptions, ISocketOptions, RequestOtpions, ISession, User } from '../poker-client-types';
 import { SystemInfo } from '../poker-client-types';
 import type { ISocket } from '../poker-socket';
-import type { LoginData, PostParams, LoginParams } from './wpk-api';
+// import type { LoginData, PostParams, LoginParams } from './wpk-api';
 import * as http from '../../core/network/http/http-index';
-import { WPKSession } from './wpk-session';
-import { WPKSocket } from './wpk-socket';
-import { WPKUtil } from './wpk-util';
+import { PKWSession } from './pkw-session';
+import type { PKWSocket } from './pkw-socket';
+// import { WPKUtil } from './wpk-util';
 import { Util } from '../../core/utils/util';
-import { WebSocketAdapter } from '../websocket-adapter';
 
-export class WPKClient implements IPokerClient {
+export class PKWClient implements IPokerClient {
     _deviceType: number;
     _deviceId: string;
     _scheme = 'http://';
     _baseUrl: string;
     _systemInfo: SystemInfo = new SystemInfo();
 
-    _session: Nullable<WPKSession> = null;
+    _session: Nullable<PKWSession> = null;
 
-    _socket: Nullable<WPKSocket> = null;
+    _socket: Nullable<PKWSocket> = null;
 
     constructor(host: string, options?: IClientOptions) {
         const opts: IClientOptions = {
@@ -53,28 +52,28 @@ export class WPKClient implements IPokerClient {
     async login(username: string, password: string, options?: RequestOtpions): Promise<ISession> {
         const url = this._baseUrl + '/user/phone_login';
 
-        const data: LoginParams = {
-            account: username,
-            password: WPKUtil.encryptPassword(password),
-            isAutoLogin: true
-        };
+        // const data: LoginParams = {
+        //     account: username,
+        //     password: WPKUtil.encryptPassword(password),
+        //     isAutoLogin: true
+        // };
 
-        if (options && options.aesKey) {
-            data.aesKey = options.aesKey;
-        }
+        // if (options && options.aesKey) {
+        //     data.aesKey = options.aesKey;
+        // }
 
-        const response = await this.request(url, data);
-        const loginData = response.data as LoginData;
-        if (loginData.errorCode !== 0) {
-            return Promise.reject(new ServerError(loginData.errMsg, loginData.errorCode));
-        }
+        // const response = await this.request(url, data);
+        // const loginData = response.data as LoginData;
+        // if (loginData.errorCode !== 0) {
+        //     return Promise.reject(new ServerError(loginData.errMsg, loginData.errorCode));
+        // }
 
-        const session = new WPKSession(loginData.sessionToken, loginData.user.userId);
-        session.userInfo = { ...loginData.user };
-        session.userSecurityInfo = { ...loginData.userSecurityInfo };
-        session.pkwAuthData = { ...loginData.pkwAuthData };
-        session.pkwAuthData.token = WPKUtil.encryptPKWToken(session.pkwAuthData.token);
-
+        // const session = new PKWSession(loginData.sessionToken, loginData.user.userId);
+        // session.userInfo = { ...loginData.user };
+        // session.userSecurityInfo = { ...loginData.userSecurityInfo };
+        // session.pkwAuthData = { ...loginData.pkwAuthData };
+        // session.pkwAuthData.token = WPKUtil.encryptPKWToken(session.pkwAuthData.token);
+        const session = new PKWSession();
         this._session = session;
         return session;
     }
@@ -84,18 +83,26 @@ export class WPKClient implements IPokerClient {
             throw new InvalidOperationError('Session does not exist! Call this function after login.');
         }
 
+        // const user: User = {
+        //     userId: this._session.userInfo.userId,
+        //     username: this._session.userInfo.account,
+        //     nickname: this._session.userInfo.nickname,
+        //     sex: this._session.userInfo.sex,
+        //     avatarURL: this._session.userInfo.avatar
+        // };
+
         const user: User = {
-            userId: this._session.userInfo.userId,
-            username: this._session.userInfo.account,
-            nickname: this._session.userInfo.nickname,
-            sex: this._session.userInfo.sex,
-            avatarURL: this._session.userInfo.avatar
+            userId: 0,
+            username: '',
+            nickname: '',
+            sex: 0,
+            avatarURL: ''
         };
 
         return user;
     }
 
-    protected async request(url: string, data: PostParams): Promise<http.Response> {
+    protected async request(url: string, data: any): Promise<http.Response> {
         if (this._session) {
             data.userId = this._session.userId;
             data.sessionToken = this._session.token;
@@ -108,7 +115,7 @@ export class WPKClient implements IPokerClient {
         data.idfa = 0;
         data.time = new Date().getTime();
         // sign param
-        data['sign'] = WPKUtil.sign(data);
+        // data['sign'] = WPKUtil.sign(data);
         const searchParams = new URLSearchParams(data as any);
 
         return await http.post(url, {
@@ -120,8 +127,8 @@ export class WPKClient implements IPokerClient {
     }
 
     createSocket(options?: ISocketOptions): ISocket {
-        const opts = { ...this._systemInfo, options };
-        this._socket = new WPKSocket(new WebSocketAdapter(), this._session, opts);
+        // const opts = { ...this._systemInfo, options };
+        // this._socket = new WPKSocket(new WebSocketAdapter(), this._session, opts);
         return this._socket;
     }
 
