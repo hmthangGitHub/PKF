@@ -7,9 +7,15 @@ export interface ILoginResponse {
     error?: number | null;
     firstClubId?: number | null;
     firstAlliId?: number | null;
+    // swtichList?: (pb.GameId[]|null);
     bl_mtt_status?: number | null;
     is_help_warp?: boolean | null;
     blackJackStatus?: number | null;
+    // blackJackData?: (pb.IBlackJackData|null);
+    // mttData?: (pb.IMttData|null);
+    is_c2c_block?: boolean | null;
+    blackJackDualStatus?: number | null;
+    blSpinStatus?: number | null;
 }
 
 enum MiniLabel {
@@ -40,6 +46,8 @@ export interface IMiniGame {
     topMatches?: string | null;
     isHot?: boolean | null;
     label?: MiniLabel | null;
+    // blackjackRoomLists?: pb.IblackjackRoomList | null;
+    // ObGame?: pb.IOBGameData | null;
 }
 
 export interface IMiniGamesListResponse {
@@ -55,6 +63,7 @@ export interface IGameRoom {
     pictureCn?: string[] | null;
     pictureEn?: string[] | null;
     pictureVn?: string[] | null;
+    pictureThai?: string[] | null;
 }
 
 export interface IGameRoomListResponse {

@@ -37,7 +37,7 @@ export class System {
         const deviceInfo: IDeviceInfo = {
             disroot: false,
             dmodel: '',
-            dname: '',
+            dname: 'wefans',
             duuid: System.getDeviceUUID(),
             dversion: ''
         };

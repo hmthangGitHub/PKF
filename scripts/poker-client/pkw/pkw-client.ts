@@ -15,10 +15,10 @@ import type {
 import { SystemInfo } from '../poker-client-types';
 import type { ISocket } from '../poker-socket';
 import { PKWSession } from './pkw-session';
-import type { PKWSocket } from './pkw-socket';
-import * as md5 from 'md5';
+import { PKWSocket } from './pkw-socket';
 import { PKWUtil } from './pkw-util';
 import type { IRequestParams, ILoginParams, ILoginResponseData, ILoginData } from './pkw-api';
+import { WebSocketAdapter } from '../websocket-adapter';
 
 export class PKWClient implements IPokerClient {
     _deviceType: string;
@@ -64,11 +64,11 @@ export class PKWClient implements IPokerClient {
 
         const data: ILoginParams = {
             username: username,
-            passwd: md5(password)
+            passwd: PKWUtil.encryptPassword(password)
         };
 
         const response = await this.request(url, data);
-        console.log('response', response.data);
+
         const loginResponse = response.data as ILoginResponseData;
         if (loginResponse.msg_code !== '0') {
             return Promise.reject(new ServerError(loginResponse.message, Number(loginResponse.msg_code)));
@@ -77,8 +77,8 @@ export class PKWClient implements IPokerClient {
         const loginData = loginResponse.data as ILoginData;
 
         // create session
-        const session = new PKWSession(loginData.token, loginData.user_id);
-        this._session = session;
+        const token = PKWUtil.encryptToken(loginData.token);
+        this._session = new PKWSession(token, loginData.user_id, loginData);
 
         // create user
         this._user = {
@@ -86,13 +86,14 @@ export class PKWClient implements IPokerClient {
             username: loginData.nick_name,
             nickname: loginData.nick_name,
             sex: 0,
-            avatarURL: ''
+            avatarURL: '',
+            ip: loginData.ip
         };
 
         // create domain info
         loginData.domain.forEach((item) => {
             const domainInfo: IDomainInfo = {
-                gateServer: item.api,
+                gateServer: item.h5,
                 imageServer: item.qiniu,
                 avatarServer: item.qiniu,
                 imageUploadServer: item.qiniu2
@@ -101,7 +102,7 @@ export class PKWClient implements IPokerClient {
             this._domains.push(domainInfo);
         });
 
-        return session;
+        return this._session;
     }
 
     getCurrentUser(): Nullable<IUser> {
@@ -135,7 +136,7 @@ export class PKWClient implements IPokerClient {
         const data = JSON.stringify(params);
 
         // sign params
-        const sign = PKWUtil.CreateSign(data);
+        const sign = PKWUtil.createSign(data);
 
         const searchParams = new URLSearchParams({ data: data, sign: sign });
 
@@ -145,8 +146,8 @@ export class PKWClient implements IPokerClient {
     }
 
     createSocket(options?: ISocketOptions): ISocket {
-        // const opts = { ...this._systemInfo, options };
-        // this._socket = new WPKSocket(new WebSocketAdapter(), this._session, opts);
+        const opts = { ...this._systemInfo, options };
+        this._socket = new PKWSocket(new WebSocketAdapter(), this._session, opts);
         return this._socket;
     }
 

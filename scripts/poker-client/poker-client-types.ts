@@ -301,6 +301,7 @@ export interface IUser {
     nickname: string;
     avatarURL: string;
     sex: number;
+    ip: string;
 }
 
 /** A session authenticated for a user with poke server. */
