@@ -35,7 +35,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     }
 
     constructor(websocketAdatper: WebSocketAdapter, session: PKWSession, options?: ISocketOptions) {
-        super(ServerType.SeverType_World, GameId.World, 0, websocketAdatper);
+        super(ServerType.SeverType_World, GameId.World, session.userId, websocketAdatper);
         this._session = session;
         Util.override(this._systemInfo, options);
     }
@@ -98,7 +98,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     async login(): Promise<ILoginResponse> {
         const requestProto = new pb.RequestLogon();
         requestProto.version = this._systemInfo.appVersion;
-        // requestProto.token = this._session.pkwAuthData.token;
+        requestProto.token = this._session.token;
         requestProto.device_info = this._systemInfo.deviceInfo;
         requestProto.invitation_code = '';
         requestProto.client_type = this._systemInfo.clientType;
@@ -156,11 +156,20 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
                     pb.CowBoyGameListResponse
                 );
                 break;
+            case GameId.HumanBoy:
+                requestProto = new pb.HumanBoyGameListRequest();
+                response = await this.sendRequest(
+                    requestProto,
+                    pb.MSGID.MsgID_HumanBoy_List_Request,
+                    pb.HumanBoyGameListRequest,
+                    pb.MSGID.MsgID_HumanBoy_List_Response,
+                    pb.HumanBoyGameListResponse
+                );
+                break;
             // TODO: send other game list request
             // case GameId.VideoCowboy:
             //     break;
-            // case GameId.HumanBoy:
-            //     break;
+
             // case GameId.PokerMaster:
             //     break;
             default:
@@ -171,9 +180,9 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         const responseProto = response.payload;
 
-        this.checkResponseCode(responseProto.error, 'getMiniGamesList');
+        this.checkResponseCode(responseProto.error, 'getRoomList');
 
-        return { ...responseProto };
+        return responseProto;
     }
 
     async getRank(randId: number): Promise<IGetRankResponse> {
@@ -202,7 +211,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         requestProto.uid = this._session.userId;
 
         const pos = new pb.PositionInfo();
-        // pos.ip = this._session.pkwAuthData.appIP;
+        pos.ip = this._session.data.ip;
         pos.latitude = this._systemInfo.coord.latitude;
         pos.longtitude = this._systemInfo.coord.longitude;
 

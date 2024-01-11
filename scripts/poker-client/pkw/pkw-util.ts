@@ -3,6 +3,7 @@
 /* eslint-disable camelcase */
 
 import * as md5 from 'md5';
+import * as CryptoJS from './crypto';
 
 export class PKWUtil {
     private static getSortSign(): string {
@@ -50,7 +51,7 @@ export class PKWUtil {
         return kMd5String;
     }
 
-    static CreateSign(kData: string): string {
+    static createSign(kData: string): string {
         let kSaltSign = PKWUtil.getSortSign();
 
         let kSign = kSaltSign + kData + kSaltSign;
@@ -60,5 +61,67 @@ export class PKWUtil {
         let Md5String = md5(kSign);
 
         return Md5String;
+    }
+
+    static encryptPassword(password: string): string {
+        return md5(password);
+    }
+
+    static encryptToken(token: string): string {
+        // eslint-disable-next-line no-useless-concat
+        let key: string = '@lnFi8' + '<eIKYazt:$_;' + 'MX9T/d(gk[JW3{Upcw';
+        key = key.substring(0, 32);
+        const base64Toket = PKWUtil.DecryptBase64(token, key);
+        // md5 twice
+        return md5(md5(base64Toket));
+    }
+
+    static DecryptBase64(content: string, key: string): string {
+        let keyBytes = CryptoJS.enc.Utf8.parse(key);
+
+        let decrypt = CryptoJS.AES.decrypt(content, keyBytes, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 });
+
+        let result = '';
+        let decryptLength = decrypt.words.length;
+        for (let i = 0; i < decryptLength; i++) {
+            let a = PKWUtil.intTobytes(decrypt.words[i]);
+            if (decrypt.sigBytes / 4 >= i + 1) {
+                for (let j = 0; j < 4; j++) {
+                    if (a[j] !== 0) {
+                        // 过滤无效的值
+                        result += String.fromCharCode(a[j]);
+                    }
+                }
+
+                if (decrypt.sigBytes / 4 === i + 1) break;
+            } else {
+                let len = decrypt.sigBytes % 4;
+                for (let j = 0; j < len; j++) {
+                    if (a[j] !== 0) {
+                        // 过滤无效的值
+                        result += String.fromCharCode(a[j]);
+                    }
+                }
+                break;
+            }
+        }
+        if (result.length <= 0) {
+            result = content;
+        }
+
+        return result;
+    }
+
+    static intTobytes(value) {
+        var a = new Uint8Array(4);
+        a[0] = (value >> 24) & 0xff;
+
+        a[1] = (value >> 16) & 0xff;
+
+        a[2] = (value >> 8) & 0xff;
+
+        a[3] = value & 0xff;
+
+        return a;
     }
 }

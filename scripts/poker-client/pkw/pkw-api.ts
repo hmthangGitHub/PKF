@@ -43,7 +43,7 @@ export interface IDomainData {
     top_matches_h5: string;
 }
 
-export interface ILoginData extends IResponseData {
+export interface ILoginData {
     token: string;
     user_id: number;
     nick_name: string;
@@ -55,6 +55,7 @@ export interface ILoginData extends IResponseData {
     shop: string;
     cdn: string;
     domain: IDomainData[];
+    encry_switch: number[];
 }
 
 export interface ILoginResponseData extends IResponseData {

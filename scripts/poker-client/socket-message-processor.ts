@@ -104,6 +104,11 @@ export class SocketMessageProcessor {
             asyncOp,
             handler: (buf: Uint8Array) => {
                 const protobuf = this.decodeProtobuf<ResponseProtoType>(buf, responseProtoClass);
+
+                if (this._verbose) {
+                    console.log(protobuf);
+                }
+
                 asyncOp.resolve({ payload: protobuf });
             }
         });
@@ -173,7 +178,7 @@ export class SocketMessageProcessor {
 
     handleMessage(msg: SocketMessage): void {
         if (this._verbose) {
-            console.log(`receive message ${msg.header.messageId}`, msg.header, msg.header);
+            console.log(`receive message ${msg.header.messageId}`, msg.header);
         }
 
         const request = this._requests.get(msg.header.messageId);

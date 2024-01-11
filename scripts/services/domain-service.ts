@@ -24,6 +24,10 @@ export class DomainService extends Service {
         return this._client.getDomains()[this._domainIndex];
     }
 
+    getDomains(): IDomainInfo[] {
+        return this._client.getDomains();
+    }
+
     getAvatarUrl(avatarPath: string, plat: number): string {
         const domainInfo = this.getDomainInfo();
 
