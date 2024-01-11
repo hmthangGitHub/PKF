@@ -1,19 +1,22 @@
-import { WPKClient } from './wpk/wpk-client';
 import type {
     IClientOptions,
     ISocketOptions,
     RequestOtpions,
     ISession,
     PlatformType,
-    User
+    IUser,
+    IDomainInfo
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
 import { PKWClient } from './pkw/pkw-client';
+import { WPKClient } from './wpk/wpk-client';
 
 export interface IPokerClient {
     login(username: string, password: string, options?: RequestOtpions): Promise<ISession>;
 
-    GetCurrentUser(): User;
+    getCurrentUser(): IUser;
+
+    getDomainInfo(): IDomainInfo[];
 
     createSocket(options?: ISocketOptions): ISocket;
 

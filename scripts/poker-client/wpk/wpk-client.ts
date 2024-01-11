@@ -2,7 +2,14 @@ require('url-search-params-polyfill');
 import type { Nullable } from '../../core/defines/types';
 import { ServerError, InvalidOperationError } from '../../core/defines/errors';
 import type { IPokerClient } from '../poker-client';
-import type { IClientOptions, ISocketOptions, RequestOtpions, ISession, User } from '../poker-client-types';
+import type {
+    IClientOptions,
+    ISocketOptions,
+    RequestOtpions,
+    ISession,
+    IUser,
+    IDomainInfo
+} from '../poker-client-types';
 import { SystemInfo } from '../poker-client-types';
 import type { ISocket } from '../poker-socket';
 import type { LoginData, PostParams, LoginParams } from './wpk-api';
@@ -44,7 +51,7 @@ export class WPKClient implements IPokerClient {
             this._baseUrl += `/${opts.basePath}`;
         }
 
-        this._deviceType = opts.deviceType;
+        this._deviceType = opts.deviceType as number;
         this._deviceId = opts.deviceId;
 
         Util.override(this._systemInfo, opts);
@@ -79,12 +86,12 @@ export class WPKClient implements IPokerClient {
         return session;
     }
 
-    GetCurrentUser(): User {
+    getCurrentUser(): IUser {
         if (!this._session) {
             throw new InvalidOperationError('Session does not exist! Call this function after login.');
         }
 
-        const user: User = {
+        const user: IUser = {
             userId: this._session.userInfo.userId,
             username: this._session.userInfo.account,
             nickname: this._session.userInfo.nickname,
@@ -93,6 +100,10 @@ export class WPKClient implements IPokerClient {
         };
 
         return user;
+    }
+
+    getDomainInfo(): IDomainInfo[] {
+        return [];
     }
 
     protected async request(url: string, data: PostParams): Promise<http.Response> {

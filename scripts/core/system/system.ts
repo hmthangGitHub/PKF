@@ -32,17 +32,17 @@ export class System {
         return 'd41d8cd98f00b204e9800998ecf8427e';
     }
 
-    static getDeviceInfo(): string {
+    static getDeviceInfo(): IDeviceInfo {
         // TODO: get native device info
         const deviceInfo: IDeviceInfo = {
             disroot: false,
             dmodel: '',
-            dname: 'wefans',
+            dname: '',
             duuid: System.getDeviceUUID(),
             dversion: ''
         };
 
-        return JSON.stringify(deviceInfo);
+        return deviceInfo;
     }
 
     static getLocation(): GeolocationCoordinates {

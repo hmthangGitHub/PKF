@@ -256,6 +256,10 @@ export interface ISystemInfoOptions {
     osVersion?: string;
     deviceInfo?: string;
     coord?: GeolocationCoord;
+    domainType?: number;
+    isInstallSiliao?: boolean; // 是否安装私聊
+    deviceVersion?: string;
+    isEmulator?: boolean;
 }
 
 export class SystemInfo implements ISystemInfoOptions {
@@ -269,18 +273,20 @@ export class SystemInfo implements ISystemInfoOptions {
         latitude: 10,
         longitude: 10
     };
+    domainType = 11;
+    isInstallSiliao = false;
+    deviceVersion = '';
+    isEmulator = false;
 }
 
 export interface IClientOptions extends ISystemInfoOptions {
     port?: number;
     basePath?: string;
-    deviceType?: number;
+    deviceType?: number | string;
     deviceId?: string;
 }
 
 export interface ISocketOptions extends ISystemInfoOptions {
-    // url?: string;
-    // domainIndex?: number;
     cert?: string;
 }
 
@@ -289,7 +295,7 @@ export interface RequestOtpions {
 }
 
 /** A user in the system. */
-export interface User {
+export interface IUser {
     userId: number;
     username: string;
     nickname: string;
@@ -314,4 +320,10 @@ export interface IProtobutReader {
 export interface ProtobutClass<T> {
     encode(protbuf: T, w?: IProtobutWriter): IProtobutWriter;
     decode(r: Uint8Array, l?: number): T;
+}
+
+export interface IDomainInfo {
+    gateServer: string;
+    imageServer: string;
+    imageUploadServer: string;
 }
