@@ -94,6 +94,7 @@ export class PKWClient implements IPokerClient {
             const domainInfo: IDomainInfo = {
                 gateServer: item.api,
                 imageServer: item.qiniu,
+                avatarServer: item.qiniu,
                 imageUploadServer: item.qiniu2
             };
 
@@ -103,11 +104,11 @@ export class PKWClient implements IPokerClient {
         return session;
     }
 
-    getCurrentUser(): IUser {
+    getCurrentUser(): Nullable<IUser> {
         return this._user;
     }
 
-    getDomainInfo(): IDomainInfo[] {
+    getDomains(): IDomainInfo[] {
         return this._domains;
     }
 

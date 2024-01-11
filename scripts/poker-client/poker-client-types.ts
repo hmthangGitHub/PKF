@@ -326,4 +326,5 @@ export interface IDomainInfo {
     gateServer: string;
     imageServer: string;
     imageUploadServer: string;
+    avatarServer: string;
 }
