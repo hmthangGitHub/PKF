@@ -1,3 +1,4 @@
+import type { Nullable } from './../core/defines/types';
 import type {
     IClientOptions,
     ISocketOptions,
@@ -14,9 +15,9 @@ import { WPKClient } from './wpk/wpk-client';
 export interface IPokerClient {
     login(username: string, password: string, options?: RequestOtpions): Promise<ISession>;
 
-    getCurrentUser(): IUser;
+    getCurrentUser(): Nullable<IUser>;
 
-    getDomainInfo(): IDomainInfo[];
+    getDomains(): IDomainInfo[];
 
     createSocket(options?: ISocketOptions): ISocket;
 

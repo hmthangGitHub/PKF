@@ -1,6 +1,6 @@
 require('url-search-params-polyfill');
 import type { Nullable } from '../../core/defines/types';
-import { ServerError, InvalidOperationError } from '../../core/defines/errors';
+import { ServerError } from '../../core/defines/errors';
 import type { IPokerClient } from '../poker-client';
 import type {
     IClientOptions,
@@ -30,6 +30,10 @@ export class WPKClient implements IPokerClient {
     _session: Nullable<WPKSession> = null;
 
     _socket: Nullable<WPKSocket> = null;
+
+    _user: Nullable<IUser> = null;
+
+    _domains: IDomainInfo[] = [];
 
     constructor(host: string, options?: IClientOptions) {
         const opts: IClientOptions = {
@@ -83,15 +87,9 @@ export class WPKClient implements IPokerClient {
         session.pkwAuthData.token = WPKUtil.encryptPKWToken(session.pkwAuthData.token);
 
         this._session = session;
-        return session;
-    }
 
-    getCurrentUser(): IUser {
-        if (!this._session) {
-            throw new InvalidOperationError('Session does not exist! Call this function after login.');
-        }
-
-        const user: IUser = {
+        // create user
+        this._user = {
             userId: this._session.userInfo.userId,
             username: this._session.userInfo.account,
             nickname: this._session.userInfo.nickname,
@@ -99,11 +97,39 @@ export class WPKClient implements IPokerClient {
             avatarURL: this._session.userInfo.avatar
         };
 
-        return user;
+        // create domain info
+        loginData.pkwAuthData.gate_addr.forEach((item) => {
+            const domainInfo: IDomainInfo = {
+                gateServer: item,
+                avatarServer: session.pkwAuthData.avatar_addr,
+                imageServer: session.pkwAuthData.pkw_file_addr,
+                imageUploadServer: session.pkwAuthData.pkw_file_addr
+            };
+
+            this._domains.push(domainInfo);
+        });
+
+        return session;
     }
 
-    getDomainInfo(): IDomainInfo[] {
-        return [];
+    getCurrentUser(): Nullable<IUser> {
+        // if (!this._session) {
+        //     throw new InvalidOperationError('Session does not exist! Call this function after login.');
+        // }
+
+        // const user: IUser = {
+        //     userId: this._session.userInfo.userId,
+        //     username: this._session.userInfo.account,
+        //     nickname: this._session.userInfo.nickname,
+        //     sex: this._session.userInfo.sex,
+        //     avatarURL: this._session.userInfo.avatar
+        // };
+
+        return this._user;
+    }
+
+    getDomains(): IDomainInfo[] {
+        return this._domains;
     }
 
     protected async request(url: string, data: PostParams): Promise<http.Response> {
