@@ -1,5 +1,5 @@
 import { Service } from '../core/service/service';
-import type { ISession } from '../core/core-index';
+import type { ISession } from '../poker-client/poker-client-index';
 import { WPKSession } from '../poker-client/wpk/wpk-session';
 
 export class DomainInfo {

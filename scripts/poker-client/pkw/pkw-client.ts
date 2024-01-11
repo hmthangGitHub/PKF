@@ -1,19 +1,27 @@
+/* eslint-disable camelcase */
 require('url-search-params-polyfill');
-import type { Nullable } from '../../core/defines/types';
-import { InvalidOperationError } from '../../core/defines/errors';
+import type { Nullable } from '../../core/core-index';
+import { ServerError, Util } from '../../core/core-index';
+import * as http from '../../core/network/http/http-index';
 import type { IPokerClient } from '../poker-client';
-import type { IClientOptions, ISocketOptions, RequestOtpions, ISession, User } from '../poker-client-types';
+import type {
+    IClientOptions,
+    ISocketOptions,
+    RequestOtpions,
+    ISession,
+    IUser,
+    IDomainInfo
+} from '../poker-client-types';
 import { SystemInfo } from '../poker-client-types';
 import type { ISocket } from '../poker-socket';
-// import type { LoginData, PostParams, LoginParams } from './wpk-api';
-import * as http from '../../core/network/http/http-index';
 import { PKWSession } from './pkw-session';
 import type { PKWSocket } from './pkw-socket';
-// import { WPKUtil } from './wpk-util';
-import { Util } from '../../core/utils/util';
+import * as md5 from 'md5';
+import { PKWUtil } from './pkw-util';
+import type { IRequestParams, ILoginParams, ILoginResponseData, ILoginData } from './pkw-api';
 
 export class PKWClient implements IPokerClient {
-    _deviceType: number;
+    _deviceType: string;
     _deviceId: string;
     _scheme = 'http://';
     _baseUrl: string;
@@ -23,12 +31,14 @@ export class PKWClient implements IPokerClient {
 
     _socket: Nullable<PKWSocket> = null;
 
+    _user: Nullable<IUser> = null;
+
+    _domains: IDomainInfo[] = [];
+
     constructor(host: string, options?: IClientOptions) {
         const opts: IClientOptions = {
             langauage: 'zh_CN',
-            basePath: 'wepoker',
-            deviceType: 1,
-            deviceId: ''
+            basePath: 'index.php'
         };
 
         if (options) {
@@ -43,87 +53,94 @@ export class PKWClient implements IPokerClient {
             this._baseUrl += `/${opts.basePath}`;
         }
 
-        this._deviceType = opts.deviceType;
+        this._deviceType = opts.deviceType as string;
         this._deviceId = opts.deviceId;
 
         Util.override(this._systemInfo, opts);
     }
 
     async login(username: string, password: string, options?: RequestOtpions): Promise<ISession> {
-        const url = this._baseUrl + '/user/phone_login';
+        const url = this._baseUrl + '/User/Login/loginByUsername';
 
-        // const data: LoginParams = {
-        //     account: username,
-        //     password: WPKUtil.encryptPassword(password),
-        //     isAutoLogin: true
-        // };
+        const data: ILoginParams = {
+            username: username,
+            passwd: md5(password)
+        };
 
-        // if (options && options.aesKey) {
-        //     data.aesKey = options.aesKey;
-        // }
-
-        // const response = await this.request(url, data);
-        // const loginData = response.data as LoginData;
-        // if (loginData.errorCode !== 0) {
-        //     return Promise.reject(new ServerError(loginData.errMsg, loginData.errorCode));
-        // }
-
-        // const session = new PKWSession(loginData.sessionToken, loginData.user.userId);
-        // session.userInfo = { ...loginData.user };
-        // session.userSecurityInfo = { ...loginData.userSecurityInfo };
-        // session.pkwAuthData = { ...loginData.pkwAuthData };
-        // session.pkwAuthData.token = WPKUtil.encryptPKWToken(session.pkwAuthData.token);
-        const session = new PKWSession();
-        this._session = session;
-        return session;
-    }
-
-    GetCurrentUser(): User {
-        if (!this._session) {
-            throw new InvalidOperationError('Session does not exist! Call this function after login.');
+        const response = await this.request(url, data);
+        console.log('response', response.data);
+        const loginResponse = response.data as ILoginResponseData;
+        if (loginResponse.msg_code !== '0') {
+            return Promise.reject(new ServerError(loginResponse.message, Number(loginResponse.msg_code)));
         }
 
-        // const user: User = {
-        //     userId: this._session.userInfo.userId,
-        //     username: this._session.userInfo.account,
-        //     nickname: this._session.userInfo.nickname,
-        //     sex: this._session.userInfo.sex,
-        //     avatarURL: this._session.userInfo.avatar
-        // };
+        const loginData = loginResponse.data as ILoginData;
 
-        const user: User = {
-            userId: 0,
-            username: '',
-            nickname: '',
+        // create session
+        const session = new PKWSession(loginData.token, loginData.user_id);
+        this._session = session;
+
+        // create user
+        this._user = {
+            userId: loginData.user_id,
+            username: loginData.nick_name,
+            nickname: loginData.nick_name,
             sex: 0,
             avatarURL: ''
         };
 
-        return user;
+        // create domain info
+        loginData.domain.forEach((item) => {
+            const domainInfo: IDomainInfo = {
+                gateServer: item.api,
+                imageServer: item.qiniu,
+                imageUploadServer: item.qiniu2
+            };
+
+            this._domains.push(domainInfo);
+        });
+
+        return session;
     }
 
-    protected async request(url: string, data: any): Promise<http.Response> {
-        if (this._session) {
-            data.userId = this._session.userId;
-            data.sessionToken = this._session.token;
-        }
+    getCurrentUser(): IUser {
+        return this._user;
+    }
 
-        data.version = this._systemInfo.appVersion;
-        data.deviceType = this._deviceType;
-        // TODO: fill natvie info
-        data.platform = 'unknow';
-        data.idfa = 0;
-        data.time = new Date().getTime();
-        // sign param
-        // data['sign'] = WPKUtil.sign(data);
-        const searchParams = new URLSearchParams(data as any);
+    getDomainInfo(): IDomainInfo[] {
+        return this._domains;
+    }
 
-        return await http.post(url, {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-            },
-            body: searchParams.toString()
-        });
+    protected async request(url: string, params: IRequestParams): Promise<http.Response> {
+        // if (this._session) {
+        //     data.userId = this._session.userId;
+        //     data.sessionToken = this._session.token;
+        // }
+
+        params.version = '1.0.0'; // just hard code
+        params.hot_update_version = this._systemInfo.appVersion;
+        params.device_uuid = this._deviceId;
+        params.latitude = this._systemInfo.coord.latitude;
+        params.longitude = this._systemInfo.coord.longitude;
+        params.domain_type = this._systemInfo.domainType;
+        params.deviceType = this._deviceType;
+        params.is_down_sl = this._systemInfo.isInstallSiliao ? 1 : 0;
+        params.device_version = this._systemInfo.deviceVersion;
+        params.is_emulator = this._systemInfo.isEmulator ? 1 : 0;
+        params.dmodel = this._systemInfo.deviceInfo;
+        params.clientType = this._systemInfo.clientType;
+        params.language = this._systemInfo.langauage;
+
+        const data = JSON.stringify(params);
+
+        // sign params
+        const sign = PKWUtil.CreateSign(data);
+
+        const searchParams = new URLSearchParams({ data: data, sign: sign });
+
+        const fullUrl = url + '?' + searchParams;
+
+        return await http.get(fullUrl);
     }
 
     createSocket(options?: ISocketOptions): ISocket {
