@@ -33,6 +33,11 @@ export class System {
         return cc.sys.isNative;
     }
 
+    // eslint-disable-next-line @typescript-eslint/class-literal-property-style
+    static get isSiyuType(): boolean {
+        return false;
+    }
+
     static getDeviceUUID(): string {
         // TODO: get native device uuid
         if (System.isNative) {
