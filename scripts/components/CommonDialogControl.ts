@@ -5,11 +5,10 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class CommonDialogControl extends cc.Component {
-
+export class CommonDialogControl extends cc.Component {
     @property(cc.Label)
     messageLabel: cc.Label = null;
 
@@ -70,8 +69,7 @@ export default class CommonDialogControl extends cc.Component {
             }
             this._callbacks[0] = firstCallback;
             this._callbacks[1] = secondCallback;
-        }
-        else {
+        } else {
             return;
         }
 
