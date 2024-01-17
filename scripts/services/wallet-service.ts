@@ -1,5 +1,5 @@
 import { EmittableService } from '../core/core-index';
-import type { ISocket, INoticeNotifyUserGoldNum } from '../core/core-index';
+import type { ISocket, INoticeNotifyUserGoldNum } from '../poker-client/poker-client-index';
 
 export class Wallet {
     uid: number = 0;
