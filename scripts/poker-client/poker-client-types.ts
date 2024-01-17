@@ -328,4 +328,5 @@ export interface IDomainInfo {
     imageServer: string;
     imageUploadServer: string;
     avatarServer: string;
+    webServer: string;
 }
