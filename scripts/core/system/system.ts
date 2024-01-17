@@ -11,7 +11,16 @@ export interface GeolocationCoordinates {
     longitude: number;
 }
 
+/** System variables */
 export class System {
+    private static _clientType: number = 3;
+    static get clientType(): number {
+        return System._clientType;
+    }
+    static set clientType(value: number) {
+        System._clientType = value;
+    }
+
     static get os(): string {
         return cc.sys.os;
     }

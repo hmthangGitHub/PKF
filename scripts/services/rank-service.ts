@@ -1,5 +1,6 @@
+import type { Nullable } from '../core/core-index';
 import { Service } from '../core/core-index';
-import type { ISocket, IGetRankResponse, Nullable } from '../core/core-index';
+import type { ISocket, IGetRankResponse } from '../poker-client/poker-client-index';
 
 export interface IRankData {
     uid: number;
