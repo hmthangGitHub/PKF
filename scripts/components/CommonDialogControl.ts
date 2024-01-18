@@ -69,12 +69,7 @@ export class CommonDialogControl extends cc.Component {
             }
             this._callbacks[0] = firstCallback;
             this._callbacks[1] = secondCallback;
-<<<<<<< HEAD
         } else {
-=======
-        }
-        else {
->>>>>>> d13dea7308f293d9cff001b1ab918478d6a5e90b
             return;
         }
 
