@@ -44,11 +44,11 @@ export class CommonDialogControl extends cc.Component {
         this.node.active = false;
     }
 
-    public setZOrder(index: number) {
+    setZOrder(index: number) {
         this.node.zIndex = index;
     }
 
-    public showMsg(message: string, buttonTexts: string[], firstCallback: Function, secondCallback?: Function) {
+    showMsg(message: string, buttonTexts: string[], firstCallback: Function, secondCallback?: Function) {
         this.messageLabel.string = message;
 
         if (buttonTexts.length === 1) {
@@ -56,8 +56,8 @@ export class CommonDialogControl extends cc.Component {
             this._singleButtonLabel.string = buttonTexts[0];
             this._callbacks[0] = firstCallback;
 
-            for (let i = 0; i < this.doubleButtons.length; i++) {
-                this.doubleButtons[i].active = false;
+            for (const button of this.doubleButtons) {
+                button.active = false;
             }
             this._callbacks[1] = null;
         } else if (buttonTexts.length === 2) {
