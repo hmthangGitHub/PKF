@@ -1,0 +1,15 @@
+{
+    "groups": {
+        "zh-CN": {
+            "strings": {
+                "InquireView_lab_3": "积分",
+                "Cancel": "取消",
+                "Confirm": "确定",
+                "MiniGame_AddAutoBet_Text": "增加20局",
+                "MiniGame_Switch_Table": "切换其他牌桌",    
+                "MiniGame_Exit": "退出",
+                "MiniGame_Switch_Content": "牌桌已经关闭"
+            }
+        }
+    }
+}
