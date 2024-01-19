@@ -1,3 +1,5 @@
+import { Module } from '../module/module-index';
+
 export interface IDeviceInfo {
     dmodel: string;
     dname: string;
@@ -12,54 +14,58 @@ export interface GeolocationCoordinates {
 }
 
 /** System variables */
-export class System {
-    private static _clientType: number = 3;
-    static get clientType(): number {
-        return System._clientType;
+export class System extends Module {
+    static moduleName = 'System';
+
+    private _clientType: number = 3;
+    get clientType(): number {
+        return this._clientType;
     }
-    static set clientType(value: number) {
-        System._clientType = value;
+    set clientType(value: number) {
+        this._clientType = value;
     }
 
-    static get os(): string {
+    init(): void {}
+
+    get os(): string {
         return cc.sys.os;
     }
 
-    static get osVersion(): string {
+    get osVersion(): string {
         return cc.sys.osVersion;
     }
 
-    static get isNative(): boolean {
+    get isNative(): boolean {
         return cc.sys.isNative;
     }
 
     // eslint-disable-next-line @typescript-eslint/class-literal-property-style
-    static get isSiyuType(): boolean {
+    get isSiyuType(): boolean {
         return false;
     }
 
-    static getDeviceUUID(): string {
+    getDeviceUUID(): string {
         // TODO: get native device uuid
-        if (System.isNative) {
+        if (this.isNative) {
             return '';
         }
         return 'd41d8cd98f00b204e9800998ecf8427e';
     }
 
-    static getDeviceInfo(): IDeviceInfo {
+    getDeviceInfo(): IDeviceInfo {
         // TODO: get native device info
         const deviceInfo: IDeviceInfo = {
             disroot: false,
             dmodel: '',
             dname: 'wefans',
-            duuid: System.getDeviceUUID(),
+            duuid: this.getDeviceUUID(),
             dversion: ''
         };
 
         return deviceInfo;
     }
 
-    static getLocation(): GeolocationCoordinates {
+    getLocation(): GeolocationCoordinates {
         return {
             latitude: 10,
             longitude: 10
