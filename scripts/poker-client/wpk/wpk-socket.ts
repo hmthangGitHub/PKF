@@ -20,7 +20,7 @@ import { SocketMessageProcessor } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 
-import * as ws_protocol from './pb/ws_protocol';
+import * as ws_protocol from './pb/wpk-ws_protocol';
 import pb = ws_protocol.pb;
 
 export class WPKSocket extends SocketMessageProcessor implements ISocket {

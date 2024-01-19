@@ -35,7 +35,7 @@ import type {
 
 import { TypeSafeEventEmitter } from '../../../core/event/event-emitter';
 
-import * as cb_protocol from './pb/cowboy';
+import * as cb_protocol from './pb/wpk-cowboy';
 import pb = cb_protocol.cowboy_proto_hall;
 
 export interface CowboyNotifications {
