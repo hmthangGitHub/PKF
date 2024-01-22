@@ -13,9 +13,27 @@ export interface GeolocationCoordinates {
     longitude: number;
 }
 
+export class View {
+    isWideScreen() {
+        return cc.winSize.width / cc.winSize.height > 1080.0 / 1920;
+    }
+
+    isNarrowScreen() {
+        const width = cc.winSize.width;
+        const height = cc.winSize.height;
+
+        return width > height ? width / height > 2 : height / width > 2;
+    }
+}
+
 /** System variables */
 export class System extends Module {
     static moduleName = 'System';
+
+    private _view = new View();
+    get view(): View {
+        return this._view;
+    }
 
     private _clientType: number = 3;
     get clientType(): number {

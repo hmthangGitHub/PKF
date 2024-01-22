@@ -48,7 +48,7 @@ export class AddressableAssetManager extends Module {
 
             const indicator = LocationIndicator.fromKey(key);
             if (indicator.groupName.length === 0) {
-                reject(new Error('Invalid key format. Please use "Group.AssetName" as a key.'));
+                reject(new Error(`key ${key} is invalid. Please use "Group.AssetName" as a key.`));
                 return;
             }
 
