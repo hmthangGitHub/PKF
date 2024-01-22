@@ -1650,4 +1650,33 @@ export class StringUtil {
 
     //     return value;
     // }
+
+    /**
+     * 转换指定数值为字符串
+     * @param num           数值
+     * @param precision     精确度
+     * @param sign          符号
+     */
+    static transNumberToString(num: number, precision = 2, sign = false): string {
+        let fValue: number = StringUtil.serverGoldToShowNumber(num);
+
+        // 自动运算, 去除格式化 "%.f" 自动四舍五入
+        fValue = Math.floor(fValue * Math.pow(10, precision)) / Math.pow(10, precision);
+
+        let str_sign = '';
+        if (sign) str_sign = fValue >= 0 ? '+' : '';
+
+        let format: string = '%s%' + StringUtil.formatC('.%df', precision);
+        let strValue: string = StringUtil.formatC(format, str_sign, fValue);
+
+        let count = 0;
+        let index: number = strValue.indexOf('.');
+
+        for (let i = strValue.length - 1; index > 0 && i >= index; --i) {
+            if (strValue[i] === '0' || strValue[i] === '.') ++count;
+            else break;
+        }
+
+        return strValue.substr(0, strValue.length - count);
+    }
 }
