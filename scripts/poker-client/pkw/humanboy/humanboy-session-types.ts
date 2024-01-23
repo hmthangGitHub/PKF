@@ -193,6 +193,17 @@ export interface IRoomParam {
     ruleByLanguage?: ILanguageItem[] | null;
     langVersion?: number | null;
     rulePic?: string | null;
+
+    upDealerMoney?: number | null;
+    dealerCount?: number | null;
+    singleMaxStock?: number | null;
+    downDealerMoney?: number | null;
+    moneyPerStock?: number | null;
+    totalStockNum?: number | null;
+    shareLimitAmount?: number | null;
+    stdJackpotBet?: number | null;
+    version?: number | null;
+    toWpkRulePic?: { [k: string]: string } | null;
 }
 
 export interface IBetOptionInfo {
@@ -221,9 +232,10 @@ export interface ICardItem {
 }
 
 export interface IPlayerHoleCard {
-    name?: RoleName | null;
-    Cards?: ICardItem[] | null;
     option?: BetZoneOption | null;
+    holeCards?: ICardItem[] | null;
+    level?: CardResult | null;
+    result?: number | null;
 }
 
 export interface IZoneSettleDetail {
@@ -241,6 +253,10 @@ export interface IPlayerSettle {
     totalWinAmount?: number | null;
     curCoin?: number | null;
     keepWinCount?: number | null;
+
+    hasBet?: number | null;
+    pos4WinAmount?: number | null;
+    posLuckWinAmount?: number | null;
 }
 
 export interface IRoundResult {
@@ -263,20 +279,24 @@ export interface IOptionResults {
 }
 
 export interface IGameRoundEndNotify {
+    // common
     playerHoleCard?: IPlayerHoleCard[] | null;
-    publicCards?: ICardItem[] | null;
     playerSettle?: IPlayerSettle[] | null;
-    roundResult?: IRoundResult | null;
     nextRoundEndStamp?: number | null;
     matchOption?: BetZoneOption[] | null;
     stopWorld?: number | null;
     leftSeconds?: number | null;
     otherPlayers?: IPlayerSettle | null;
-    openRoads?: boolean | null;
     optionResult?: IOptionResult[] | null;
     change_points?: number | null;
     idle_roomid?: number | null;
 
+    // cowboy only
+    // roundResult?: IRoundResult | null;
+    // publicCards?: ICardItem[] | null;
+    // openRoads?: boolean | null;
+
+    // humanboy only
     maxLevel?: CardResult | null;
     dealerWinAll?: number | null;
     jackpotLeftMoney?: number | null;
@@ -309,6 +329,11 @@ export interface IHitJackpotAwardData {
     amount?: number | null;
 }
 
+interface IFeeItems {
+    id?: number | null;
+    coin?: number | null;
+}
+
 export interface IGameDataSynNotify {
     param?: IRoomParam | null;
     optionInfo?: IBetOptionInfo[] | null;
@@ -316,11 +341,9 @@ export interface IGameDataSynNotify {
     curState?: RoundState | null;
     nextRoundEndStamp?: number | null;
     players?: IGamePlayer[] | null;
-    publicCards?: ICardItem[] | null;
     canAuto?: boolean | null;
     cachedNotifyMsg?: IGameRoundEndNotify | null;
     leftSeconds?: number | null;
-    openRoads?: boolean | null;
     optionResults?: IOptionResults[] | null;
     betCoinOption?: number[] | null;
     autoLevel?: AutoBetLevel | null;
@@ -332,11 +355,19 @@ export interface IGameDataSynNotify {
     CalmDownLeftSeconds?: number | null;
     CalmDownDeadLineTimeStamp?: number | null;
     reachLimitBet?: boolean | null;
+    items?: IFeeItems[] | null;
 
+    // cowboy only
+    // publicCards?: ICardItem[] | null;
+    // openRoads?: boolean | null;
+
+    // humanboy onle
     dealer?: IDealerPlayerInfo[] | null;
     onDealerList?: number | null;
     jackpotLeftMoney?: number | null;
     beDealerNum?: number | null;
+    showMiddleUpDealerBtn?: boolean | null;
+    totalStockNum?: number | null;
 }
 
 export interface IBetDetail {
@@ -363,22 +394,6 @@ export interface IMergeAutoBetNotify {
 export interface IStartBetNotify {
     nextRoundEndStamp?: number | null;
     leftSeconds?: number | null;
-}
-
-export interface IGameRoundEndNotify {
-    playerHoleCard?: IPlayerHoleCard[] | null;
-    publicCards?: ICardItem[] | null;
-    playerSettle?: IPlayerSettle[] | null;
-    roundResult?: IRoundResult | null;
-    nextRoundEndStamp?: number | null;
-    matchOption?: BetZoneOption[] | null;
-    stopWorld?: number | null;
-    leftSeconds?: number | null;
-    otherPlayers?: IPlayerSettle | null;
-    openRoads?: boolean | null;
-    optionResult?: IOptionResult[] | null;
-    change_points?: number | null;
-    idle_roomid?: number | null;
 }
 
 export interface IDealNotify {
