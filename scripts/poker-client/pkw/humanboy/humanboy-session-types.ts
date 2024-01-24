@@ -440,3 +440,12 @@ export interface IRoomTrendNotice {}
 export interface IUserPointsChangeNotice {
     change_points?: number | null;
 }
+
+export interface IGameWillStartNotify {
+    showMiddleUpDealerBtn?: boolean | null;
+    surplusStockNum?: number | null;
+    roundState?: RoundState | null;
+    leftSeconds?: number | null;
+    nextRoundEndStamp?: number | null;
+    dealer?: IDealerPlayerInfo[] | null;
+}

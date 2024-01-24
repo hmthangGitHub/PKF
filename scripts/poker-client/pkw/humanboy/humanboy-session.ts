@@ -30,7 +30,8 @@ import type {
     AutoBetLevel,
     BetZoneOption,
     IAdvanceAutoBetCancelNotify,
-    IRoomTrendNotice
+    IRoomTrendNotice,
+    IGameWillStartNotify
 } from './humanboy-session-types';
 
 import { TypeSafeEventEmitter } from '../../../core/event/event-emitter';
@@ -40,16 +41,25 @@ import pb = hb_protocol.humanboy_proto;
 
 export interface HumanboyNotifications {
     dataSync: (notify: IGameDataSynNotify) => void;
-    bet: (notify: IBetNotify) => void;
+
+    // game round notify
+    gameWillStart: (notify: IGameWillStartNotify) => void;
+    deal: (notify: IDealNotify) => void;
     startBet: (notify: IStartBetNotify) => void;
     startSettlement: () => void;
     gameRoundEnd: (notify: IGameRoundEndNotify) => void;
-    deal: (notify: IDealNotify) => void;
+
+    // bet
+    bet: (notify: IBetNotify) => void;
+    // advance auto bet
     mergeAutoBet: (notify: IMergeAutoBetNotify) => void;
     advanceAutoBetCancel: (notify: IAdvanceAutoBetCancelNotify) => void;
-    kicked: (notify: IKickNotify) => void;
+
     trendNotice: (notice: IRoomTrendNotice) => void;
     userPointChange: (changePoints: number) => void;
+
+    // error
+    kicked: (notify: IKickNotify) => void;
     serverError: (code: number) => void;
 }
 
@@ -125,6 +135,12 @@ export class HumanboySession extends GameSession {
             pb.CMD.USER_POINTS_CHANGE_NOTICE,
             pb.UserPointsChangeNotice,
             this.handleUserPointsChangeNotice.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.CMD.GAME_WILL_START_NOTIFY,
+            pb.GameWillStartNotify,
+            this.handleGameWillStartNofity.bind(this)
         );
     }
 
@@ -505,5 +521,9 @@ export class HumanboySession extends GameSession {
 
     protected handleUserPointsChangeNotice(protobuf: pb.UserPointsChangeNotice) {
         this._notification.emit('userPointChange', protobuf.change_points);
+    }
+
+    protected handleGameWillStartNofity(protobuf: pb.GameWillStartNotify) {
+        this._notification.emit('gameWillStart', protobuf);
     }
 }
