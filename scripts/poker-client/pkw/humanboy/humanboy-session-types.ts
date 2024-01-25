@@ -413,29 +413,69 @@ export interface IKickNotify {
     idle_roomid?: number | null;
 }
 
-export interface ITrendData {
-    win?: BetZoneOption | null;
-    win_patterns?: number | null;
-    hand_num?: number | null;
-}
-
 export interface IDailyStat {
     betzone_type?: BetZoneOption | null;
     count?: number | null;
     win_pattern?: number | null;
 }
 
+export interface ITrendData {
+    result?: number | null;
+    handLevel?: CardResult | null;
+}
+
 export interface ITrendRoadInfo {
-    win?: string | null;
+    result?: number | null;
     eqc?: number | null;
 }
 
 export interface ITrendRoad {
-    road_row?: ITrendRoadInfo[] | null;
+    roadRow?: ITrendRoadInfo[] | null;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IRoomTrendNotice {}
+
+export interface IRoomTrendOptionStats {
+    capHandNum?: number | null;
+    lenHandNum?: number | null;
+    win?: number | null;
+    lose?: number | null;
+    equal?: number | null;
+}
+
+interface IRoomTrendOption {
+    option?: BetZoneOption | null;
+    stats?: IRoomTrendOptionStats | null;
+    road?: ITrendRoad[] | null;
+    lastResult?: number[] | null;
+    lastRow?: number | null;
+    lastCol?: number | null;
+}
+
+interface IRoomTrendLevelStatisticsStats {
+    capHandNum?: number | null;
+    lenHandNum?: number | null;
+    gaoPai?: number | null;
+    yuDui?: number | null;
+    lianDui?: number | null;
+    sanTiao?: number | null;
+    shunZiAnd1?: number | null;
+    huLuAnd3?: number | null;
+    winAll?: number | null;
+    loseAll?: number | null;
+}
+
+interface IRoomTrendLevelStatistics {
+    stats?: IRoomTrendLevelStatisticsStats | null;
+}
+
+export interface ITrendResponse {
+    trendOption?: IRoomTrendOption[] | null;
+    handLevelStatistics?: IRoomTrendLevelStatistics | null;
+    handNum?: number | null;
+    code?: ErrorCode | null;
+}
 
 export interface IUserPointsChangeNotice {
     change_points?: number | null;

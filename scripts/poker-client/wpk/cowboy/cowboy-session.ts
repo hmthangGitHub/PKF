@@ -9,7 +9,7 @@ import type {
     ILoginResponse,
     IJoinRoomResponse,
     ILeaveRoomResponse,
-    IPlayerListResp
+    IPlayerListResponse
 } from '../../game-session';
 import type { Nullable } from '../../../core/defines/types';
 import { InvalidOperationError, ServerError } from '../../../core/defines/errors';
@@ -210,9 +210,11 @@ export class CowboySession extends GameSession {
         return responseProto;
     }
 
-    async getPlayerList(): Promise<IPlayerListResp> {
+    async getPlayerList(): Promise<IPlayerListResponse> {
         if (this._roomId === 0) {
-            return Promise.reject<IPlayerListResp>(new InvalidOperationError(`${this.name} does not join room yet!`));
+            return Promise.reject<IPlayerListResponse>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
         }
 
         const requestProto = new pb.PlayerListReq();

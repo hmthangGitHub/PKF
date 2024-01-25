@@ -9,7 +9,7 @@ import type {
     ILoginResponse,
     IJoinRoomResponse,
     ILeaveRoomResponse,
-    IPlayerListResp
+    IPlayerListResponse
 } from '../../game-session';
 import type { Nullable } from '../../../core/defines/types';
 import { InvalidOperationError, ServerError } from '../../../core/defines/errors';
@@ -31,7 +31,8 @@ import type {
     BetZoneOption,
     IAdvanceAutoBetCancelNotify,
     IRoomTrendNotice,
-    IGameWillStartNotify
+    IGameWillStartNotify,
+    ITrendResponse
 } from './humanboy-session-types';
 
 import { TypeSafeEventEmitter } from '../../../core/event/event-emitter';
@@ -221,9 +222,11 @@ export class HumanboySession extends GameSession {
         return responseProto;
     }
 
-    async getPlayerList(): Promise<IPlayerListResp> {
+    async getPlayerList(): Promise<IPlayerListResponse> {
         if (this._roomId === 0) {
-            return Promise.reject<IPlayerListResp>(new InvalidOperationError(`${this.name} does not join room yet!`));
+            return Promise.reject<IPlayerListResponse>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
         }
 
         const requestProto = new pb.PlayerListReq();
@@ -417,16 +420,23 @@ export class HumanboySession extends GameSession {
         return responseProto;
     }
 
-    async queryTrend(): Promise<void> {
+    async queryTrend(): Promise<ITrendResponse> {
         if (this._roomId === 0) {
             return Promise.reject(new InvalidOperationError(`${this.name} does not join room yet!`));
         }
 
         const requestProto = new pb.TrendReq();
-        // NOTE:
-        // server does not send response of ROOM_TREND_RSP
-        // but send notification ROOM_TREND_NOTICE
-        return await this.sendMessage(requestProto, pb.CMD.ROOM_TREND_REQ, pb.TrendReq, this._roomId);
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.ROOM_TREND_REQ,
+            pb.TrendReq,
+            pb.CMD.ROOM_TREND_RSP,
+            pb.TrendResp,
+            this._roomId
+        );
+
+        return response.payload;
     }
 
     async sendHeartBeat(): Promise<IHeartBeatResponse> {

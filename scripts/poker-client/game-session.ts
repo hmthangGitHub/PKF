@@ -35,7 +35,7 @@ export interface IGamePlayer {
     plat?: number | null;
 }
 
-export interface IPlayerListResp extends IGameSessionResponse {
+export interface IPlayerListResponse extends IGameSessionResponse {
     gamePlayers?: IGamePlayer[] | null;
     self?: IGamePlayer | null;
     playerNum?: number | null;
@@ -54,7 +54,7 @@ export interface IGameSession {
     login(): Promise<ILoginResponse>;
     joinRoom(roomId: number): Promise<IJoinRoomResponse>;
     leaveRoom(): Promise<ILeaveRoomResponse>;
-    getPlayerList(): Promise<IPlayerListResp>;
+    getPlayerList(): Promise<IPlayerListResponse>;
 }
 
 export abstract class GameSession extends SocketMessageProcessor implements IGameSession {
@@ -78,7 +78,7 @@ export abstract class GameSession extends SocketMessageProcessor implements IGam
     abstract login(): Promise<ILoginResponse>;
     abstract joinRoom(roomId: number): Promise<IJoinRoomResponse>;
     abstract leaveRoom(): Promise<ILeaveRoomResponse>;
-    abstract getPlayerList(): Promise<IPlayerListResp>;
+    abstract getPlayerList(): Promise<IPlayerListResponse>;
 
     abstract onDisconnect(): void;
 }
