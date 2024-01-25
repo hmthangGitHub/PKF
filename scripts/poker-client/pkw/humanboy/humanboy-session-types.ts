@@ -213,17 +213,28 @@ export interface IBetOptionInfo {
     amount?: number[] | null;
 }
 
-export interface IGamePlayer {
+export interface IPlayer {
     uid?: number | null;
     name?: string | null;
     head?: string | null;
+    curCoin?: number | null;
+    plat?: number | null;
+}
+
+export interface IGamePlayer extends IPlayer {
     totalBetAmount?: number | null;
     winCount?: number | null;
     rank?: number | null;
-    curCoin?: number | null;
     keepWinCount?: number | null;
     curUsdt?: number | null;
-    plat?: number | null;
+}
+
+export interface IDealerPlayerInfo extends IPlayer {
+    stockNum?: number | null;
+    beDealerNum?: number | null;
+    stockCoin?: number | null;
+    winningCoin?: number | null;
+    recentlyWinCoin?: number | null;
 }
 
 export interface ICardItem {
@@ -304,19 +315,6 @@ export interface IGameRoundEndNotify {
     dealer?: IDealerPlayerInfo[] | null;
     hitJackpotAward?: IHitJackpotAward[] | null;
     maxLevelOption?: BetZoneOption | null;
-}
-
-export interface IDealerPlayerInfo {
-    uid?: number | null;
-    head?: string | null;
-    name?: string | null;
-    curCoin?: number | null;
-    stockNum?: number | null;
-    beDealerNum?: number | null;
-    stockCoin?: number | null;
-    winningCoin?: number | null;
-    recentlyWinCoin?: number | null;
-    plat?: number | null;
 }
 
 export interface IHitJackpotAward {
@@ -405,6 +403,9 @@ export interface IDealNotify {
     lastResult?: BetZoneOption[] | null;
     leftSeconds?: number | null;
     canAuto?: boolean | null;
+
+    dealerInfo?: IDealerPlayerInfo[] | null;
+    totalStockNum?: number | null;
 }
 
 export interface IKickNotify {
@@ -466,7 +467,7 @@ interface IRoomTrendLevelStatisticsStats {
     loseAll?: number | null;
 }
 
-interface IRoomTrendLevelStatistics {
+export interface IRoomTrendLevelStatistics {
     stats?: IRoomTrendLevelStatisticsStats | null;
 }
 
