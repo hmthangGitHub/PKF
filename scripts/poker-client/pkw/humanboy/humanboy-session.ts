@@ -32,7 +32,9 @@ import type {
     IAdvanceAutoBetCancelNotify,
     IRoomTrendNotice,
     IGameWillStartNotify,
-    ITrendResponse
+    ITrendResponse,
+    IDealerListResponse,
+    IGetBuyStockNumResp
 } from './humanboy-session-types';
 
 import { TypeSafeEventEmitter } from '../../../core/event/event-emitter';
@@ -243,6 +245,56 @@ export class HumanboySession extends GameSession {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.code, 'getPlayerList');
+
+        return responseProto;
+    }
+
+    async getDealerList(): Promise<IDealerListResponse> {
+        if (this._roomId === 0) {
+            return Promise.reject<IDealerListResponse>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
+        }
+
+        const requestProto = new pb.DealerListReq();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.DEALER_LIST_REQ,
+            pb.DealerListReq,
+            pb.CMD.DEALER_LIST_RSP,
+            pb.DealerListResp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'getDealerList');
+
+        return responseProto;
+    }
+
+    async getBuyStockNum(): Promise<IGetBuyStockNumResp> {
+        if (this._roomId === 0) {
+            return Promise.reject<IGetBuyStockNumResp>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
+        }
+
+        const requestProto = new pb.GetBuyStockNumReq();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.GET_BUY_STOCK_NUM_REQ,
+            pb.GetBuyStockNumReq,
+            pb.CMD.GET_BUY_STOCK_NUM_RSP,
+            pb.GetBuyStockNumResp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'getBuyStockNum');
 
         return responseProto;
     }

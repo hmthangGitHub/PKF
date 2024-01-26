@@ -490,3 +490,14 @@ export interface IGameWillStartNotify {
     nextRoundEndStamp?: number | null;
     dealer?: IDealerPlayerInfo[] | null;
 }
+
+export interface IDealerListResponse {
+    code?: ErrorCode | null;
+    waitList?: IDealerPlayerInfo[] | null;
+    dealerList?: IDealerPlayerInfo[] | null;
+}
+
+export interface IGetBuyStockNumResp {
+    code?: ErrorCode | null;
+    stockNum?: number | null;
+}
