@@ -13,10 +13,6 @@ export class AuthService extends Service {
         return this._currentUser;
     }
 
-    get client(): IPokerClient {
-        return this._client;
-    }
-
     constructor(client: IPokerClient) {
         super(AuthService.serviceName);
         this._client = client;
