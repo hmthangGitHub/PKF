@@ -34,7 +34,11 @@ import type {
     IGameWillStartNotify,
     ITrendResponse,
     IDealerListResponse,
-    IGetBuyStockNumResp
+    IUpDealerResponse,
+    IDownDealerResponse,
+    IUpDealerNotify,
+    IGetBuyStockNumResp,
+    IDownDealerNotify
 } from './humanboy-session-types';
 
 import { TypeSafeEventEmitter } from '../../../core/event/event-emitter';
@@ -57,6 +61,10 @@ export interface HumanboyNotifications {
     // advance auto bet
     mergeAutoBet: (notify: IMergeAutoBetNotify) => void;
     advanceAutoBetCancel: (notify: IAdvanceAutoBetCancelNotify) => void;
+
+    // dealer
+    upDealer: (notify: IUpDealerNotify) => void;
+    downDealer: (notify: IDownDealerNotify) => void;
 
     trendNotice: (notice: IRoomTrendNotice) => void;
     userPointChange: (changePoints: number) => void;
@@ -144,6 +152,18 @@ export class HumanboySession extends GameSession {
             pb.CMD.GAME_WILL_START_NOTIFY,
             pb.GameWillStartNotify,
             this.handleGameWillStartNofity.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.CMD.UP_DEALER_NOTIFY,
+            pb.UpDealerNotify,
+            this.handleUpDealerNofity.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.CMD.DOWN_DEALER_NOTIFY,
+            pb.DownDealerNotify,
+            this.handleDownDealerNofity.bind(this)
         );
     }
 
@@ -270,6 +290,80 @@ export class HumanboySession extends GameSession {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.code, 'getDealerList');
+
+        return responseProto;
+    }
+
+    async updateDealerList(): Promise<IDealerListResponse> {
+        if (this._roomId === 0) {
+            return Promise.reject<IDealerListResponse>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
+        }
+
+        const requestProto = new pb.DealerListReq();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.UPDATE_DEALER_LIST_REQ,
+            pb.DealerListReq,
+            pb.CMD.UPDATE_DEALER_LIST_RSP,
+            pb.DealerListResp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'updateDealerList');
+
+        return responseProto;
+    }
+
+    async upDealer(buyStockNum: number): Promise<IUpDealerResponse> {
+        if (this._roomId === 0) {
+            return Promise.reject<IUpDealerResponse>(new InvalidOperationError(`${this.name} does not join room yet!`));
+        }
+
+        const requestProto = new pb.UpDealerReq();
+        requestProto.buyStockNum = buyStockNum;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.UP_DEALER_REQ,
+            pb.UpDealerReq,
+            pb.CMD.UP_DEALER_RSP,
+            pb.UpDealerResp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'upDealer');
+
+        return responseProto;
+    }
+
+    async downDealer(): Promise<IDownDealerResponse> {
+        if (this._roomId === 0) {
+            return Promise.reject<IDownDealerResponse>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
+        }
+
+        const requestProto = new pb.DownDealerReq();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.DOWN_DEALER_REQ,
+            pb.DownDealerReq,
+            pb.CMD.DOWN_DEALER_RSP,
+            pb.DownDealerResp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'downDealer');
 
         return responseProto;
     }
@@ -587,5 +681,13 @@ export class HumanboySession extends GameSession {
 
     protected handleGameWillStartNofity(protobuf: pb.GameWillStartNotify) {
         this._notification.emit('gameWillStart', protobuf);
+    }
+
+    protected handleUpDealerNofity(protobuf: pb.UpDealerNotify) {
+        this._notification.emit('upDealer', protobuf);
+    }
+
+    protected handleDownDealerNofity(protobuf: pb.DownDealerNotify) {
+        this._notification.emit('downDealer', protobuf);
     }
 }

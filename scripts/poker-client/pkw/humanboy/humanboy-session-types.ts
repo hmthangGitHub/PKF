@@ -112,6 +112,15 @@ export enum CardResult {
     HUANG_TONG = 10
 }
 
+export enum DownDealerReason {
+    DownDummy = 0,
+    NoMoney = 1,
+    LongTime = 2,
+    Leave = 3,
+    Offline = 4,
+    CalmDown = 5
+}
+
 export interface IBillInfo {
     BillNo?: string | null;
     time?: number | null;
@@ -500,4 +509,31 @@ export interface IDealerListResponse {
 export interface IGetBuyStockNumResp {
     code?: ErrorCode | null;
     stockNum?: number | null;
+}
+
+export interface IUpDealerResponse {
+    code?: ErrorCode | null;
+    buyStockNum?: number | null;
+}
+
+export interface IDownDealerResponse {
+    code?: ErrorCode | null;
+    doNow?: number | null;
+}
+
+export interface IUpDealerNotify {
+    uid?: number | null;
+    holdStockNum?: number | null;
+    curCoin?: number | null;
+}
+
+export interface IDownDealerNotify {
+    reason?: DownDealerReason | null;
+    uid?: number | null;
+    curCoin?: number | null;
+    holdStockNum?: number | null;
+}
+
+export interface ICancelWaitResponse {
+    code?: ErrorCode | null;
 }
