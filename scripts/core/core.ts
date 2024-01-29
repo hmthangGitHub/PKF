@@ -8,6 +8,7 @@ import { LocalStorage } from './storage/localStorage';
 import { LanguageManager } from './language/language-manager';
 import { ServiceManager } from './service/service-manager';
 import { System } from './system/system';
+import { App } from './app/app';
 
 class Core {
     private _isInit = false;
@@ -21,6 +22,7 @@ class Core {
         this.registerModule(LanguageManager);
         this.registerModule(ServiceManager);
         this.registerModule(System);
+        this.registerModule(App);
 
         this.init();
     }
@@ -55,6 +57,10 @@ class Core {
 
     get system(): System {
         return ModuleManager.instance.get(System);
+    }
+
+    get app(): App {
+        return ModuleManager.instance.get(App);
     }
 
     registerModule<T extends IModule>(moduleClass: ModuleClass<T>): void {
@@ -99,3 +105,5 @@ export const languageManager = core.languageManager;
 export const serviceManager = core.serviceManager;
 
 export const system = core.system;
+
+export const app = core.app;

@@ -37,7 +37,3 @@ export abstract class EmittableService<EventType> extends TypeSafeEventEmitter<E
         this.name = name;
     }
 }
-
-export abstract class GameService<EventType> extends EmittableService<EventType> {
-    abstract get serverId(): number;
-}
