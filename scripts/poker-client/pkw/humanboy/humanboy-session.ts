@@ -39,7 +39,8 @@ import type {
     IUpDealerNotify,
     IGetBuyStockNumResp,
     IDownDealerNotify,
-    ICancelWaitResponse
+    ICancelWaitResponse,
+    IKickDealerApplyNotify
 } from './humanboy-session-types';
 
 import { TypeSafeEventEmitter } from '../../../core/event/event-emitter';
@@ -66,6 +67,7 @@ export interface HumanboyNotifications {
     // dealer
     upDealer: (notify: IUpDealerNotify) => void;
     downDealer: (notify: IDownDealerNotify) => void;
+    kickDealerApply: (notify: IKickDealerApplyNotify) => void;
 
     trendNotice: (notice: IRoomTrendNotice) => void;
     userPointChange: (changePoints: number) => void;
@@ -165,6 +167,12 @@ export class HumanboySession extends GameSession {
             pb.CMD.DOWN_DEALER_NOTIFY,
             pb.DownDealerNotify,
             this.handleDownDealerNofity.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.CMD.KICK_DEALER_APPLY_NOTIFY,
+            pb.KickDealerApplyNotify,
+            this.handleKickDealerApplyNofity.bind(this)
         );
     }
 
@@ -715,5 +723,9 @@ export class HumanboySession extends GameSession {
 
     protected handleDownDealerNofity(protobuf: pb.DownDealerNotify) {
         this._notification.emit('downDealer', protobuf);
+    }
+
+    protected handleKickDealerApplyNofity(protobuf: pb.KickDealerApplyNotify) {
+        this._notification.emit('kickDealerApply', protobuf);
     }
 }

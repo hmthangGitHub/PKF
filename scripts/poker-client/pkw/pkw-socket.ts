@@ -48,6 +48,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         // eslint-disable-next-line new-cap
         const gameSession = new gameSessionClass(this._webSocket, this._session, this._systemInfo);
         gameSession.name = gameSessionClass.sessionName;
+        gameSession.verbose = this._verbose;
 
         this._gameSessions.set(gameSession.name, gameSession);
 

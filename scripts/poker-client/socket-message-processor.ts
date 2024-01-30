@@ -52,10 +52,10 @@ export class SocketMessageProcessor {
         return this._playId;
     }
 
-    get verbose() {
+    get verbose(): boolean {
         return this._verbose;
     }
-    set verbose(value) {
+    set verbose(value: boolean) {
         this._verbose = value;
     }
 

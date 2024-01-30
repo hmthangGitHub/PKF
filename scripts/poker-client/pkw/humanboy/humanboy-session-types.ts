@@ -121,6 +121,14 @@ export enum DownDealerReason {
     CalmDown = 5
 }
 
+export enum KickApplyDealerReason {
+    K_NULL = 0,
+    K_NoMoney = 1,
+    K_SUPPLY = 2,
+    K_OFFLINE = 3,
+    K_LEAVE = 4
+}
+
 export interface IBillInfo {
     BillNo?: string | null;
     time?: number | null;
@@ -521,6 +529,10 @@ export interface IDownDealerResponse {
     doNow?: number | null;
 }
 
+export interface ICancelWaitResponse {
+    code?: ErrorCode | null;
+}
+
 export interface IUpDealerNotify {
     uid?: number | null;
     holdStockNum?: number | null;
@@ -534,6 +546,7 @@ export interface IDownDealerNotify {
     holdStockNum?: number | null;
 }
 
-export interface ICancelWaitResponse {
-    code?: ErrorCode | null;
+export interface IKickDealerApplyNotify {
+    reason?: KickApplyDealerReason | null;
+    extension?: string | null;
 }
