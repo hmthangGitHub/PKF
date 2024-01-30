@@ -38,7 +38,8 @@ import type {
     IDownDealerResponse,
     IUpDealerNotify,
     IGetBuyStockNumResp,
-    IDownDealerNotify
+    IDownDealerNotify,
+    ICancelWaitResponse
 } from './humanboy-session-types';
 
 import { TypeSafeEventEmitter } from '../../../core/event/event-emitter';
@@ -364,6 +365,31 @@ export class HumanboySession extends GameSession {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.code, 'downDealer');
+
+        return responseProto;
+    }
+
+    async cancelWaitUpDealer(): Promise<ICancelWaitResponse> {
+        if (this._roomId === 0) {
+            return Promise.reject<ICancelWaitResponse>(
+                new InvalidOperationError(`${this.name} does not join room yet!`)
+            );
+        }
+
+        const requestProto = new pb.CancelWaitReq();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.CANCEL_WAIT_REQ,
+            pb.CancelWaitReq,
+            pb.CMD.CANCEL_WAIT_RSP,
+            pb.CancelWaitResp,
+            this._roomId
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.code, 'cancelWaitUpDealer');
 
         return responseProto;
     }
