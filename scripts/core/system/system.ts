@@ -57,6 +57,9 @@ export class System extends Module {
         return cc.sys.isNative;
     }
 
+    // 模拟器
+    readonly isEMU = true;
+
     // eslint-disable-next-line @typescript-eslint/class-literal-property-style
     get isSiyuType(): boolean {
         return false;
@@ -64,7 +67,7 @@ export class System extends Module {
 
     getDeviceUUID(): string {
         // TODO: get native device uuid
-        if (this.isNative) {
+        if (this.isNative && !this.isEMU) {
             return '';
         }
         return 'd41d8cd98f00b204e9800998ecf8427e';
