@@ -32,10 +32,11 @@ export class DomainService extends Service {
         const domainInfo = this.getDomainInfo();
 
         let host = '';
-        if (plat === 1) {
-            host = domainInfo.avatarServer;
-        } else if (plat === 0 || plat === 3) {
+        // pwk & // mmp
+        if (plat === 0 || plat === 3) {
             host = domainInfo.imageServer;
+        } else if (plat === 1) {
+            host = domainInfo.avatarServer;
         }
 
         if (host.at(host.length - 1) !== '/' && avatarPath.at(0) !== '/') {
