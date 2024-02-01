@@ -53,6 +53,7 @@ export interface ILoginData {
     safe: string;
     pay_type: number;
     shop: string;
+    imToken: string;
     cdn: string;
     domain: IDomainData[];
     encry_switch: number[];
