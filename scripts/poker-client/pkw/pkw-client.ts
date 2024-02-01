@@ -87,7 +87,15 @@ export class PKWClient implements IPokerClient {
             nickname: loginData.nick_name,
             sex: 0,
             avatarURL: '',
-            ip: loginData.ip
+            ip: loginData.ip,
+            payType: loginData.pay_type,
+            shopURL: loginData.shop,
+            areaCode: loginData.areaCode,
+            isTouristPlayer: false,
+            imToken: loginData.imToken,
+
+            firstClubId: 0,
+            firstAlliId: 0
         };
 
         // create domain info

@@ -7,7 +7,8 @@ import type {
     IMiniGamesListResponse,
     IGameRoomListResponse,
     IGetRankResponse,
-    IHeartBeatResponse
+    IHeartBeatResponse,
+    IResponseAddCoinOrder
 } from '../poker-socket';
 import type { PKWSession } from './pkw-session';
 import type { ISocketOptions } from '../poker-client-types';
@@ -202,6 +203,30 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.error, 'getRank');
+
+        return responseProto;
+    }
+
+    async requestAddCoinOrder(payType: number): Promise<IResponseAddCoinOrder> {
+        const requestProto = new pb.RequestAddCoinOrder();
+
+        requestProto.type = payType;
+        requestProto.uid = this._session.userId;
+        requestProto.productid = '';
+        requestProto.amount = 0;
+        requestProto.geoComplyToken = '';
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_AddCoinOrder_Pay_Request,
+            pb.RequestAddCoinOrder,
+            pb.MSGID.MsgID_AddCoinOrder_Pay_Response,
+            pb.ResponseAddCoinOrder
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'requestAddCoinOrder');
 
         return responseProto;
     }

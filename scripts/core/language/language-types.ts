@@ -16,5 +16,15 @@ export enum LANGUAGE_GROUPS {
     /**
      * 泰语
      */
-    th_PH = 'th_PH'
+    th_PH = 'th_PH',
+
+    /**
+     * 阿拉伯语
+     */
+    ar_SA = 'ar_SA',
+
+    /**
+     * 印地语
+     */
+    hi_IN = 'hi_IN'
 }
