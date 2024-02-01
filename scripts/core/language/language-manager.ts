@@ -43,7 +43,7 @@ export class LanguageManager extends EmittableModule<LanguageEvents> {
                 this.register(key, newGroup);
             }
 
-            if (!this._currentLanguageGroup || this._currentLanguage === key) {
+            if (!this._currentLanguageGroup) {
                 this._currentLanguageGroup = newGroup;
             }
         });
