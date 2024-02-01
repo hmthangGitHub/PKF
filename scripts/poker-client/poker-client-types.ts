@@ -302,6 +302,15 @@ export interface IUser {
     avatarURL: string;
     sex: number;
     ip: string;
+    payType: number;
+    shopURL: string;
+    areaCode: string;
+    isTouristPlayer: boolean;
+    imToken: string;
+
+    // from response of socket login
+    firstClubId: number;
+    firstAlliId: number;
 }
 
 /** A session authenticated for a user with poke server. */

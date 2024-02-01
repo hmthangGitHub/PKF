@@ -109,6 +109,14 @@ export interface SocketNotifications {
     globalMessage: (notify: INoticeGlobalMessage) => void;
 }
 
+export interface IResponseAddCoinOrder {
+    error?: number | null;
+    srv_add_order?: number | null;
+    cb_url?: string | null;
+    token?: string | null;
+    failedReasons?: string | null;
+}
+
 export interface ISocket {
     verbose: boolean;
 
@@ -132,4 +140,6 @@ export interface ISocket {
     getRoomList(gameId: number): Promise<IGameRoomListResponse>;
 
     getRank(randId: number): Promise<IGetRankResponse>;
+
+    requestAddCoinOrder(payType: number): Promise<IResponseAddCoinOrder>;
 }
