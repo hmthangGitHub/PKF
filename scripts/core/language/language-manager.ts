@@ -51,6 +51,10 @@ export class LanguageManager extends EmittableModule<LanguageEvents> {
 
     register(groupName: string, group: LanguageGroup) {
         this._languageGroups.set(groupName, group);
+
+        if (this._currentLanguage === '') {
+            this._currentLanguage = groupName;
+        }
     }
 
     upregister(groupName: string) {

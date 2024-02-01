@@ -462,7 +462,7 @@ export interface IRoomTrendOptionStats {
     equal?: number | null;
 }
 
-interface IRoomTrendOption {
+export interface IRoomTrendOption {
     option?: BetZoneOption | null;
     stats?: IRoomTrendOptionStats | null;
     road?: ITrendRoad[] | null;
@@ -471,7 +471,7 @@ interface IRoomTrendOption {
     lastCol?: number | null;
 }
 
-interface IRoomTrendLevelStatisticsStats {
+export interface IRoomTrendLevelStatisticsStats {
     capHandNum?: number | null;
     lenHandNum?: number | null;
     gaoPai?: number | null;

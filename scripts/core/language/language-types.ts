@@ -3,7 +3,6 @@ export enum LANGUAGE_GROUPS {
      * 汉语
      */
     zh_CN = 'zh_CN',
-
     /**
      * 英语
      */
