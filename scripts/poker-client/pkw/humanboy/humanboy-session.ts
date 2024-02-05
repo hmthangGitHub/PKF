@@ -40,7 +40,9 @@ import type {
     IGetBuyStockNumResp,
     IDownDealerNotify,
     ICancelWaitResponse,
-    IKickDealerApplyNotify
+    IKickDealerApplyNotify,
+    IJackpotDataResponse,
+    IJackpotAwardListResponse
 } from './humanboy-session-types';
 
 import { TypeSafeEventEmitter } from '../../../core/event/event-emitter';
@@ -613,6 +615,46 @@ export class HumanboySession extends GameSession {
             pb.TrendReq,
             pb.CMD.ROOM_TREND_RSP,
             pb.TrendResp,
+            this._roomId
+        );
+
+        return response.payload;
+    }
+
+    async getJackpotData(deskType: number): Promise<IJackpotDataResponse> {
+        if (this._roomId === 0) {
+            return Promise.reject(new InvalidOperationError(`${this.name} does not join room yet!`));
+        }
+
+        const requestProto = new pb.JackpotDataReq();
+        requestProto.roomType = deskType;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.JACKPOT_DATA_REQ,
+            pb.JackpotDataReq,
+            pb.CMD.JACKPOT_DATA_RSP,
+            pb.JackpotDataResp,
+            this._roomId
+        );
+
+        return response.payload;
+    }
+
+    async getJackpotAwardList(deskType: number): Promise<IJackpotAwardListResponse> {
+        if (this._roomId === 0) {
+            return Promise.reject(new InvalidOperationError(`${this.name} does not join room yet!`));
+        }
+
+        const requestProto = new pb.JackpotAwardListReq();
+        requestProto.roomType = deskType;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.CMD.JACKPOT_AWARD_LIST_REQ,
+            pb.JackpotAwardListReq,
+            pb.CMD.JACKPOT_AWARD_LIST_RSP,
+            pb.JackpotAwardListResp,
             this._roomId
         );
 

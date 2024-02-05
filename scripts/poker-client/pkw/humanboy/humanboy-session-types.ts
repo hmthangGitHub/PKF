@@ -550,3 +550,29 @@ export interface IKickDealerApplyNotify {
     reason?: KickApplyDealerReason | null;
     extension?: string | null;
 }
+
+export interface IJackpotDataInfo {
+    leftAmount?: number | null;
+    huangTongPer?: number | null;
+    siTiaoPer?: number | null;
+    tongHuaShunPer?: number | null;
+    roomType?: number | null;
+}
+
+export interface IJackpotDataResponse {
+    code?: ErrorCode | null;
+    data?: IJackpotDataInfo | null;
+}
+
+export interface IAwardData {
+    name?: string | null;
+    handLevel?: CardResult | null;
+    amount?: number | null;
+    timeStamp?: number | null;
+}
+
+export interface IJackpotAwardListResponse {
+    code?: ErrorCode | null;
+    luckyOne?: IAwardData | null;
+    lastData?: IAwardData[] | null;
+}
