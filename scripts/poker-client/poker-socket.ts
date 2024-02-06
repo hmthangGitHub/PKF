@@ -109,7 +109,7 @@ export interface SocketNotifications {
     globalMessage: (notify: INoticeGlobalMessage) => void;
 }
 
-export interface IResponseAddCoinOrder {
+export interface IAddCoinOrderResponse {
     error?: number | null;
     srv_add_order?: number | null;
     cb_url?: string | null;
@@ -141,5 +141,5 @@ export interface ISocket {
 
     getRank(randId: number): Promise<IGetRankResponse>;
 
-    requestAddCoinOrder(payType: number): Promise<IResponseAddCoinOrder>;
+    requestAddCoinOrder(payType: number): Promise<IAddCoinOrderResponse>;
 }
