@@ -1,11 +1,7 @@
-import { EmittableService } from '../core/core-index';
-import type { IResponseAddCoinOrder, ISocket } from '../poker-client/poker-client-index';
+import { Service } from '../core/core-index';
+import type { IAddCoinOrderResponse, ISocket } from '../poker-client/poker-client-index';
 
-export interface ShopEvents {
-    addCoinOrderResponse: (response: IResponseAddCoinOrder) => void;
-}
-
-export class ShopService extends EmittableService<ShopEvents> {
+export class ShopService extends Service {
     static readonly serviceName = 'ShopService';
 
     _socket: ISocket;
@@ -15,8 +11,8 @@ export class ShopService extends EmittableService<ShopEvents> {
         this._socket = socket;
     }
 
-    async requestAddCoinOrder(payType: number) {
+    async requestAddCoinOrder(payType: number): Promise<IAddCoinOrderResponse> {
         const response = await this._socket.requestAddCoinOrder(payType);
-        this.emit('addCoinOrderResponse', response);
+        return response;
     }
 }

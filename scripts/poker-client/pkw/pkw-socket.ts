@@ -8,7 +8,7 @@ import type {
     IGameRoomListResponse,
     IGetRankResponse,
     IHeartBeatResponse,
-    IResponseAddCoinOrder
+    IAddCoinOrderResponse
 } from '../poker-socket';
 import type { PKWSession } from './pkw-session';
 import type { ISocketOptions } from '../poker-client-types';
@@ -207,7 +207,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         return responseProto;
     }
 
-    async requestAddCoinOrder(payType: number): Promise<IResponseAddCoinOrder> {
+    async requestAddCoinOrder(payType: number): Promise<IAddCoinOrderResponse> {
         const requestProto = new pb.RequestAddCoinOrder();
 
         requestProto.type = payType;
