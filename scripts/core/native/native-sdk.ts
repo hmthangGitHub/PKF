@@ -1,7 +1,7 @@
 import {System} from "../system/system";
 import {IOSNativeSDK} from "./env/ios-native-sdk";
-// import {AndroidNativeSDK} from "./env/android-native-sdk";
-// import {SYNativeSDK} from "./env/sy-native-sdk";
+import {AndroidNativeSDK} from "./env/android-native-sdk";
+import {SYNativeSDK} from "./env/sy-native-sdk";
 import { ModuleManager } from "../core-index";
 
 export interface NativeInvokeAction {
@@ -24,13 +24,13 @@ export class NativeSDK implements INativeSDK {
 
     invoke(action: NativeInvokeAction): string {
         let targetNativeSDK = null;
-        // if(!this._system.isNative) {
-        //     targetNativeSDK = new SYNativeSDK()
-        // } else if(this._system.isNative && this._system.isIOS) {
-        //     targetNativeSDK = new IOSNativeSDK();
-        // } else if(this._system.isNative && this._system.isAndroid) {
-        //     targetNativeSDK = new AndroidNativeSDK();
-        // }
+        if(!this._system.isNative) {
+            targetNativeSDK = new SYNativeSDK()
+        } else if(this._system.isNative && this._system.isIOS) {
+            targetNativeSDK = new IOSNativeSDK();
+        } else if(this._system.isNative && this._system.isAndroid) {
+            targetNativeSDK = new AndroidNativeSDK();
+        }
         // else {
         //     targetNativeSDK = this.callSimulatorEvent(nativeKey, action.respMsgKey);
         // }
