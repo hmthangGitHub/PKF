@@ -81,4 +81,4 @@ export class SYNativeSDK extends NativeSDK {
     }
 }
 
-window.clientToJs = SYNativeSDK.callback;
+// window.clientToJs = SYNativeSDK.callback;

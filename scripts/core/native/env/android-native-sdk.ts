@@ -21,6 +21,6 @@ export class AndroidNativeSDK extends NativeSDK {
     }
 }
 
-window.onNativeMessage = AndroidNativeSDK.callback;
+// window.onNativeMessage = AndroidNativeSDK.callback;
 
 

@@ -94,5 +94,5 @@ export class NativeSDK implements INativeSDK {
     }
 }
 
-window.addEventListener('message', NativeSDK.webCcjsCallback);
-window.webCcjsCallback = NativeSDK.webCcjsCallback;
+// window.addEventListener('message', NativeSDK.webCcjsCallback);
+// window.webCcjsCallback = NativeSDK.webCcjsCallback;

@@ -5,8 +5,7 @@ export class IOSNativeSDK extends NativeSDK {
 
     invoke(action: NativeInvokeAction): string {
         const jsonParam = this.getJSONParam(action.obj, action.method, action.respMsgKey, action.param, action.isSync);
-        let ret
-            // = jsb.reflection.callStaticMethod("NativeEvent", "call_native:", jsonParam);
+        let ret = jsb.reflection.callStaticMethod("NativeEvent", "call_native:", jsonParam);
         return ret;
     }
 
@@ -31,7 +30,7 @@ export class IOSNativeSDK extends NativeSDK {
 
         let jsonParam = JSON.parse(jsonStr);
         if (jsonParam.respMsgKey) {
-            cv.MessageCenter.send(jsonParam.respMsgKey, jsonParam);
+            // cv.MessageCenter.send(jsonParam.respMsgKey, jsonParam);
         }
     }
 }
