@@ -23,20 +23,20 @@ export class NativeSDK implements INativeSDK {
     _system: System = ModuleManager.instance.get(System);
 
     invoke(action: NativeInvokeAction): string {
-        let targetNativeSDK = null;
-        if(!this._system.isNative) {
-            targetNativeSDK = new SYNativeSDK()
-        } else if(this._system.isNative && this._system.isIOS) {
-            targetNativeSDK = new IOSNativeSDK();
-        } else if(this._system.isNative && this._system.isAndroid) {
-            targetNativeSDK = new AndroidNativeSDK();
-        }
+        // let targetNativeSDK = null;
+        // if(!this._system.isNative) {
+        //     targetNativeSDK = new SYNativeSDK()
+        // } else if(this._system.isNative && this._system.isIOS) {
+        //     targetNativeSDK = new IOSNativeSDK();
+        // } else if(this._system.isNative && this._system.isAndroid) {
+        //     targetNativeSDK = new AndroidNativeSDK();
+        // }
         // else {
         //     targetNativeSDK = this.callSimulatorEvent(nativeKey, action.respMsgKey);
         // }
-        if(targetNativeSDK) {
-            targetNativeSDK.invoke(action);
-        }
+        // if(targetNativeSDK) {
+        //     targetNativeSDK.invoke(action);
+        // }
         return "";
     }
 
