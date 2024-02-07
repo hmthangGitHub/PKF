@@ -34,7 +34,7 @@ export class NativeSDK implements INativeSDK {
         // else {
         //     targetNativeSDK = this.callSimulatorEvent(nativeKey, action.respMsgKey);
         // }
-        targetNativeSDK.invoke(action);
+        return targetNativeSDK.invoke(action);
     }
 
     callback(param1?: any, param2?: any) {
