@@ -205,9 +205,9 @@ export class System extends Module {
 
     getDeviceUUID(): string {
         // TODO: get native device uuid
-        if (this._system.isNative && !this.isEMU) {
-            return '';
-        }
+        // if (this.isNative && !this.isEMU) {
+        //     return '';
+        // }
         return 'd41d8cd98f00b204e9800998ecf8427e';
     }
 }
