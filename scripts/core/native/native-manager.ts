@@ -7,7 +7,7 @@ import {H5AudioApi} from "../../natives/audio-api/env/h5-audio-api";
 import {H5VideoApi} from "../../natives/video-api/env/h5-video-api";
 import {IOSAudioAPI} from "../../natives/audio-api/env/ios-audio-api";
 import {IOSVideoApi} from "../../natives/video-api/env/ios-video-api";
-import {AndroidAudioApi} from "../../natives/audio-api/env/android-api-ts";
+import {AndroidAudioApi} from "../../natives/audio-api/env/android-audio-api";
 import {AndroidVideoApi} from "../../natives/video-api/env/android-video-api";
 
 export class NativeManager extends Module {
