@@ -1,5 +1,5 @@
 import {System} from "../system/system";
-// import {IOSNativeSDK} from "./env/ios-native-sdk";
+import {IOSNativeSDK} from "./env/ios-native-sdk";
 // import {AndroidNativeSDK} from "./env/android-native-sdk";
 // import {SYNativeSDK} from "./env/sy-native-sdk";
 import { ModuleManager } from "../core-index";
