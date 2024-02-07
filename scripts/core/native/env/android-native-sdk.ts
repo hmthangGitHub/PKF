@@ -17,7 +17,7 @@ export class AndroidNativeSDK extends NativeSDK {
     // NOTE: 有使用在這些情境 auto-update-error, auto-update-progress
     static callback(message: string, data: string) {
         console.log(`NativeEvent.onAutoUpdate: ${message}, ${data}`);
-        cv?.MessageCenter?.send(message, data);
+        // cv?.MessageCenter?.send(message, data);
     }
 }
 
