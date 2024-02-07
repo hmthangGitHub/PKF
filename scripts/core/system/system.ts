@@ -189,4 +189,25 @@ export class System extends Module {
     //
     //     return mode;
     // }
+
+    getDeviceInfo(): IDeviceInfo {
+        // TODO: get native device info
+        const deviceInfo: IDeviceInfo = {
+            disroot: false,
+            dmodel: '',
+            dname: 'wefans',
+            duuid: this.getDeviceUUID(),
+            dversion: ''
+        };
+
+        return deviceInfo;
+    }
+
+    getDeviceUUID(): string {
+        // TODO: get native device uuid
+        if (this._system.isNative && !this.isEMU) {
+            return '';
+        }
+        return 'd41d8cd98f00b204e9800998ecf8427e';
+    }
 }
