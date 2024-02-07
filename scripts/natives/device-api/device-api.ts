@@ -1,5 +1,5 @@
 import {NativeSDK} from "../../core/native/native-sdk";
-import {GeolocationCoordinates, IDeviceInfo} from "../../../../a5labs/poker-framework拷貝/scripts/core/system/system";
+import {GeolocationCoordinates, IDeviceInfo} from "../../core/system/system";
 
 export interface IDeviceAPI {
     nativeName: string;
