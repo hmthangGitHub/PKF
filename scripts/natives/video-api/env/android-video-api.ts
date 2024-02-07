@@ -1,0 +1,6 @@
+import {IVideoApi} from "../video-api";
+import {NativeSDK} from "../../../core/native/native-sdk";
+
+export class AndroidVideoApi extends NativeSDK implements IVideoApi {
+    nativeName = "AndroidVideoApi";
+}
