@@ -1,8 +1,8 @@
 import {System} from "../system/system";
-import {ModuleManager} from "../../../../a5labs/poker-framework拷貝/scripts/core/module/module-manager";
 import {IOSNativeSDK} from "./env/ios-native-sdk";
 import {AndroidNativeSDK} from "./env/android-native-sdk";
 import {SYNativeSDK} from "./env/sy-native-sdk";
+import { ModuleManager } from "../core-index";
 
 export interface NativeInvokeAction {
     obj: string;

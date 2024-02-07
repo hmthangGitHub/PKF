@@ -56,14 +56,14 @@ export class App extends Module {
         // this._notification.addListener('appEnterBackground', this._onAppEnterBackground);
         // this._notification.addListener('appEnterForeground', this._onAppEnterForeground);
 
-        if (pf.system.isSiyuType) {
+        // if (pf.system.isSiyuType) {
             // TODO: siyu message
             // cv.MessageCenter.register('on_syOnEnterBackground', this.OnAppEnterBackground.bind(this), this.node);
             // cv.MessageCenter.register('on_syOnEnterForeground', this.OnAppEnterForeground.bind(this), this.node);
-        } else {
-            cc.game.on(cc.game.EVENT_HIDE, this._emitAppEnterBackground, this);
-            cc.game.on(cc.game.EVENT_SHOW, this._emitAppEnterForeground, this);
-        }
+        // } else {
+        //     cc.game.on(cc.game.EVENT_HIDE, this._emitAppEnterBackground, this);
+        //     cc.game.on(cc.game.EVENT_SHOW, this._emitAppEnterForeground, this);
+        // }
     }
 
     private _emitAppEnterBackground() {
