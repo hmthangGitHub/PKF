@@ -34,4 +34,4 @@ export class IOSNativeSDK extends NativeSDK {
         }
     }
 }
-window.OnNativeEventCallback = IOSNativeSDK.callback;
+// window.OnNativeEventCallback = IOSNativeSDK.callback;
