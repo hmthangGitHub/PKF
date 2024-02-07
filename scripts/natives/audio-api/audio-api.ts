@@ -1,10 +1,10 @@
 import {NativeSDK} from "../../core/native/native-sdk";
 import {IOSAudioAPI} from "./env/ios-audio-api";
-import {AndroidAudioApi} from "./env/android-api-ts";
+import {AndroidAudioApi} from "./env/android-audio-api";
 import {H5AudioApi} from "./env/h5-audio-api";
-import {ModuleManager} from "../../../../a5labs/poker-framework拷貝/scripts/core/module/module-manager";
 import {NativeManager} from "../../core/native/native-index";
 import {System} from "../../core/system/system";
+import {ModuleManager} from "../../core/module/module-manager";
 
 export interface IAudioAPI {
     /**
