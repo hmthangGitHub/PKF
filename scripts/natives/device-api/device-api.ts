@@ -27,7 +27,9 @@ export class DeviceAPI extends NativeSDK implements IDeviceAPI {
 
     getDeviceUUID(): string {
         // TODO: get native device uuid
-        if (this._system.isNative && !this.isEMU) {
+        if(!this._system) {
+           return '';     
+        } else if (this._system.isNative && !this.isEMU) {
             return '';
         }
         return 'd41d8cd98f00b204e9800998ecf8427e';

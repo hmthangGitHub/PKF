@@ -1,7 +1,10 @@
 import {NativeInvokeAction, NativeSDK} from "../native-sdk";
+import {ModuleManager} from "../../../core/module/module-index";
+import {App} from "../../app/app";
 
 export class SYNativeSDK extends NativeSDK {
     nativeName = "SYNativeSDK"
+
 
     // TODO:
     //NOTE: 私语Web版本的接口
@@ -71,6 +74,27 @@ export class SYNativeSDK extends NativeSDK {
                 }
             }
                 break;
+                                          
+            case "1009":  //切换前后台通知  
+            {                
+                const app: App | undefined = ModuleManager.instance.get(App);
+                if(!app) return;
+                
+                if (op == 0) {  
+                    //切換至后台
+                    app.notification.emit("appEnterBackground");
+                    // cv.MessageCenter.send("on_syOnEnterBackground");
+                    // TODO:
+                    // cv.netWorkManager.OnAppEnterBackground();
+
+                } else if (op == 1) {  
+                    //切換至前台
+                    app.notification.emit("appEnterForeground");                    
+                    // TODO:
+                    // cv.netWorkManager.OnAppEnterForeground();
+            }}
+                break;  
+
             case "1015":  //ccjs监听返回，当前为ios平台才有
                 let url = data["url"];
                 if (url != null) {

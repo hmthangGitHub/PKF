@@ -20,7 +20,7 @@ export interface INativeSDK {
 
 export class NativeSDK implements INativeSDK {
     nativeName = "NativeSDK"
-    _system: System = ModuleManager.instance.get(System);
+    _system = ModuleManager.instance.get<System>(System);
 
     invoke(action: NativeInvokeAction): string {
         // let targetNativeSDK = null;
@@ -84,13 +84,13 @@ export class NativeSDK implements INativeSDK {
     // NOTICE: 不知何時會使用
     //NOTE: web端 webview不支持ccjs回调，通过postMessage统一回调,e.data为返回的数据
     static webCcjsCallback(e: any) {
-        const _system: System = ModuleManager.instance.get(System);
-        if (_system.isBrowser) {
-            if (cv.tools.isJSONString(e.data) && (JSON.parse(e.data)).url && (JSON.parse(e.data)).url.indexOf('h5StreamLive') != -1) {
+        const system = ModuleManager.instance.get<System>(System);
+        if (system?.isBrowser) {
+            // if (cv.tools.isJSONString(e.data) && (JSON.parse(e.data)).url && (JSON.parse(e.data)).url.indexOf('h5StreamLive') != -1) {
                 // cv.MessageCenter.send("on_h5StreamLiveCallback", e.data);
-            } else {
+            // } else {
                 // cv.MessageCenter.send("on_webCcjsCallback", e.data);
-            }
+            // }
         } else {
             cc.log("webCcjsCallback error");
         }

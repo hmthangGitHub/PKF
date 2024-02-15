@@ -1,6 +1,10 @@
 import type { Nullable } from '../core-index';
-import { Module } from '../module/module-index';
+import { Module, ModuleManager } from '../module/module-index';
 import {TypeSafeEventEmitter} from "../core-index";
+import { NativeManager } from '../native/native-index';
+import {System} from "../system/system";
+import "../../natives/device-api";
+import { DeviceAPI, IDeviceAPI } from '../../natives/device-api/device-api';
 
 export interface IAppNotificationEventHandler {
     appEnterBackground: () => void;
@@ -42,48 +46,35 @@ export class App extends Module {
         return this._currentScene;
     }
 
+    // private _nativeManager: Nullable<ModuleManager> = null;
+
     /** Notification */
     private _notification = new TypeSafeEventEmitter<IAppNotificationEventHandler>();
     get notification(): TypeSafeEventEmitter<IAppNotificationEventHandler> {
         return this._notification;
     }
 
+    // NOTE: cc.game.on->pf notification->asia poker
     init(): void {
-        super.init();
-        // TODO: remove me
-        // this._notification.addListener('appEnterBackground', this._onAppEnterBackground);
-        // this._notification.addListener('appEnterForeground', this._onAppEnterForeground);
+        //私语版本，走私语切换后台注册
+        const _nativeManager = ModuleManager.instance.get(NativeManager);
+        const deviceAPI: DeviceAPI | undefined = _nativeManager?.get(DeviceAPI);
 
-        // if (pf.system.isSiyuType) {
-        // TODO: siyu message
-        // cv.MessageCenter.register('on_syOnEnterBackground', this.OnAppEnterBackground.bind(this), this.node);
-        // cv.MessageCenter.register('on_syOnEnterForeground', this.OnAppEnterForeground.bind(this), this.node);
-        // } else {
-        //     cc.game.on(cc.game.EVENT_HIDE, this._emitAppEnterBackground, this);
-        //     cc.game.on(cc.game.EVENT_SHOW, this._emitAppEnterForeground, this);
-        // }
-    }
-    destroy() {
-        super.destroy();
-
+        if (deviceAPI && !deviceAPI.isSiyuType()) {        
+            cc.game.on(cc.game.EVENT_HIDE, this._onAppEnterBackground, this);
+            cc.game.on(cc.game.EVENT_SHOW, this._onAppEnterForeground, this);
+        }
     }
 
-    private _emitAppEnterBackground() {
+
+    private _onAppEnterBackground() {
         this._notification.emit('appEnterBackground');
     }
-    private _emitAppEnterForeground() {
+
+
+    private _onAppEnterForeground() {
         this._notification.emit('appEnterForeground');
     }
-
-    // TODO: remove me
-    // private _onAppEnterBackground() {
-    //
-    // }
-
-    // TODO: remove me
-    // private _onAppEnterForeground() {
-    //
-    // }
 
     /** */
     private _clientType: number = 3;
@@ -93,6 +84,11 @@ export class App extends Module {
 
     set clientType(value: number) {
         this._clientType = value;
+    }
+
+    destroy() {
+        super.destroy();
+
     }
 
 }
