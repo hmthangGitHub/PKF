@@ -15,10 +15,6 @@ export interface IGameContext {
     gameId: number;
 }
 
-class GameContext implements IGameContext {
-    gameId: number;
-}
-
 /** Application state and evnets */
 export class App extends Module {
     static moduleName = 'App';
@@ -58,7 +54,7 @@ export class App extends Module {
     init(): void {
         //私语版本，走私语切换后台注册
         const _nativeManager = ModuleManager.instance.get(NativeManager);
-        const deviceAPI: DeviceAPI | undefined = _nativeManager?.get(DeviceAPI);
+        const deviceAPI = _nativeManager?.get<DeviceAPI>(DeviceAPI);
 
         if (deviceAPI && !deviceAPI.isSiyuType()) {        
             cc.game.on(cc.game.EVENT_HIDE, this._onAppEnterBackground, this);
