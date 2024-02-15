@@ -9,8 +9,16 @@ export class View {
     FULL_SCREEN_OFF_SET_Y: number = 100;
     FULL_SCREEN_OFF_SET_Y_B: number = 20;
 
+    // NOTE: ViewAdaptive
+    _IPHONE_X_OFFSET_Y: number = 100; // 刘海屏刘海偏移量
+
     constructor(system: System) {
         this._system = system;
+    }
+
+    // TODO: refactor
+    get iphoneXOffset(): number {
+        return this._IPHONE_X_OFFSET_Y;
     }
 
     set designWidth(width: number) {
