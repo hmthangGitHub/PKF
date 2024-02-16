@@ -207,7 +207,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         return responseProto;
     }
 
-    async requestAddCoinOrder(payType: number): Promise<IAddCoinOrderResponse> {
+    async addCoinOrder(payType: number): Promise<IAddCoinOrderResponse> {
         const requestProto = new pb.RequestAddCoinOrder();
 
         requestProto.type = payType;

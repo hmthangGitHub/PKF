@@ -11,8 +11,8 @@ export class ShopService extends Service {
         this._socket = socket;
     }
 
-    async requestAddCoinOrder(payType: number): Promise<IAddCoinOrderResponse> {
-        const response = await this._socket.requestAddCoinOrder(payType);
+    async addCoinOrder(payType: number): Promise<IAddCoinOrderResponse> {
+        const response = await this._socket.addCoinOrder(payType);
         return response;
     }
 }
