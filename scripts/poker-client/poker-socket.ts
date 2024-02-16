@@ -141,5 +141,5 @@ export interface ISocket {
 
     getRank(randId: number): Promise<IGetRankResponse>;
 
-    requestAddCoinOrder(payType: number): Promise<IAddCoinOrderResponse>;
+    addCoinOrder(payType: number): Promise<IAddCoinOrderResponse>;
 }

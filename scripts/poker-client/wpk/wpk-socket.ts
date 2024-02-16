@@ -198,7 +198,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         return responseProto;
     }
 
-    async requestAddCoinOrder(payType: number): Promise<IAddCoinOrderResponse> {
+    async addCoinOrder(payType: number): Promise<IAddCoinOrderResponse> {
         // TODO: move from pkw...need implementation and test on wpk
         const requestProto = new pb.RequestAddCoinOrder();
 
