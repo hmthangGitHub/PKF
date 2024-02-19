@@ -1,4 +1,4 @@
-import type { IGameSessionResponse } from '../../game-session';
+import type { IGameSessionResponse } from '../../session/game-session';
 
 export enum BetZone {
     ZONE_DUMMY = 0,

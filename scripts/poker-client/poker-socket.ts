@@ -1,5 +1,5 @@
 import type { ISocketOptions } from './poker-client-types';
-import type { GameSession, GameSessionClass } from './game-session';
+import type { GameSession, GameSessionClass } from './session/game-session';
 import type { TypeSafeEventEmitter } from '../core/event/event-emitter';
 import type { GameId, MsgType } from './poker-client-types';
 
@@ -76,11 +76,6 @@ export interface IGetRankResponse {
     error?: number | null;
     list?: string[] | null;
     owner?: string | null;
-}
-
-export interface IHeartBeatResponse {
-    uid?: number | null;
-    timestamp?: number | null;
 }
 
 export interface INoticeNotifyUserGoldNum {

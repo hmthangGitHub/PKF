@@ -1,6 +1,6 @@
 import { TypeSafeEventEmitter } from '../../core/core-index';
 import type { IService } from '../../core/core-index';
-import type { IJoinRoomResponse } from '../../poker-client/game-session';
+import type { IJoinRoomResponse } from '../../poker-client/session/game-session';
 
 export interface IGameService extends IService {
     serverId: number;
