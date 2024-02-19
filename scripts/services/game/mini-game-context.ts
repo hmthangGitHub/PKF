@@ -1,5 +1,5 @@
 import type { IGameContext, Nullable } from '../../core/core-index';
-import type { IGameSession } from '../../poker-client/game-session';
+import type { IGameSession } from '../../poker-client/session/game-session';
 import type { ISocket } from '../../poker-client/poker-socket';
 import type { IGameService } from './game-service';
 

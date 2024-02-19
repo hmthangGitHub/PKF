@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { GameSession } from '../../game-session';
+import { GameSession } from '../../session/game-session';
 import { WPKSession } from '../wpk-session';
 import type { WebSocketAdapter } from '../../websocket-adapter';
 import type { ISession, SystemInfo } from '../../poker-client-types';
@@ -10,7 +10,7 @@ import type {
     IJoinRoomResponse,
     ILeaveRoomResponse,
     IPlayerListResponse
-} from '../../game-session';
+} from '../../session/game-session';
 import type { Nullable } from '../../../core/defines/types';
 import { InvalidOperationError, ServerError } from '../../../core/defines/errors';
 import type {
