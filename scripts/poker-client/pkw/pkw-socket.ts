@@ -7,7 +7,6 @@ import type {
     IMiniGamesListResponse,
     IGameRoomListResponse,
     IGetRankResponse,
-    IHeartBeatResponse,
     IAddCoinOrderResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
