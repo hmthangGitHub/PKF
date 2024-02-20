@@ -59,6 +59,10 @@ export class SocketMessageProcessor {
         this._verbose = value;
     }
 
+    isOpen(): boolean {
+        return this._webSocket.isOpen();
+    }
+
     /** Send a request and return response protobuf with Promise */
     protected sendRequest<RequestProtoType, ResponseProtoType>(
         requestProto: RequestProtoType,
