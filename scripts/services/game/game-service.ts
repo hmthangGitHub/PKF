@@ -20,5 +20,5 @@ export abstract class GameService<EventType> extends TypeSafeEventEmitter<EventT
 
     abstract joinRoom(roomId: number): Promise<IGameRoom>;
 
-    abstract leaveRoom(): Promise<void>;
+    // abstract leaveRoom(): Promise<void>;
 }
