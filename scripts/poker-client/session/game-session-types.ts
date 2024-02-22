@@ -13,3 +13,8 @@ export interface IGamePlayer extends IPlayer {
     keepWinCount?: number | null;
     curUsdt?: number | null;
 }
+
+export enum AutoBetLevel {
+    Level_Normal = 0,
+    Level_Advance = 1
+}

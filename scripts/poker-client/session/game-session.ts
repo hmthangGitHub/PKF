@@ -23,19 +23,6 @@ export type ILeaveRoomResponse = IGameSessionResponse;
 
 export type IRoomTrendResponse = IGameSessionResponse;
 
-// export interface IGamePlayer {
-//     uid?: number | null;
-//     name?: string | null;
-//     head?: string | null;
-//     totalBetAmount?: number | null;
-//     winCount?: number | null;
-//     rank?: number | null;
-//     curCoin?: number | null;
-//     keepWinCount?: number | null;
-//     curUsdt?: number | null;
-//     plat?: number | null;
-// }
-
 export interface IPlayerListResponse extends IGameSessionResponse {
     gamePlayers?: IGamePlayer[] | null;
     self?: IGamePlayer | null;
