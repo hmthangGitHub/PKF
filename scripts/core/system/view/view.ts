@@ -1,4 +1,4 @@
-import {System} from "../system";
+import type {System} from '../system';
 
 export class View {
     _system: System;
@@ -16,10 +16,6 @@ export class View {
         this._system = system;
     }
 
-    // TODO: refactor
-    get iphoneXOffset(): number {
-        return this._IPHONE_X_OFFSET_Y;
-    }
 
     set designWidth(width: number) {
         this._designWidth = width;
@@ -45,12 +41,12 @@ export class View {
         return cc.winSize.height;
     }
 
-    /** NOTE: add comment for me*/
+    /** NOTE: add comment for me */
     get fullscreenOffsetY(): number {
         return this.FULL_SCREEN_OFF_SET_Y;
     }
 
-    /** NOTE: add comment for me*/
+    /** NOTE: add comment for me */
     get fullscreenOffsetYB(): number {
         return this.FULL_SCREEN_OFF_SET_Y_B;
     }
@@ -59,7 +55,7 @@ export class View {
     /**
      * 是否是全面屏(窄屏)
      */
-    public isFullScreen(): boolean {
+    isFullScreen(): boolean {
         return this.width > this.height ? this.width / this.height > 2 : this.height / this.width > 2;
     }
     /** TODO: refactor me (deprecated) */
@@ -89,20 +85,6 @@ export class View {
         return this.width / this.height > 1080.0 / 1920;
     }
 
-    /** TODO: */
-    // private IsPad(): boolean {
-    //     if (cc.sys.isNative && (cc.sys.os == cc.sys.OS_ANDROID || cc.sys.os == cc.sys.OS_IOS)) {
-    //         return this.invokeSyncFunc(NATIVE_KEY_MAP.KEY_IS_PAD) == "true";
-    //     }
-    //     else {
-    //         if (cv.config.GET_CLIENT_TYPE() == cv.Enum.ClientType.H5WebPage && cc.sys.os == cc.sys.OS_IOS) {
-    //             return SY_isIpad;
-    //         }
-    //         return false;
-    //     }
-    // }
-
-
     /**
      * 是否是横屏模式
      */
@@ -122,7 +104,7 @@ export class View {
         /** NOTE: setting Orientation */
         if(this._system.isNative && this._system.isAndroid) {
             // TODO:
-            //0横1竖
+            // 0横1竖
             // jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity",
             //     "changeOrientation", "(I)V", 0);
             // cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
@@ -222,28 +204,8 @@ export class View {
         // cv.config.WIDTH = temp;
     }
 
-    isIPhoneXScreen(): boolean {
-        return this.width > this.height ? this.width / this.height > 2436.0 / 1126 :
-            this.height / this.width > 2436.0 / 1126;
-    }
-
-    /**
-     * 是否是iPAD
-     */
-    public isPadWeb(): boolean {
-
-        let frameSize = cc.view.getCanvasSize();
-        /**
-         * ipad pro 11 1.43
-         * ipad pro 12.9 1.33
-         */
-        let iswidtScreen = frameSize.height / frameSize.width < 1.44;
-
-        return iswidtScreen;
-    }
-
     /** TODO: comment for me */
-    public adaptScreen(node: cc.Node): void {
+    adaptScreen(node: cc.Node): void {
         // console.log("=========>
         // this.IS_WIDESCREEN = " + this.IS_WIDESCREEN + ", " +
         // cv.config.WIDTH + "~" + cv.config.HEIGHT + "->" + node.getContentSize() + ",
@@ -254,7 +216,7 @@ export class View {
     }
 
     /** TODO: comment for me */
-    public adaptScreenHen(node: cc.Node): void {
+    adaptScreenHen(node: cc.Node): void {
         // console.log("=========>
         // this.IS_WIDESCREEN = " + this.IS_WIDESCREEN + ", " +
         // cv.config.WIDTH + "~" + cv.config.HEIGHT + "->" +
@@ -287,6 +249,44 @@ export class View {
     }
 
 
+
+    isIPhoneXScreen(): boolean {
+        return this.width > this.height ? this.width / this.height > 2436.0 / 1126 :
+            this.height / this.width > 2436.0 / 1126;
+    }
+
+    // TODO: refactor
+    get iphoneXOffset(): number {
+        return this._IPHONE_X_OFFSET_Y;
+    }
+
+    /** TODO: */
+    // private IsPad(): boolean {
+    //     if (cc.sys.isNative && (cc.sys.os == cc.sys.OS_ANDROID || cc.sys.os == cc.sys.OS_IOS)) {
+    //         return this.invokeSyncFunc(NATIVE_KEY_MAP.KEY_IS_PAD) == "true";
+    //     }
+    //     else {
+    //         if (cv.config.GET_CLIENT_TYPE() == cv.Enum.ClientType.H5WebPage && cc.sys.os == cc.sys.OS_IOS) {
+    //             return SY_isIpad;
+    //         }
+    //         return false;
+    //     }
+    // }
+
+    /**
+     * 是否是iPAD
+     */
+    isPadWeb(): boolean {
+
+        let frameSize = cc.view.getCanvasSize();
+        /**
+         * ipad pro 11 1.43
+         * ipad pro 12.9 1.33
+         */
+        let iswidtScreen = frameSize.height / frameSize.width < 1.44;
+
+        return iswidtScreen;
+    }
 
     /** TODO: */
     // public SafeAreaWithDifferentDevices: SafeAreaWithDifferentDevices;

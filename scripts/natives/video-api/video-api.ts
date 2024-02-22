@@ -1,10 +1,14 @@
-import {INativeSDK, NativeSDK} from "../../core/native/native-sdk";
+import { NativeSDK} from '../../core/native/native-sdk';
 
-export interface IVideoApi extends INativeSDK {
-    // TODO: AgoraSdk
-    // TODO: 播放视频广告
+export interface IVideoApi {
+    nativeName: string;
 }
 
-class VideoAPI extends NativeSDK implements IVideoApi {
-    nativeName = "VideoAPI"
+export interface VideoAPIClass {
+    new ();
+    nativeName: string;
+}
+
+export class VideoAPI extends NativeSDK implements IVideoApi {
+    nativeName = 'VideoAPI';
 }

@@ -1,50 +1,59 @@
-import {System} from "../system/system";
-import {IOSNativeSDK} from "./env/ios-native-sdk";
-import {AndroidNativeSDK} from "./env/android-native-sdk";
-import {SYNativeSDK} from "./env/sy-native-sdk";
-import { ModuleManager } from "../core-index";
+import {System} from '../system/system';
+import {IOSNativeSDK} from './env/ios-native-sdk';
+import {AndroidNativeSDK} from './env/android-native-sdk';
+import {SYNativeSDK} from './env/sy-native-sdk';
+import {ModuleManager} from '../module/module-manager';
+
+
+export interface INativeSDK {
+    nativeName: string;
+    // invoke(action: NativeInvokeAction): string;
+    // callback(param1?: any, param2?: any);
+}
+
+export interface NativeClass<T> {
+    new (...params: any): T;
+    nativeName: string;
+}
 
 export interface NativeInvokeAction {
     obj: string;
     method: string;
     respMsgKey: string;
-    param?: any;
+    param: any;
     isSync: boolean;
 }
 
-export interface INativeSDK {
-    nativeName: string;
-    invoke(action: NativeInvokeAction): string;
-    callback(param1?: any, param2?: any);
-}
-
 export class NativeSDK implements INativeSDK {
-    nativeName = "NativeSDK"
+    nativeName = 'NativeSDK';
     _system = ModuleManager.instance.get<System>(System);
 
-    invoke(action: NativeInvokeAction): string {
-        // let targetNativeSDK = null;
-        // if(!this._system.isNative) {
-        //     targetNativeSDK = new SYNativeSDK()
-        // } else if(this._system.isNative && this._system.isIOS) {
-        //     targetNativeSDK = new IOSNativeSDK();
-        // } else if(this._system.isNative && this._system.isAndroid) {
-        //     targetNativeSDK = new AndroidNativeSDK();
-        // }
+    targetNativeSDK: SYNativeSDK | IOSNativeSDK | AndroidNativeSDK;
+
+    constructor() {
+        // TODO:    
+        if(!this._system.isNative) {                
+            this.targetNativeSDK = new SYNativeSDK(this);
+        } else if(this._system.isNative && this._system.isIOS) {
+            this.targetNativeSDK = new IOSNativeSDK(this);
+        } else if(this._system.isNative && this._system.isAndroid) {
+            this.targetNativeSDK = new AndroidNativeSDK(this);
+        }
         // else {
         //     targetNativeSDK = this.callSimulatorEvent(nativeKey, action.respMsgKey);
-        // }
-        // if(targetNativeSDK) {
-        //     targetNativeSDK.invoke(action);
-        // }
-        return "";
+        // }        
+    }
+
+    invoke(action: NativeInvokeAction): string {
+        this.targetNativeSDK?.invoke(action);        
+        return '';
     }
 
     callback(param1?: any, param2?: any) {
-        cc.log("callback error");
+        cc.log('callback error');
     }
 
-    protected getJSONParam(object: string, method: any, respMsgKey: string, param: any, isSync: boolean): string{
+    getJSONParam(object: string, method: any, respMsgKey: string, param: any, isSync: boolean): string{
         let strParam = JSON.stringify(param);
         let argObj = {
             object: object,
@@ -52,12 +61,12 @@ export class NativeSDK implements INativeSDK {
             param: strParam,
             isSync: isSync ? 1 : 0,
             respMsgKey: respMsgKey,
-        }
+        };
         let jsonParam = JSON.stringify(argObj);
         return jsonParam;
     }
 
-    // TOTO:
+    // TODO:
     // NOTE: 处理非原生Android/iOS平台的特殊返回值
     private callSimulatorEvent(nativeKey: any, respMsgKey: any): string {
         // if (nativeKey == NATIVE_KEY_MAP.KEY_IS_NETWORK_AVAILABLE) {
@@ -78,13 +87,14 @@ export class NativeSDK implements INativeSDK {
         //         "dversion": "",
         //     });
         // }
-        throw new Error("callSimulatorEvent isn't implements")
+        throw new Error('callSimulatorEvent isn\'t implements');
     }
 
+    // TODO: 等待確認
     // NOTICE: 不知何時會使用
-    //NOTE: web端 webview不支持ccjs回调，通过postMessage统一回调,e.data为返回的数据
+    // NOTE: web端 webview不支持ccjs回调，通过postMessage统一回调,e.data为返回的数据
     static webCcjsCallback(e: any) {
-        const system = ModuleManager.instance.get<System>(System);
+        const system = ModuleManager.instance.get(System);
         if (system?.isBrowser) {
             // if (cv.tools.isJSONString(e.data) && (JSON.parse(e.data)).url && (JSON.parse(e.data)).url.indexOf('h5StreamLive') != -1) {
                 // cv.MessageCenter.send("on_h5StreamLiveCallback", e.data);
@@ -92,10 +102,10 @@ export class NativeSDK implements INativeSDK {
                 // cv.MessageCenter.send("on_webCcjsCallback", e.data);
             // }
         } else {
-            cc.log("webCcjsCallback error");
+            cc.log('webCcjsCallback error');
         }
     }
 }
 
-// window.addEventListener('message', NativeSDK.webCcjsCallback);
-// window.webCcjsCallback = NativeSDK.webCcjsCallback;
+window.addEventListener('message', NativeSDK.webCcjsCallback);
+window.webCcjsCallback = NativeSDK.webCcjsCallback;

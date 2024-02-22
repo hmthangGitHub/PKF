@@ -1,12 +1,13 @@
-import {NativeSDK} from "../../core/native/native-sdk";
-import {IOSAudioAPI} from "./env/ios-audio-api";
-import {AndroidAudioApi} from "./env/android-audio-api";
-import {H5AudioApi} from "./env/h5-audio-api";
-import {NativeManager} from "../../core/native/native-index";
-import {System} from "../../core/system/system";
-import {ModuleManager} from "../../core/module/module-manager";
+import {IOSAudioAPI} from './env/ios-audio-api';
+import {AndroidAudioApi} from './env/android-audio-api';
+import {H5AudioApi} from './env/h5-audio-api';
+import {System} from '../../core/system/system';
+import {ModuleManager} from '../../core/module/module-manager';
+import { NativeManager } from '../../core/native/native-manager';
+import { NativeSDK } from '../../core/native/native-sdk';
 
 export interface IAudioAPI {
+    // nativeName: string;
     /**
      * 开始录音
      */
@@ -23,57 +24,42 @@ export interface IAudioAPI {
     playRecord(): void;
 }
 
+export interface AudioAPIClass {
+    new ();
+    nativeName: string;
+}
+
 export class AudioAPI extends NativeSDK implements IAudioAPI {
-    moduleName = "AudioAPI";
+    static nativeName = 'AudioAPI';
+    
+    audio: IAudioAPI;
 
-    _system: System = ModuleManager.instance.get(System);
-    private _nativeManager: NativeManager = ModuleManager.instance.get(NativeManager);
-    // private _deviceAPI: DeviceAPI = this._nativeManager.get(DeviceAPI);
+    constructor() {    
+        super();
+        
+        const system = ModuleManager.instance.get(System);
+        const nativeManager = ModuleManager.instance.get(NativeManager);
 
-    // private _h5AudioAPI: H5AudioApi = this._nativeManager.get(H5AudioApi);
-    // private _h5AudioAPI: H5AudioApi = this._nativeManager.get(H5AudioApi);
-    // private _h5AudioAPI: H5AudioApi = this._nativeManager.get(H5AudioApi);
-
-    // private _h5AudioAPI: H5AudioApi = this._nativeManager.get(H5AudioApi);
-    // private _h5AudioAPI: H5AudioApi = this._nativeManager.get(H5AudioApi);
-    // private _h5AudioAPI: H5AudioApi = this._nativeManager.get(H5AudioApi);
-
+        if(system.isNative && system.isBrowser) {
+            this.audio = nativeManager.get(H5AudioApi);
+        } else if (system.isIOS) {
+            this.audio = nativeManager.get(IOSAudioAPI);
+        } else if (system.isAndroid) {
+            this.audio = nativeManager.get(AndroidAudioApi);
+        }        
+    }
     playRecord(): void {
-        console.log("playRecord");
-
-        // TODO: refactor
-        if(!this._system.isNative && this._system.isBrowser) {
-            new H5AudioApi().playRecord();
-        } else if (this._system.isIOS) {
-            new IOSAudioAPI().playRecord()
-        } else if (this._system.isAndroid) {
-            new AndroidAudioApi().playRecord();
-        }
+        console.log('playRecord');
+        this.audio.playRecord();
     }
 
     startRecord(): void {
-        console.log("startRecord");
-
-        // TODO: refactor
-        if(!this._system.isNative && this._system.isBrowser) {
-            new H5AudioApi().startRecord();
-        } else if (this._system.isIOS) {
-            new IOSAudioAPI().startRecord()
-        } else if (this._system.isAndroid) {
-            new AndroidAudioApi().startRecord();
-        }
+        console.log('startRecord');
+        this.audio.startRecord();
     }
 
     stopRecord(): void {
-        console.log("stopRecord");
-
-        // TODO: refactor
-        if(!this._system.isNative && this._system.isBrowser) {
-            new H5AudioApi().stopRecord();
-        } else if (this._system.isIOS) {
-            new IOSAudioAPI().stopRecord()
-        } else if (this._system.isAndroid) {
-            new AndroidAudioApi().stopRecord();
-        }
+        console.log('stopRecord');
+        this.audio.stopRecord();
     }
 }

@@ -1,16 +1,24 @@
-import {NativeSDK} from "../../core/native/native-sdk";
-import {GeolocationCoordinates, IDeviceInfo} from "../../core/system/system";
+import { NativeSDK } from '../../core/native/native-sdk';
+import type {GeolocationCoordinates, IDeviceInfo} from '../../core/system/system';
+
 
 export interface IDeviceAPI {
-    nativeName: string;
-
+    // name: string;
+    getDeviceInfo(): IDeviceInfo;
+    getDeviceUUID(): string;
     isEMU(): boolean;
     isSiyuType(): boolean;
-    getDeviceUUID(): string;
+    getLocation(): GeolocationCoordinates;
+}
+
+export interface DeviceAPIClass {
+    new ();
+    nativeName: string;
 }
 
 export class DeviceAPI extends NativeSDK implements IDeviceAPI {
-    nativeName = "DeviceAPI"
+    static nativeName = 'DeviceAPI';
+    // name: string = 'DeviceAPI';
 
     getDeviceInfo(): IDeviceInfo {
         // TODO: get native device info
@@ -27,11 +35,11 @@ export class DeviceAPI extends NativeSDK implements IDeviceAPI {
 
     getDeviceUUID(): string {
         // TODO: get native device uuid
-        if(!this._system) {
-           return '';     
-        } else if (this._system.isNative && !this.isEMU) {
-            return '';
-        }
+        // if(!this._system) {
+        //    return '';     
+        // } else if (this._system.isNative && !this.isEMU) {
+        //     return '';
+        // }
         return 'd41d8cd98f00b204e9800998ecf8427e';
     }
 

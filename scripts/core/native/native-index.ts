@@ -1,1 +1,1 @@
-export * from "./native-manager";
+export * from './native-manager';

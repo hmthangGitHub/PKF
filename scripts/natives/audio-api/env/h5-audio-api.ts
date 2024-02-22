@@ -1,5 +1,5 @@
-import {IAudioAPI} from "../audio-api";
-import {NativeSDK} from "../../../core/native/native-sdk";
+import type {IAudioAPI} from '../audio-api';
+import {NativeSDK} from '../../../core/native/native-sdk';
 
 // 客户端类型(详情参见"Config.ts"注释)
 // export enum ClientType {
@@ -21,12 +21,12 @@ import {NativeSDK} from "../../../core/native/native-sdk";
 // }
 
 export class H5AudioApi extends NativeSDK implements IAudioAPI {
-    nativeName = "H5AudioApi";
+    static nativeName = 'H5AudioApi';
 
     startRecord() {
         // if (cv.config.GET_CLIENT_TYPE() == cv.Enum.ClientType.H5WebPage) {
             // 私语平台录音
-            const cmdStr = "{\"cmd\": \"1007\", \"op\":0}";
+            const cmdStr = '{"cmd": "1007", "op":0}';
             // TODO
             // this.invokeSYwebjsToClient(cmdStr);
         // }
@@ -35,7 +35,7 @@ export class H5AudioApi extends NativeSDK implements IAudioAPI {
     stopRecord() {
         // if (cv.config.GET_CLIENT_TYPE() == cv.Enum.ClientType.H5WebPage) {
             // 私语平台录音
-            const cmdStr = "{\"cmd\": \"1007\", \"op\":1}";
+            const cmdStr = '{"cmd": "1007", "op":1}';
         // TODO
             // this.invokeSYwebjsToClient(cmdStr);
         // }
@@ -43,6 +43,6 @@ export class H5AudioApi extends NativeSDK implements IAudioAPI {
 
     playRecord() {
         // NOTE: 目前看源碼本來就沒實作
-        return "todo";
+        return 'todo';
     }
 }

@@ -1,9 +1,10 @@
-import type { Nullable } from '../core-index';
 import { Module, ModuleManager } from '../module/module-index';
+import { NativeManager } from '../native/native-index';
+import type {Nullable} from '../defines/types';
+import {TypeSafeEventEmitter} from '../event/event-emitter';
 // import {EmittableModule} from "../core-index";
-// import { NativeManager } from '../native/native-index';
-// import {DeviceAPI, IDeviceAPI} from '../../natives/device-api/device-api';
-
+import type { IAudioAPI, IDeviceAPI} from '../../natives/natives-index';
+import {AudioAPI, DeviceAPI} from '../../natives/natives-index';
 export interface IAppNotificationEventHandler {
     appEnterBackground: () => void;
     appEnterForeground: () => void;
@@ -34,48 +35,48 @@ export class App extends Module {
     }
 
     /** 當前場景 */
-    private _currentScene: string = "";
+    private _currentScene: string = '';
 
-    public setCurrentScene(name: string) {
+    setCurrentScene(name: string) {
         this._currentScene = name;
     }
 
-    public getCurrentScene(): string {
+    getCurrentScene(): string {
         return this._currentScene;
     }
 
-    // private _nativeManager: Nullable<ModuleManager> = null;
+    private _nativeManager: NativeManager = ModuleManager.instance.get(NativeManager);
 
     /** Notification */
-    // private _notification = new TypeSafeEventEmitter<IAppNotificationEventHandler>();
-    // get notification(): TypeSafeEventEmitter<IAppNotificationEventHandler> {
-    //     return this._notification;
-    // }
+    private _notification = new TypeSafeEventEmitter<IAppNotificationEventHandler>();
+    get notification(): TypeSafeEventEmitter<IAppNotificationEventHandler> {
+        return this._notification;
+    }
 
     // NOTE: cc.game.on->pf notification->asia poker
     init(): void {
         super.init();
+        // 私语版本，走私语切换后台注册
+        const deviceAPI = this._nativeManager.get(DeviceAPI);
+        // cc.log('app.deviceAPI', deviceAPI);
 
-        //私语版本，走私语切换后台注册
-        // const _nativeManager = ModuleManager.instance.get(NativeManager);
-        // console.log("_nativeManager", _nativeManager);
-        // const deviceAPI = _nativeManager?.get<IDeviceAPI>(DeviceAPI);
-        // console.log("deviceAPI", deviceAPI);
+        // const audioAPI = this._nativeManager.get(AudioAPI);
+        // cc.log('app.audioAPI', audioAPI.playRecord());
 
-        // if (deviceAPI && !deviceAPI.isSiyuType()) {
-        //     cc.game.on(cc.game.EVENT_HIDE, this._onAppEnterBackground, this);
-        //     cc.game.on(cc.game.EVENT_SHOW, this._onAppEnterForeground, this);
-        // }
+        if (deviceAPI && !deviceAPI.isSiyuType()) {
+            cc.game.on(cc.game.EVENT_HIDE, this._onAppEnterBackground, this);
+            cc.game.on(cc.game.EVENT_SHOW, this._onAppEnterForeground, this);
+        }
     }
 
 
     private _onAppEnterBackground() {
-        // this._notification.emit('appEnterBackground');
+        this._notification.emit('appEnterBackground');
     }
 
 
     private _onAppEnterForeground() {
-        // this._notification.emit('appEnterForeground');
+        this._notification.emit('appEnterForeground');
     }
 
     /** */

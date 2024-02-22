@@ -1,14 +1,17 @@
-import {NativeInvokeAction, NativeSDK} from "../native-sdk";
-import {ModuleManager} from "../../../core/module/module-index";
-import {App} from "../../app/app";
+import {NativeSDK, type NativeInvokeAction} from '../native-sdk';
+import {App} from '../../app/app';
+import {ModuleManager} from '../../module/module-manager';
 
-export class SYNativeSDK extends NativeSDK {
-    nativeName = "SYNativeSDK"
+export class SYNativeSDK {
+    nativeName = 'SYNativeSDK';
 
-
+    _nativeSDK: NativeSDK;
+    constructor(nativeSDK: NativeSDK) {
+        this._nativeSDK = nativeSDK;
+    }
     // TODO:
-    //NOTE: 私语Web版本的接口
-    //js层调用js层接口
+    // NOTE: 私语Web版本的接口
+    // js层调用js层接口
     /*
         1001 获取设备ID   "{cmd: \'1001\'}"
         1002 获取GPS信息  "{cmd: \'1002\'}"
@@ -27,7 +30,7 @@ export class SYNativeSDK extends NativeSDK {
     */
     // TODO:
     invoke(jsonCmd: NativeInvokeAction): string {
-        return "";
+        return '';
     }
     // invoke(jsonCmd: string): string {
     //     console.log("SYwebjsToClient cmd:" + jsonCmd);
@@ -46,56 +49,57 @@ export class SYNativeSDK extends NativeSDK {
     //     op: any;
     // }
     // NOTICE: 不知何時會使用 (H5 Webview in 私語APP ??)
-    //NOTE: 私语调用返回函数
+    // NOTE: 私语调用返回函数
     // docs: 游戏层定义了全局的clientToJs方法，用于私语的消息回调。回调结果同样是一个json字符串。
-    static callback(res: any) {
-        if (res == null) {
-            console.log("SYwebClientToJs return data is null.");
+    static callback(response: any) {
+        let res = response;
+        if (res === null) {
+            console.log('SYwebClientToJs return data is null.');
             return;
         }
-        console.log("SYwebClientToJs callBack:" + res);
+        console.log('SYwebClientToJs callBack:' + res);
 
         res = res.replace(/\n/g, '');
         res = res.replace(/\r/g, '');
 
         let data = JSON.parse(res);
-        let cmd = data["cmd"];
-        let op = data["op"];
+        let cmd = data['cmd'];
+        let op = data['op'];
 
         switch (cmd) {
-            case "1007":  //录音回调返回
+            case '1007':  // 录音回调返回
             {
                 if (op == 0) {  //开始录音返回
                     // cv.MessageCenter.send("SYStartRecord", data);
                 } else if (op == 1) {  //停止录音返回
                     // cv.MessageCenter.send("SYStopRecord", data);
-                } else if (op == 2) {  //取消录音返回
+                } else if (op === 2) {  //取消录音返回
                     // cv.MessageCenter.send("SYCancelRecord", data);
                 }
             }
                 break;
                                           
-            case "1009":  //切换前后台通知  
+            case '1009':  //切换前后台通知  
             {                
-                // const app = ModuleManager.instance.get<App>(App);
-                // if(!app) return;
+                const app = ModuleManager.instance.get<App>(App);
+                if(!app) return;
                 
                 if (op == 0) {  
-                    //切換至后台
-                    // app.notification.emit("appEnterBackground");
+                    // 切換至后台
+                    app.notification.emit('appEnterBackground');
                     // cv.MessageCenter.send("on_syOnEnterBackground");
                     // TODO:
                     // cv.netWorkManager.OnAppEnterBackground();
 
                 } else if (op == 1) {  
-                    //切換至前台
-                    // app.notification.emit("appEnterForeground");
+                    // 切換至前台
+                    app.notification.emit('appEnterForeground');
                     // TODO:
                     // cv.netWorkManager.OnAppEnterForeground();
             }}
                 break;  
 
-            case "1015":  //ccjs监听返回，当前为ios平台才有
+            case '1015':  // ccjs监听返回，当前为ios平台才有
                 let url = data["url"];
                 if (url != null) {
                     // cv.MessageCenter.send("on_syCcjsCallback", url);
@@ -104,5 +108,3 @@ export class SYNativeSDK extends NativeSDK {
         }
     }
 }
-
-// window.clientToJs = SYNativeSDK.callback;
