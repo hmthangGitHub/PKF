@@ -1,10 +1,8 @@
 import type { Nullable } from '../core-index';
 import { Module, ModuleManager } from '../module/module-index';
-import {TypeSafeEventEmitter} from "../core-index";
-import { NativeManager } from '../native/native-index';
-import {System} from "../system/system";
-import "../../natives/device-api";
-import { DeviceAPI, IDeviceAPI } from '../../natives/device-api/device-api';
+// import {EmittableModule} from "../core-index";
+// import { NativeManager } from '../native/native-index';
+// import {DeviceAPI, IDeviceAPI} from '../../natives/device-api/device-api';
 
 export interface IAppNotificationEventHandler {
     appEnterBackground: () => void;
@@ -15,7 +13,11 @@ export interface IGameContext {
     gameId: number;
 }
 
-/** Application state and evnets */
+class GameContext implements IGameContext {
+    gameId: number;
+}
+
+/** Application state and events */
 export class App extends Module {
     static moduleName = 'App';
 
@@ -45,31 +47,35 @@ export class App extends Module {
     // private _nativeManager: Nullable<ModuleManager> = null;
 
     /** Notification */
-    private _notification = new TypeSafeEventEmitter<IAppNotificationEventHandler>();
-    get notification(): TypeSafeEventEmitter<IAppNotificationEventHandler> {
-        return this._notification;
-    }
+    // private _notification = new TypeSafeEventEmitter<IAppNotificationEventHandler>();
+    // get notification(): TypeSafeEventEmitter<IAppNotificationEventHandler> {
+    //     return this._notification;
+    // }
 
     // NOTE: cc.game.on->pf notification->asia poker
     init(): void {
-        //私语版本，走私语切换后台注册
-        const _nativeManager = ModuleManager.instance.get(NativeManager);
-        const deviceAPI = _nativeManager?.get<DeviceAPI>(DeviceAPI);
+        super.init();
 
-        if (deviceAPI && !deviceAPI.isSiyuType()) {        
-            cc.game.on(cc.game.EVENT_HIDE, this._onAppEnterBackground, this);
-            cc.game.on(cc.game.EVENT_SHOW, this._onAppEnterForeground, this);
-        }
+        //私语版本，走私语切换后台注册
+        // const _nativeManager = ModuleManager.instance.get(NativeManager);
+        // console.log("_nativeManager", _nativeManager);
+        // const deviceAPI = _nativeManager?.get<IDeviceAPI>(DeviceAPI);
+        // console.log("deviceAPI", deviceAPI);
+
+        // if (deviceAPI && !deviceAPI.isSiyuType()) {
+        //     cc.game.on(cc.game.EVENT_HIDE, this._onAppEnterBackground, this);
+        //     cc.game.on(cc.game.EVENT_SHOW, this._onAppEnterForeground, this);
+        // }
     }
 
 
     private _onAppEnterBackground() {
-        this._notification.emit('appEnterBackground');
+        // this._notification.emit('appEnterBackground');
     }
 
 
     private _onAppEnterForeground() {
-        this._notification.emit('appEnterForeground');
+        // this._notification.emit('appEnterForeground');
     }
 
     /** */
@@ -84,7 +90,6 @@ export class App extends Module {
 
     destroy() {
         super.destroy();
-
     }
 
 }

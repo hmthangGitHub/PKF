@@ -15,10 +15,12 @@ export class NativeManager extends Module {
 
     private _natives: Map<string, INativeSDK> = new Map<string, INativeSDK>();
 
-    private _system: System = ModuleManager.instance.get(System);
+    private _system: System;
 
     init(): void {
-        cc.log(`${this.moduleName} init`);
+        super.init();
+
+        this._system = ModuleManager.instance.get(System);
 
         this.register(new DeviceAPI());
 
@@ -35,12 +37,12 @@ export class NativeManager extends Module {
     }
 
     destroy(): void {
-        cc.log(`${this.moduleName} destroy`);
+        cc.log(`[native-manager] ${this.moduleName} destroy`);
         this._natives.map(native => this.unregister(native));
     }
 
     register(native: INativeSDK): void {
-        cc.log(`register native ${native.nativeName}`);
+        cc.log(`[native-manager] register native ${native.nativeName}`);
         this._natives.set(native.nativeName, native);
     }
 

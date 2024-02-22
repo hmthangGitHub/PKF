@@ -77,19 +77,19 @@ export class SYNativeSDK extends NativeSDK {
                                           
             case "1009":  //切换前后台通知  
             {                
-                const app: App | undefined = ModuleManager.instance.get(App);
-                if(!app) return;
+                // const app = ModuleManager.instance.get<App>(App);
+                // if(!app) return;
                 
                 if (op == 0) {  
                     //切換至后台
-                    app.notification.emit("appEnterBackground");
+                    // app.notification.emit("appEnterBackground");
                     // cv.MessageCenter.send("on_syOnEnterBackground");
                     // TODO:
                     // cv.netWorkManager.OnAppEnterBackground();
 
                 } else if (op == 1) {  
                     //切換至前台
-                    app.notification.emit("appEnterForeground");                    
+                    // app.notification.emit("appEnterForeground");
                     // TODO:
                     // cv.netWorkManager.OnAppEnterForeground();
             }}

@@ -23,8 +23,8 @@ class Core {
         this.registerModule(LanguageManager);
         this.registerModule(ServiceManager);
         this.registerModule(System);
-        this.registerModule(App);
         this.registerModule(NativeManager);
+        this.registerModule(App);
 
         this.init();
     }
