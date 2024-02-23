@@ -2,7 +2,7 @@ import { NativeHelper } from './NativeHelper';
 
 // TODO: refactor me
 export class SafeAreaHelper {
-    public static getAllInfo(): string {
+    static getAllInfo(): string {
         const deviceInfo = `Device Info: ${SafeAreaHelper.getDeviceInfo()}`;
         const frameSize = `Frame Size: ${SafeAreaHelper.getFrameSize()}`;
         const canvasSize = `Canvas Size: ${SafeAreaHelper.getCanvasSize()}`;
@@ -14,41 +14,41 @@ export class SafeAreaHelper {
         return `${deviceInfo}\n${frameSize}\n${canvasSize}\n${visibleSize}\n${safeAreaRect}\n${upperSafeAreaOffset}\n${downsafeAreaOffset}`;
     }
 
-    public static getDeviceInfo(): string {
+    static getDeviceInfo(): string {
         const model = NativeHelper.getIOSDeviceName();
         const sysVersion = NativeHelper.getSystemVersion();
         return `${model}, ${sysVersion}`;
     }
 
-    public static getFrameSize(): string {
+    static getFrameSize(): string {
         const size = cc.view.getFrameSize();
         const resolution = size.width.toString() + '*' + size.height.toString();
         return resolution;
     }
 
-    public static getCanvasSize(): string {
+    static getCanvasSize(): string {
         const size = cc.view.getCanvasSize();
         const resolution = size.width.toString() + '*' + size.height.toString();
         return resolution;
     }
 
-    public static getVisibleSize(): string {
+    static getVisibleSize(): string {
         const size = cc.view.getVisibleSize();
         const resolution = size.width.toString() + '*' + size.height.toString();
         return resolution;
     }
 
-    public static getSafeAreaRect(): cc.Rect {
+    static getSafeAreaRect(): cc.Rect {
         // safearea react counting: (left-bottom.x, left-bottom.y, width, height)
         return cc.sys.getSafeAreaRect();
     }
 
-    public static getDownDangerZoneYOffset(): number {
+    static getDownDangerZoneYOffset(): number {
         const safeAreaLeftDownY = SafeAreaHelper.getSafeAreaRect().y;
         return safeAreaLeftDownY;
     }
 
-    public static getUpperDangerZoneYOffset(): number {
+    static getUpperDangerZoneYOffset(): number {
         const visibleHeight = cc.view.getVisibleSize().height;
         const safeAreaHeight = SafeAreaHelper.getSafeAreaRect().height;
         const safeAreaLeftDownY = SafeAreaHelper.getSafeAreaRect().y;
