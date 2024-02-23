@@ -21,7 +21,7 @@ import { SocketMessageProcessor } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 
-import * as ws_protocol from './pb/ws_protocol';
+import * as ws_protocol from './pb/pkw-ws_protocol';
 import pb = ws_protocol.pb;
 
 export class PKWSocket extends SocketMessageProcessor implements ISocket {
