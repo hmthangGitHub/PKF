@@ -7,7 +7,11 @@ import type {
     IMiniGamesListResponse,
     IGameRoomListResponse,
     IGetRankResponse,
-    IAddCoinOrderResponse
+    IAddCoinOrderResponse,
+    ILuckTurntableResultResponse,
+    ILuckTurntableSnaplistResponse,
+    ILuckTurntableResultNotice,
+    IResponseGetUserData
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
@@ -84,7 +88,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         }
     }
 
-    link(webSocket: WebSocket) {    
+    link(webSocket: WebSocket) {
         this.unlink();
 
         this._webSocket.link(webSocket);
@@ -106,7 +110,6 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         this._webSocket.unlink();
     }
 
-    
     async connect(url: string, options?: ISocketOptions): Promise<void> {
         console.log(`socket connect to ${url}`);
 
@@ -124,7 +127,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         this._options = { ...options };
 
         this.registerObservers();
-        
+
         this._shareExternalSocket = false;
     }
 
@@ -182,7 +185,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         this.checkResponseCode(responseProto.error, 'login');
 
-        if(!this._shareExternalSocket)  {
+        if (!this._shareExternalSocket) {
             this.startHeartBeat();
             this.startTick();
         }
@@ -291,7 +294,68 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         const responseProto = response.payload;
 
-        this.checkResponseCode(responseProto.error, 'requestAddCoinOrder');
+        this.checkResponseCode(responseProto.error, 'addCoinOrder');
+
+        return responseProto;
+    }
+
+    async getLuckTurntableResult(recordId: number): Promise<ILuckTurntableResultResponse> {
+        const requestProto = new pb.LuckTurntableResultRequest();
+
+        requestProto.record_id = recordId;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_Luck_Turntable_Result_Request,
+            pb.LuckTurntableResultRequest,
+            pb.MSGID.MsgID_Luck_Turntable_Result_Response,
+            pb.LuckTurntableResultResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getLuckTurntableResult');
+
+        return responseProto;
+    }
+
+    async getLuckTurntableSnaplist(lampCount: number, recordCount: number): Promise<ILuckTurntableSnaplistResponse> {
+        const requestProto = new pb.LuckTurntableSnaplistRequest();
+
+        requestProto.lamp_cnt = lampCount;
+        requestProto.record_cnt = recordCount;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_Luck_Turntable_Snaplist_Request,
+            pb.LuckTurntableSnaplistRequest,
+            pb.MSGID.MsgID_Luck_Turntable_Snaplist_Response,
+            pb.LuckTurntableSnaplistResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getLuckturntableSnaplist');
+
+        return responseProto;
+    }
+
+    async getUserData(userId: number): Promise<IResponseGetUserData> {
+        const requestProto = new pb.RequestGetUserData();
+
+        requestProto.user_id = userId;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_GetUserData_Request,
+            pb.RequestGetUserData,
+            pb.MSGID.MsgID_GetUserData_Response,
+            pb.ResponseGetUserData
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getUserData');
 
         return responseProto;
     }
@@ -419,6 +483,60 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             pb.NoticeGlobalMessage,
             this.handleGlobalMessageNotify.bind(this)
         );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_StartTime_Notice,
+            pb.LuckTurntableStartTimeNotice,
+            this.handleLuckTurntableStartTimeNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_EndTime_Notice,
+            pb.LuckTurntableEndTimeNotice,
+            this.handleLuckTurntableEndTimeNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_Ready_Notice,
+            pb.LuckTurntableReadyNotice,
+            this.handleLuckTurntableReadyNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_Countdown_Notice,
+            pb.LuckTurntableCountdownNotice,
+            this.handleLuckTurntableCountdownNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_Over_Notice,
+            pb.LuckTurntableOverNotice,
+            this.handleLuckTurntableOverNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_Draw_Notice,
+            pb.LuckTurntableDrawNotice,
+            this.handleLuckTurntableDrawNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_Snaplist_Notice,
+            pb.LuckTurntableSnaplistNotice,
+            this.handleLuckTurntableSnaplistNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_Result_Notice,
+            pb.LuckTurntableResultNotice,
+            this.handleLuckTurntableResultNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_GetUserData_Notice,
+            pb.NoticeGetUserData,
+            this.handleUserDataNotify.bind(this)
+        );
     }
 
     protected handleUserGoldNumNotify(protobuf: pb.NoticeNotifyUserGoldNum) {
@@ -440,5 +558,41 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         this._webSocket.onmessage = null;
         this._webSocket.onclose = null;
         this._webSocket.onerror = null;
+    }
+
+    protected handleLuckTurntableStartTimeNotify(protobuf: pb.LuckTurntableStartTimeNotice) {
+        this._notification.emit('luckTurntableStart', protobuf);
+    }
+
+    protected handleLuckTurntableEndTimeNotify(protobuf: pb.LuckTurntableEndTimeNotice) {
+        this._notification.emit('luckTurntableEnd', protobuf);
+    }
+
+    protected handleLuckTurntableReadyNotify(protobuf: pb.LuckTurntableReadyNotice) {
+        this._notification.emit('luckTurntableReady', protobuf);
+    }
+
+    protected handleLuckTurntableCountdownNotify(protobuf: pb.LuckTurntableCountdownNotice) {
+        this._notification.emit('luckTurntableCountdown', protobuf);
+    }
+
+    protected handleLuckTurntableOverNotify(protobuf: pb.LuckTurntableOverNotice) {
+        this._notification.emit('luckTurntableOver', protobuf);
+    }
+
+    protected handleLuckTurntableDrawNotify(protobuf: pb.LuckTurntableDrawNotice) {
+        this._notification.emit('luckTurntableDraw', protobuf);
+    }
+
+    protected handleLuckTurntableSnaplistNotify(protobuf: pb.LuckTurntableSnaplistNotice) {
+        this._notification.emit('luckTurntableSnaplist', protobuf);
+    }
+
+    protected handleLuckTurntableResultNotify(protobuf: ILuckTurntableResultNotice) {
+        this._notification.emit('luckTurntableResult', protobuf);
+    }
+
+    protected handleUserDataNotify(protobuf: pb.NoticeGetUserData) {
+        this._notification.emit('userData', protobuf);
     }
 }

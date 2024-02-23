@@ -113,8 +113,30 @@ export class WPKClient implements IPokerClient {
             areaCode: '',
             isTouristPlayer: false,
             imToken: '',
+
             firstClubId: 0,
-            firstAlliId: 0
+            firstAlliId: 0,
+
+            mobile: '',
+            userGold: 0,
+            clubsMax: 0,
+            currentClubs: 0,
+            userMarks: '',
+            cardType: 0,
+            depositGold: 0,
+            gameCoin: 0,
+            userPoints: 0,
+            ratio: 0,
+            totalAmount: 0,
+            usdt: 0,
+            depositUsdt: 0,
+            priorityAreaCode: '',
+            priorityMobile: '',
+            systemTime: 0,
+            calmDownDeadlineTime: 0,
+            sportsTrialCoin: 0,
+            sportsTrialCoinExpiration: 0,
+            sportsBettingBalance: 0
         };
 
         // create domain info
