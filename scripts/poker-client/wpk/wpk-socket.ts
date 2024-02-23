@@ -7,7 +7,10 @@ import type {
     IMiniGamesListResponse,
     IGameRoomListResponse,
     IGetRankResponse,
-    IAddCoinOrderResponse
+    IAddCoinOrderResponse,
+    ILuckTurntableResultResponse,
+    ILuckTurntableSnaplistResponse,
+    IResponseGetUserData
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { WPKSession } from './wpk-session';
@@ -221,6 +224,70 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.error, 'requestAddCoinOrder');
+
+        return responseProto;
+    }
+
+    async getLuckTurntableResult(recordId: number): Promise<ILuckTurntableResultResponse> {
+        // TODO: move from pkw...need implementation and test on wpk
+        const requestProto = new pb.LuckTurntableResultRequest();
+
+        requestProto.record_id = recordId;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_Luck_Turntable_Result_Request,
+            pb.LuckTurntableResultRequest,
+            pb.MSGID.MsgID_Luck_Turntable_Result_Response,
+            pb.LuckTurntableResultResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getLuckTurntableResult');
+
+        return responseProto;
+    }
+
+    async getLuckTurntableSnaplist(lampCount: number, recordCount: number): Promise<ILuckTurntableSnaplistResponse> {
+        // TODO: move from pkw...need implementation and test on wpk
+        const requestProto = new pb.LuckTurntableSnaplistRequest();
+
+        requestProto.lamp_cnt = lampCount;
+        requestProto.record_cnt = recordCount;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_Luck_Turntable_Snaplist_Request,
+            pb.LuckTurntableSnaplistRequest,
+            pb.MSGID.MsgID_Luck_Turntable_Snaplist_Response,
+            pb.LuckTurntableSnaplistResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getLuckturntableSnaplist');
+
+        return responseProto;
+    }
+
+    async getUserData(userId: number): Promise<IResponseGetUserData> {
+        // TODO: move from pkw...need implementation and test on wpk
+        const requestProto = new pb.RequestGetUserData();
+
+        requestProto.user_id = userId;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_GetUserData_Request,
+            pb.RequestGetUserData,
+            pb.MSGID.MsgID_GetUserData_Response,
+            pb.ResponseGetUserData
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getUserData');
 
         return responseProto;
     }
