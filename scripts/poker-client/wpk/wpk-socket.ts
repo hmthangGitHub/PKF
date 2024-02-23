@@ -7,17 +7,18 @@ import type {
     IMiniGamesListResponse,
     IGameRoomListResponse,
     IGetRankResponse,
-    IHeartBeatResponse
+    IAddCoinOrderResponse
 } from '../poker-socket';
+import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { WPKSession } from './wpk-session';
 import type { ISocketOptions } from '../poker-client-types';
 import { ServerType, GameId, SocketServerErrorCode, SystemInfo } from '../poker-client-types';
 import type { WebSocketAdapter } from '../websocket-adapter';
 import { Util } from '../../core/utils/util';
-import { SocketMessage } from '../poker-socket-message';
+import { SocketMessage } from '../socket-message';
 import { InvalidOperationError, ServerError } from '../../core/defines/errors';
 import { SocketMessageProcessor } from '../socket-message-processor';
-import type { GameSession, GameSessionClass } from '../game-session';
+import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 
 import * as ws_protocol from './pb/wpk-ws_protocol';
@@ -193,6 +194,30 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.error, 'getRank');
+
+        return responseProto;
+    }
+
+    async addCoinOrder(payType: number): Promise<IAddCoinOrderResponse> {
+        // TODO: move from pkw...need implementation and test on wpk
+        const requestProto = new pb.RequestAddCoinOrder();
+
+        requestProto.type = payType;
+        requestProto.uid = this._session.userId;
+        requestProto.productid = '';
+        requestProto.amount = 0;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_AddCoinOrder_Pay_Request,
+            pb.RequestAddCoinOrder,
+            pb.MSGID.MsgID_AddCoinOrder_Pay_Response,
+            pb.ResponseAddCoinOrder
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'requestAddCoinOrder');
 
         return responseProto;
     }

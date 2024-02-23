@@ -1,5 +1,5 @@
 import type { ISocketOptions } from './poker-client-types';
-import type { GameSession, GameSessionClass } from './game-session';
+import type { GameSession, GameSessionClass } from './session/game-session';
 import type { TypeSafeEventEmitter } from '../core/event/event-emitter';
 import type { GameId, MsgType } from './poker-client-types';
 
@@ -78,11 +78,6 @@ export interface IGetRankResponse {
     owner?: string | null;
 }
 
-export interface IHeartBeatResponse {
-    uid?: number | null;
-    timestamp?: number | null;
-}
-
 export interface INoticeNotifyUserGoldNum {
     uid?: number | null;
     changeNum?: number | null;
@@ -109,6 +104,14 @@ export interface SocketNotifications {
     globalMessage: (notify: INoticeGlobalMessage) => void;
 }
 
+export interface IAddCoinOrderResponse {
+    error?: number | null;
+    srv_add_order?: number | null;
+    cb_url?: string | null;
+    token?: string | null;
+    failedReasons?: string | null;
+}
+
 export interface ISocket {
     verbose: boolean;
 
@@ -132,4 +135,6 @@ export interface ISocket {
     getRoomList(gameId: number): Promise<IGameRoomListResponse>;
 
     getRank(randId: number): Promise<IGetRankResponse>;
+
+    addCoinOrder(payType: number): Promise<IAddCoinOrderResponse>;
 }

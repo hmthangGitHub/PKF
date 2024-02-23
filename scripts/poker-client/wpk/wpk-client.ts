@@ -95,7 +95,14 @@ export class WPKClient implements IPokerClient {
             nickname: this._session.userInfo.nickname,
             sex: this._session.userInfo.sex,
             avatarURL: this._session.userInfo.avatar,
-            ip: this._session.pkwAuthData.appIP
+            ip: this._session.pkwAuthData.appIP,
+            payType: 0,
+            shopURL: '',
+            areaCode: '',
+            isTouristPlayer: false,
+            imToken: '',
+            firstClubId: 0,
+            firstAlliId: 0
         };
 
         // create domain info

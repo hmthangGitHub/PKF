@@ -44,4 +44,8 @@ export class DomainService extends Service {
         }
         return host + avatarPath;
     }
+
+    getShopUrl(): string {
+        return this._client.getCurrentUser().shopURL;
+    }
 }

@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import type { ProtobutClass } from './poker-client-types';
 import type { WebSocketAdapter } from './websocket-adapter';
-import { SocketMessage, SocketMessageHeader } from './poker-socket-message';
+import { SocketMessage, SocketMessageHeader } from './socket-message';
 import type { IAsyncOperation } from '../core/async/async-operation';
 import { AsyncOperation } from '../core/async/async-operation';
 
@@ -57,6 +57,10 @@ export class SocketMessageProcessor {
     }
     set verbose(value: boolean) {
         this._verbose = value;
+    }
+
+    isOpen(): boolean {
+        return this._webSocket.isOpen();
     }
 
     /** Send a request and return response protobuf with Promise */

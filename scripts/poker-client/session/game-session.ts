@@ -1,7 +1,8 @@
-import { SocketMessageProcessor } from './socket-message-processor';
-import type { WebSocketAdapter } from './websocket-adapter';
-import type { ISession } from './poker-client-types';
-import { SystemInfo } from './poker-client-types';
+import { SocketMessageProcessor } from '../socket-message-processor';
+import type { WebSocketAdapter } from '../websocket-adapter';
+import type { ISession } from '../poker-client-types';
+import { SystemInfo } from '../poker-client-types';
+import type { IGamePlayer } from './game-session-types';
 
 export interface IGameSessionResponse {
     code?: number | null;
@@ -21,19 +22,6 @@ export interface IJoinRoomResponse extends IGameSessionResponse {
 export type ILeaveRoomResponse = IGameSessionResponse;
 
 export type IRoomTrendResponse = IGameSessionResponse;
-
-export interface IGamePlayer {
-    uid?: number | null;
-    name?: string | null;
-    head?: string | null;
-    totalBetAmount?: number | null;
-    winCount?: number | null;
-    rank?: number | null;
-    curCoin?: number | null;
-    keepWinCount?: number | null;
-    curUsdt?: number | null;
-    plat?: number | null;
-}
 
 export interface IPlayerListResponse extends IGameSessionResponse {
     gamePlayers?: IGamePlayer[] | null;
