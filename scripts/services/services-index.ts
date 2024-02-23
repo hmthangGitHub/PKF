@@ -5,3 +5,4 @@ export * from './wallet-service';
 export * from './push-notification-service';
 export * from './game/game-service-index';
 export * from './shop-service';
+export * from './luck-turntable-service';
