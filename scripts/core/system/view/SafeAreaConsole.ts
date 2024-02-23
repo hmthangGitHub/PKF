@@ -1,7 +1,8 @@
-import { SafeAreaHelper } from "./SafeAreaHelper";
+import { SafeAreaHelper } from './SafeAreaHelper';
 
 const { ccclass, property } = cc._decorator;
 
+// TODO: refactor me
 @ccclass
 export class SafeAreaConsole extends cc.Component {
     @property(cc.Label) consoleInfo: cc.Label = null;

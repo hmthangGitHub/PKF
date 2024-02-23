@@ -23,6 +23,13 @@ import {NativeSDK} from '../../../core/native/native-sdk';
 export class H5AudioApi extends NativeSDK implements IAudioAPI {
     static nativeName = 'H5AudioApi';
 
+    // NOTICE: 私语平台
+    // 网页版 && 跑在ios或android手机上
+    // 我们没有私语版
+    // if (this.CLIENT_TYPE == cv.Enum.ClientType.H5WebPage && (cc.sys.os == cc.sys.OS_ANDROID || cc.sys.os == cc.sys.OS_IOS)) {
+    //     return true;
+    // }
+
     startRecord() {
         // if (cv.config.GET_CLIENT_TYPE() == cv.Enum.ClientType.H5WebPage) {
             // 私语平台录音

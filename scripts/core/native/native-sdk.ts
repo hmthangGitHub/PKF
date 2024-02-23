@@ -7,6 +7,8 @@ import {ModuleManager} from '../module/module-manager';
 
 export interface INativeSDK {
     nativeName: string;
+    init(): void;
+    destroy(): void;
     // invoke(action: NativeInvokeAction): string;
     // callback(param1?: any, param2?: any);
 }
@@ -30,7 +32,7 @@ export class NativeSDK implements INativeSDK {
 
     targetNativeSDK: SYNativeSDK | IOSNativeSDK | AndroidNativeSDK;
 
-    constructor() {
+    init(): void {
         // TODO:    
         if(!this._system.isNative) {                
             this.targetNativeSDK = new SYNativeSDK(this);
@@ -41,7 +43,10 @@ export class NativeSDK implements INativeSDK {
         }
         // else {
         //     targetNativeSDK = this.callSimulatorEvent(nativeKey, action.respMsgKey);
-        // }        
+        // } 
+    }
+    destroy(): void {
+        
     }
 
     invoke(action: NativeInvokeAction): string {

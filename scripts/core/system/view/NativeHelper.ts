@@ -1,5 +1,6 @@
 import { NativeMethodMap, NATIVE_KEY } from './NativeEventMap';
 
+// TODO: refactor me
 const IOSModelNameMap = {
     'iPhone3,1': 'iPhone 4',
     'iPhone3,2': 'iPhone 4',

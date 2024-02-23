@@ -1,5 +1,5 @@
 import {Module} from '../module/module-index';
-import {View} from "./view/view";
+import {View} from './view/view';
 
 export interface IDeviceInfo {
     dmodel: string;
@@ -21,7 +21,7 @@ export class System extends Module {
 
     init(): void {
         /** TODO: */
-        //私语平台返回值
+        // 私语平台返回值
         // let SY_isEmulaotr: boolean = false; //是否是安卓模拟器
         // let SY_deviceId: string = null; //是否是安卓模拟器
         // let SY_positionInfo: string = null; //经纬度
@@ -45,13 +45,13 @@ export class System extends Module {
         return cc.sys.isBrowser;
     }
 
-
+    // TODO:
     /**
      * 判断当前是否是手机浏览器
      */
-    public isMobileBrowser = () => {
-        return cc.sys.MOBILE_BROWSER ;
-    }
+    // isMobileBrowser = () => {
+    //     return cc.sys.MOBILE_BROWSER;
+    // }
 
     /** Is native ? This is set to be true in jsb auto.
         true: simulator、android、ios、windows、Mac
@@ -63,7 +63,7 @@ export class System extends Module {
 
     /** Indicate whether system is mobile system */
     get isMobile(): boolean {
-        return cc.sys.isMobile
+        return cc.sys.isMobile;
     }
 
     get isAndroid(): boolean {
@@ -114,7 +114,7 @@ export class System extends Module {
     }
 
 
-    //是否允许模拟器玩(是否在白名单中 在白名单中允许模拟器玩)
+    // 是否允许模拟器玩(是否在白名单中 在白名单中允许模拟器玩)
     // public isallowsimulator: boolean = false;
 
     // let url: string = cv.config.getStringData('WEB_API_LOGIN_BY_TOURIST_NAME', true);
@@ -125,7 +125,7 @@ export class System extends Module {
     // let url: string = cv.config.getStringData('WEB_API_LOGIN_BY_USER_NAME', true);
     // onUserNameLoginSuccess
 
-    //检测是否安装私聊
+    // 检测是否安装私聊
     // let packName = 'com.wanlihao.safetalk';
     // if (cc.sys.os == cc.sys.OS_IOS) {
     //     packName = 'Safetalk';
@@ -144,7 +144,7 @@ export class System extends Module {
     // }
 
     /** TODO */
-    //私语调用返回函数
+    // 私语调用返回函数
     // public static SYwebClientToJs(res: any) {
     //     SY_isEmulaotr =
     // }
@@ -179,7 +179,7 @@ export class System extends Module {
     //     respMsgKey: ""
     // },
 
-    //获取IOS设备信息
+    // 获取IOS设备信息
     // getDeviceModel(): string {
     //     let mode: string = "";
     //

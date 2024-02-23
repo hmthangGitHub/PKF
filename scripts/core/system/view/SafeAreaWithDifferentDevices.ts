@@ -1,19 +1,20 @@
+// TODO: refactor me
 /**
  * 裝置型號
  */
 export enum IOSDeviceResolution {
-    None = "0",
-    IphoneShortScreen = "10801920",        //Iphone Short Screen, include ip8 mid
-    Iphone14 = "11702532",                 //Iphone14
-    Iphone14Plus = "12842778",             //Iphone14 Plus
-    Iphone14Pro = "11792556",              //Iphone14 Pro
-    Iphone14ProMax = "12902796",           //Iphone14 Pro Max
-    Iphone8small = "7501334",              //Iphone8 or Iphone 7 4.7"
+    None = '0',
+    IphoneShortScreen = '10801920',        // Iphone Short Screen, include ip8 mid
+    Iphone14 = '11702532',                 // Iphone14
+    Iphone14Plus = '12842778',             // Iphone14 Plus
+    Iphone14Pro = '11792556',              // Iphone14 Pro
+    Iphone14ProMax = '12902796',           // Iphone14 Pro Max
+    Iphone8small = '7501334',              // Iphone8 or Iphone 7 4.7"
 }
 
 export enum AndroidDeviceResolution {
-    None = "0",
-    AndroidShortScreen = "10801920",       //Android Short Screen
+    None = '0',
+    AndroidShortScreen = '10801920',       // Android Short Screen
 }
 
 const { ccclass, property } = cc._decorator;
@@ -28,11 +29,10 @@ export class SafeAreaWithDifferentDevices extends cc.Component {
     
     private static instance: SafeAreaWithDifferentDevices;
 
-    public static getInstance(): SafeAreaWithDifferentDevices {
+    static getInstance(): SafeAreaWithDifferentDevices {
         if (!this.instance) {
             this.instance = new SafeAreaWithDifferentDevices();
         }
-
         return this.instance;
     }
 
@@ -47,17 +47,16 @@ export class SafeAreaWithDifferentDevices extends cc.Component {
     getResolution(): string {
         switch (cc.sys.os) {
             case cc.sys.OS_ANDROID:
-            case cc.sys.OS_IOS:
+            case cc.sys.OS_IOS: {
                 let size = cc.view.getFrameSize();
                 let resolution = size.width.toString() + size.height.toString();
                 return resolution;
-
+            }            
             default:
                 return AndroidDeviceResolution.None;
-
                 // for debug
-                //return IOSDeviceResolution.IphoneShortScreen;
-                //return AndroidDeviceResolution.AndroidShortScreen;
+                // return IOSDeviceResolution.IphoneShortScreen;
+                // return AndroidDeviceResolution.AndroidShortScreen;
         }
     }
 
@@ -71,9 +70,8 @@ export class SafeAreaWithDifferentDevices extends cc.Component {
 
             default:
                 return this.defaultSafeArea;
-
                 // for debug
-                //return 5;
+                // return 5;
         }
     }
 

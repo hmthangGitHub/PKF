@@ -4,11 +4,6 @@ export interface IVideoApi {
     nativeName: string;
 }
 
-export interface VideoAPIClass {
-    new ();
-    nativeName: string;
-}
-
 export class VideoAPI extends NativeSDK implements IVideoApi {
-    nativeName = 'VideoAPI';
+    static nativeName = 'VideoAPI';
 }

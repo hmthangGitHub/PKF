@@ -11,15 +11,10 @@ export interface IDeviceAPI {
     getLocation(): GeolocationCoordinates;
 }
 
-export interface DeviceAPIClass {
-    new ();
-    nativeName: string;
-}
-
 export class DeviceAPI extends NativeSDK implements IDeviceAPI {
     static nativeName = 'DeviceAPI';
-    // name: string = 'DeviceAPI';
 
+    
     getDeviceInfo(): IDeviceInfo {
         // TODO: get native device info
         const deviceInfo: IDeviceInfo = {

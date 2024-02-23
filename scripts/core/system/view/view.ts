@@ -16,7 +16,6 @@ export class View {
         this._system = system;
     }
 
-
     set designWidth(width: number) {
         this._designWidth = width;
     }
@@ -52,21 +51,21 @@ export class View {
     }
 
 
+    /** TODO: refactor me */
     /**
      * 是否是全面屏(窄屏)
      */
-    isFullScreen(): boolean {
-        return this.width > this.height ? this.width / this.height > 2 : this.height / this.width > 2;
-    }
-    /** TODO: refactor me (deprecated) */
     isNarrowScreen(): boolean {
         return this.isFullScreen();
     }
+    isFullScreen(): boolean {
+        return this.width > this.height ? this.width / this.height > 2 : this.height / this.width > 2;
+    }    
 
+    /** TODO: */
     /**
      * 是否是宽屏
      */
-    /** TODO: */
     // public isWideScreen(): boolean {
     //     if (this.IsPad()) {
     //         return true;
@@ -97,22 +96,22 @@ export class View {
      * 设置横屏
      */
     setLandscape(): void {
-        if(!(this._system.isMobile && this._system.isBrowser) && this.width > this.height) {
-            return ;
-        }
+        // if(!(this._system.isMobile && this._system.isBrowser) && this.width > this.height) {
+        //     return ;
+        // }
 
         /** NOTE: setting Orientation */
-        if(this._system.isNative && this._system.isAndroid) {
+        // if(this._system.isNative && this._system.isAndroid) {
             // TODO:
             // 0横1竖
             // jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity",
             //     "changeOrientation", "(I)V", 0);
             // cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
-        } else if(this._system.isNative && this._system.isIOS) {
+        // } else if(this._system.isNative && this._system.isIOS) {
             // TODO:
             // cv.native.invokeAsynFunc(NATIVE_KEY_MAP.KEY_CALL_CHANGEORIENTATION, {"bool": "1"});
             // cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
-        } else {
+        // } else {
             /** 如果是私语的平台 */
             //     if (cv.native.IsSimulator() &&
             //         cv.config.GET_CLIENT_TYPE() == cv.Enum.ClientType.H5WebPage
@@ -127,7 +126,7 @@ export class View {
             //     ) {
             //         return;
             //     }
-        }
+        // }
 
         /** NOTE: setting frameSize, designResolutionSize */
         // if (
@@ -205,6 +204,7 @@ export class View {
     }
 
     /** TODO: comment for me */
+    // TODO: refactor
     adaptScreen(node: cc.Node): void {
         // console.log("=========>
         // this.IS_WIDESCREEN = " + this.IS_WIDESCREEN + ", " +
@@ -216,6 +216,7 @@ export class View {
     }
 
     /** TODO: comment for me */
+    // TODO: refactor
     adaptScreenHen(node: cc.Node): void {
         // console.log("=========>
         // this.IS_WIDESCREEN = " + this.IS_WIDESCREEN + ", " +
@@ -249,7 +250,7 @@ export class View {
     }
 
 
-
+    // TODO: refactor
     isIPhoneXScreen(): boolean {
         return this.width > this.height ? this.width / this.height > 2436.0 / 1126 :
             this.height / this.width > 2436.0 / 1126;

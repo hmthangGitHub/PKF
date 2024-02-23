@@ -24,42 +24,36 @@ export interface IAudioAPI {
     playRecord(): void;
 }
 
-export interface AudioAPIClass {
-    new ();
-    nativeName: string;
-}
-
 export class AudioAPI extends NativeSDK implements IAudioAPI {
     static nativeName = 'AudioAPI';
     
-    audio: IAudioAPI;
+    _audio: IAudioAPI;
 
-    constructor() {    
-        super();
-        
+    init() {
         const system = ModuleManager.instance.get(System);
         const nativeManager = ModuleManager.instance.get(NativeManager);
 
-        if(system.isNative && system.isBrowser) {
-            this.audio = nativeManager.get(H5AudioApi);
+        if(system.isBrowser) {
+            this._audio = nativeManager.get(H5AudioApi);
         } else if (system.isIOS) {
-            this.audio = nativeManager.get(IOSAudioAPI);
+            this._audio = nativeManager.get(IOSAudioAPI);
         } else if (system.isAndroid) {
-            this.audio = nativeManager.get(AndroidAudioApi);
-        }        
-    }
-    playRecord(): void {
-        console.log('playRecord');
-        this.audio.playRecord();
-    }
+            this._audio = nativeManager.get(AndroidAudioApi);
+        }
+    }    
 
     startRecord(): void {
-        console.log('startRecord');
-        this.audio.startRecord();
+        console.log('start recording');
+        this._audio.startRecord();
     }
 
     stopRecord(): void {
-        console.log('stopRecord');
-        this.audio.stopRecord();
+        console.log('stop recording ');
+        this._audio.stopRecord();
+    }
+
+    playRecord(): void {
+        console.log('play record');
+        this._audio.playRecord();
     }
 }

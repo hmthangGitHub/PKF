@@ -2,9 +2,7 @@ import { Module, ModuleManager } from '../module/module-index';
 import { NativeManager } from '../native/native-index';
 import type {Nullable} from '../defines/types';
 import {TypeSafeEventEmitter} from '../event/event-emitter';
-// import {EmittableModule} from "../core-index";
-import type { IAudioAPI, IDeviceAPI} from '../../natives/natives-index';
-import {AudioAPI, DeviceAPI} from '../../natives/natives-index';
+import {AudioAPI, DeviceAPI, VideoAPI} from '../../natives/natives-index';
 export interface IAppNotificationEventHandler {
     appEnterBackground: () => void;
     appEnterForeground: () => void;
@@ -46,7 +44,7 @@ export class App extends Module {
     }
 
     private _nativeManager: NativeManager = ModuleManager.instance.get(NativeManager);
-
+    
     /** Notification */
     private _notification = new TypeSafeEventEmitter<IAppNotificationEventHandler>();
     get notification(): TypeSafeEventEmitter<IAppNotificationEventHandler> {
@@ -56,17 +54,26 @@ export class App extends Module {
     // NOTE: cc.game.on->pf notification->asia poker
     init(): void {
         super.init();
-        // 私语版本，走私语切换后台注册
-        const deviceAPI = this._nativeManager.get(DeviceAPI);
-        // cc.log('app.deviceAPI', deviceAPI);
-
-        // const audioAPI = this._nativeManager.get(AudioAPI);
-        // cc.log('app.audioAPI', audioAPI.playRecord());
-
+        
+        const deviceAPI = this._nativeManager.get(DeviceAPI);        
         if (deviceAPI && !deviceAPI.isSiyuType()) {
             cc.game.on(cc.game.EVENT_HIDE, this._onAppEnterBackground, this);
             cc.game.on(cc.game.EVENT_SHOW, this._onAppEnterForeground, this);
         }
+
+        // TODO: just for testing        
+        // const audioAPI = this._nativeManager.get(AudioAPI);
+        // cc.log('app.audioAPI', audioAPI);
+        // cc.log('app.audioAPI.playRecord', audioAPI.playRecord());
+        // cc.log('app.audioAPI.nativeName', audioAPI.nativeName);
+
+        // const videoAPI = this._nativeManager.get(VideoAPI);
+        // cc.log('app.videoAPI.nativeName', videoAPI.nativeName);
+
+        // cc.log('app.deviceAPI', deviceAPI);
+        // cc.log('app.deviceAPI.getDeviceInfo', deviceAPI.getDeviceInfo());
+        // cc.log('app.deviceAPI.getDeviceUUID', deviceAPI.getDeviceUUID());
+        
     }
 
 

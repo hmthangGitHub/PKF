@@ -1,5 +1,6 @@
 import { NativeHelper } from './NativeHelper';
 
+// TODO: refactor me
 export class SafeAreaHelper {
     public static getAllInfo(): string {
         const deviceInfo = `Device Info: ${SafeAreaHelper.getDeviceInfo()}`;
