@@ -14,7 +14,7 @@ import type {
     ILuckTurntableSnaplistResponse
 } from '../poker-client/poker-client-index';
 import { Util } from '../core/utils/util';
-// import * as pf from '../pf';
+import * as pf from '../pf';
 
 export interface LuckTurntableEvents {
     luckTurntableStart: () => void;
@@ -31,21 +31,31 @@ export interface LuckTurntableEvents {
 export class LuckTurntableService extends EmittableService<LuckTurntableEvents> {
     static readonly serviceName = 'LuckTurntableService';
 
-    _socket: ISocket;
+    private _socket: ISocket;
 
-    _isShowLuckTurntable: boolean;
+    private _isShowLuckTurntable: boolean;
 
-    _startTime: number;
+    private _startTime: number;
 
-    _endTime: number;
+    private _endTime: number;
 
-    _luckTurntableInfo: any = null;
+    private _luckTurntableInfo: any = null;
 
-    _luckTurntables: any[] = [];
+    private _luckTurntables: any[] = [];
 
-    _lampList: any[] = [];
+    private _lampList: any[] = [];
 
-    _recordList: any[] = [];
+    private _recordList: any[] = [];
+
+    private _errorMessageService: pf.services.ErrorMessageService = null;
+
+    private _isTestMode = true;
+
+    private _mockDrawList = null;
+
+    private _resolveFunc = null;
+
+    private _drawResult = null;
 
     constructor(socket: ISocket) {
         super(LuckTurntableService.serviceName);
@@ -61,82 +71,87 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         this._socket.notification.on('luckTurntableSnaplist', this.onLuckTurntableSnaplistNotify.bind(this));
         this._socket.notification.on('luckTurntableResult', this.onLuckTurntableResultNotify.bind(this));
 
-        // for testing
-        const mockDrawList = [
-            {
-                record_id: 1997,
-                amount_index: 3,
-                amount_list: [
-                    {
-                        amount: 18800,
-                        currency_type: 0,
-                        goods_id: 0
-                    },
-                    {
-                        amount: 188800,
-                        currency_type: 0,
-                        goods_id: 0
-                    },
-                    {
-                        amount: 1888800,
-                        currency_type: 0,
-                        goods_id: 0
-                    },
-                    {
-                        amount: 8800,
-                        currency_type: 0,
-                        goods_id: 0
-                    },
-                    {
-                        amount: 88800,
-                        currency_type: 0,
-                        goods_id: 0
-                    },
-                    {
-                        amount: 888,
-                        currency_type: 0,
-                        goods_id: 0
-                    },
-                    {
-                        amount: 88,
-                        currency_type: 0,
-                        goods_id: 0
-                    },
-                    {
-                        amount: 0,
-                        currency_type: 3,
-                        goods_id: 1
-                    },
-                    {
-                        amount: 88888,
-                        currency_type: 0,
-                        goods_id: 0
-                    },
-                    {
-                        amount: 688880,
-                        currency_type: 0,
-                        goods_id: 0
-                    },
-                    {
-                        amount: 0,
-                        currency_type: 3,
-                        goods_id: 2
-                    },
-                    {
-                        amount: 29900,
-                        currency_type: 0,
-                        goods_id: 0
-                    }
-                ],
-                award_type: 0,
-                currency_type: 5,
-                goods_desc: ''
-            }
-        ];
+        this._errorMessageService = pf.serviceManager.get(pf.services.ErrorMessageService);
 
-        // for (const draw of mockDrawList) {
-        //     this._luckTurntables.push(draw);
-        // }
+        // for testing
+        this._mockDrawList = {
+            draw_list: [
+                {
+                    record_id: 1997,
+                    amount_index: 10, // 中獎的數量(在amount_list裡的index)
+                    amount_list: [
+                        {
+                            amount: 18800,
+                            currency_type: 0,
+                            goods_id: 0
+                        },
+                        {
+                            amount: 188800,
+                            currency_type: 0,
+                            goods_id: 0
+                        },
+                        {
+                            amount: 1888800,
+                            currency_type: 0,
+                            goods_id: 0
+                        },
+                        {
+                            amount: 8800,
+                            currency_type: 0,
+                            goods_id: 0
+                        },
+                        {
+                            amount: 88800,
+                            currency_type: 0,
+                            goods_id: 0
+                        },
+                        {
+                            amount: 888,
+                            currency_type: 0,
+                            goods_id: 0
+                        },
+                        {
+                            amount: 88,
+                            currency_type: 0,
+                            goods_id: 0
+                        },
+                        {
+                            amount: 0,
+                            currency_type: 3,
+                            goods_id: 1
+                        },
+                        {
+                            amount: 88888,
+                            currency_type: 0,
+                            goods_id: 0
+                        },
+                        {
+                            amount: 688880,
+                            currency_type: 0,
+                            goods_id: 0
+                        },
+                        {
+                            amount: 0,
+                            currency_type: 3,
+                            goods_id: 2
+                        },
+                        {
+                            amount: 29900,
+                            currency_type: 0,
+                            goods_id: 0
+                        }
+                    ],
+                    // 0: 自動給獎，中獎後自動入帳，會有錢幣飛行動畫演出
+                    // 1: 後臺給獎，會跳出請聯繫客服的對話框
+                    // 2: 助力獎，會跳出到背包領取的對話框
+                    award_type: 1,
+                    currency_type: 3, // 0: 金幣、1: 小遊戲幣、2: USDT、3: 實物、5: 體育幣
+                    goods_desc: ''
+                }
+            ]
+        };
+
+        this._drawResult = { error: 1, currency_type: 0, amount: 1000 };
     }
 
     get startTime(): number {
@@ -199,13 +214,18 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         // if (!this.isShowLuckTurntable()) {
         //     return;
         // }
-        this._isShowLuckTurntable = false;
+        if (this._isTestMode) {
+            this._isShowLuckTurntable = true;
+        } else {
+            this._isShowLuckTurntable = false;
+        }
         // cv.MessageCenter.send("showLuckButton");
         this.emit('luckTurntableEnd');
-        // TODO: handle error
-        // if (msg.error != 1) {
-        //     cv.ToastError(msg.error);
-        // }
+
+        if (notify.error !== 1) {
+            // cv.ToastError(msg.error);
+            this._errorMessageService.handleError(notify.error);
+        }
     }
 
     onLuckTurntableReady(notify: ILuckTurntableReadyNotice) {
@@ -245,10 +265,11 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         this._luckTurntables = [];
         // cv.MessageCenter.send("luckTurntablesOver");
         this.emit('luckTurntableOver');
-        // TODO: handle error
-        // if (msg.error != 1) {
-        //     cv.ToastError(msg.error);
-        // }
+
+        if (notify.error !== 1) {
+            // cv.ToastError(msg.error);
+            this._errorMessageService.handleError(notify.error);
+        }
     }
 
     onLuckTurntableDrawNotify(notify: ILuckTurntableDrawNotice) {
@@ -325,8 +346,16 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         //     return;
         // }
 
-        const response = this._socket.getLuckTurntableResult(recordId);
-        return response;
+        if (this._isTestMode) {
+            setTimeout(() => this._resolveFunc(), 500);
+            await new Promise((resolve) => {
+                this._resolveFunc = resolve;
+            });
+            return this._drawResult;
+        } else {
+            const response = await this._socket.getLuckTurntableResult(recordId);
+            return response;
+        }
     }
 
     async getLuckTurntableSnaplist(lampCount: number, recordCount: number): Promise<ILuckTurntableSnaplistResponse> {
@@ -334,11 +363,21 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         //     return;
         // }
 
-        const response = this._socket.getLuckTurntableSnaplist(lampCount, recordCount);
-        // TODO: handle error
-        // if (response.error != 1) {
-        //     cv.ToastError(msg.error);
-        // }
+        const response = await this._socket.getLuckTurntableSnaplist(lampCount, recordCount);
+        if (response.error !== 1) {
+            // cv.ToastError(msg.error);
+            this._errorMessageService.handleError(response.error);
+        }
+
         return response;
+    }
+
+    testDraw() {
+        if (this._isTestMode) {
+            this._endTime = pf.Util.getCurTimeInSec() + 300;
+            this.onLuckTurntableDrawNotify(this._mockDrawList);
+
+            // this.onLuckTurntableResultNotify({ uid: 45606, currency_type: 1, amount: 1000 });
+        }
     }
 }
