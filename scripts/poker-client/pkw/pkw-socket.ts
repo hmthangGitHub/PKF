@@ -314,7 +314,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         const responseProto = response.payload;
 
-        this.checkResponseCode(responseProto.error, 'getLuckTurntableResult');
+        // this.checkResponseCode(responseProto.error, 'getLuckTurntableResult');
 
         return responseProto;
     }
