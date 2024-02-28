@@ -1,4 +1,5 @@
-import {NativeSDK, type NativeInvokeAction} from '../native-sdk';
+import type {NativeSDK} from '../native-sdk';
+import type { NativeInvokeAction} from '../native-sdk';
 import {App} from '../../app/app';
 import {ModuleManager} from '../../module/module-manager';
 
@@ -68,42 +69,45 @@ export class SYNativeSDK {
 
         switch (cmd) {
             case '1007':  // 录音回调返回
-            {
-                if (op == 0) {  //开始录音返回
+
+                if (op === 0) {  // 开始录音返回
                     // cv.MessageCenter.send("SYStartRecord", data);
-                } else if (op == 1) {  //停止录音返回
+                } else if (op === 1) {  // 停止录音返回
                     // cv.MessageCenter.send("SYStopRecord", data);
-                } else if (op === 2) {  //取消录音返回
+                } else if (op === 2) {  // 取消录音返回
                     // cv.MessageCenter.send("SYCancelRecord", data);
                 }
-            }
+
                 break;
                                           
-            case '1009':  //切换前后台通知  
+            case '1009':  // 切换前后台通知  
             {                
                 const app = ModuleManager.instance.get<App>(App);
                 if(!app) return;
                 
-                if (op == 0) {  
+                if (op === 0) {  
                     // 切換至后台
                     app.notification.emit('appEnterBackground');
                     // cv.MessageCenter.send("on_syOnEnterBackground");
                     // TODO:
                     // cv.netWorkManager.OnAppEnterBackground();
 
-                } else if (op == 1) {  
+                } else if (op === 1) {  
                     // 切換至前台
                     app.notification.emit('appEnterForeground');
                     // TODO:
                     // cv.netWorkManager.OnAppEnterForeground();
-            }}
+                }
+            }
                 break;  
 
-            case '1015':  // ccjs监听返回，当前为ios平台才有
-                let url = data["url"];
-                if (url != null) {
+            case '1015':  {
+                // ccjs监听返回，当前为ios平台才有
+                let url = data['url'];
+                if (url !== null) {
                     // cv.MessageCenter.send("on_syCcjsCallback", url);
                 }
+            }
                 break;
         }
     }

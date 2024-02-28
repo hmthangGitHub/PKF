@@ -103,7 +103,7 @@ export class NativeHelper {
         return ret;
     }
 
-    public static invoke(nativeKey: any, isSync: boolean, param: any = {}): string {
+    static invoke(nativeKey: any, isSync: boolean, param: any = {}): string {
         const event = NativeMethodMap.METHOD_MAP[nativeKey];
         if (!event) {
             console.log('Expection: cannot find nativeKey:' + nativeKey);
@@ -133,14 +133,14 @@ export class NativeHelper {
         return NativeHelper.invoke(nativeKey, param, true);
     }
 
-    public static OnNativeHelperCallback(jsonStr: string): void {
+    static OnNativeHelperCallback(jsonStr: string): void {
         const decodeStr = decodeURIComponent(jsonStr);
         cc.log('OnNativeHelperCallback jsonStr:', decodeStr);
     }
 
-    /** TODO: refactor me*/
+    /** TODO: refactor me */
     // 获取IOS设备信息
-    public static getIOSDeviceModel(): string {
+    static getIOSDeviceModel(): string {
         if (cc.sys.os === cc.sys.OS_IOS) {
             const mode = this.invokeSyncFunc(NATIVE_KEY.KEY_GETDEVICEMODEL);
             return mode;
@@ -148,8 +148,8 @@ export class NativeHelper {
         return 'Not a IOS model';
     }
 
-    /** TODO: refactor me*/
-    public static getIOSDeviceName(): string {
+    /** TODO: refactor me */
+    static getIOSDeviceName(): string {
         if (cc.sys.os === cc.sys.OS_IOS) {
             const ret = IOSModelNameMap[NativeHelper.getIOSDeviceModel()];
             return ret;
@@ -157,8 +157,8 @@ export class NativeHelper {
         return 'Not a IOS device';
     }
 
-    /** TODO: refactor me*/
-    public static getSystemVersion(): string {
+    /** TODO: refactor me */
+    static getSystemVersion(): string {
         let ret = '';
         if (cc.sys.isNative && cc.sys.os === cc.sys.OS_ANDROID) {
             ret = jsb.reflection.callStaticMethod(

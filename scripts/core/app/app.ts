@@ -2,7 +2,7 @@ import { Module, ModuleManager } from '../module/module-index';
 import { NativeManager } from '../native/native-index';
 import type {Nullable} from '../defines/types';
 import {TypeSafeEventEmitter} from '../event/event-emitter';
-import {AudioAPI, DeviceAPI, VideoAPI} from '../../natives/natives-index';
+import { DeviceAPI} from '../../natives/natives-index';
 export interface IAppNotificationEventHandler {
     appEnterBackground: () => void;
     appEnterForeground: () => void;

@@ -243,8 +243,8 @@ export class View {
         }
 
         if (bTransChild) {
-            for (let i = 0; i < node.children.length; ++i) {
-                this.adaptWidget(node.children[i], bTransChild);
+            for (let row of node.children) {
+                this.adaptWidget(row, bTransChild);
             }
         }
     }

@@ -41,7 +41,7 @@ export class NativeManager extends Module {
 
 declare global {
     interface Window {
-        clientToJs: any; //H5
+        clientToJs: any; // H5
         onNativeMessage: any; // Android
         OnNativeEventCallback: any // iOS
         webCcjsCallback: any; // TODO: 不知何時會使用

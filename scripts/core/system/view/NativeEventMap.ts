@@ -41,17 +41,17 @@ export enum NATIVE_KEY {
     // 3rd
     KEY_CALL_WECHAT_PAY, // todo: android only
 
-    //ImagePicker
+    // ImagePicker
     KEY_OPEN_PHOTO,
     KEY_OPEN_CAMERA,
     KEY_SAVETO_PHOTO,
-    //Shop
+    // Shop
     KEY_CALL_OPEN_URL,
 
-    //模竖屏
+    // 模竖屏
     KEY_CALL_CHANGEORIENTATION,
 
-    //RECORD
+    // RECORD
     KEY_CALL_AUTH_MICPHONE,
     KEY_RECORD_START_RECORD,
     KEY_RECORD_STOP_RECORD,
@@ -60,7 +60,7 @@ export enum NATIVE_KEY {
     KEY_RECORD_PLAY_ROOMFILE,
     KEY_RECORD_STOP_PLAY,
 
-    //IOS保存账号密码
+    // IOS保存账号密码
     KEY_SAVE_USERNAME_INKEY,
     KEY_SAVE_PASSWORD_INKEY,
     KEY_GET_USERSUCC_INKEY,
@@ -69,7 +69,7 @@ export enum NATIVE_KEY {
 
     KEY_IS_HAVE_GPS,
     KEY_IS_AUTHLOCATION,
-    //震动
+    // 震动
     KEY_VIBRATE,
     KEY_ERROR_DATA,
     KEY_CLEAR_ERROR_DATA,
@@ -77,12 +77,12 @@ export enum NATIVE_KEY {
     KEY_GETDEVICEMODEL,
 
     KEY_CHECKHAVEAPP,
-    //播放视频广告
+    // 播放视频广告
     KEY_PLAYVIDEOAD
 }
 
 export class NativeMethodMap {
-    public static METHOD_MAP = {
+    static METHOD_MAP = {
         // test
         [NATIVE_KEY.KEY_TEST_CALL]: {
             obj: 'org.cocos2dx.javascript.NativeCallTest',
@@ -305,15 +305,15 @@ export class NativeMethodMap {
             respMsgKey: ''
         },
 
-        //保存账号密码
+        // 保存账号密码
         [NATIVE_KEY.KEY_SAVE_USERNAME_INKEY]: {
-            //保存用户名
+            // 保存用户名
             obj: 'NativeEvent',
             method: 'saveUsernameInKeychain',
             respMsgKey: ''
         },
         [NATIVE_KEY.KEY_SAVE_PASSWORD_INKEY]: {
-            //保存密码
+            // 保存密码
             obj: 'NativeEvent',
             method: 'savePasswordInKeychain',
             respMsgKey: ''
@@ -325,61 +325,61 @@ export class NativeMethodMap {
             respMsgKey: ''
         },
         [NATIVE_KEY.KEY_GET_USERNAME_INKEY]: {
-            //获取用户名
+            // 获取用户名
             obj: 'NativeEvent',
             method: 'getUsernameInKeychain',
             respMsgKey: ''
         },
         [NATIVE_KEY.KEY_GET_PASSWORD_INKEY]: {
-            //获取密码
+            // 获取密码
             obj: 'NativeEvent',
             method: 'getUserPasswordInKeychain',
             respMsgKey: ''
         },
         [NATIVE_KEY.KEY_IS_HAVE_GPS]: {
-            //获取GPS
+            // 获取GPS
             obj: 'NativeEvent',
             method: 'haveGPS',
             respMsgKey: ''
         },
         [NATIVE_KEY.KEY_IS_AUTHLOCATION]: {
-            //获取GPS
+            // 获取GPS
             obj: 'NativeEvent',
             method: 'AuthLocation',
             respMsgKey: ''
         },
         [NATIVE_KEY.KEY_VIBRATE]: {
-            //震动
+            // 震动
             obj: 'NativeEvent',
             method: 'Vibrate',
             respMsgKey: ''
         },
         [NATIVE_KEY.KEY_ERROR_DATA]: {
-            //震动
+            // 震动
             obj: 'NativeEvent',
             method: 'getErrorData',
             respMsgKey: ''
         },
         [NATIVE_KEY.KEY_CLEAR_ERROR_DATA]: {
-            //震动
+            // 震动
             obj: 'NativeEvent',
             method: 'clearErrorData',
             respMsgKey: ''
         },
         [NATIVE_KEY.KEY_GETDEVICEMODEL]: {
-            //获取设备信息
+            // 获取设备信息
             obj: 'NativeEvent',
             method: 'getDeviceModel',
             respMsgKey: ''
         },
         [NATIVE_KEY.KEY_CHECKHAVEAPP]: {
-            //检测是否安装某个应用
+            // 检测是否安装某个应用
             obj: 'org.cocos2dx.javascript.DeviceMgr',
             method: 'checkHaveAppOnDevice',
             respMsgKey: ''
         },
         [NATIVE_KEY.KEY_PLAYVIDEOAD]: {
-            //播放视频广告
+            // 播放视频广告
             obj: 'org.cocos2dx.javascript.ToolsMgr',
             method: 'playVideoAD',
             respMsgKey: ''
