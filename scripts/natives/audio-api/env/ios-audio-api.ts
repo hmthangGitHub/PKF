@@ -2,7 +2,7 @@ import type {IAudioAPI} from '../audio-api';
 import {NativeSDK} from '../../../core/native/native-sdk';
 
 export class IOSAudioAPI extends NativeSDK implements IAudioAPI {
-    static nativeName = 'IOSAudioApi';
+    static nativeName = 'AudioApi';
 
     startRecord() {
         let output = this.invoke({

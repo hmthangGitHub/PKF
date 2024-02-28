@@ -1,8 +1,8 @@
-import { Module, ModuleManager } from '../module/module-index';
+import {EmittableModule, ModuleManager} from '../module/module-index';
 import { NativeManager } from '../native/native-index';
 import type {Nullable} from '../defines/types';
-import {TypeSafeEventEmitter} from '../event/event-emitter';
 import { DeviceAPI} from '../../natives/natives-index';
+
 export interface IAppNotificationEventHandler {
     appEnterBackground: () => void;
     appEnterForeground: () => void;
@@ -17,7 +17,7 @@ class GameContext implements IGameContext {
 }
 
 /** Application state and events */
-export class App extends Module {
+export class App  extends EmittableModule<IAppNotificationEventHandler>{
     static moduleName = 'App';
 
     private _gameContext: Nullable<IGameContext> = null;
@@ -44,12 +44,7 @@ export class App extends Module {
     }
 
     private _nativeManager: NativeManager = ModuleManager.instance.get(NativeManager);
-    
-    /** Notification */
-    private _notification = new TypeSafeEventEmitter<IAppNotificationEventHandler>();
-    get notification(): TypeSafeEventEmitter<IAppNotificationEventHandler> {
-        return this._notification;
-    }
+
 
     // NOTE: cc.game.on->pf notification->asia poker
     init(): void {
@@ -78,12 +73,12 @@ export class App extends Module {
 
 
     private _onAppEnterBackground() {
-        this._notification.emit('appEnterBackground');
+        this.emit('appEnterBackground');
     }
 
 
     private _onAppEnterForeground() {
-        this._notification.emit('appEnterForeground');
+        this.emit('appEnterForeground');
     }
 
     /** */

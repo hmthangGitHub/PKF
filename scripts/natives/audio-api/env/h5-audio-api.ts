@@ -21,7 +21,7 @@ import {NativeSDK} from '../../../core/native/native-sdk';
 // }
 
 export class H5AudioApi extends NativeSDK implements IAudioAPI {
-    static nativeName = 'H5AudioApi';
+    static nativeName = 'AudioApi';
 
     // NOTICE: 私语平台
     // 网页版 && 跑在ios或android手机上

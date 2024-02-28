@@ -1,7 +1,3 @@
-import {IOSAudioAPI} from './env/ios-audio-api';
-import {AndroidAudioApi} from './env/android-audio-api';
-import {H5AudioApi} from './env/h5-audio-api';
-import {System} from '../../core/system/system';
 import {ModuleManager} from '../../core/module/module-manager';
 import { NativeManager } from '../../core/native/native-manager';
 import { NativeSDK } from '../../core/native/native-sdk';
@@ -25,21 +21,13 @@ export interface IAudioAPI {
 }
 
 export class AudioAPI extends NativeSDK implements IAudioAPI {
-    static nativeName = 'AudioAPI';
+    static nativeName = 'AudioApi';
     
     _audio: IAudioAPI;
 
     init() {
-        const system = ModuleManager.instance.get(System);
         const nativeManager = ModuleManager.instance.get(NativeManager);
-
-        if(system.isBrowser) {
-            this._audio = nativeManager.get(H5AudioApi);
-        } else if (system.isIOS) {
-            this._audio = nativeManager.get(IOSAudioAPI);
-        } else if (system.isAndroid) {
-            this._audio = nativeManager.get(AndroidAudioApi);
-        }
+        this._audio = nativeManager.get(AudioAPI);
     }    
 
     startRecord(): void {

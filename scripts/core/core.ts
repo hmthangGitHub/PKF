@@ -10,14 +10,6 @@ import { ServiceManager } from './service/service-manager';
 import { System } from './system/system';
 import { App } from './app/app';
 import {NativeManager} from './native/native-manager';
-import { AndroidAudioApi, AudioAPI, H5AudioApi, IOSAudioAPI } from '../natives/audio-api/audio-api-index';
-import { H5VideoApi } from '../natives/video-api/env/h5-video-api';
-import { IOSVideoApi } from '../natives/video-api/env/ios-video-api';
-import { AndroidVideoApi } from '../natives/video-api/env/android-video-api';
-import { DeviceAPI, VideoAPI } from '../natives/natives-index';
-import { AndroidNativeSDK } from './native/env/android-native-sdk';
-import { IOSNativeSDK } from './native/env/ios-native-sdk';
-import { SYNativeSDK } from './native/env/sy-native-sdk';
 
 class Core {
     private _isInit = false;
@@ -33,33 +25,6 @@ class Core {
         this.registerModule(System);
         this.registerModule(NativeManager);
         this.registerModule(App);
-
-        // TODO: refactor me
-        const nativeManager = ModuleManager.instance.get(NativeManager);
-        const system = ModuleManager.instance.get(System);
-
-        nativeManager.register(DeviceAPI);
-        nativeManager.register(AudioAPI);
-        nativeManager.register(VideoAPI);
-
-        if(system.isBrowser) {
-            // TODO: type me
-            window.clientToJs = SYNativeSDK.callback;
-    
-            this.nativeManager.register(H5AudioApi);
-            this.nativeManager.register(H5VideoApi);
-        } else if(system.isIOS) {
-            // TODO: type me
-            window.OnNativeEventCallback = IOSNativeSDK.callback;
-            
-            this.nativeManager.register(IOSAudioAPI);
-            this.nativeManager.register(IOSVideoApi);
-        } else if(system.isAndroid) {
-            // TODO: type me
-            window.onNativeMessage = AndroidNativeSDK.callback;
-            this.nativeManager.register(AndroidAudioApi);
-            this.nativeManager.register(AndroidVideoApi);
-        }
 
         this.init();
     }

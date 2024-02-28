@@ -87,14 +87,14 @@ export class SYNativeSDK {
                 
                 if (op === 0) {  
                     // 切換至后台
-                    app.notification.emit('appEnterBackground');
+                    app.emit('appEnterBackground');
                     // cv.MessageCenter.send("on_syOnEnterBackground");
                     // TODO:
                     // cv.netWorkManager.OnAppEnterBackground();
 
                 } else if (op === 1) {  
                     // 切換至前台
-                    app.notification.emit('appEnterForeground');
+                    app.emit('appEnterForeground');
                     // TODO:
                     // cv.netWorkManager.OnAppEnterForeground();
                 }
