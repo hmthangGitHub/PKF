@@ -6,6 +6,7 @@ import * as http from '../../core/network/http/http-index';
 import type { IPokerClient } from '../poker-client';
 import type {
     IClientOptions,
+    ILinkOptions,
     ISocketOptions,
     RequestOtpions,
     ISession,
@@ -27,7 +28,7 @@ export class PKWClient implements IPokerClient {
     _baseUrl: string;
     _systemInfo: SystemInfo = new SystemInfo();
 
-    _session: Nullable<PKWSession> = null;
+    _session: Nullable<ISession> = null;
 
     _socket: Nullable<PKWSocket> = null;
 
@@ -45,12 +46,17 @@ export class PKWClient implements IPokerClient {
             Object.assign(opts, options);
         }
 
-        this._baseUrl = `${this._scheme}${host}`;
-        if (opts.port) {
-            this._baseUrl += `:${opts.port}`;
-        }
-        if (opts.basePath) {
-            this._baseUrl += `/${opts.basePath}`;
+       
+        if(opts.baseURL) {
+            this._baseUrl = opts.baseURL;
+        } else {
+            this._baseUrl = `${this._scheme}${host}`;
+            if (opts.port) {
+                this._baseUrl += `:${opts.port}`;
+            }
+            if (opts.basePath) {
+                this._baseUrl += `/${opts.basePath}`;
+            }
         }
 
         this._deviceType = opts.deviceType as string;
@@ -58,6 +64,15 @@ export class PKWClient implements IPokerClient {
 
         Util.override(this._systemInfo, opts);
     }
+
+    link(session: ISession, options ?: ILinkOptions): void {
+        console.log('PKWClient link', session, options);
+        this._session = {...session};
+
+        if(options) {
+            this._user = {... options.user}
+        }
+    } 
 
     async login(username: string, password: string, options?: RequestOtpions): Promise<ISession> {
         const url = this._baseUrl + '/User/Login/loginByUsername';
@@ -79,6 +94,8 @@ export class PKWClient implements IPokerClient {
         // create session
         const token = PKWUtil.encryptToken(loginData.token);
         this._session = new PKWSession(token, loginData.user_id, loginData);
+
+        this._systemInfo.ip = loginData.ip;
 
         // create user
         this._user = {

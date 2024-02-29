@@ -277,13 +277,20 @@ export class SystemInfo implements ISystemInfoOptions {
     isInstallSiliao = false;
     deviceVersion = '';
     isEmulator = false;
+    ip = '';
 }
 
 export interface IClientOptions extends ISystemInfoOptions {
     port?: number;
     basePath?: string;
+    baseURL?: string;
     deviceType?: number | string;
     deviceId?: string;
+}
+
+export interface ILinkOptions {
+    user?: IUser;
+    domains?: IDomainInfo[];
 }
 
 export interface ISocketOptions extends ISystemInfoOptions {
