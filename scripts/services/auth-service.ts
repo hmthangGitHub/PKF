@@ -7,10 +7,10 @@ export class AuthService extends Service {
 
     _client: IPokerClient;
 
-    private _currentUser: Nullable<IUser> = null;
+    // private _currentUser: Nullable<IUser> = null;
 
     get currentUser(): Nullable<IUser> {
-        return this._currentUser;
+        return this._client.getCurrentUser();
     }
 
     constructor(client: IPokerClient) {
@@ -21,7 +21,7 @@ export class AuthService extends Service {
     async login(username: string, password: string, options?: RequestOtpions): Promise<ISession> {
         const session = await this._client.login(username, password, options);
 
-        this._currentUser = this._client.getCurrentUser();
+        // this._currentUser = this._client.getCurrentUser();
 
         return session;
     }

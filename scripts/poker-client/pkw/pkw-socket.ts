@@ -75,6 +75,16 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         }
     }
 
+    link(webSocket: WebSocket) {
+        this._webSocket.link(webSocket);
+
+        this._webSocket.onmessage = this.onMessage.bind(this);
+
+        this._webSocket.onclose = this.onClose.bind(this);
+
+        this._webSocket.onerror = this.onError.bind(this);
+    }
+
     async connect(url: string, options?: ISocketOptions): Promise<void> {
         if (this._webSocket.isOpen()) {
             return Promise.resolve();

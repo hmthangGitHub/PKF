@@ -65,12 +65,12 @@ export class PKWClient implements IPokerClient {
         Util.override(this._systemInfo, opts);
     }
 
-    link(session: ISession, options ?: ILinkOptions): void {
-        console.log('PKWClient link', session, options);
+    link(session: ISession, options ?: ILinkOptions): void {        
         this._session = {...session};
 
         if(options) {
-            this._user = {... options.user}
+            this._user = {...options.user}
+            this._domains = { ...options.domains}
         }
     } 
 

@@ -119,6 +119,9 @@ export interface ISocket {
 
     userId: number;
 
+    /** link to exist WebSocket */
+    link(webSocket: WebSocket): void;
+
     connect(url: string, options?: ISocketOptions): Promise<void>;
     disconnect(): Promise<void>;
 

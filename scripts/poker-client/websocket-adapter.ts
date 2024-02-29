@@ -24,56 +24,97 @@ export type SocketMessageHandler = (message: any) => void;
  */
 export type SocketOpenHandler = (this: WebSocket, evt: Event) => void;
 
-export class WebSocketAdapter {
+export class WebSocketAdapter {    
     private _webSocket: Nullable<WebSocket> = null;
     private _sequence = 0;
+    private _useExternWebSocket = false;
 
-    get onopen(): Nullable<SocketOpenHandler> {
-        return this._webSocket ? this._webSocket.onopen : null;
+    private _onopen: Nullable<SocketOpenHandler> = null;
+    private _onclose: Nullable<SocketOpenHandler> = null;
+    private _onmessage: Nullable<SocketOpenHandler> = null;
+    private _onerror: Nullable<SocketOpenHandler> = null;  
+
+    /** link to exist websocket */
+    link(webSocket: WebSocket): void {
+        this._webSocket = webSocket;
+        this._useExternWebSocket = true;
     }
+
+    // get onopen(): Nullable<SocketOpenHandler> {
+    //     return this._webSocket ? this._webSocket.onopen : null;
+    // }
 
     set onopen(handler: Nullable<SocketOpenHandler>) {
         if (!this._webSocket) {
             throw new InvalidOperationError('Socket has not been established yet.');
         }
 
-        this._webSocket.onopen = handler;
+        // this._webSocket.onopen = handler;
+        if(handler) {
+            this._onopen = handler;
+            this._webSocket.addEventListener('open', handler);
+        } else {
+            this._webSocket.removeEventListener('open', this._onopen);
+            this._onopen = null;
+        }        
     }
 
-    get onclose(): Nullable<SocketCloseHandler> {
-        return this._webSocket ? this._webSocket.onclose : null;
-    }
+    // get onclose(): Nullable<SocketCloseHandler> {
+    //     return this._webSocket ? this._webSocket.onclose : null;
+    // }
 
     set onclose(handler: Nullable<SocketCloseHandler>) {
         if (!this._webSocket) {
             throw new InvalidOperationError('Socket has not been established yet.');
         }
 
-        this._webSocket.onclose = handler;
+        // this._webSocket.onclose = handler;
+        if(handler) {
+            this._onclose = handler;
+            this._webSocket.addEventListener('close', handler);
+        } else {
+            this._webSocket.removeEventListener('close', this._onclose);
+            this._onclose = null;
+        }        
     }
 
-    get onerror(): Nullable<SocketErrorHandler> {
-        return this._webSocket ? this._webSocket.onerror : null;
-    }
+    // get onerror(): Nullable<SocketErrorHandler> {
+    //     return this._webSocket ? this._webSocket.onerror : null;
+    // }
 
     set onerror(handler: Nullable<SocketErrorHandler>) {
         if (!this._webSocket) {
             throw new InvalidOperationError('Socket has not been established yet.');
         }
 
-        this._webSocket.onerror = handler;
+        // this._webSocket.onerror = handler;
+        if(handler) {
+            this._onerror = handler;
+            this._webSocket.addEventListener('error', handler);
+        } else {
+            this._webSocket.removeEventListener('error', this._onerror);
+            this._onerror = null;
+        }
     }
 
-    get onmessage(): Nullable<SocketMessageHandler> {
-        return this._webSocket ? this._webSocket.onmessage : null;
-    }
+    // get onmessage(): Nullable<SocketMessageHandler> {
+    //     return this._webSocket ? this._webSocket.onmessage : null;
+    // }
 
     set onmessage(handler: Nullable<SocketMessageHandler>) {
         if (!this._webSocket) {
             throw new InvalidOperationError('Socket has not been established yet.');
         }
 
-        this._webSocket.onmessage = handler;
+        // this._webSocket.onmessage = handler;
+        if(handler) {
+            this._onmessage = handler;
+            this._webSocket.addEventListener('message', handler);
+        } else {
+            this._webSocket.removeEventListener('message', this._onmessage);
+            this._onmessage = null;
+        }
+
     }
 
     connect(url: string, protocols?: string | string[]): Promise<void> {
