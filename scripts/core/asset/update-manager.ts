@@ -35,9 +35,9 @@ export class UpdateManager extends Module {
             this._bundleManifest.fromJson(jsonObj);
 
             return true;
-        } else {
-            return false;
-        }
+        } 
+
+        return false;
     }
 
     saveLocalManifest(): void {
