@@ -49,6 +49,7 @@ export class AudioManager extends Module {
     }
 
     init(): void {
+        super.init();
         this._addressableAssetManager = ModuleManager.instance.get(AddressableAssetManager);
     }
 
