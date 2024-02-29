@@ -62,16 +62,16 @@ export class WPKClient implements IPokerClient {
         Util.override(this._systemInfo, opts);
     }
 
-    link(session: ISession, options ?: ILinkOptions): void {
+    link(session: ISession, options?: ILinkOptions): void {
         console.log('WPKClient link', session, options);
-        
+
         // TODO: implement link function
         // this._session = {...session};
 
-        if(options) {
-            this._user = {... options.user}
+        if (options) {
+            this._user = { ...options.user };
         }
-    } 
+    }
 
     async login(username: string, password: string, options?: RequestOtpions): Promise<ISession> {
         const url = this._baseUrl + '/user/phone_login';

@@ -10,7 +10,6 @@ import type {
     IAddCoinOrderResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
-import type { PKWSession } from './pkw-session';
 import type { ISession, ISocketOptions } from '../poker-client-types';
 import { ServerType, GameId, SocketServerErrorCode, SystemInfo } from '../poker-client-types';
 import type { WebSocketAdapter } from '../websocket-adapter';

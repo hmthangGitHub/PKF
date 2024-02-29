@@ -46,8 +46,7 @@ export class PKWClient implements IPokerClient {
             Object.assign(opts, options);
         }
 
-       
-        if(opts.baseURL) {
+        if (opts.baseURL) {
             this._baseUrl = opts.baseURL;
         } else {
             this._baseUrl = `${this._scheme}${host}`;
@@ -65,14 +64,14 @@ export class PKWClient implements IPokerClient {
         Util.override(this._systemInfo, opts);
     }
 
-    link(session: ISession, options ?: ILinkOptions): void {        
-        this._session = {...session};
+    link(session: ISession, options?: ILinkOptions): void {
+        this._session = { ...session };
 
-        if(options) {
-            this._user = {...options.user}
-            this._domains = { ...options.domains}
+        if (options) {
+            this._user = { ...options.user };
+            this._domains = { ...options.domains };
         }
-    } 
+    }
 
     async login(username: string, password: string, options?: RequestOtpions): Promise<ISession> {
         const url = this._baseUrl + '/User/Login/loginByUsername';
