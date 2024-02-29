@@ -7,7 +7,7 @@ export class MiniGameContext implements IGameContext {
     gameId: number = 0;
     bundle: string = '';
     client: Nullable<client.IPokerClient> = null;
-    ß: Nullable<client.ISocket> = null;
+    socket: Nullable<client.ISocket> = null;
     session: Nullable<client.session.IGameSession> = null;
     service: Nullable<IGameService> = null;
     room: Nullable<IMiniGameRoom> = null;
