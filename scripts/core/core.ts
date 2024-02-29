@@ -9,6 +9,7 @@ import { LanguageManager } from './language/language-manager';
 import { ServiceManager } from './service/service-manager';
 import { System } from './system/system';
 import { App } from './app/app';
+import {NativeManager} from './native/native-manager';
 
 class Core {
     private _isInit = false;
@@ -22,6 +23,7 @@ class Core {
         this.registerModule(LanguageManager);
         this.registerModule(ServiceManager);
         this.registerModule(System);
+        this.registerModule(NativeManager);
         this.registerModule(App);
 
         this.init();
@@ -61,6 +63,10 @@ class Core {
 
     get app(): App {
         return ModuleManager.instance.get(App);
+    }
+
+    get nativeManager(): NativeManager {
+        return ModuleManager.instance.get(NativeManager);
     }
 
     registerModule<T extends IModule>(moduleClass: ModuleClass<T>): void {
@@ -107,3 +113,5 @@ export const serviceManager = core.serviceManager;
 export const system = core.system;
 
 export const app = core.app;
+
+export const nativeManager = core.nativeManager;

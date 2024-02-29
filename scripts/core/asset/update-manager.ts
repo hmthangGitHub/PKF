@@ -16,6 +16,7 @@ export class UpdateManager extends Module {
     private _isUpdating = false;
 
     init(): void {
+        super.init();
         this._localStorage = ModuleManager.instance.get(LocalStorage);
     }
 
