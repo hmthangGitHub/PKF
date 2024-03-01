@@ -4664,7 +4664,6 @@
       "__id__": 1
     },
     "_enabled": true,
-<<<<<<< HEAD
     "awardType": {
       "__id__": 92
     },
@@ -4674,8 +4673,6 @@
     "prizeIndex": {
       "__id__": 122
     },
-=======
->>>>>>> 6013ead (add event handling to app for red envelope tooltip)
     "_id": ""
   },
   {
