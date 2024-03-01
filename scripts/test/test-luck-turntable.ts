@@ -10,6 +10,15 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class TestLuckTurntable extends cc.Component {
+    @property(cc.EditBox)
+    awardType: cc.EditBox = null;
+
+    @property(cc.EditBox)
+    currencyType: cc.EditBox = null;
+
+    @property(cc.EditBox)
+    prizeIndex: cc.EditBox = null;
+
     private _luckTurntableService: pf.services.LuckTurntableService = null;
 
     onLoad() {
@@ -39,7 +48,11 @@ export default class TestLuckTurntable extends cc.Component {
     }
 
     testDraw() {
-        this._luckTurntableService.testDraw();
+        this._luckTurntableService.testDraw(
+            Number(this.awardType.string),
+            Number(this.currencyType.string),
+            Number(this.prizeIndex.string)
+        );
     }
 
     testResult() {
