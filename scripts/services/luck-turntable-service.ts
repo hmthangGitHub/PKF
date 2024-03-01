@@ -251,8 +251,12 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         // }
 
         if (notify) {
-            if (notify.uid !== this._socket.userId) {
-                // cv.MessageCenter.send("turntableResultNotice", msg);
+            if (!this._isTestMode) {
+                if (notify.uid !== this._socket.userId) {
+                    // cv.MessageCenter.send("turntableResultNotice", msg);
+                    this.emit('luckTurntableResult', notify.uid);
+                }
+            } else {
                 this.emit('luckTurntableResult', notify.uid);
             }
         }
@@ -320,9 +324,13 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         this.onLuckTurntableOverNotify(MockLuckTurntableData.mockNoError);
     }
 
-    testDraw() {
+    testDraw(awardType: number, currencyType: number, prizeIndex: number) {
         this._endTime = pf.Util.getCurTimeInSec() + 300;
-        this.onLuckTurntableDrawNotify(MockLuckTurntableData.mockDrawList);
+        const msg = MockLuckTurntableData.mockDrawList;
+        msg.draw_list[0].award_type = awardType;
+        msg.draw_list[0].currency_type = currencyType;
+        msg.draw_list[0].amount_index = prizeIndex;
+        this.onLuckTurntableDrawNotify(msg);
     }
 
     testSnaplist() {
