@@ -1,11 +1,13 @@
-import {EmittableModule, ModuleManager} from '../module/module-index';
+import { EmittableModule, ModuleManager } from '../module/module-index';
 import { NativeManager } from '../native/native-index';
-import type {Nullable} from '../defines/types';
-import { DeviceAPI} from '../../natives/natives-index';
+import type { Nullable } from '../defines/types';
+import { DeviceAPI } from '../../natives/natives-index';
 
 export interface IAppNotificationEventHandler {
     appEnterBackground: () => void;
     appEnterForeground: () => void;
+
+    showRedEnvelopeTooltip: (param: any) => void;
 }
 
 export interface IGameContext {
@@ -17,7 +19,7 @@ class GameContext implements IGameContext {
 }
 
 /** Application state and events */
-export class App  extends EmittableModule<IAppNotificationEventHandler>{
+export class App extends EmittableModule<IAppNotificationEventHandler> {
     static moduleName = 'App';
 
     private _gameContext: Nullable<IGameContext> = null;
@@ -45,18 +47,17 @@ export class App  extends EmittableModule<IAppNotificationEventHandler>{
 
     private _nativeManager: NativeManager = ModuleManager.instance.get(NativeManager);
 
-
     // NOTE: cc.game.on->pf notification->asia poker
     init(): void {
         super.init();
-        
-        const deviceAPI = this._nativeManager.get(DeviceAPI);        
+
+        const deviceAPI = this._nativeManager.get(DeviceAPI);
         if (deviceAPI && !deviceAPI.isSiyuType()) {
             cc.game.on(cc.game.EVENT_HIDE, this._onAppEnterBackground, this);
             cc.game.on(cc.game.EVENT_SHOW, this._onAppEnterForeground, this);
         }
 
-        // TODO: just for testing        
+        // TODO: just for testing
         // const audioAPI = this._nativeManager.get(AudioAPI);
         // cc.log('app.audioAPI', audioAPI);
         // cc.log('app.audioAPI.playRecord', audioAPI.playRecord());
@@ -68,14 +69,11 @@ export class App  extends EmittableModule<IAppNotificationEventHandler>{
         // cc.log('app.deviceAPI', deviceAPI);
         // cc.log('app.deviceAPI.getDeviceInfo', deviceAPI.getDeviceInfo());
         // cc.log('app.deviceAPI.getDeviceUUID', deviceAPI.getDeviceUUID());
-        
     }
-
 
     private _onAppEnterBackground() {
         this.emit('appEnterBackground');
     }
-
 
     private _onAppEnterForeground() {
         this.emit('appEnterForeground');
@@ -95,5 +93,7 @@ export class App  extends EmittableModule<IAppNotificationEventHandler>{
         super.destroy();
     }
 
+    redEnvelopeTooltipClicked(param: any) {
+        this.emit('showRedEnvelopeTooltip', param);
+    }
 }
-
