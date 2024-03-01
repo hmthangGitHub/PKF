@@ -15,6 +15,7 @@ import type {
 } from '../poker-client/poker-client-index';
 import { Util } from '../core/utils/util';
 import * as pf from '../pf';
+import { MockLuckTurntableData } from '../test/mock-luck-turntable-data';
 
 export interface LuckTurntableEvents {
     luckTurntableStart: () => void;
@@ -51,11 +52,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
 
     private _isTestMode = true;
 
-    private _mockDrawList = null;
-
     private _resolveFunc = null;
-
-    private _drawResult = null;
 
     constructor(socket: ISocket) {
         super(LuckTurntableService.serviceName);
@@ -64,94 +61,14 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
 
         this._socket.notification.on('luckTurntableStart', this.onLuckTurntableStartNotify.bind(this));
         this._socket.notification.on('luckTurntableEnd', this.onLuckTurntableEndNotify.bind(this));
-        this._socket.notification.on('luckTurntableReady', this.onLuckTurntableReady.bind(this));
-        this._socket.notification.on('luckTurntableCountdown', this.onLuckTurntableCountdown.bind(this));
+        this._socket.notification.on('luckTurntableReady', this.onLuckTurntableReadyNotify.bind(this));
+        this._socket.notification.on('luckTurntableCountdown', this.onLuckTurntableCountdownNotify.bind(this));
         this._socket.notification.on('luckTurntableOver', this.onLuckTurntableOverNotify.bind(this));
         this._socket.notification.on('luckTurntableDraw', this.onLuckTurntableDrawNotify.bind(this));
         this._socket.notification.on('luckTurntableSnaplist', this.onLuckTurntableSnaplistNotify.bind(this));
         this._socket.notification.on('luckTurntableResult', this.onLuckTurntableResultNotify.bind(this));
 
         this._errorMessageService = pf.serviceManager.get(pf.services.ErrorMessageService);
-
-        // for testing
-        this._mockDrawList = {
-            draw_list: [
-                {
-                    record_id: 1997,
-                    amount_index: 10, // 中獎的數量(在amount_list裡的index)
-                    amount_list: [
-                        {
-                            amount: 18800,
-                            currency_type: 0,
-                            goods_id: 0
-                        },
-                        {
-                            amount: 188800,
-                            currency_type: 0,
-                            goods_id: 0
-                        },
-                        {
-                            amount: 1888800,
-                            currency_type: 0,
-                            goods_id: 0
-                        },
-                        {
-                            amount: 8800,
-                            currency_type: 0,
-                            goods_id: 0
-                        },
-                        {
-                            amount: 88800,
-                            currency_type: 0,
-                            goods_id: 0
-                        },
-                        {
-                            amount: 888,
-                            currency_type: 0,
-                            goods_id: 0
-                        },
-                        {
-                            amount: 88,
-                            currency_type: 0,
-                            goods_id: 0
-                        },
-                        {
-                            amount: 0,
-                            currency_type: 3,
-                            goods_id: 1
-                        },
-                        {
-                            amount: 88888,
-                            currency_type: 0,
-                            goods_id: 0
-                        },
-                        {
-                            amount: 688880,
-                            currency_type: 0,
-                            goods_id: 0
-                        },
-                        {
-                            amount: 0,
-                            currency_type: 3,
-                            goods_id: 2
-                        },
-                        {
-                            amount: 29900,
-                            currency_type: 0,
-                            goods_id: 0
-                        }
-                    ],
-                    // 0: 自動給獎，中獎後自動入帳，會有錢幣飛行動畫演出
-                    // 1: 後臺給獎，會跳出請聯繫客服的對話框
-                    // 2: 助力獎，會跳出到背包領取的對話框
-                    award_type: 1,
-                    currency_type: 3, // 0: 金幣、1: 小遊戲幣、2: USDT、3: 實物、5: 體育幣
-                    goods_desc: ''
-                }
-            ]
-        };
-
-        this._drawResult = { error: 1, currency_type: 0, amount: 1000 };
     }
 
     get startTime(): number {
@@ -228,7 +145,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         }
     }
 
-    onLuckTurntableReady(notify: ILuckTurntableReadyNotice) {
+    onLuckTurntableReadyNotify(notify: ILuckTurntableReadyNotice) {
         cc.log(notify);
 
         // if (!this.isShowLuckTurntable()) {
@@ -242,7 +159,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         this.emit('luckTurntableReady');
     }
 
-    onLuckTurntableCountdown(notify: ILuckTurntableCountdownNotice) {
+    onLuckTurntableCountdownNotify(notify: ILuckTurntableCountdownNotice) {
         cc.log(notify);
 
         // if (!this.isShowLuckTurntable()) {
@@ -346,15 +263,15 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         //     return;
         // }
 
-        if (this._isTestMode) {
-            setTimeout(() => this._resolveFunc(), 500);
+        if (!this._isTestMode) {
+            const response = await this._socket.getLuckTurntableResult(recordId);
+            return response;
+        } else {
+            setTimeout(() => this._resolveFunc(), 100);
             await new Promise((resolve) => {
                 this._resolveFunc = resolve;
             });
-            return this._drawResult;
-        } else {
-            const response = await this._socket.getLuckTurntableResult(recordId);
-            return response;
+            return MockLuckTurntableData.mockDrawResult;
         }
     }
 
@@ -363,21 +280,56 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         //     return;
         // }
 
-        const response = await this._socket.getLuckTurntableSnaplist(lampCount, recordCount);
-        if (response.error !== 1) {
-            // cv.ToastError(msg.error);
-            this._errorMessageService.handleError(response.error);
-        }
+        if (!this._isTestMode) {
+            const response = await this._socket.getLuckTurntableSnaplist(lampCount, recordCount);
+            if (response.error !== 1) {
+                // cv.ToastError(msg.error);
+                this._errorMessageService.handleError(response.error);
+            }
 
-        return response;
+            return response;
+        } else {
+            setTimeout(() => this._resolveFunc(), 100);
+            await new Promise((resolve) => {
+                this._resolveFunc = resolve;
+            });
+
+            setTimeout(() => this.testSnaplist(), 100);
+
+            return { error: 1 };
+        }
+    }
+
+    testStartTime() {
+        this.onLuckTurntableStartNotify(MockLuckTurntableData.mockStart);
+    }
+
+    testEndTime() {
+        this.onLuckTurntableEndNotify(MockLuckTurntableData.mockNoError);
+    }
+
+    testReady() {
+        this.onLuckTurntableReadyNotify(MockLuckTurntableData.mockDuration);
+    }
+
+    testCountdown() {
+        this.onLuckTurntableCountdownNotify(MockLuckTurntableData.mockDuration);
+    }
+
+    testOver() {
+        this.onLuckTurntableOverNotify(MockLuckTurntableData.mockNoError);
     }
 
     testDraw() {
-        if (this._isTestMode) {
-            this._endTime = pf.Util.getCurTimeInSec() + 300;
-            this.onLuckTurntableDrawNotify(this._mockDrawList);
+        this._endTime = pf.Util.getCurTimeInSec() + 300;
+        this.onLuckTurntableDrawNotify(MockLuckTurntableData.mockDrawList);
+    }
 
-            // this.onLuckTurntableResultNotify({ uid: 45606, currency_type: 1, amount: 1000 });
-        }
+    testSnaplist() {
+        this.onLuckTurntableSnaplistNotify(MockLuckTurntableData.mockSnaplist);
+    }
+
+    testResult() {
+        this.onLuckTurntableResultNotify(MockLuckTurntableData.mockResultNotify);
     }
 }
