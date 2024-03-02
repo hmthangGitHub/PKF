@@ -9,7 +9,7 @@ import { LanguageManager } from './language/language-manager';
 import { ServiceManager } from './service/service-manager';
 import { System } from './system/system';
 import { App } from './app/app';
-import {NativeManager} from './native/native-manager';
+import { NativeManager } from './native/native-manager';
 
 class Core {
     private _isInit = false;
@@ -25,8 +25,6 @@ class Core {
         this.registerModule(System);
         this.registerModule(NativeManager);
         this.registerModule(App);
-
-        this.init();
     }
 
     get bundleManager(): BundleManager {
