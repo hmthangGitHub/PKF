@@ -3,3 +3,4 @@ export * as services from './services/services-index';
 export * from './poker-client/poker-client-index';
 export * as natives from './natives/natives-index';
 export * as client from './poker-client/poker-client-index';
+export * from './framework';

@@ -1,4 +1,4 @@
-import { NativeMethodMap, NATIVE_KEY } from './NativeEventMap';
+import { NativeMethodMap, NATIVE_KEY } from './native-event-map';
 
 // TODO: refactor me
 const IOSModelNameMap = {

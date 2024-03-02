@@ -2,6 +2,7 @@ import type { Nullable } from './../core/defines/types';
 import type {
     IClientOptions,
     ISocketOptions,
+    ILinkOptions,
     RequestOtpions,
     ISession,
     PlatformType,
@@ -13,6 +14,10 @@ import { PKWClient } from './pkw/pkw-client';
 import { WPKClient } from './wpk/wpk-client';
 
 export interface IPokerClient {
+    
+    /** link PokerClient to exist login session */
+    link(session: ISession, options ?: ILinkOptions): void;
+
     login(username: string, password: string, options?: RequestOtpions): Promise<ISession>;
 
     getCurrentUser(): Nullable<IUser>;

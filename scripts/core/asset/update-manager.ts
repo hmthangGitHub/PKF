@@ -36,9 +36,9 @@ export class UpdateManager extends Module {
             this._bundleManifest.fromJson(jsonObj);
 
             return true;
-        } else {
-            return false;
-        }
+        } 
+
+        return false;
     }
 
     saveLocalManifest(): void {
@@ -97,6 +97,29 @@ export class UpdateManager extends Module {
             this.saveLocalManifest();
         }
     }
+
+    /** update bundle manifest by remote manifest url of default manifest */
+    async updateBundleManifest(): Promise<void> {
+        const remoteManifest = await this.loadRemoteManifest();
+
+        if (remoteManifest.remoteManifestUrl.length > 0 && this._bundleManifest.remoteManifestUrl !== remoteManifest.remoteManifestUrl) {
+            this._bundleManifest.remoteManifestUrl = remoteManifest.remoteManifestUrl;
+        }
+
+        if (remoteManifest.bundleServerAddress.length > 0 && this._bundleManifest.bundleServerAddress !== remoteManifest.bundleServerAddress) {
+            this._bundleManifest.bundleServerAddress = remoteManifest.bundleServerAddress;
+        }
+
+        this._bundleManifest.bundles.forEach((bundleInfo, name) => {
+            const remoteBundleInfo = remoteManifest.bundles.get(name);
+            if (remoteBundleInfo) {
+                if (bundleInfo.md5 !== remoteBundleInfo.md5) {
+                    bundleInfo.md5 = remoteBundleInfo.md5;
+                }
+            }
+        });
+    }
+
 
     updateBundles(): void {
         const bundleManager = ModuleManager.instance.get(BundleManager);

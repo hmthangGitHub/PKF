@@ -3,7 +3,7 @@
 /* eslint-disable camelcase */
 
 import * as md5 from 'md5';
-import * as CryptoJS from './crypto';
+import * as CryptoJS from './pf-crypto';
 
 export class PKWUtil {
     private static getSortSign(): string {

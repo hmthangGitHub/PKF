@@ -10,8 +10,7 @@ import type {
     IAddCoinOrderResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
-import type { PKWSession } from './pkw-session';
-import type { ISocketOptions } from '../poker-client-types';
+import type { ISession, ISocketOptions } from '../poker-client-types';
 import { ServerType, GameId, SocketServerErrorCode, SystemInfo } from '../poker-client-types';
 import type { WebSocketAdapter } from '../websocket-adapter';
 import { Util } from '../../core/utils/util';
@@ -21,11 +20,11 @@ import { SocketMessageProcessor } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 
-import * as ws_protocol from './pb/ws_protocol';
+import * as ws_protocol from './pb/pkw-ws_protocol';
 import pb = ws_protocol.pb;
 
 export class PKWSocket extends SocketMessageProcessor implements ISocket {
-    private _session: Nullable<PKWSession> = null;
+    private _session: Nullable<ISession> = null;
     private _systemInfo: SystemInfo = new SystemInfo();
     private _gameSessions = new Map<string, GameSession>();
     private _messageProcessors = new Map<number, SocketMessageProcessor>();
@@ -35,7 +34,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         return this._notification;
     }
 
-    constructor(websocketAdatper: WebSocketAdapter, session: PKWSession, options?: ISocketOptions) {
+    constructor(websocketAdatper: WebSocketAdapter, session: ISession, options?: ISocketOptions) {
         super(ServerType.SeverType_World, GameId.World, session.userId, websocketAdatper);
         this._session = session;
         Util.override(this._systemInfo, options);
@@ -73,6 +72,16 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
             this._messageProcessors.delete(session.serverId);
         }
+    }
+
+    link(webSocket: WebSocket) {
+        this._webSocket.link(webSocket);
+
+        this._webSocket.onmessage = this.onMessage.bind(this);
+
+        this._webSocket.onclose = this.onClose.bind(this);
+
+        this._webSocket.onerror = this.onError.bind(this);
     }
 
     async connect(url: string, options?: ISocketOptions): Promise<void> {
@@ -237,7 +246,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         requestProto.uid = this._session.userId;
 
         const pos = new pb.PositionInfo();
-        pos.ip = this._session.data.ip;
+        pos.ip = this._systemInfo.ip;
         pos.latitude = this._systemInfo.coord.latitude;
         pos.longtitude = this._systemInfo.coord.longitude;
 

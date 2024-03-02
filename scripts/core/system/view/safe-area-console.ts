@@ -1,4 +1,4 @@
-import { SafeAreaHelper } from './SafeAreaHelper';
+import { SafeAreaHelper } from './safe-area-helper';
 
 const { ccclass, property } = cc._decorator;
 

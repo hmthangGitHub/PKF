@@ -1,4 +1,4 @@
-import { NativeHelper } from './NativeHelper';
+import { NativeHelper } from './native-helper';
 
 // TODO: refactor me
 export class SafeAreaHelper {
