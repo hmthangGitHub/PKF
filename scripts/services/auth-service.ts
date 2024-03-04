@@ -30,10 +30,6 @@ export class AuthService extends EmittableService<AuthEvents> {
         this._client = client;
     }
 
-    get userData(): IUser {
-        return this._currentUser;
-    }
-
     async login(username: string, password: string, options?: RequestOtpions): Promise<ISession> {
         const session = await this._client.login(username, password, options);
 
