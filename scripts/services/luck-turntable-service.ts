@@ -50,7 +50,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
 
     private _errorMessageService: pf.services.ErrorMessageService = null;
 
-    private _isTestMode = true;
+    private _isTestMode = false;
 
     private _resolveFunc = null;
 
@@ -131,11 +131,8 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         // if (!this.isShowLuckTurntable()) {
         //     return;
         // }
-        if (this._isTestMode) {
-            this._isShowLuckTurntable = true;
-        } else {
-            this._isShowLuckTurntable = false;
-        }
+        this._isShowLuckTurntable = false;
+
         // cv.MessageCenter.send("showLuckButton");
         this.emit('luckTurntableEnd');
 
