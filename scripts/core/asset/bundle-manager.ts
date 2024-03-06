@@ -133,6 +133,10 @@ export class BundleManager extends Module {
         return bundleOrName instanceof cc.AssetManager.Bundle ? bundleOrName : cc.assetManager.getBundle(bundleOrName);
     }
 
+    getEntry(bundleName: string): BundleEntry | undefined {
+        return bundleEntryManager.getEntry(bundleName);
+    }
+
     getAsset<T extends cc.Asset = cc.Asset>(
         bundleOrName: cc.AssetManager.Bundle | string,
         path: string,
