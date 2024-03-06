@@ -70,6 +70,8 @@ export class BetSettings {
 }
 
 export interface IMiniGameRoomEvents {
+    leaveRoom: () => void;
+
     // advance auto bet
     autoBet: (data: PlayerOneBet[]) => void;
     advanceAutoBetCountSet: (count: number) => void;
