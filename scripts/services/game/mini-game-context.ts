@@ -11,4 +11,5 @@ export class MiniGameContext implements IGameContext {
     session: Nullable<client.session.IGameSession> = null;
     service: Nullable<IGameService> = null;
     room: Nullable<IMiniGameRoom> = null;
+    exitCallback: () => void;
 }
