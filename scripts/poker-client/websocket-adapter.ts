@@ -49,7 +49,6 @@ export class WebSocketAdapter {
             throw new InvalidOperationError('Socket has not been established yet.');
         }
 
-        // this._webSocket.onopen = handler;
         if (handler) {
             this._onopen = handler;
             this._webSocket.addEventListener('open', handler);
@@ -68,7 +67,6 @@ export class WebSocketAdapter {
             throw new InvalidOperationError('Socket has not been established yet.');
         }
 
-        // this._webSocket.onclose = handler;
         if (handler) {
             this._onclose = handler;
             this._webSocket.addEventListener('close', handler);
@@ -87,7 +85,6 @@ export class WebSocketAdapter {
             throw new InvalidOperationError('Socket has not been established yet.');
         }
 
-        // this._webSocket.onerror = handler;
         if (handler) {
             this._onerror = handler;
             this._webSocket.addEventListener('error', handler);
@@ -106,7 +103,6 @@ export class WebSocketAdapter {
             throw new InvalidOperationError('Socket has not been established yet.');
         }
 
-        // this._webSocket.onmessage = handler;
         if (handler) {
             this._onmessage = handler;
             this._webSocket.addEventListener('message', handler);
@@ -162,6 +158,10 @@ export class WebSocketAdapter {
 
     isOpen(): boolean {
         return this._webSocket?.readyState === WebSocket.OPEN;
+    }
+
+    isConnecting(): boolean {
+        return this._webSocket?.readyState === WebSocket.CONNECTING;
     }
 
     getNextSequence(): number {

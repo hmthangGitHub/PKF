@@ -102,6 +102,8 @@ export interface INoticeGlobalMessage {
 export interface SocketNotifications {
     userGoldNum: (notify: INoticeNotifyUserGoldNum) => void;
     globalMessage: (notify: INoticeGlobalMessage) => void;
+
+    timeout: () => void;
 }
 
 export interface IAddCoinOrderResponse {

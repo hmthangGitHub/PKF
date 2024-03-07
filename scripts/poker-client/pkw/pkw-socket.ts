@@ -23,12 +23,24 @@ import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 import * as ws_protocol from './pb/pkw-ws_protocol';
 import pb = ws_protocol.pb;
 
+/// heart beat interval in milli seconds
+const HEART_BEAT_INTERVAL = 12000;
+
+/// heart beat timeout in milli seconds
+const HEART_BEAT_TIMEOUT = 8000;
+
 export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<ISession> = null;
     private _systemInfo: SystemInfo = new SystemInfo();
     private _gameSessions = new Map<string, GameSession>();
     private _messageProcessors = new Map<number, SocketMessageProcessor>();
+    private _heartBeatInterval: Nullable<NodeJS.Timeout> = null;
     private _heartBeatTimeout: Nullable<NodeJS.Timeout> = null;
+    private _heartBeat = false;
+
+    private _url = '';
+    private _options: Nullable<ISocketOptions> = null;
+
     private _notification = new TypeSafeEventEmitter<SocketNotifications>();
     get notification(): TypeSafeEventEmitter<SocketNotifications> {
         return this._notification;
@@ -85,6 +97,8 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     }
 
     async connect(url: string, options?: ISocketOptions): Promise<void> {
+        console.log(`socket connect to ${url}`);
+
         if (this._webSocket.isOpen()) {
             return Promise.resolve();
         }
@@ -95,6 +109,9 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             await this._webSocket.connect(url);
         }
 
+        this._url = url;
+        this._options = { ...options };
+
         this._webSocket.onmessage = this.onMessage.bind(this);
 
         this._webSocket.onclose = this.onClose.bind(this);
@@ -103,6 +120,16 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     }
 
     async disconnect(): Promise<void> {
+        console.log('socket disconnect');
+
+        this.stopHeartBeat();
+
+        this.cleanupRequests('socket disconnected');
+
+        this._gameSessions.forEach((session) => {
+            session.onDisconnect();
+        });
+
         await this._webSocket.disconnect();
     }
 
@@ -264,12 +291,17 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     }
 
     startHeartBeat(): void {
-        this._heartBeatTimeout = setTimeout(() => {
+        this._heartBeatInterval = setInterval(() => {
             this.heartBeat();
-        }, 12000);
+        }, HEART_BEAT_INTERVAL);
     }
 
     stopHeartBeat(): void {
+        if (this._heartBeatInterval) {
+            clearInterval(this._heartBeatInterval);
+            this._heartBeatInterval = null;
+        }
+
         if (this._heartBeatTimeout) {
             clearTimeout(this._heartBeatTimeout);
             this._heartBeatTimeout = null;
@@ -278,10 +310,26 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     heartBeat(): void {
         this.sendHeartBeat().then(() => {
-            this._heartBeatTimeout = setTimeout(() => {
-                this.heartBeat();
-            }, 8000);
+            this._heartBeat = true;
         });
+
+        this._heartBeatTimeout = setTimeout(() => {
+            this.checkHeartBeat();
+        }, HEART_BEAT_TIMEOUT);
+    }
+
+    checkHeartBeat(): void {
+        if (this._heartBeat) {
+            this._heartBeatTimeout = null;
+
+            this._heartBeat = false;
+        } else {
+            console.warn('socket heart beat timeout');
+
+            this.disconnect();
+
+            this._notification.emit('timeout');
+        }
     }
 
     protected onMessage(msg: MessageEvent) {
@@ -301,20 +349,21 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     }
 
     protected onError(ev: Event) {
-        cc.warn(ev);
+        cc.warn('socket error', ev);
     }
 
     protected onClose(evt: CloseEvent) {
         if (evt.code !== 1006) {
             console.warn(`socket is close abnormally : ${evt.code} `);
+        } else {
+            console.log('socket closed');
         }
-        this.cleanupRequests(`WebSocket closed: ${evt.code}`);
 
-        this.stopHeartBeat();
+        // this.cleanupRequests(`socket closed: ${evt.code}`);
 
-        this._gameSessions.forEach((session) => {
-            session.onDisconnect();
-        });
+        // this._gameSessions.forEach((session) => {
+        //     session.onDisconnect();
+        // });
     }
 
     protected checkResponseCode(code: number, requestName: string) {
