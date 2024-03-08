@@ -112,8 +112,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         this._isShowLuckTurntable = true;
         this._luckTurntableInfo = notify;
         const url = notify.share_image_url;
-        // Q1: get platform image url
-        // Q2: do we have resource manager for dynamic resources?
+        // TODO: download and cache imgaes
         // if (typeof url === 'string' && url.length > 0) {
         //     const strArr = url.split('#');
         //     for (let i = 0; i < strArr.length; i++) {
