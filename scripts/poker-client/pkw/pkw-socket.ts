@@ -19,6 +19,7 @@ import { InvalidOperationError, ServerError } from '../../core/defines/errors';
 import { SocketMessageProcessor } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
+import { AsyncOperation } from '../../core/async/async-operation';
 
 import * as ws_protocol from './pb/pkw-ws_protocol';
 import pb = ws_protocol.pb;
@@ -119,7 +120,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         this._webSocket.onerror = this.onError.bind(this);
     }
 
-    async disconnect(): Promise<void> {
+    disconnect(): Promise<void> {
         console.log('socket disconnect');
 
         this.stopHeartBeat();
@@ -130,7 +131,18 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             session.onDisconnect();
         });
 
-        await this._webSocket.disconnect();
+        const asyncOp = new AsyncOperation();
+
+        this._webSocket
+            .disconnect()
+            .then(() => {
+                asyncOp.resolve();
+            })
+            .catch((err) => {
+                asyncOp.reject(err);
+            });
+
+        return asyncOp.promise;
     }
 
     async login(): Promise<ILoginResponse> {
@@ -325,8 +337,6 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             this._heartBeat = false;
         } else {
             console.warn('socket heart beat timeout');
-
-            this.disconnect();
 
             this._notification.emit('timeout');
         }

@@ -200,6 +200,8 @@ export class SocketMessageProcessor {
         this._requests.forEach((item) => {
             item.asyncOp.reject(new Error(reason));
         });
+
+        this._requests.clear();
     }
 
     protected registerNotificationHandler<T>(
