@@ -16,6 +16,7 @@ import type { WebSocketAdapter } from '../websocket-adapter';
 import { Util } from '../../core/utils/util';
 import { SocketMessage } from '../socket-message';
 import { InvalidOperationError, ServerError } from '../../core/defines/errors';
+import type { IRequest } from '../socket-message-processor';
 import { SocketMessageProcessor } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
@@ -24,11 +25,14 @@ import { AsyncOperation } from '../../core/async/async-operation';
 import * as ws_protocol from './pb/pkw-ws_protocol';
 import pb = ws_protocol.pb;
 
-/// heart beat interval in milli seconds
+/// tickinterval in milliseconds
+const TICK_INTERVAL = 500;
+
+/// heart beat interval in millisecond
 const HEART_BEAT_INTERVAL = 12000;
 
-/// heart beat timeout in milli seconds
-const HEART_BEAT_TIMEOUT = 8000;
+/// request timeout in millisecond
+const REQUEST_TIMEOUT = 3000;
 
 export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<ISession> = null;
@@ -36,8 +40,8 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _gameSessions = new Map<string, GameSession>();
     private _messageProcessors = new Map<number, SocketMessageProcessor>();
     private _heartBeatInterval: Nullable<NodeJS.Timeout> = null;
-    private _heartBeatTimeout: Nullable<NodeJS.Timeout> = null;
-    private _heartBeat = false;
+
+    private _tickInterval: Nullable<NodeJS.Timeout> = null;
 
     private _url = '';
     private _options: Nullable<ISocketOptions> = null;
@@ -121,9 +125,15 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     }
 
     disconnect(): Promise<void> {
+        if (!this._webSocket.isOpen() && !this._webSocket.isConnecting()) {
+            return Promise.resolve();
+        }
+
         console.log('socket disconnect');
 
         this.stopHeartBeat();
+
+        this.stopTick();
 
         this.cleanupRequests('socket disconnected');
 
@@ -169,6 +179,8 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         this.checkResponseCode(responseProto.error, 'login');
 
         this.startHeartBeat();
+
+        this.startTick();
 
         return responseProto;
     }
@@ -304,7 +316,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     startHeartBeat(): void {
         this._heartBeatInterval = setInterval(() => {
-            this.heartBeat();
+            this.sendHeartBeat();
         }, HEART_BEAT_INTERVAL);
     }
 
@@ -313,32 +325,42 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             clearInterval(this._heartBeatInterval);
             this._heartBeatInterval = null;
         }
+    }
 
-        if (this._heartBeatTimeout) {
-            clearTimeout(this._heartBeatTimeout);
-            this._heartBeatTimeout = null;
+    protected startTick(): void {
+        this._tickInterval = setInterval(() => {
+            this.update();
+        }, TICK_INTERVAL);
+    }
+
+    protected stopTick(): void {
+        if (this._tickInterval) {
+            clearInterval(this._tickInterval);
+            this._tickInterval = null;
         }
     }
 
-    heartBeat(): void {
-        this.sendHeartBeat().then(() => {
-            this._heartBeat = true;
-        });
-
-        this._heartBeatTimeout = setTimeout(() => {
-            this.checkHeartBeat();
-        }, HEART_BEAT_TIMEOUT);
+    protected update() {
+        this.checkRequestTimeout();
     }
 
-    checkHeartBeat(): void {
-        if (this._heartBeat) {
-            this._heartBeatTimeout = null;
+    protected checkRequestTimeout(): void {
+        const current = Date.now();
 
-            this._heartBeat = false;
-        } else {
-            console.warn('socket heart beat timeout');
+        const it = this._requests.values();
 
-            this._notification.emit('timeout');
+        while (true) {
+            const result = it.next();
+            if (result.done) {
+                break;
+            }
+
+            let request = result.value as IRequest;
+
+            if (current - request.timestamp > REQUEST_TIMEOUT) {
+                this._notification.emit('timeout');
+                break;
+            }
         }
     }
 
@@ -368,12 +390,6 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         } else {
             console.log('socket closed');
         }
-
-        // this.cleanupRequests(`socket closed: ${evt.code}`);
-
-        // this._gameSessions.forEach((session) => {
-        //     session.onDisconnect();
-        // });
     }
 
     protected checkResponseCode(code: number, requestName: string) {

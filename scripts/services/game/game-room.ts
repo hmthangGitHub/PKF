@@ -11,6 +11,9 @@ export interface IGameRoom {
 
     selfPlayer: GamePlayer;
 
+    // re-join room
+    joinRoom(): Promise<void>;
+
     leaveRoom(): Promise<void>;
 
     getPlayerList(): Promise<IGamePlayerList>;
@@ -40,6 +43,8 @@ export abstract class GameRoom<EventType> extends TypeSafeEventEmitter<EventType
     get selfPlayer(): GamePlayer {
         return this._selfPlayer;
     }
+
+    abstract joinRoom(): Promise<void>;
 
     abstract leaveRoom(): Promise<void>;
 
@@ -131,6 +136,8 @@ export abstract class MiniGameRoom<EventType> extends TypeSafeEventEmitter<Event
     abstract get betSettings(): BetSettings;
 
     abstract get llCoinUICritical(): number;
+
+    abstract joinRoom(): Promise<void>;
 
     abstract leaveRoom(): Promise<void>;
 

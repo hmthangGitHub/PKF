@@ -10,14 +10,15 @@ export type MessageHandler = (msg: SocketMessage) => void;
 export type ResponseHandler = (buf: Uint8Array) => void;
 export type NotificationHandler<T> = (protobuf: T) => void;
 
-interface IRequest {
+export interface IRequest {
     requestId: number;
     responseId: number;
     asyncOp: IAsyncOperation<any>;
     handler: ResponseHandler;
+    timestamp: number;
 }
 
-interface IResponse<T> {
+export interface IResponse<T> {
     payload: T;
 }
 
@@ -97,6 +98,8 @@ export class SocketMessageProcessor {
             request.asyncOp.reject(
                 new Error(`Request ${request.requestId} is replaced. Previous request is cancelled!`)
             );
+
+            this._requests.delete(responseId);
         }
 
         // create response handler
@@ -114,7 +117,8 @@ export class SocketMessageProcessor {
                 }
 
                 asyncOp.resolve({ payload: protobuf });
-            }
+            },
+            timestamp: Date.now()
         });
 
         if (this._verbose) {

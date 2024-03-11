@@ -57,6 +57,11 @@ export class BundleEntry {
         }
     }
 
+    /** @description Reconnect network */
+    async reconnect(): Promise<void> {
+        await this.onNetworkReconnect();
+    }
+
     /** @description
      * Called when enter this bundle. Load resources of this bundle this function.
      */
@@ -80,6 +85,10 @@ export class BundleEntry {
      */
     onUnload(): void {
         this._isRunning = false;
+    }
+
+    protected onNetworkReconnect(): Promise<void> {
+        return Promise.resolve();
     }
 
     afterOnLoad(): void {

@@ -24,10 +24,14 @@ export type SocketMessageHandler = (message: any) => void;
  */
 export type SocketOpenHandler = (this: WebSocket, evt: Event) => void;
 
+/// request timeout in millisecond
+const CONNECTION_TIMEOUT = 3000;
+
 export class WebSocketAdapter {
     private _webSocket: Nullable<WebSocket> = null;
     private _sequence = 0;
     private _useExternWebSocket = false;
+    private _connectionTimeout: Nullable<NodeJS.Timeout> = null;
 
     private _onopen: Nullable<SocketOpenHandler> = null;
     private _onclose: Nullable<SocketOpenHandler> = null;
@@ -122,15 +126,23 @@ export class WebSocketAdapter {
 
         this._sequence = 0;
 
-        return new Promise<void>((resolve, reject) => {
-            this._webSocket.onopen = (ev: Event) => {
-                resolve();
-            };
-            this._webSocket.onerror = (ev: Event) => {
-                this.close();
-                reject(new WebSocketError('Websocket error!', ev));
-            };
-        });
+        const asyncOp = new AsyncOperation();
+
+        this._webSocket.onopen = (ev: Event) => {
+            this.stopConnectionTimeout();
+            this._webSocket.onerror = null;
+            asyncOp.resolve();
+        };
+        this._webSocket.onerror = (ev: Event) => {
+            this.close();
+            asyncOp.reject(new WebSocketError('Websocket error!', ev));
+        };
+
+        this._connectionTimeout = setTimeout(() => {
+            this.connectionTimeout(asyncOp);
+        }, CONNECTION_TIMEOUT);
+
+        return asyncOp.promise;
     }
 
     disconnect(): Promise<void> {
@@ -171,9 +183,29 @@ export class WebSocketAdapter {
     }
 
     protected close() {
+        this.stopConnectionTimeout();
+
         if (this._webSocket) {
             this._webSocket.close();
+            this._webSocket.onerror = null;
+            this._webSocket.onclose = null;
+            this._webSocket.onmessage = null;
+            this._webSocket.onopen = null;
             this._webSocket = null;
         }
+    }
+
+    private stopConnectionTimeout(): void {
+        if (this._connectionTimeout) {
+            clearTimeout(this._connectionTimeout);
+            this._connectionTimeout = null;
+        }
+    }
+
+    private connectionTimeout(asyncOp: AsyncOperation) {
+        this._connectionTimeout = null;
+        this.close();
+
+        asyncOp.reject(new WebSocketError('connection timeout!', null));
     }
 }

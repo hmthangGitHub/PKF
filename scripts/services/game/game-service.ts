@@ -4,6 +4,10 @@ import type { IGameRoom, IMiniGameRoom } from './game-room';
 
 export interface IGameService extends IService {
     serverId: number;
+
+    login(): Promise<void>;
+
+    joinRoom(roomId: number): Promise<IGameRoom>;
 }
 
 export abstract class GameService<EventType> extends TypeSafeEventEmitter<EventType> implements IGameService {
