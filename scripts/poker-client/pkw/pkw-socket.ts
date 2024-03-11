@@ -21,18 +21,10 @@ import { SocketMessageProcessor } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 import { AsyncOperation } from '../../core/async/async-operation';
+import { macros } from '../poker-client-macros';
 
 import * as ws_protocol from './pb/pkw-ws_protocol';
 import pb = ws_protocol.pb;
-
-/// tickinterval in milliseconds
-const TICK_INTERVAL = 500;
-
-/// heart beat interval in millisecond
-const HEART_BEAT_INTERVAL = 12000;
-
-/// request timeout in millisecond
-const REQUEST_TIMEOUT = 3000;
 
 export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<ISession> = null;
@@ -317,7 +309,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     startHeartBeat(): void {
         this._heartBeatInterval = setInterval(() => {
             this.sendHeartBeat();
-        }, HEART_BEAT_INTERVAL);
+        }, macros.HEART_BEAT_INTERVAL);
     }
 
     stopHeartBeat(): void {
@@ -330,7 +322,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     protected startTick(): void {
         this._tickInterval = setInterval(() => {
             this.update();
-        }, TICK_INTERVAL);
+        }, macros.TICK_INTERVAL);
     }
 
     protected stopTick(): void {
@@ -342,6 +334,10 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     protected update() {
         this.checkRequestTimeout();
+
+        this._gameSessions.forEach((session) => {
+            session.update();
+        });
     }
 
     protected checkRequestTimeout(): void {
@@ -357,7 +353,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
             let request = result.value as IRequest;
 
-            if (current - request.timestamp > REQUEST_TIMEOUT) {
+            if (current - request.timestamp > macros.REQUEST_TIMEOUT) {
                 this._notification.emit('timeout');
                 break;
             }

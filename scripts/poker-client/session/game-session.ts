@@ -34,6 +34,10 @@ export interface IHeartBeatResponse {
     timestamp?: number | null;
 }
 
+export interface GameSessionNotifications {
+    timeout: () => void;
+}
+
 export interface IGameSession {
     userId: number;
 
@@ -43,6 +47,8 @@ export interface IGameSession {
     joinRoom(roomId: number): Promise<IJoinRoomResponse>;
     leaveRoom(): Promise<ILeaveRoomResponse>;
     getPlayerList(): Promise<IPlayerListResponse>;
+
+    update(): void;
 }
 
 export abstract class GameSession extends SocketMessageProcessor implements IGameSession {
@@ -69,6 +75,8 @@ export abstract class GameSession extends SocketMessageProcessor implements IGam
     abstract getPlayerList(): Promise<IPlayerListResponse>;
 
     abstract onDisconnect(): void;
+
+    update(): void {}
 }
 
 export interface GameSessionClass<T> {
