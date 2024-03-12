@@ -260,6 +260,7 @@ export interface ISystemInfoOptions {
     isInstallSiliao?: boolean; // 是否安装私聊
     deviceVersion?: string;
     isEmulator?: boolean;
+    isMock?: boolean;
 }
 
 export class SystemInfo implements ISystemInfoOptions {
