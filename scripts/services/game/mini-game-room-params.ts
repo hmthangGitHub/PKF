@@ -1,6 +1,10 @@
 import type { IValueObject } from '../../core/core-index';
 import { ValueObjectArray } from '../../core/core-index';
-import type { ILanguageItem, IMiniGameRoomParams } from '../../poker-client/session/game-session-index';
+import type {
+    ICalmDownParams,
+    ILanguageItem,
+    IMiniGameRoomParams
+} from '../../poker-client/session/game-session-index';
 
 export class LanguageItem implements IValueObject {
     lang: string = '';
@@ -41,5 +45,15 @@ export class MiniGameRoomParams implements IValueObject {
         ValueObjectArray.cloneFromProto(LanguageItem, this.ruleByLanguage, data.ruleByLanguage);
         this.langVersion = data?.langVersion ?? 0;
         this.rulePic = data?.rulePic ?? '';
+    }
+}
+
+export class CalmDownParams implements IValueObject {
+    calmDownDeadLineTimeStamp: number = 0;
+    calmDownLeftSeconds: number = 0;
+
+    fromProto(data?: ICalmDownParams) {
+        this.calmDownDeadLineTimeStamp = data?.CalmDownDeadLineTimeStamp ?? 0;
+        this.calmDownLeftSeconds = data?.CalmDownLeftSeconds ?? 0;
     }
 }
