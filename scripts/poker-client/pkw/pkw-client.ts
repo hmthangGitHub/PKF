@@ -20,6 +20,7 @@ import { PKWSocket } from './pkw-socket';
 import { PKWUtil } from './pkw-util';
 import type { IRequestParams, ILoginParams, ILoginResponseData, ILoginData } from './pkw-api';
 import { WebSocketAdapter } from '../websocket-adapter';
+import { PKWMockSocket } from './mock/pkw-mock-socket';
 
 export class PKWClient implements IPokerClient {
     _deviceType: string;
@@ -193,7 +194,11 @@ export class PKWClient implements IPokerClient {
 
     createSocket(options?: ISocketOptions): ISocket {
         const opts = { ...this._systemInfo, options };
-        this._socket = new PKWSocket(new WebSocketAdapter(), this._session, opts);
+        const isMock = opts?.options?.isMock ?? false;
+
+        this._socket = isMock
+            ? new PKWMockSocket(new WebSocketAdapter(), this._session, opts)
+            : new PKWSocket(new WebSocketAdapter(), this._session, opts);
         return this._socket;
     }
 

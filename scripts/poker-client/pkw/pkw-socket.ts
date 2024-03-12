@@ -33,7 +33,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _gameSessions = new Map<string, GameSession>();
     private _messageProcessors = new Map<number, SocketMessageProcessor>();
     private _heartBeatTimeout: Nullable<NodeJS.Timeout> = null;
-    private _notification = new TypeSafeEventEmitter<SocketNotifications>();
+    protected _notification = new TypeSafeEventEmitter<SocketNotifications>();
     get notification(): TypeSafeEventEmitter<SocketNotifications> {
         return this._notification;
     }
@@ -259,7 +259,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         const responseProto = response.payload;
 
-        // this.checkResponseCode(responseProto.error, 'getLuckTurntableResult');
+        this.checkResponseCode(responseProto.error, 'getLuckTurntableResult');
 
         return responseProto;
     }

@@ -15,7 +15,7 @@ import type {
 } from '../poker-client/poker-client-index';
 import { Util } from '../core/utils/util';
 import * as pf from '../pf';
-import { MockLuckTurntableData } from '../test/mock-luck-turntable-data';
+import { MockLuckTurntableData } from '../poker-client/pkw/mock/mock-luck-turntable-data';
 
 export interface LuckTurntableEvents {
     luckTurntableStart: () => void;
@@ -49,10 +49,6 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
     private _recordList: any[] = [];
 
     private _errorMessageService: pf.services.ErrorMessageService = null;
-
-    private _isTestMode = false;
-
-    private _resolveFunc = null;
 
     constructor(socket: ISocket) {
         super(LuckTurntableService.serviceName);
@@ -131,12 +127,8 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         //     return;
         // }
         this._isShowLuckTurntable = false;
-
-        // cv.MessageCenter.send("showLuckButton");
         this.emit('luckTurntableEnd');
-
         if (notify.error !== 1) {
-            // cv.ToastError(msg.error);
             this._errorMessageService.handleError(notify.error);
         }
     }
@@ -150,8 +142,6 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         this._startTime = 0;
         const curTime = Util.getCurTimeInSec();
         this._endTime = curTime + notify.left_interval_time;
-        // cv.MessageCenter.send("showCurrentTime");
-        // cv.MessageCenter.send("NoticeMRedBag");// no references found
         this.emit('luckTurntableReady');
     }
 
@@ -163,7 +153,6 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         // }
         const curTime = Util.getCurTimeInSec();
         this._startTime = curTime + notify.left_interval_time;
-        // cv.MessageCenter.send("showReadyTime");
         this.emit('luckTurntableCountdown');
     }
 
@@ -176,11 +165,9 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         this._startTime = 0;
         this._endTime = 0;
         this._luckTurntables = [];
-        // cv.MessageCenter.send("luckTurntablesOver");
         this.emit('luckTurntableOver');
 
         if (notify.error !== 1) {
-            // cv.ToastError(msg.error);
             this._errorMessageService.handleError(notify.error);
         }
     }
@@ -197,7 +184,6 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
             const curTime = Util.getCurTimeInSec();
             // 判断当前时间是否已经过期（切后台卡消息bug）
             if (curTime > this._endTime) {
-                // cv.MessageCenter.send("updataLuckTurntablesButton");
                 this.emit('luckTurntableUpdateButton');
                 return;
             }
@@ -207,10 +193,8 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
             }
 
             if (this._luckTurntables.length > 0) {
-                // cv.MessageCenter.send("drawRedPackage");
                 this.emit('luckTurntableDraw');
             } else {
-                // cv.MessageCenter.send("updataLuckTurntablesButton");
                 this.emit('luckTurntableUpdateButton');
             }
         }
@@ -234,7 +218,6 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
                 this._recordList.push(record);
             }
 
-            // cv.MessageCenter.send('showLuckTurnSnaplist');
             this.emit('luckTurntableSnaplist');
         }
     }
@@ -247,12 +230,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         // }
 
         if (notify) {
-            if (!this._isTestMode) {
-                if (notify.uid !== this._socket.userId) {
-                    // cv.MessageCenter.send("turntableResultNotice", msg);
-                    this.emit('luckTurntableResult', notify.uid);
-                }
-            } else {
+            if (notify.uid !== this._socket.userId) {
                 this.emit('luckTurntableResult', notify.uid);
             }
         }
@@ -263,16 +241,16 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         //     return;
         // }
 
-        if (!this._isTestMode) {
-            const response = await this._socket.getLuckTurntableResult(recordId);
-            return response;
-        } else {
-            setTimeout(() => this._resolveFunc(), 100);
-            await new Promise((resolve) => {
-                this._resolveFunc = resolve;
-            });
-            return MockLuckTurntableData.mockDrawResult;
-        }
+        return new Promise((resolve, reject) => {
+            this._socket
+                .getLuckTurntableResult(recordId)
+                .then((resp) => {
+                    resolve(resp);
+                })
+                .catch((err: pf.ServerError) => {
+                    reject(err);
+                });
+        });
     }
 
     async getLuckTurntableSnaplist(lampCount: number, recordCount: number): Promise<ILuckTurntableSnaplistResponse> {
@@ -280,24 +258,17 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         //     return;
         // }
 
-        if (!this._isTestMode) {
-            const response = await this._socket.getLuckTurntableSnaplist(lampCount, recordCount);
-            if (response.error !== 1) {
-                // cv.ToastError(msg.error);
-                this._errorMessageService.handleError(response.error);
-            }
-
-            return response;
-        } else {
-            setTimeout(() => this._resolveFunc(), 100);
-            await new Promise((resolve) => {
-                this._resolveFunc = resolve;
-            });
-
-            setTimeout(() => this.testSnaplist(), 100);
-
-            return { error: 1 };
-        }
+        return new Promise((resolve, reject) => {
+            this._socket
+                .getLuckTurntableSnaplist(lampCount, recordCount)
+                .then((resp) => {
+                    resolve(resp);
+                })
+                .catch((err: pf.ServerError) => {
+                    this._errorMessageService.handleError(err.errorCode);
+                    reject(err);
+                });
+        });
     }
 
     testStartTime() {
