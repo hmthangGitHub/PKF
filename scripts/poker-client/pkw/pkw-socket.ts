@@ -37,6 +37,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     private _url = '';
     private _options: Nullable<ISocketOptions> = null;
+    private _shareExternalSocket = false;
 
     private _notification = new TypeSafeEventEmitter<SocketNotifications>();
     get notification(): TypeSafeEventEmitter<SocketNotifications> {
@@ -83,16 +84,27 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         }
     }
 
-    link(webSocket: WebSocket) {
+    link(webSocket: WebSocket) {    
+        this.unlink();
+
         this._webSocket.link(webSocket);
 
-        this._webSocket.onmessage = this.onMessage.bind(this);
+        this.registerObservers();
 
-        this._webSocket.onclose = this.onClose.bind(this);
-
-        this._webSocket.onerror = this.onError.bind(this);
+        this._shareExternalSocket = true;
     }
 
+    unlink(): void {
+        this.cleanupRequests('socket un-linked');
+
+        this._gameSessions.forEach((session) => {
+            session.onDisconnect();
+        });
+
+        // this.unregisterObservers();
+    }
+
+    
     async connect(url: string, options?: ISocketOptions): Promise<void> {
         console.log(`socket connect to ${url}`);
 
@@ -109,11 +121,9 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         this._url = url;
         this._options = { ...options };
 
-        this._webSocket.onmessage = this.onMessage.bind(this);
-
-        this._webSocket.onclose = this.onClose.bind(this);
-
-        this._webSocket.onerror = this.onError.bind(this);
+        this.registerObservers();
+        
+        this._shareExternalSocket = false;
     }
 
     disconnect(): Promise<void> {
@@ -170,9 +180,10 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         this.checkResponseCode(responseProto.error, 'login');
 
-        this.startHeartBeat();
-
-        this.startTick();
+        if(!this._shareExternalSocket)  {
+            this.startHeartBeat();
+            this.startTick();
+        }
 
         return responseProto;
     }
@@ -415,5 +426,17 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     protected handleGlobalMessageNotify(protobuf: pb.NoticeGlobalMessage) {
         console.log('global message', protobuf);
         // this._notification.emit('globalMessage', protobuf);
+    }
+
+    protected registerObservers() {
+        this._webSocket.onmessage = this.onMessage.bind(this);
+        this._webSocket.onclose = this.onClose.bind(this);
+        this._webSocket.onerror = this.onError.bind(this);
+    }
+
+    protected unregisterObservers() {
+        this._webSocket.onmessage = null;
+        this._webSocket.onclose = null;
+        this._webSocket.onerror = null;
     }
 }

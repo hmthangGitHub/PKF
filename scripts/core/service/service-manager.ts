@@ -16,6 +16,10 @@ export class ServiceManager extends Module {
         this._services.delete(service.serviceName);
     }
 
+    unregisterAll(): void {
+        this._services.clear();
+    }
+
     get<T extends IService>(service: ServiceClass<T>): T | undefined {
         return this._services.get(service.serviceName) as T;
     }

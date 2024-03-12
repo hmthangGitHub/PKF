@@ -99,6 +99,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
     // TODO: implement link function
     link(webSocket: WebSocket): void {}
+    unlink(): void {}
 
     async login(): Promise<ILoginResponse> {
         const requestProto = new pb.RequestLogon();

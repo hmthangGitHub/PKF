@@ -123,6 +123,7 @@ export interface ISocket {
 
     /** link to exist WebSocket */
     link(webSocket: WebSocket): void;
+    unlink(): void;
 
     connect(url: string, options?: ISocketOptions): Promise<void>;
     disconnect(): Promise<void>;
