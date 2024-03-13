@@ -43,7 +43,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _options: Nullable<ISocketOptions> = null;
     private _shareExternalSocket = false;
 
-    private _notification = new TypeSafeEventEmitter<SocketNotifications>();
+    protected _notification = new TypeSafeEventEmitter<SocketNotifications>();
     get notification(): TypeSafeEventEmitter<SocketNotifications> {
         return this._notification;
     }
