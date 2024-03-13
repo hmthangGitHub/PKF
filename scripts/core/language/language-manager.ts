@@ -7,7 +7,7 @@ export interface LanguageEvents {
 }
 
 export class LanguageManager extends EmittableModule<LanguageEvents> {
-    static moduleName = 'AddressableALanguageManagerssetManager';
+    static moduleName = 'LanguageManager';
 
     private _languageGroups = new Map<string, LanguageGroup>();
 
@@ -19,14 +19,9 @@ export class LanguageManager extends EmittableModule<LanguageEvents> {
     }
     set currentLanguage(value: string) {
         if (this._currentLanguage !== value) {
-            const lang = this._languageGroups.get(value);
-            if (lang) {
-                this._currentLanguageGroup = lang;
-                this._currentLanguage = value;
-                this.emit('languageChange');
-            } else {
-                cc.warn(`languae ${value} does not exist`);
-            }
+            this._currentLanguage = value;
+            this._currentLanguageGroup = this._languageGroups.get(value);
+            this.emit('languageChange');
         }
     }
 
@@ -48,9 +43,8 @@ export class LanguageManager extends EmittableModule<LanguageEvents> {
     register(groupName: string, group: LanguageGroup) {
         this._languageGroups.set(groupName, group);
 
-        if (!this._currentLanguageGroup) {
+        if (this._currentLanguage === groupName) {
             this._currentLanguageGroup = group;
-            this._currentLanguage = groupName;
         }
     }
 
