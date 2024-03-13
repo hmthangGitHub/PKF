@@ -44,23 +44,26 @@ export class WebSocketAdapter {
         this._useExternWebSocket = true;
     }
 
+    unlink() : void {
+        this._webSocket = null;
+    }
+
     get onopen(): Nullable<SocketOpenHandler> {
         return this._onopen;
     }
 
-    set onopen(handler: Nullable<SocketOpenHandler>) {
-        if (!this._webSocket) {
-            throw new InvalidOperationError('Socket has not been established yet.');
-        }
-
+    set onopen(handler: Nullable<SocketOpenHandler>) {        
         if(this._onopen) {
-            this._webSocket.removeEventListener('open', this._onopen);
+            this._webSocket?.removeEventListener('open', this._onopen);
             this._onopen = null;
         }
 
         if (handler) {
-            this._onopen = handler;
+            if (!this._webSocket) {
+                throw new InvalidOperationError('Socket has not been established yet.');
+            }            
             this._webSocket.addEventListener('open', handler);
+            this._onopen = handler;
         } 
     }
 
@@ -68,17 +71,17 @@ export class WebSocketAdapter {
         return this._onclose;
     }
 
-    set onclose(handler: Nullable<SocketCloseHandler>) {
-        if (!this._webSocket) {
-            throw new InvalidOperationError('Socket has not been established yet.');
-        }
-
+    set onclose(handler: Nullable<SocketCloseHandler>) {        
         if(this._onclose) {
-            this._webSocket.removeEventListener('close', this._onclose);
+            this._webSocket?.removeEventListener('close', this._onclose);
             this._onclose = null;
         }
 
         if (handler) {
+            if (!this._webSocket) {
+                throw new InvalidOperationError('Socket has not been established yet.');
+            }
+    
             this._webSocket.addEventListener('close', handler);
             this._onclose = handler;            
         } 
@@ -88,17 +91,16 @@ export class WebSocketAdapter {
         return this._onerror;
     }
 
-    set onerror(handler: Nullable<SocketErrorHandler>) {
-        if (!this._webSocket) {
-            throw new InvalidOperationError('Socket has not been established yet.');
-        }
-
+    set onerror(handler: Nullable<SocketErrorHandler>) {        
         if(this._onerror) {
-            this._webSocket.removeEventListener('error', this._onerror);
+            this._webSocket?.removeEventListener('error', this._onerror);
             this._onerror = null;
         }
 
         if (handler) {
+            if (!this._webSocket) {
+                throw new InvalidOperationError('Socket has not been established yet.');
+            }
             this._webSocket.addEventListener('error', handler);
             this._onerror = handler;            
         } 
@@ -108,17 +110,16 @@ export class WebSocketAdapter {
         return this._onmessage;
     }
 
-    set onmessage(handler: Nullable<SocketMessageHandler>) {
-        if (!this._webSocket) {
-            throw new InvalidOperationError('Socket has not been established yet.');
-        }
-
+    set onmessage(handler: Nullable<SocketMessageHandler>) {        
         if(this._onmessage) {
-            this._webSocket.removeEventListener('message', this._onmessage);
+            this._webSocket?.removeEventListener('message', this._onmessage);
             this._onmessage = null;
         }
 
         if (handler) {
+            if (!this._webSocket) {
+                throw new InvalidOperationError('Socket has not been established yet.');
+            }
             this._webSocket.addEventListener('message', handler);
             this._onmessage = handler;            
         } 

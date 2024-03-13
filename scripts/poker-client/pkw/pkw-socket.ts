@@ -101,7 +101,9 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             session.onDisconnect();
         });
 
-        // this.unregisterObservers();
+        this.unregisterObservers();
+
+        this._webSocket.unlink();
     }
 
     
