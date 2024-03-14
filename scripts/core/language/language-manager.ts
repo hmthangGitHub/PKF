@@ -1,6 +1,7 @@
 import type { Nullable } from './../defines/types';
 import { LanguageGroup } from './language-group';
 import { EmittableModule } from '../module/module-index';
+import { LANGUAGE_GROUPS } from './language-types';
 
 export interface LanguageEvents {
     languageChange: () => void;
@@ -13,7 +14,7 @@ export class LanguageManager extends EmittableModule<LanguageEvents> {
 
     private _currentLanguageGroup: Nullable<LanguageGroup> = null;
 
-    private _currentLanguage = '';
+    private _currentLanguage: string = LANGUAGE_GROUPS.zh_CN;
     get currentLanguage() {
         return this._currentLanguage;
     }
@@ -25,7 +26,7 @@ export class LanguageManager extends EmittableModule<LanguageEvents> {
         }
     }
 
-    registerfromJosn(json: any) {
+    registerfromJosn(json: any, warnOverwrite = false) {
         Object.entries(json.groups).forEach(([key, value]) => {
             cc.log(`register language group ${key}`);
 
@@ -33,7 +34,7 @@ export class LanguageManager extends EmittableModule<LanguageEvents> {
 
             const group = this._languageGroups.get(key);
             if (group) {
-                group.merge(newGroup);
+                group.merge(newGroup, warnOverwrite);
             } else {
                 this.register(key, newGroup);
             }
