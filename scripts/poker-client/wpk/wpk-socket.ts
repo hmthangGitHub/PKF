@@ -10,7 +10,8 @@ import type {
     IAddCoinOrderResponse,
     ILuckTurntableResultResponse,
     ILuckTurntableSnaplistResponse,
-    IResponseGetUserData
+    IResponseGetUserData,
+    IResponseCalmDownConfirm
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { WPKSession } from './wpk-session';
@@ -289,6 +290,26 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.error, 'getUserData');
+
+        return responseProto;
+    }
+
+    async getCalmDownConfirm(confirm: boolean): Promise<IResponseCalmDownConfirm> {
+        // TODO: move from pkw...need implementation and test on wpk
+        const requestProto = new pb.RequestCalmDownConfirm();
+        requestProto.confirm = confirm;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_CalmDownConfirm_Request,
+            pb.RequestCalmDownConfirm,
+            pb.MSGID.MsgID_CalmDownConfirm_Response,
+            pb.ResponseCalmDownConfirm
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getCalmDownConfirm');
 
         return responseProto;
     }

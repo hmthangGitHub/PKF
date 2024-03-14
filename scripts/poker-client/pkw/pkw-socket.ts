@@ -11,7 +11,8 @@ import type {
     ILuckTurntableResultResponse,
     ILuckTurntableSnaplistResponse,
     ILuckTurntableResultNotice,
-    IResponseGetUserData
+    IResponseGetUserData,
+    IResponseCalmDownConfirm
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
@@ -356,6 +357,26 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.error, 'getUserData');
+
+        return responseProto;
+    }
+
+    async getCalmDownConfirm(confirm: boolean): Promise<IResponseCalmDownConfirm> {
+        const requestProto = new pb.RequestCalmDownConfirm();
+
+        requestProto.confirm = confirm;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_CalmDownConfirm_Request,
+            pb.RequestCalmDownConfirm,
+            pb.MSGID.MsgID_CalmDownConfirm_Response,
+            pb.ResponseCalmDownConfirm
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getCalmDownConfirm');
 
         return responseProto;
     }

@@ -222,6 +222,13 @@ export interface SocketNotifications {
     luckTurntableSnaplist: (notify: ILuckTurntableSnaplistNotice) => void;
     luckTurntableResult: (notify: ILuckTurntableResultNotice) => void;
     userData: (notify: INoticeGetUserData) => void;
+    calmDownConfirm: (notify: INoticeCalmDownConfirmResult) => void;
+}
+
+export interface INoticeCalmDownConfirmResult {
+    CalmDownLeftSeconds?: number | null;
+    CalmDownDeadLineTimeStamp?: number | null;
+    numNotification?: number | null;
 }
 
 export interface IAddCoinOrderResponse {
@@ -239,6 +246,10 @@ export interface ILuckTurntableResultResponse {
 }
 
 export interface ILuckTurntableSnaplistResponse {
+    error?: number | null;
+}
+
+export interface IResponseCalmDownConfirm {
     error?: number | null;
 }
 
@@ -277,4 +288,6 @@ export interface ISocket {
     getLuckTurntableSnaplist(lampCount: number, recordCount: number): Promise<ILuckTurntableSnaplistResponse>;
 
     getUserData(userId: number): Promise<IResponseGetUserData>;
+
+    getCalmDownConfirm(comfirm: boolean): Promise<IResponseCalmDownConfirm>;
 }
