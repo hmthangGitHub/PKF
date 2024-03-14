@@ -20,6 +20,7 @@ import { PKWSocket } from './pkw-socket';
 import { PKWUtil } from './pkw-util';
 import type { IRequestParams, ILoginParams, ILoginResponseData, ILoginData } from './pkw-api';
 import { WebSocketAdapter } from '../websocket-adapter';
+import { PKWMockSocket } from './mock/pkw-mock-socket';
 
 export class PKWClient implements IPokerClient {
     _deviceType: string;
@@ -111,7 +112,28 @@ export class PKWClient implements IPokerClient {
             imToken: loginData.imToken,
 
             firstClubId: 0,
-            firstAlliId: 0
+            firstAlliId: 0,
+
+            mobile: '',
+            userGold: 0,
+            clubsMax: 0,
+            currentClubs: 0,
+            userMarks: '',
+            cardType: 0,
+            depositGold: 0,
+            gameCoin: 0,
+            userPoints: 0,
+            ratio: 0,
+            totalAmount: 0,
+            usdt: 0,
+            depositUsdt: 0,
+            priorityAreaCode: '',
+            priorityMobile: '',
+            systemTime: 0,
+            calmDownDeadlineTime: 0,
+            sportsTrialCoin: 0,
+            sportsTrialCoinExpiration: 0,
+            sportsBettingBalance: 0
         };
 
         // create domain info
@@ -172,7 +194,11 @@ export class PKWClient implements IPokerClient {
 
     createSocket(options?: ISocketOptions): ISocket {
         const opts = { ...this._systemInfo, options };
-        this._socket = new PKWSocket(new WebSocketAdapter(), this._session, opts);
+        const isMock = opts?.options?.isMock ?? false;
+
+        this._socket = isMock
+            ? new PKWMockSocket(new WebSocketAdapter(), this._session, opts)
+            : new PKWSocket(new WebSocketAdapter(), this._session, opts);
         return this._socket;
     }
 

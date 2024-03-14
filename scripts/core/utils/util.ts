@@ -34,4 +34,8 @@ export class Util {
             }
         });
     }
+
+    static getCurTimeInSec(): number {
+        return Math.floor(new Date().getTime() / 1000);
+    }
 }

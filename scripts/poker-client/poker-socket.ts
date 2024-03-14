@@ -78,6 +78,42 @@ export interface IGetRankResponse {
     owner?: string | null;
 }
 
+export interface IResponseGetUserData {
+    error?: number | null;
+}
+
+export interface ISportsTrialCoin {
+    coins?: number | null;
+    expired_at?: number | null;
+}
+
+export interface INoticeGetUserData {
+    mobile?: string | null;
+    nick_name?: string | null;
+    avatar?: string | null;
+    gender?: number | null;
+    user_gold?: number | null;
+    clubs_max?: number | null;
+    current_clubs?: number | null;
+    user_marks?: string | null;
+    user_id?: number | null;
+    card_type?: number | null;
+    deposit_gold?: number | null;
+    game_coin?: number | null;
+    user_points?: number | null;
+    ratio?: number | null;
+    total_amount?: number | null;
+    usdt?: number | null;
+    deposit_usdt?: number | null;
+    areaCode?: string | null;
+    mobile2?: string | null;
+    system_time?: number | null;
+    calm_down_deadline_time?: number | null;
+    diamond?: number | null;
+    sports_trial_coin?: ISportsTrialCoin | null;
+    sports_betting_balance?: number | null;
+}
+
 export interface INoticeNotifyUserGoldNum {
     uid?: number | null;
     changeNum?: number | null;
@@ -99,11 +135,93 @@ export interface INoticeGlobalMessage {
     mttRemainTime?: number | null;
 }
 
+export interface ILuckTurntableStartTimeNotice {
+    title?: string | null;
+    content?: string | null;
+    text?: string | null;
+    share_image_url?: string | null;
+}
+
+export interface ILuckTurntableEndTimeNotice {
+    error?: number | null;
+}
+
+export interface ILuckTurntableReadyNotice {
+    left_interval_time?: number | null;
+}
+
+export interface ILuckTurntableCountdownNotice {
+    left_interval_time?: number | null;
+}
+
+export interface ILuckTurntableOverNotice {
+    error?: number | null;
+}
+
+export interface ITurntableItem {
+    amount?: number | null;
+    currency_type?: number | null;
+    goods_id?: number | null;
+}
+
+export interface ILuckTurntableDraw {
+    record_id?: number | null;
+    amount_index?: number | null;
+    amount_list?: ITurntableItem[] | null;
+    award_type?: number | null;
+    currency_type?: number | null;
+    goods_desc?: string | null;
+}
+
+export interface ILuckTurntableDrawNotice {
+    draw_list?: ILuckTurntableDraw[] | null;
+}
+
+export interface ILuckTurntableLamp {
+    game_type?: number | null;
+    nick_name?: string | null;
+    amount?: number | null;
+    room_name?: string | null;
+    currency_type?: number | null;
+    goods_id?: number | null;
+    goods_desc?: string | null;
+}
+
+export interface ILuckTurntableData {
+    seq_num?: number | null;
+    nick_name?: string | null;
+    amount?: number | null;
+    lottery_time?: number | null;
+    currency_type?: number | null;
+    goods_id?: number | null;
+    goods_desc?: string | null;
+    winner_type?: number | null;
+}
+
+export interface ILuckTurntableSnaplistNotice {
+    lamp_list?: ILuckTurntableLamp[] | null;
+    record_list?: ILuckTurntableData[] | null;
+}
+
+export interface ILuckTurntableResultNotice {
+    uid?: number | null;
+    currency_type?: number | null;
+    amount?: number | null;
+}
+
 export interface SocketNotifications {
     userGoldNum: (notify: INoticeNotifyUserGoldNum) => void;
     globalMessage: (notify: INoticeGlobalMessage) => void;
-
     timeout: () => void;
+    luckTurntableStart: (notify: ILuckTurntableStartTimeNotice) => void;
+    luckTurntableEnd: (notify: ILuckTurntableEndTimeNotice) => void;
+    luckTurntableReady: (notify: ILuckTurntableReadyNotice) => void;
+    luckTurntableCountdown: (notify: ILuckTurntableCountdownNotice) => void;
+    luckTurntableOver: (notify: ILuckTurntableOverNotice) => void;
+    luckTurntableDraw: (notify: ILuckTurntableDrawNotice) => void;
+    luckTurntableSnaplist: (notify: ILuckTurntableSnaplistNotice) => void;
+    luckTurntableResult: (notify: ILuckTurntableResultNotice) => void;
+    userData: (notify: INoticeGetUserData) => void;
 }
 
 export interface IAddCoinOrderResponse {
@@ -112,6 +230,16 @@ export interface IAddCoinOrderResponse {
     cb_url?: string | null;
     token?: string | null;
     failedReasons?: string | null;
+}
+
+export interface ILuckTurntableResultResponse {
+    error?: number | null;
+    currency_type?: number | null;
+    amount?: number | null;
+}
+
+export interface ILuckTurntableSnaplistResponse {
+    error?: number | null;
 }
 
 export interface ISocket {
@@ -143,4 +271,10 @@ export interface ISocket {
     getRank(randId: number): Promise<IGetRankResponse>;
 
     addCoinOrder(payType: number): Promise<IAddCoinOrderResponse>;
+
+    getLuckTurntableResult(recordId: number): Promise<ILuckTurntableResultResponse>;
+
+    getLuckTurntableSnaplist(lampCount: number, recordCount: number): Promise<ILuckTurntableSnaplistResponse>;
+
+    getUserData(userId: number): Promise<IResponseGetUserData>;
 }

@@ -260,6 +260,7 @@ export interface ISystemInfoOptions {
     isInstallSiliao?: boolean; // 是否安装私聊
     deviceVersion?: string;
     isEmulator?: boolean;
+    isMock?: boolean;
 }
 
 export class SystemInfo implements ISystemInfoOptions {
@@ -318,6 +319,28 @@ export interface IUser {
     // from response of socket login
     firstClubId: number;
     firstAlliId: number;
+
+    // from NoticeGetUserData
+    mobile: string; // 手机号
+    userGold: number; // 用户金币数值（单位：分）
+    clubsMax: number; // 可创建的俱乐部数量
+    currentClubs: number; // 当前创建的俱乐部数量
+    userMarks: string; // 个性签名
+    cardType: number; // 卡片类型 0未定义 1蓝卡，2金卡(月卡)，3白金卡(年卡)
+    depositGold: number; // 存储金币
+    gameCoin: number; // 小游戏金币
+    userPoints: number; // 积分
+    ratio: number; // 积分兑换比例
+    totalAmount: number; // 用户总金额
+    usdt: number; // 用户usdt数量
+    depositUsdt: number; // 存储usdt
+    priorityAreaCode: string; // 手机区号，优先绑定的
+    priorityMobile: string; // 手机号，优先绑定的
+    systemTime: number; // 当前系统时间戳 秒级
+    calmDownDeadlineTime: number; // 冷静状态到什么时候 时间戳 秒级
+    sportsTrialCoin: number; // 体育体验金
+    sportsTrialCoinExpiration: number; // 体育体验金期限
+    sportsBettingBalance: number; // 牌桌內體育可用餘額 金幣+體驗金
 }
 
 /** A session authenticated for a user with poke server. */
