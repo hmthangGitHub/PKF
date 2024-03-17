@@ -7,20 +7,20 @@ import type {
 import { CalmDownParams } from './services-index';
 import type { ServerError } from '../core/core-index';
 
-export interface MinigameEvents {
+export interface CalmDownEvents {
     calmDown: (params: CalmDownParams) => void;
 }
 
-export class MinigameService extends EmittableService<MinigameEvents> {
+export class CalmDownService extends EmittableService<CalmDownEvents> {
     static readonly serviceName = 'MinigameService';
 
     private _socket: ISocket;
 
     constructor(socket: ISocket) {
-        super(MinigameService.serviceName);
+        super(CalmDownService.serviceName);
         this._socket = socket;
 
-        this._socket.notification.on('calmDownConfirm', this.onCalmDownConfirmNotify);
+        this._socket.notification.on('calmDownConfirm', this.onCalmDownConfirmNotify.bind(this));
     }
 
     onCalmDownConfirmNotify(notify: INoticeCalmDownConfirmResult) {

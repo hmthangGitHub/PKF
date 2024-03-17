@@ -253,6 +253,21 @@ export interface IResponseCalmDownConfirm {
     error?: number | null;
 }
 
+export interface IGetScalerQuoteResponse {
+    error?: number | null;
+    op_type?: number | null;
+    rate?: string | null;
+}
+
+export interface IExchangeCurrencyResponse {
+    error?: number | null;
+    op_type?: number | null;
+    from_amt?: number | null;
+    to_amt?: number | null;
+    rate?: string | null;
+    remaining_time?: number | null;
+}
+
 export interface ISocket {
     verbose: boolean;
 
@@ -290,4 +305,12 @@ export interface ISocket {
     getUserData(userId: number): Promise<IResponseGetUserData>;
 
     getCalmDownConfirm(comfirm: boolean): Promise<IResponseCalmDownConfirm>;
+
+    getScalerQuote(opType: number): Promise<IGetScalerQuoteResponse>;
+
+    exchangeCurrency(
+        opType: number,
+        fromCurrencyAmount: number,
+        usePointDeduction: boolean
+    ): Promise<IExchangeCurrencyResponse>;
 }

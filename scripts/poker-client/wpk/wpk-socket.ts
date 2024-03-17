@@ -11,7 +11,9 @@ import type {
     ILuckTurntableResultResponse,
     ILuckTurntableSnaplistResponse,
     IResponseGetUserData,
-    IResponseCalmDownConfirm
+    IResponseCalmDownConfirm,
+    IGetScalerQuoteResponse,
+    IExchangeCurrencyResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { WPKSession } from './wpk-session';
@@ -310,6 +312,54 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.error, 'getCalmDownConfirm');
+
+        return responseProto;
+    }
+
+    async getScalerQuote(opType: number): Promise<IGetScalerQuoteResponse> {
+        // TODO: move from pkw...need implementation and test on wpk
+        const requestProto = new pb.GetScalerQuoteRequest();
+
+        requestProto.op_type = opType;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_Get_Scaler_Quote_Request,
+            pb.GetScalerQuoteRequest,
+            pb.MSGID.MsgID_Get_Scaler_Quote_Response,
+            pb.GetScalerQuoteResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getScalerQuote');
+
+        return responseProto;
+    }
+
+    async exchangeCurrency(
+        opType: number,
+        fromCurrencyAmount: number,
+        usePointDeduction: boolean
+    ): Promise<IExchangeCurrencyResponse> {
+        // TODO: move from pkw...need implementation and test on wpk
+        const requestProto = new pb.ExchangeCurrencyRequest();
+
+        requestProto.op_type = opType;
+        requestProto.from_amt = fromCurrencyAmount;
+        requestProto.is_point_deduction = usePointDeduction;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_Exchange_Currency_Request,
+            pb.ExchangeCurrencyRequest,
+            pb.MSGID.MsgID_Exchange_Currency_Response,
+            pb.ExchangeCurrencyResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'exchangeCurrency');
 
         return responseProto;
     }
