@@ -18,3 +18,8 @@ export interface IMiniGameRoomParams {
     langVersion?: number | null;
     rulePic?: string | null;
 }
+
+export interface ICalmDownParams {
+    CalmDownDeadLineTimeStamp?: number;
+    CalmDownLeftSeconds?: number;
+}

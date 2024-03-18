@@ -11,7 +11,10 @@ import type {
     ILuckTurntableResultResponse,
     ILuckTurntableSnaplistResponse,
     ILuckTurntableResultNotice,
-    IResponseGetUserData
+    IResponseGetUserData,
+    IResponseCalmDownConfirm,
+    IGetScalerQuoteResponse,
+    IExchangeCurrencyResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
@@ -360,6 +363,72 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         return responseProto;
     }
 
+    async getCalmDownConfirm(confirm: boolean): Promise<IResponseCalmDownConfirm> {
+        const requestProto = new pb.RequestCalmDownConfirm();
+
+        requestProto.confirm = confirm;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_CalmDownConfirm_Request,
+            pb.RequestCalmDownConfirm,
+            pb.MSGID.MsgID_CalmDownConfirm_Response,
+            pb.ResponseCalmDownConfirm
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getCalmDownConfirm');
+
+        return responseProto;
+    }
+
+    async getScalerQuote(opType: number): Promise<IGetScalerQuoteResponse> {
+        const requestProto = new pb.GetScalerQuoteRequest();
+
+        requestProto.op_type = opType;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_Get_Scaler_Quote_Request,
+            pb.GetScalerQuoteRequest,
+            pb.MSGID.MsgID_Get_Scaler_Quote_Response,
+            pb.GetScalerQuoteResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getScalerQuote');
+
+        return responseProto;
+    }
+
+    async exchangeCurrency(
+        opType: number,
+        fromCurrencyAmount: number,
+        usePointDeduction: boolean
+    ): Promise<IExchangeCurrencyResponse> {
+        const requestProto = new pb.ExchangeCurrencyRequest();
+
+        requestProto.op_type = opType;
+        requestProto.from_amt = fromCurrencyAmount;
+        requestProto.is_point_deduction = usePointDeduction;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_Exchange_Currency_Request,
+            pb.ExchangeCurrencyRequest,
+            pb.MSGID.MsgID_Exchange_Currency_Response,
+            pb.ExchangeCurrencyResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'exchangeCurrency');
+
+        return responseProto;
+    }
+
     async sendHeartBeat(): Promise<IHeartBeatResponse> {
         const requestProto = new pb.RequestHeartBeat();
 
@@ -537,6 +606,12 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             pb.NoticeGetUserData,
             this.handleUserDataNotify.bind(this)
         );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_CalmDownConfirmResult_Notice,
+            pb.NoticeCalmDownConfirmResult,
+            this.handleCalmDownNotify.bind(this)
+        );
     }
 
     protected handleUserGoldNumNotify(protobuf: pb.NoticeNotifyUserGoldNum) {
@@ -594,5 +669,9 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleUserDataNotify(protobuf: pb.NoticeGetUserData) {
         this._notification.emit('userData', protobuf);
+    }
+
+    protected handleCalmDownNotify(protobuf: pb.NoticeCalmDownConfirmResult) {
+        this._notification.emit('calmDownConfirm', protobuf);
     }
 }

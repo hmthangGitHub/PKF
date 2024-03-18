@@ -7,3 +7,5 @@ export * from './game/game-service-index';
 export * from './shop-service';
 export * from './luck-turntable-service';
 export * from './error-message-service';
+export * from './calm-down-service';
+export * from './exchange-currency-service';

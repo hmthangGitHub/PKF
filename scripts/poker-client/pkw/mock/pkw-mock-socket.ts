@@ -3,7 +3,11 @@ import { PKWSocket } from '../pkw-socket';
 import { ServerError } from '../../../core/defines/errors';
 import type { ISession, ISocketOptions } from '../../poker-client-types';
 import type { WebSocketAdapter } from '../../websocket-adapter';
-import type { ILuckTurntableResultResponse, ILuckTurntableSnaplistResponse } from '../../poker-socket';
+import type {
+    ILuckTurntableResultResponse,
+    ILuckTurntableSnaplistResponse,
+    IResponseCalmDownConfirm
+} from '../../poker-socket';
 import { MockLuckTurntableData } from './mock-luck-turntable-data';
 
 export class PKWMockSocket extends PKWSocket {
@@ -35,7 +39,7 @@ export class PKWMockSocket extends PKWSocket {
 
         setTimeout(() => this.sendLuckTurntableSnaplistNotification(), 100);
 
-        return { error: 1 };
+        return MockLuckTurntableData.mockNoError;
     }
 
     sendLuckTurntableSnaplistNotification() {
@@ -72,5 +76,25 @@ export class PKWMockSocket extends PKWSocket {
         msg.draw_list[0].currency_type = currencyType ?? msg.draw_list[0].currency_type;
         msg.draw_list[0].amount_index = amountIndex ?? msg.draw_list[0].amount_index;
         this._notification.emit('luckTurntableDraw', msg);
+    }
+
+    async getCalmDownConfirm(confirm: boolean): Promise<IResponseCalmDownConfirm> {
+        setTimeout(() => this._resolveFunc(), 100);
+        await new Promise((resolve) => {
+            this._resolveFunc = resolve;
+        });
+
+        setTimeout(() => this.sendCalmDownNotification(), 100);
+
+        return MockLuckTurntableData.mockNoError;
+    }
+
+    sendCalmDownNotification() {
+        const notify = {
+            CalmDownLeftSeconds: 66,
+            CalmDownDeadLineTimeStamp: Date.now() + 66000,
+            numNotification: 1
+        };
+        this._notification.emit('calmDownConfirm', notify);
     }
 }
