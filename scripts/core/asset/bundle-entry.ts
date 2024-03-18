@@ -11,6 +11,7 @@ export interface IBundleOptions {
     version?: string;
     language?: string;
     roomId?: number;
+    onProgress?: (finish: number, total: number) => void;
 }
 
 export class BundleEntry {

@@ -31,7 +31,7 @@ export class CalmDownService extends EmittableService<CalmDownEvents> {
         this.emit('calmDown', calmDownParams);
     }
 
-    async getCalmDownConfirm(confirm: boolean): Promise<IResponseCalmDownConfirm> {
+    getCalmDownConfirm(confirm: boolean): Promise<IResponseCalmDownConfirm> {
         return new Promise((resolve, reject) => {
             this._socket
                 .getCalmDownConfirm(confirm)
