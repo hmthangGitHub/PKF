@@ -12,7 +12,7 @@ export interface CalmDownEvents {
 }
 
 export class CalmDownService extends EmittableService<CalmDownEvents> {
-    static readonly serviceName = 'MinigameService';
+    static readonly serviceName = 'CalmDownService';
 
     private _socket: ISocket;
 
