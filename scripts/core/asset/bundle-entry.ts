@@ -9,7 +9,6 @@ export interface EntryClass<T> {
 export interface IBundleOptions {
     /// bundle version
     version?: string;
-    language?: string;
     roomId?: number;
     onProgress?: (finish: number, total: number) => void;
 }
