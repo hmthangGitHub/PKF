@@ -3,11 +3,13 @@ import { NativeManager } from '../native/native-index';
 import type { Nullable } from '../defines/types';
 import { DeviceAPI } from '../../natives/natives-index';
 
-export interface IAppNotificationEventHandler {
+export interface IAppEvents {
     appEnterBackground: () => void;
     appEnterForeground: () => void;
 
     showRedEnvelopeTooltip: (param: any) => void;
+
+    hideWebview: () => void;
 }
 
 export interface IGameContext {
@@ -19,7 +21,7 @@ class GameContext implements IGameContext {
 }
 
 /** Application state and events */
-export class App extends EmittableModule<IAppNotificationEventHandler> {
+export class App extends EmittableModule<IAppEvents> {
     static moduleName = 'App';
 
     private _gameContext: Nullable<IGameContext> = null;
