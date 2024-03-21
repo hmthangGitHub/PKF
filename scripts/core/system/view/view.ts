@@ -223,8 +223,8 @@ export class View {
         // cv.config.WIDTH + "~" + cv.config.HEIGHT + "->" +
         // node.getContentSize() + ", " + cc.winSize.width + "~" + cc.winSize.height);
         const isWideScreen = this.isWideScreen();
-        node.getComponent(cc.Canvas).fitHeight = !isWideScreen;
-        node.getComponent(cc.Canvas).fitWidth = isWideScreen;
+        node.getComponent(cc.Canvas).fitHeight = isWideScreen;
+        node.getComponent(cc.Canvas).fitWidth = !isWideScreen;
     }
 
     /**
