@@ -1,4 +1,4 @@
-import type {System} from '../system';
+import type { System } from '../system';
 
 export class View {
     _system: System;
@@ -50,7 +50,6 @@ export class View {
         return this.FULL_SCREEN_OFF_SET_Y_B;
     }
 
-
     /** TODO: refactor me */
     /**
      * 是否是全面屏(窄屏)
@@ -60,7 +59,7 @@ export class View {
     }
     isFullScreen(): boolean {
         return this.width > this.height ? this.width / this.height > 2 : this.height / this.width > 2;
-    }    
+    }
 
     /** TODO: */
     /**
@@ -101,24 +100,24 @@ export class View {
         // }
 
         /** NOTE: setting Orientation */
-        // if(this._system.isNative && this._system.isAndroid) {
+        if (this._system.isNative && this._system.isAndroid) {
             // TODO:
             // 0横1竖
             // jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity",
             //     "changeOrientation", "(I)V", 0);
             // cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
-        // } else if(this._system.isNative && this._system.isIOS) {
+        } else if (this._system.isNative && this._system.isIOS) {
             // TODO:
             // cv.native.invokeAsynFunc(NATIVE_KEY_MAP.KEY_CALL_CHANGEORIENTATION, {"bool": "1"});
             // cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
-        // } else {
+        } else {
             /** 如果是私语的平台 */
             //     if (cv.native.IsSimulator() &&
             //         cv.config.GET_CLIENT_TYPE() == cv.Enum.ClientType.H5WebPage
             //     ) {
             //         cv.native.SYwebjsToClient("{\"cmd\": \"1005\", op: 1}");
             //     }
-            //     cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
+            cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
             //
             //     if (this._system.isMobile &&
             //         cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.CowboyWeb &&
@@ -126,7 +125,7 @@ export class View {
             //     ) {
             //         return;
             //     }
-        // }
+        }
 
         /** NOTE: setting frameSize, designResolutionSize */
         // if (
@@ -141,7 +140,6 @@ export class View {
         //     cc.view.setFrameSize(width, height);
         //     cc.view.setDesignResolutionSize(cv.config.DESIGN_HEIGHT, cv.config.DESIGN_WIDTH, cc.ResolutionPolicy.FIXED_WIDTH);
         // }
-
 
         // NOTE: change designSize
         // let temp = cv.config.DESIGN_HEIGHT;
@@ -162,24 +160,23 @@ export class View {
         //     return;
         // }
         //
-        // if (cc.sys.isNative && cc.sys.os === cc.sys.OS_ANDROID) {
-        //     jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity",
-        //         "changeOrientation", "(I)V", 1);
-        //     cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
-        // } else if (cc.sys.isNative && cc.sys.os === cc.sys.OS_IOS) {
-        //     cv.native.invokeAsynFunc(NATIVE_KEY_MAP.KEY_CALL_CHANGEORIENTATION, {"bool": "0"});
-        //     cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
-        // } else {
-        //
-        //     if (this.IsSimulator() && cv.config.GET_CLIENT_TYPE() == cv.Enum.ClientType.H5WebPage) {  //如果是私语的平台
-        //         cv.native.SYwebjsToClient("{\"cmd\": \"1005\", op:0}");
-        //     }
-        //
-        //     cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
-        //     if (cc.sys.isMobile && cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.CowboyWeb && cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.H5WebPage) {
-        //         return;
-        //     }
-        // }
+        if (cc.sys.isNative && cc.sys.os === cc.sys.OS_ANDROID) {
+            //     jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity",
+            //         "changeOrientation", "(I)V", 1);
+            //     cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
+        } else if (cc.sys.isNative && cc.sys.os === cc.sys.OS_IOS) {
+            //     cv.native.invokeAsynFunc(NATIVE_KEY_MAP.KEY_CALL_CHANGEORIENTATION, {"bool": "0"});
+            //     cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
+        } else {
+            //
+            //     if (this.IsSimulator() && cv.config.GET_CLIENT_TYPE() == cv.Enum.ClientType.H5WebPage) {  //如果是私语的平台
+            //         cv.native.SYwebjsToClient("{\"cmd\": \"1005\", op:0}");
+            //     }
+            cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
+            //     if (cc.sys.isMobile && cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.CowboyWeb && cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.H5WebPage) {
+            //         return;
+            //     }
+        }
 
         // if (noChange) {
         //     return;
@@ -249,11 +246,11 @@ export class View {
         }
     }
 
-
     // TODO: refactor
     isIPhoneXScreen(): boolean {
-        return this.width > this.height ? this.width / this.height > 2436.0 / 1126 :
-            this.height / this.width > 2436.0 / 1126;
+        return this.width > this.height
+            ? this.width / this.height > 2436.0 / 1126
+            : this.height / this.width > 2436.0 / 1126;
     }
 
     // TODO: refactor
@@ -278,7 +275,6 @@ export class View {
      * 是否是iPAD
      */
     isPadWeb(): boolean {
-
         let frameSize = cc.view.getCanvasSize();
         /**
          * ipad pro 11 1.43
@@ -301,6 +297,4 @@ export class View {
     // getSafeArea() {
     //     return  cv.SafeAreaWithDifferentDevices.getSafeArea();
     // }
-
-
 }
