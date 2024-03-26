@@ -6,8 +6,6 @@ export interface IBundleInfo {
 
 export class BundleManifest {
     version = '';
-    engineVersion = '';
-    frameworkVersion = '';
     remoteManifestUrl: string = '';
     bundleServerAddress: string = '';
 
@@ -23,8 +21,6 @@ export class BundleManifest {
     fromJson(json: any): void {
         this.version = json.version ?? '';
         this.remoteManifestUrl = json.remoteManifestUrl ?? '';
-        this.frameworkVersion = json.frameworkVersion ?? '';
-        this.engineVersion = json.engineVersion ?? '';
         this.bundleServerAddress = json.bundleServerAddress ?? '';
 
         Object.entries(json.bundles).forEach(([key, value]) => {
@@ -37,8 +33,6 @@ export class BundleManifest {
     toJson(): any {
         return {
             version: this.version,
-            engineVersion: this.engineVersion,
-            frameworkVersion: this.frameworkVersion,
             remoteManifestUrl: this.remoteManifestUrl,
             bundleServerAddress: this.bundleServerAddress,
             bundles: Object.fromEntries(this._bundles)

@@ -1,4 +1,4 @@
-import { FRAMEWORK_VERSION } from './defines/consts';
+import { macros } from './defines/macros';
 import { BundleManager, UpdateManager } from './asset/asset-index';
 import { AddressableAssetManager } from './addressable/addressable-asset-manager';
 import type { IModule, ModuleClass } from './module/module';
@@ -77,7 +77,7 @@ class Core {
 
     init(): void {
         if (!this._isInit) {
-            console.log(`Poker Framework ${FRAMEWORK_VERSION} init`);
+            console.log(`Poker Framework ${macros.FRAMEWORK_VERSION} init`);
 
             ModuleManager.instance.init();
             this._isInit = true;

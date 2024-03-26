@@ -3,6 +3,7 @@ import { BundleManifest } from './bundle-manifest';
 import { Module, ModuleManager } from '../module/module-index';
 import { BundleManager } from './bundle-manager';
 import { LocalStorage } from '../storage/localStorage';
+import { http } from '../network/network-index';
 
 export class UpdateManager extends Module {
     static moduleName = 'UpdateManager';
@@ -36,7 +37,7 @@ export class UpdateManager extends Module {
             this._bundleManifest.fromJson(jsonObj);
 
             return true;
-        } 
+        }
 
         return false;
     }
@@ -47,19 +48,27 @@ export class UpdateManager extends Module {
 
     loadRemoteManifest(): Promise<BundleManifest> {
         return new Promise<any>((resolve, reject) => {
+            cc.log('loadRemoteManifest');
             if (this._bundleManifest.remoteManifestUrl.length <= 0) {
-                reject(new Error('No remote manifest url exist!!'));
+                reject(new Error('Remote manifest url is empty!!'));
             } else {
-                const url = this._bundleManifest.remoteManifestUrl + 'bundle.json';
-                cc.assetManager.loadRemote<cc.JsonAsset>(url, (err, asset) => {
-                    if (err) {
-                        reject(err);
-                    } else {
+                let url = this._bundleManifest.remoteManifestUrl;
+                if (this._bundleManifest.remoteManifestUrl.at(-1) === '/') {
+                    // append url with bundle.json if the url is a folder
+                    url = this._bundleManifest.remoteManifestUrl + 'bundle.json';
+                }
+                http.get(url)
+                    .then((resp) => {
                         const bundleManifest = new BundleManifest();
-                        bundleManifest.fromJson(asset.json);
+                        bundleManifest.fromJson(resp.data);
+
+                        cc.log('loadRemoteManifest', resp.data as BundleManifest);
                         resolve(bundleManifest);
-                    }
-                });
+                    })
+                    .catch((err) => {
+                        cc.log('loadRemoteManifest', err);
+                        reject(err);
+                    });
             }
         });
     }
@@ -102,11 +111,17 @@ export class UpdateManager extends Module {
     async updateBundleManifest(): Promise<void> {
         const remoteManifest = await this.loadRemoteManifest();
 
-        if (remoteManifest.remoteManifestUrl.length > 0 && this._bundleManifest.remoteManifestUrl !== remoteManifest.remoteManifestUrl) {
+        if (
+            remoteManifest.remoteManifestUrl.length > 0 &&
+            this._bundleManifest.remoteManifestUrl !== remoteManifest.remoteManifestUrl
+        ) {
             this._bundleManifest.remoteManifestUrl = remoteManifest.remoteManifestUrl;
         }
 
-        if (remoteManifest.bundleServerAddress.length > 0 && this._bundleManifest.bundleServerAddress !== remoteManifest.bundleServerAddress) {
+        if (
+            remoteManifest.bundleServerAddress.length > 0 &&
+            this._bundleManifest.bundleServerAddress !== remoteManifest.bundleServerAddress
+        ) {
             this._bundleManifest.bundleServerAddress = remoteManifest.bundleServerAddress;
         }
 
@@ -119,7 +134,6 @@ export class UpdateManager extends Module {
             }
         });
     }
-
 
     updateBundles(): void {
         const bundleManager = ModuleManager.instance.get(BundleManager);
