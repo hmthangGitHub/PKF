@@ -22,7 +22,6 @@ export class DeviceAPI extends NativeSDK implements IDeviceAPI {
 
     init() {
         super.init();
-        cc.log("debug.DeviceAPI.init");
         this._system = ModuleManager.instance.get(System);
     }
 
