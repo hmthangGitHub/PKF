@@ -1,9 +1,8 @@
+import {ModuleManager} from '../module/module-manager';
 import {System} from '../system/system';
 import {IOSNativeSDK} from './env/ios-native-sdk';
 import {AndroidNativeSDK} from './env/android-native-sdk';
 import {SYNativeSDK} from './env/sy-native-sdk';
-import {ModuleManager} from '../module/module-manager';
-
 
 export interface INativeSDK {
     nativeName: string;
@@ -19,55 +18,69 @@ export interface NativeClass<T> {
 }
 
 export interface NativeInvokeAction {
+    isSync: boolean;
     obj: string;
     method: string;
-    respMsgKey: string;
+    // NOTE: for android
+    methodSignature?: string;
     param: any;
-    isSync: boolean;
+    respMsgKey: string;
 }
 
 export class NativeSDK implements INativeSDK {
     nativeName = 'NativeSDK';
     _system = ModuleManager.instance.get<System>(System);
-
     targetNativeSDK: SYNativeSDK | IOSNativeSDK | AndroidNativeSDK;
 
     init(): void {
-        // TODO:    
-        if(!this._system.isNative) {                
+        cc.log("[pf][NativeSDK] targetNativeSDK1: ", this.targetNativeSDK)
+        if(this.targetNativeSDK) return;
+        cc.log("[pf][NativeSDK] targetNativeSDK2: ", this.targetNativeSDK)
+
+        if(!this._system.isNative) {
             this.targetNativeSDK = new SYNativeSDK(this);
         } else if(this._system.isNative && this._system.isIOS) {
+            cc.log("[pf][NativeSDK] targetNativeSDK-ios")
             this.targetNativeSDK = new IOSNativeSDK(this);
+            cc.log("[pf][NativeSDK] targetNativeSDK3: ", this.targetNativeSDK)
         } else if(this._system.isNative && this._system.isAndroid) {
             this.targetNativeSDK = new AndroidNativeSDK(this);
         }
+        // TODO: Simulator need to merge into each app os.
         // else {
         //     targetNativeSDK = this.callSimulatorEvent(nativeKey, action.respMsgKey);
         // } 
     }
+
     destroy(): void {
-        
+
     }
 
-    invoke(action: NativeInvokeAction): string {
-        this.targetNativeSDK?.invoke(action);        
-        return '';
+    invoke(action: NativeInvokeAction, methodSignature?: string): string {
+        if(!this.targetNativeSDK) {
+            throw new Error("[pf][NativeSDK] targetNativeSDK is undefined");
+        } else {
+            cc.log("[pf][NativeSDK] targetNativeSDK exists")
+            return this.targetNativeSDK?.invoke(action);
+        }
     }
 
+    // TODO:
     callback(param1?: any, param2?: any) {
-        cc.log('callback error');
+        cc.log('callback');
     }
 
     getJSONParam(object: string, method: any, respMsgKey: string, param: any, isSync: boolean): string{
-        let strParam = JSON.stringify(param);
-        let argObj = {
-            object: object,
-            method: method,
+        const strParam = JSON.stringify(param);
+        const argObj = {
+            object,
+            method,
             param: strParam,
             isSync: isSync ? 1 : 0,
-            respMsgKey: respMsgKey,
+            respMsgKey,
         };
-        let jsonParam = JSON.stringify(argObj);
+        const jsonParam = JSON.stringify(argObj);
+        cc.log("getJSONParam.jsonParam: ", jsonParam)
         return jsonParam;
     }
 
