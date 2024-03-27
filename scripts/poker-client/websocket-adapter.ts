@@ -52,28 +52,35 @@ export class WebSocketAdapter {
         return this._onopen;
     }
 
-    set onopen(handler: Nullable<SocketOpenHandler>) {        
+    set onopen(handler: Nullable<SocketOpenHandler>) {
         if(this._onopen) {
-            this._webSocket?.removeEventListener('open', this._onopen);
             this._onopen = null;
         }
 
         if (handler) {
             if (!this._webSocket) {
                 throw new InvalidOperationError('Socket has not been established yet.');
-            }            
-            this._webSocket.addEventListener('open', handler);
+            }
+            const originalHandler = this._webSocket.onopen;
+            this._webSocket.onopen = (event) => {
+                if(originalHandler) {
+                    // @ts-ignore
+                    // eslint-disable-next-line prefer-rest-params
+                    originalHandler(...arguments);
+                }
+                // @ts-ignore
+                handler(event);
+            };
             this._onopen = handler;
-        } 
+        }
     }
 
     get onclose(): Nullable<SocketCloseHandler> {
         return this._onclose;
     }
 
-    set onclose(handler: Nullable<SocketCloseHandler>) {        
+    set onclose(handler: Nullable<SocketCloseHandler>) {
         if(this._onclose) {
-            this._webSocket?.removeEventListener('close', this._onclose);
             this._onclose = null;
         }
 
@@ -81,19 +88,26 @@ export class WebSocketAdapter {
             if (!this._webSocket) {
                 throw new InvalidOperationError('Socket has not been established yet.');
             }
-    
-            this._webSocket.addEventListener('close', handler);
-            this._onclose = handler;            
-        } 
+            const originalHandler = this._webSocket.onclose;
+            this._webSocket.onclose = (event) => {
+                if(originalHandler) {
+                    // @ts-ignore
+                    // eslint-disable-next-line prefer-rest-params
+                    originalHandler(...arguments);
+                }
+                // @ts-ignore
+                handler(event);
+            };
+            this._onclose = handler;
+        }
     }
 
     get onerror(): Nullable<SocketErrorHandler> {
         return this._onerror;
     }
 
-    set onerror(handler: Nullable<SocketErrorHandler>) {        
+    set onerror(handler: Nullable<SocketErrorHandler>) {
         if(this._onerror) {
-            this._webSocket?.removeEventListener('error', this._onerror);
             this._onerror = null;
         }
 
@@ -101,18 +115,26 @@ export class WebSocketAdapter {
             if (!this._webSocket) {
                 throw new InvalidOperationError('Socket has not been established yet.');
             }
-            this._webSocket.addEventListener('error', handler);
-            this._onerror = handler;            
-        } 
+            const originalHandler = this._webSocket.onerror;
+            this._webSocket.onerror = (event) => {
+                if(originalHandler) {
+                    // @ts-ignore
+                    // eslint-disable-next-line prefer-rest-params
+                    originalHandler(...arguments);
+                }
+                // @ts-ignore
+                handler(event);
+            };
+            this._onerror = handler;
+        }
     }
 
     get onmessage(): Nullable<SocketMessageHandler> {
         return this._onmessage;
     }
 
-    set onmessage(handler: Nullable<SocketMessageHandler>) {        
+    set onmessage(handler: Nullable<SocketMessageHandler>) {
         if(this._onmessage) {
-            this._webSocket?.removeEventListener('message', this._onmessage);
             this._onmessage = null;
         }
 
@@ -120,9 +142,19 @@ export class WebSocketAdapter {
             if (!this._webSocket) {
                 throw new InvalidOperationError('Socket has not been established yet.');
             }
-            this._webSocket.addEventListener('message', handler);
-            this._onmessage = handler;            
-        } 
+
+            const originalHandler = this._webSocket.onmessage;
+            this._webSocket.onmessage = (event) => {
+                if(originalHandler) {
+                    // @ts-ignore
+                    // eslint-disable-next-line prefer-rest-params
+                    originalHandler(...arguments);
+                }
+                // @ts-ignore
+                handler(event);
+            };
+            this._onmessage = handler;
+        }
     }
 
     connect(url: string, protocols?: string | string[]): Promise<void> {
@@ -161,10 +193,18 @@ export class WebSocketAdapter {
 
         const asyncOp = new AsyncOperation();
 
-        this._webSocket.addEventListener('close', (ev) => {
-            asyncOp.resolve();
-        });
-
+        const handler = () => asyncOp.resolve();
+        const originalHandler = this._webSocket.onclose;
+        this._webSocket.onclose = (event) => {
+            // @ts-ignore
+            // eslint-disable-next-line prefer-rest-params
+            if(originalHandler) {
+                // @ts-ignore
+                // eslint-disable-next-line prefer-rest-params
+                originalHandler(...arguments);
+            }
+            handler();
+        };
         this.close();
 
         return asyncOp.promise;
