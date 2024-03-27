@@ -19,7 +19,7 @@ import type {
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
 import { ServerType, GameId, SocketServerErrorCode, SystemInfo } from '../poker-client-types';
-import type { WebSocketAdapter } from '../websocket-adapter';
+import type { WebSocketAdapter, SocketOpenHandler  } from '../websocket-adapter';
 import { Util } from '../../core/utils/util';
 import { SocketMessage } from '../socket-message';
 import { InvalidOperationError, ServerError } from '../../core/defines/errors';
@@ -44,7 +44,11 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     private _url = '';
     private _options: Nullable<ISocketOptions> = null;
-    private _shareExternalSocket = false;
+
+    private _originOnClose: Nullable<SocketOpenHandler> = null;
+    private _originOnMessage: Nullable<SocketOpenHandler> = null;
+    private _origonOnError: Nullable<SocketOpenHandler> = null;
+    private _externalWebSocket : WebSocket = null;
 
     protected _notification = new TypeSafeEventEmitter<SocketNotifications>();
     get notification(): TypeSafeEventEmitter<SocketNotifications> {
@@ -96,21 +100,58 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         this._webSocket.link(webSocket);
 
-        this.registerObservers();
+        this._externalWebSocket = webSocket;
 
-        this._shareExternalSocket = true;
+        this._originOnMessage = webSocket.onmessage;
+        this._originOnClose = webSocket.onclose;
+        this._origonOnError = webSocket.onerror;
+
+        webSocket.onmessage = (event) => {
+            if (this._originOnMessage) {
+                // @ts-ignore
+                // eslint-disable-next-line prefer-rest-params
+                this._originOnMessage(...arguments);
+            }
+            // @ts-ignore
+            this.onMessage(event);
+        };
+
+        webSocket.onclose = (event) => {
+            if (this._originOnClose) {
+                // @ts-ignore
+                // eslint-disable-next-line prefer-rest-params
+                this._originOnClose(...arguments);
+            }
+            // @ts-ignore
+            this.onClose(event);
+        };
+
+        webSocket.onerror = (event) => {
+            if (this._origonOnError) {
+                // @ts-ignore
+                // eslint-disable-next-line prefer-rest-params
+                this._origonOnError(...arguments);
+            }
+            // @ts-ignore
+            this.onError(event);
+        };
     }
 
     unlink(): void {
-        this.cleanupRequests('socket un-linked');
+        if(this._externalWebSocket) {
+            this.cleanupRequests('socket un-linked');
 
-        this._gameSessions.forEach((session) => {
-            session.onDisconnect();
-        });
+            this._gameSessions.forEach((session) => {
+                session.onDisconnect();
+            });
 
-        this.unregisterObservers();
+            this._externalWebSocket.onmessage = this._originOnMessage;
+            this._externalWebSocket.onclose = this._originOnClose;
+            this._externalWebSocket.onerror =this._origonOnError;
 
-        this._webSocket.unlink();
+            this._webSocket.unlink();
+            this._externalWebSocket = null;
+        }
     }
 
     async connect(url: string, options?: ISocketOptions): Promise<void> {
@@ -130,8 +171,6 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         this._options = { ...options };
 
         this.registerObservers();
-
-        this._shareExternalSocket = false;
     }
 
     disconnect(): Promise<void> {
@@ -188,7 +227,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         this.checkResponseCode(responseProto.error, 'login');
 
-        if (!this._shareExternalSocket) {
+        if (!this._externalWebSocket) {
             this.startHeartBeat();
             this.startTick();
         }
