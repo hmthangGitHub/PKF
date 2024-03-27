@@ -4,6 +4,10 @@ import { GamePlayer } from './game-player';
 import type { IGamePlayerList } from './game-player';
 import type { MiniGameRoomParams } from './mini-game-room-params';
 
+export interface IGameRoomOptions {
+    roomId?: number;
+}
+
 export interface IGameRoom {
     id: number;
 
@@ -12,7 +16,7 @@ export interface IGameRoom {
     selfPlayer: GamePlayer;
 
     // re-join room
-    joinRoom(): Promise<void>;
+    joinRoom(options?: IGameRoomOptions): Promise<void>;
 
     leaveRoom(): Promise<void>;
 
@@ -44,7 +48,7 @@ export abstract class GameRoom<EventType> extends TypeSafeEventEmitter<EventType
         return this._selfPlayer;
     }
 
-    abstract joinRoom(): Promise<void>;
+    abstract joinRoom(options?: IGameRoomOptions): Promise<void>;
 
     abstract leaveRoom(): Promise<void>;
 
@@ -137,7 +141,7 @@ export abstract class MiniGameRoom<EventType> extends TypeSafeEventEmitter<Event
 
     abstract get llCoinUICritical(): number;
 
-    abstract joinRoom(): Promise<void>;
+    abstract joinRoom(options?: IGameRoomOptions): Promise<void>;
 
     abstract leaveRoom(): Promise<void>;
 
