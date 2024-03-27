@@ -30,18 +30,11 @@ const CONNECTION_TIMEOUT = 3000;
 export class WebSocketAdapter {
     private _webSocket: Nullable<WebSocket> = null;
     private _sequence = 0;
-    private _useExternWebSocket = false;
     private _connectionTimeout: Nullable<NodeJS.Timeout> = null;
-
-    private _onopen: Nullable<SocketOpenHandler> = null;
-    private _onclose: Nullable<SocketOpenHandler> = null;
-    private _onmessage: Nullable<SocketOpenHandler> = null;
-    private _onerror: Nullable<SocketOpenHandler> = null;
 
     /** link to exist websocket */
     link(webSocket: WebSocket): void {
         this._webSocket = webSocket;
-        this._useExternWebSocket = true;
     }
 
     unlink() : void {
@@ -49,112 +42,49 @@ export class WebSocketAdapter {
     }
 
     get onopen(): Nullable<SocketOpenHandler> {
-        return this._onopen;
+        return this._webSocket?.onopen;
     }
 
     set onopen(handler: Nullable<SocketOpenHandler>) {
-        if(this._onopen) {
-            this._onopen = null;
-        }
+        if (!this._webSocket) {
+            throw new InvalidOperationError('Socket has not been established yet.');
+        }     
 
-        if (handler) {
-            if (!this._webSocket) {
-                throw new InvalidOperationError('Socket has not been established yet.');
-            }
-            const originalHandler = this._webSocket.onopen;
-            this._webSocket.onopen = (event) => {
-                if(originalHandler) {
-                    // @ts-ignore
-                    // eslint-disable-next-line prefer-rest-params
-                    originalHandler(...arguments);
-                }
-                // @ts-ignore
-                handler(event);
-            };
-            this._onopen = handler;
-        }
+        this._webSocket.onopen = handler;   
     }
 
     get onclose(): Nullable<SocketCloseHandler> {
-        return this._onclose;
+        return this._webSocket?.onclose;
     }
 
-    set onclose(handler: Nullable<SocketCloseHandler>) {
-        if(this._onclose) {
-            this._onclose = null;
-        }
+    set onclose(handler: Nullable<SocketCloseHandler>) { 
+        if (!this._webSocket) {
+            throw new InvalidOperationError('Socket has not been established yet.');
+        }     
 
-        if (handler) {
-            if (!this._webSocket) {
-                throw new InvalidOperationError('Socket has not been established yet.');
-            }
-            const originalHandler = this._webSocket.onclose;
-            this._webSocket.onclose = (event) => {
-                if(originalHandler) {
-                    // @ts-ignore
-                    // eslint-disable-next-line prefer-rest-params
-                    originalHandler(...arguments);
-                }
-                // @ts-ignore
-                handler(event);
-            };
-            this._onclose = handler;
-        }
+        this._webSocket.onclose = handler;          
     }
 
     get onerror(): Nullable<SocketErrorHandler> {
-        return this._onerror;
+        return this._webSocket?.onerror;
     }
 
-    set onerror(handler: Nullable<SocketErrorHandler>) {
-        if(this._onerror) {
-            this._onerror = null;
-        }
-
-        if (handler) {
-            if (!this._webSocket) {
-                throw new InvalidOperationError('Socket has not been established yet.');
-            }
-            const originalHandler = this._webSocket.onerror;
-            this._webSocket.onerror = (event) => {
-                if(originalHandler) {
-                    // @ts-ignore
-                    // eslint-disable-next-line prefer-rest-params
-                    originalHandler(...arguments);
-                }
-                // @ts-ignore
-                handler(event);
-            };
-            this._onerror = handler;
-        }
+    set onerror(handler: Nullable<SocketErrorHandler>) { 
+        if (!this._webSocket) {
+            throw new InvalidOperationError('Socket has not been established yet.');
+        }     
+        this._webSocket.onerror = handler;        
     }
 
     get onmessage(): Nullable<SocketMessageHandler> {
-        return this._onmessage;
+        return this._webSocket?.onmessage;
     }
 
-    set onmessage(handler: Nullable<SocketMessageHandler>) {
-        if(this._onmessage) {
-            this._onmessage = null;
-        }
-
-        if (handler) {
-            if (!this._webSocket) {
-                throw new InvalidOperationError('Socket has not been established yet.');
-            }
-
-            const originalHandler = this._webSocket.onmessage;
-            this._webSocket.onmessage = (event) => {
-                if(originalHandler) {
-                    // @ts-ignore
-                    // eslint-disable-next-line prefer-rest-params
-                    originalHandler(...arguments);
-                }
-                // @ts-ignore
-                handler(event);
-            };
-            this._onmessage = handler;
-        }
+    set onmessage(handler: Nullable<SocketMessageHandler>) {   
+        if (!this._webSocket) {
+            throw new InvalidOperationError('Socket has not been established yet.');
+        }     
+        this._webSocket.onmessage = handler;               
     }
 
     connect(url: string, protocols?: string | string[]): Promise<void> {
@@ -193,18 +123,10 @@ export class WebSocketAdapter {
 
         const asyncOp = new AsyncOperation();
 
-        const handler = () => asyncOp.resolve();
-        const originalHandler = this._webSocket.onclose;
-        this._webSocket.onclose = (event) => {
-            // @ts-ignore
-            // eslint-disable-next-line prefer-rest-params
-            if(originalHandler) {
-                // @ts-ignore
-                // eslint-disable-next-line prefer-rest-params
-                originalHandler(...arguments);
-            }
-            handler();
-        };
+        this._webSocket.addEventListener('close', (ev) => {
+            asyncOp.resolve();
+        });
+
         this.close();
 
         return asyncOp.promise;
