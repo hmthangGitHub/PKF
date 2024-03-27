@@ -53,7 +53,7 @@ export class UpdateManager extends Module {
                 reject(new Error('Remote manifest url is empty!!'));
             } else {
                 let url = this._bundleManifest.remoteManifestUrl;
-                if (this._bundleManifest.remoteManifestUrl.at(-1) === '/') {
+                if (this._bundleManifest.remoteManifestUrl.slice(-1) === '/') {
                     // append url with bundle.json if the url is a folder
                     url = this._bundleManifest.remoteManifestUrl + 'bundle.json';
                 }
