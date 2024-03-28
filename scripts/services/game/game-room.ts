@@ -4,6 +4,10 @@ import { GamePlayer } from './game-player';
 import type { IGamePlayerList } from './game-player';
 import type { MiniGameRoomParams } from './mini-game-room-params';
 
+export interface IGameRoomOptions {
+    roomId?: number;
+}
+
 export interface IGameRoom {
     id: number;
 
