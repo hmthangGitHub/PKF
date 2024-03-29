@@ -157,8 +157,8 @@ export class CowboySession extends GameSession {
         return responseProto;
     }
 
-    async joinRoom(roomId: number): Promise<IJoinRoomResponse> {
-        if (this._roomId !== 0) {
+    async joinRoom(roomId: number, forceJoin?: boolean): Promise<IJoinRoomResponse> {
+        if (this._roomId !== 0 && forceJoin !== true) {
             return Promise.reject<IJoinRoomResponse>(new InvalidOperationError(`${this.name} already join room!`));
         }
 
