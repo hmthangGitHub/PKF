@@ -44,7 +44,7 @@ export interface IGameSession {
     verbose: boolean;
 
     login(): Promise<ILoginResponse>;
-    joinRoom(roomId: number): Promise<IJoinRoomResponse>;
+    joinRoom(roomId: number, forceJoin?: boolean): Promise<IJoinRoomResponse>;
     leaveRoom(): Promise<ILeaveRoomResponse>;
     getPlayerList(): Promise<IPlayerListResponse>;
 
@@ -70,7 +70,7 @@ export abstract class GameSession extends SocketMessageProcessor implements IGam
     }
 
     abstract login(): Promise<ILoginResponse>;
-    abstract joinRoom(roomId: number): Promise<IJoinRoomResponse>;
+    abstract joinRoom(roomId: number, forceJoin?: boolean): Promise<IJoinRoomResponse>;
     abstract leaveRoom(): Promise<ILeaveRoomResponse>;
     abstract getPlayerList(): Promise<IPlayerListResponse>;
 
