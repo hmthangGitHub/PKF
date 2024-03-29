@@ -1,5 +1,4 @@
-import type {NativeInvokeAction} from '../native-sdk';
-import type { NativeSDK} from '../native-sdk';
+import type {NativeInvokeAction, NativeSDK} from '../native-sdk';
 
 export class IOSNativeSDK {
     nativeName = 'IOSNativeSDK';
@@ -10,9 +9,10 @@ export class IOSNativeSDK {
     }
     
     invoke(action: NativeInvokeAction): string {
+        cc.log("debug.IOSNativeSDK.invoke:");
+        cc.log("debug.IOSNativeSDK.invoke: ", JSON.stringify(action));
         const jsonParam = this._nativeSDK.getJSONParam(action.obj, action.method, action.respMsgKey, action.param, action.isSync);
-        let ret = jsb.reflection.callStaticMethod('NativeEvent', 'call_native:', jsonParam);
-        return ret;
+        return jsb.reflection.callStaticMethod('NativeEvent', 'call_native:', jsonParam);
     }
 
     // NOTICE: JSB Callback
@@ -31,12 +31,14 @@ export class IOSNativeSDK {
     // native_playAudioMessageComplete
     // on_voice_show_micPhoneToast
     static callback(jsonStr: string): void {
-        const dejsonStr = decodeURIComponent(jsonStr);
-        cc.log('OnNativeEventCallback jsonStr:', dejsonStr);
+        cc.log('debug.IOSNativeSDK.callback');
 
-        // let jsonParam = JSON.parse(dejsonStr);
-        // if (jsonParam.respMsgKey) {
+        const dejsonStr = decodeURIComponent(jsonStr);
+        cc.log('debug.IOSNativeSDK.OnNativeEventCallback jsonStr:', dejsonStr);
+        let jsonParam = JSON.parse(dejsonStr);
+        if (jsonParam.respMsgKey) {
+            // TODO:
             // cv.MessageCenter.send(jsonParam.respMsgKey, jsonParam);
-        // }
+        }
     }
 }

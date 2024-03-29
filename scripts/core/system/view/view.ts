@@ -1,8 +1,15 @@
-import type { System } from '../system';
+import {App} from "../../app/app";
+import {AppClientType} from "../../app/app-enum";
+import {System} from '../system';
+import {ModuleManager} from "../../module/module-manager";
+import {NativeManager} from "../../native/native-manager";
+// NOTICE: 下面寫法會出錯
+// import {DeviceAPI} from "../../../natives/device-api/device-api";
+import {DeviceAPI} from "../../../natives/natives-index";
+
 
 export class View {
     _system: System;
-
     _designWidth: number = 1080;
     _designHeight: number = 2338;
 
@@ -32,10 +39,17 @@ export class View {
         return this._designHeight;
     }
 
+    set width(width: number) {
+        cc.winSize.width = width;
+    }
+
     get width(): number {
         return cc.winSize.width;
     }
 
+    set height(height: number) {
+        cc.winSize.height = height;
+    }
     get height(): number {
         return cc.winSize.height;
     }
@@ -57,6 +71,7 @@ export class View {
     isNarrowScreen(): boolean {
         return this.isFullScreen();
     }
+
     isFullScreen(): boolean {
         return this.width > this.height ? this.width / this.height > 2 : this.height / this.width > 2;
     }
@@ -90,114 +105,126 @@ export class View {
         return this.width > this.height;
     }
 
-    /** TODO: */
     /**
      * 设置横屏
      */
     setLandscape(): void {
-        // if(!(this._system.isMobile && this._system.isBrowser) && this.width > this.height) {
-        //     return ;
-        // }
+        const app = ModuleManager.instance.get(App);
+        const nativeManager = ModuleManager.instance.get(NativeManager);
+        const deviceAPI = nativeManager.get(DeviceAPI);
+        const system = ModuleManager.instance.get(System);
 
-        /** NOTE: setting Orientation */
-        if (this._system.isNative && this._system.isAndroid) {
-            // TODO:
-            // 0横1竖
-            // jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity",
-            //     "changeOrientation", "(I)V", 0);
-            // cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
-        } else if (this._system.isNative && this._system.isIOS) {
-            // TODO:
-            // cv.native.invokeAsynFunc(NATIVE_KEY_MAP.KEY_CALL_CHANGEORIENTATION, {"bool": "1"});
-            // cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
-        } else {
-            /** 如果是私语的平台 */
-            //     if (cv.native.IsSimulator() &&
-            //         cv.config.GET_CLIENT_TYPE() == cv.Enum.ClientType.H5WebPage
-            //     ) {
-            //         cv.native.SYwebjsToClient("{\"cmd\": \"1005\", op: 1}");
-            //     }
-            cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
-            //
-            //     if (this._system.isMobile &&
-            //         cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.CowboyWeb &&
-            //         cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.H5WebPage
-            //     ) {
-            //         return;
-            //     }
+        /** NOTE: 如手機已是横屏，直接返回 */
+        if(
+            !(this._system.isMobile && this._system.isBrowser) &&
+            this.width > this.height
+        ) {
+            return ;
         }
 
-        /** NOTE: setting frameSize, designResolutionSize */
-        // if (
-        //     (cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.CowboyWeb &&
-        //     cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.H5WebPage) ||
-        //     cv.config.IS_WEBVIEW == false
-        // ) {
-        //     let width = cc.view.getFrameSize().height < cc.view.getFrameSize().width ?
-        //         cc.view.getFrameSize().width : cc.view.getFrameSize().height;
-        //     let height = cc.view.getFrameSize().height > cc.view.getFrameSize().width ?
-        //         cc.view.getFrameSize().width : cc.view.getFrameSize().height;
-        //     cc.view.setFrameSize(width, height);
-        //     cc.view.setDesignResolutionSize(cv.config.DESIGN_HEIGHT, cv.config.DESIGN_WIDTH, cc.ResolutionPolicy.FIXED_WIDTH);
-        // }
+        /** NOTE: 設定橫屏 */
+        deviceAPI.setLandscape();
+        cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
 
-        // NOTE: change designSize
-        // let temp = cv.config.DESIGN_HEIGHT;
-        // cv.config.DESIGN_HEIGHT = cv.config.DESIGN_WIDTH;
-        // cv.config.DESIGN_WIDTH = temp;
-        //
-        // temp = cv.config.HEIGHT;
-        // cv.config.HEIGHT = cv.config.WIDTH;
-        // cv.config.WIDTH = temp;
+        /** NOTE: 非手機模式下，ClientType 不是 CowboyWeb、H5WebPage */
+        if (
+            this._system.isMobile &&
+            app.clientType !== AppClientType.CowboyWeb &&
+            app.clientType !== AppClientType.H5WebPage
+        ) {
+            return;
+        }
+
+        /** NOTE: 手機模式下，ClientType 不是 CowboyWeb、H5WebPage，或不是 webview */
+        /** NOTE: setting frameSize, designResolutionSize */
+        if (
+            (
+                app.clientType !== AppClientType.CowboyWeb &&
+                app.clientType !== AppClientType.H5WebPage
+            )
+            ||
+            system.isWebview === false
+
+        ) {
+            const width = cc.view.getFrameSize().height < cc.view.getFrameSize().width ?
+                cc.view.getFrameSize().width : cc.view.getFrameSize().height;
+            const height = cc.view.getFrameSize().height > cc.view.getFrameSize().width ?
+                cc.view.getFrameSize().width : cc.view.getFrameSize().height;
+            cc.view.setFrameSize(width, height);
+            cc.view.setDesignResolutionSize(this._system.view.designHeight, this._system.view.designWidth, cc.ResolutionPolicy.FIXED_WIDTH);
+        }
+
+        this._changeDesignSize();
+        this._changeWinSize();
     }
 
-    /** TODO: */
     /**
      * 设置竖屏
      */
     setPortrait(noChange?: boolean): void {
-        // if (cv.config.HEIGHT > cv.config.WIDTH && !(cc.sys.isBrowser && cc.sys.isMobile) && cv.config.getCurrentScene() != cv.Enum.SCENE.HOTUPDATE_SCENE) {
-        //     return;
-        // }
-        //
-        if (cc.sys.isNative && cc.sys.os === cc.sys.OS_ANDROID) {
-            //     jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity",
-            //         "changeOrientation", "(I)V", 1);
-            //     cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
-        } else if (cc.sys.isNative && cc.sys.os === cc.sys.OS_IOS) {
-            //     cv.native.invokeAsynFunc(NATIVE_KEY_MAP.KEY_CALL_CHANGEORIENTATION, {"bool": "0"});
-            //     cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
-        } else {
-            //
-            //     if (this.IsSimulator() && cv.config.GET_CLIENT_TYPE() == cv.Enum.ClientType.H5WebPage) {  //如果是私语的平台
-            //         cv.native.SYwebjsToClient("{\"cmd\": \"1005\", op:0}");
-            //     }
-            cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
-            //     if (cc.sys.isMobile && cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.CowboyWeb && cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.H5WebPage) {
-            //         return;
-            //     }
+        const app = ModuleManager.instance.get(App);
+        const nativeManager = ModuleManager.instance.get(NativeManager);
+        const deviceAPI = nativeManager.get(DeviceAPI);
+        const system = ModuleManager.instance.get(System);
+
+        if (
+            system.view.height > system.view.width
+            && !(cc.sys.isBrowser && cc.sys.isMobile)
+            //** TODO: 其他特例判斷* */
+            // && cv.config.getCurrentScene() != cv.Enum.SCENE.HOTUPDATE_SCENE
+        ) {
+            return;
         }
 
-        // if (noChange) {
-        //     return;
-        // }
+        /** NOTE: 設定竖屏 */
+        deviceAPI.setPortrait();
+        cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
 
-        // if ((cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.CowboyWeb && cv.config.GET_CLIENT_TYPE() != cv.Enum.ClientType.H5WebPage) || cv.config.IS_WEBVIEW == false) {
-        //     let width = cc.view.getFrameSize().height > cc.view.getFrameSize().width ?
-        //         cc.view.getFrameSize().width : cc.view.getFrameSize().height;
-        //     let height = cc.view.getFrameSize().height < cc.view.getFrameSize().width ?
-        //         cc.view.getFrameSize().width : cc.view.getFrameSize().height;
-        //     cc.view.setFrameSize(width, height);
-        //     cc.view.setDesignResolutionSize(cv.config.DESIGN_WIDTH, cv.config.DESIGN_HEIGHT, cc.ResolutionPolicy.FIXED_HEIGHT);
-        // }
+        if (
+            cc.sys.isMobile &&
+            app.clientType !== AppClientType.CowboyWeb &&
+            app.clientType !== AppClientType.H5WebPage
+        ) {
+            return;
+        }
 
-        // let temp = cv.config.DESIGN_HEIGHT;
-        // cv.config.DESIGN_HEIGHT = cv.config.DESIGN_WIDTH;
-        // cv.config.DESIGN_WIDTH = temp;
-        //
-        // temp = cv.config.HEIGHT;
-        // cv.config.HEIGHT = cv.config.WIDTH;
-        // cv.config.WIDTH = temp;
+        if (noChange) {
+            return;
+        }
+
+        if (
+            (
+                app.clientType !== AppClientType.CowboyWeb &&
+                app.clientType !== AppClientType.H5WebPage
+            )
+            ||
+            system.isWebview === false
+
+        ) {
+            const width = cc.view.getFrameSize().height > cc.view.getFrameSize().width ?
+                cc.view.getFrameSize().width : cc.view.getFrameSize().height;
+            const height = cc.view.getFrameSize().height < cc.view.getFrameSize().width ?
+                cc.view.getFrameSize().width : cc.view.getFrameSize().height;
+            cc.view.setFrameSize(width, height);
+            cc.view.setDesignResolutionSize(this._system.view.designWidth, this._system.view.designHeight, cc.ResolutionPolicy.FIXED_HEIGHT);
+        }
+
+        this._changeDesignSize();
+        this._changeWinSize();
+    }
+
+    /** NOTE: change designSize * */
+    _changeDesignSize() {
+        const temp = this._system.view.designHeight;
+        this._system.view.designHeight = this._system.view.designWidth;
+        this._system.view.designWidth = temp;
+    }
+
+    /** NOTE: change winSize * */
+    _changeWinSize() {
+        const temp = this._system.view.height;
+        this._system.view.height = this._system.view.width;
+        this._system.view.width = temp;
     }
 
     /** TODO: comment for me */
@@ -220,6 +247,7 @@ export class View {
         // cv.config.WIDTH + "~" + cv.config.HEIGHT + "->" +
         // node.getContentSize() + ", " + cc.winSize.width + "~" + cc.winSize.height);
         const isWideScreen = this.isWideScreen();
+        // NOTE: 與asia poker 顛倒
         node.getComponent(cc.Canvas).fitHeight = isWideScreen;
         node.getComponent(cc.Canvas).fitWidth = !isWideScreen;
     }
@@ -232,7 +260,7 @@ export class View {
     adaptWidget(node: cc.Node, bTransChild?: boolean): void {
         if (!node) return;
 
-        let widget: cc.Widget = node.getComponent(cc.Widget);
+        const widget: cc.Widget = node.getComponent(cc.Widget);
         if (widget && cc.isValid(widget, true)) {
             widget.enabled = true;
             widget.updateAlignment();
@@ -240,11 +268,12 @@ export class View {
         }
 
         if (bTransChild) {
-            for (let row of node.children) {
+            for (const row of node.children) {
                 this.adaptWidget(row, bTransChild);
             }
         }
     }
+
 
     // TODO: refactor
     isIPhoneXScreen(): boolean {
@@ -275,14 +304,12 @@ export class View {
      * 是否是iPAD
      */
     isPadWeb(): boolean {
-        let frameSize = cc.view.getCanvasSize();
         /**
          * ipad pro 11 1.43
          * ipad pro 12.9 1.33
          */
-        let iswidtScreen = frameSize.height / frameSize.width < 1.44;
-
-        return iswidtScreen;
+        const frameSize = cc.view.getCanvasSize();
+        return frameSize.height / frameSize.width < 1.44;
     }
 
     /** TODO: */
@@ -297,4 +324,6 @@ export class View {
     // getSafeArea() {
     //     return  cv.SafeAreaWithDifferentDevices.getSafeArea();
     // }
+
+
 }

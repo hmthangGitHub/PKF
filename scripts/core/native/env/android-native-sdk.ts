@@ -1,5 +1,4 @@
-import type {NativeInvokeAction} from '../native-sdk';
-import type { NativeSDK} from '../native-sdk';
+import type {NativeInvokeAction, NativeSDK} from '../native-sdk';
 
 export class AndroidNativeSDK {
     nativeName = 'AndroidNativeSDK';
@@ -10,13 +9,11 @@ export class AndroidNativeSDK {
     }
 
     invoke(action: NativeInvokeAction): string {
-        // isSync: true
-        // NOTE: Android下: 在gl线程调用原生函数
-        // isSync: false
-        // NOTE: Android下: 在UI线程调用原生函数，此时返回值没有意义
+        if(!action.methodSignature) throw new Error("[pf][AndroidNativeSDK] invoking need to be pass action's methodSignature")
+        // NOTE: isSync: true, Android下: 在gl线程调用原生函数
+        // NOTE: isSync: false, Android下: 在UI线程调用原生函数，此时返回值没有意义
         const jsonParam = this._nativeSDK.getJSONParam(action.obj, action.method, action.respMsgKey, action.param, action.isSync);
-        let ret = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/NativeEvent', 'call_native', '(Ljava/lang/String;)Ljava/lang/String;', jsonParam);
-        return ret;
+        return jsb.reflection.callStaticMethod(action.obj, action.method, action.methodSignature, jsonParam);
     }
 
     // NOTE: Android native callback
