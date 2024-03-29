@@ -75,7 +75,6 @@ export class NativeManager extends Module {
             this.register(AndroidVideoApi);
         }
     }
-
 }
 
 declare global {

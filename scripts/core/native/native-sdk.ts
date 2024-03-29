@@ -1,8 +1,8 @@
-import {ModuleManager} from '../module/module-manager';
-import {System} from '../system/system';
-import {IOSNativeSDK} from './env/ios-native-sdk';
-import {AndroidNativeSDK} from './env/android-native-sdk';
-import {SYNativeSDK} from './env/sy-native-sdk';
+import { ModuleManager } from '../module/module-manager';
+import { System } from '../system/system';
+import { IOSNativeSDK } from './env/ios-native-sdk';
+import { AndroidNativeSDK } from './env/android-native-sdk';
+import { SYNativeSDK } from './env/sy-native-sdk';
 
 export interface INativeSDK {
     nativeName: string;
@@ -33,34 +33,32 @@ export class NativeSDK implements INativeSDK {
     targetNativeSDK: SYNativeSDK | IOSNativeSDK | AndroidNativeSDK;
 
     init(): void {
-        cc.log("[pf][NativeSDK] targetNativeSDK1: ", this.targetNativeSDK)
-        if(this.targetNativeSDK) return;
-        cc.log("[pf][NativeSDK] targetNativeSDK2: ", this.targetNativeSDK)
+        cc.log('[pf][NativeSDK] targetNativeSDK1: ', this.targetNativeSDK);
+        if (this.targetNativeSDK) return;
+        cc.log('[pf][NativeSDK] targetNativeSDK2: ', this.targetNativeSDK);
 
-        if(!this._system.isNative) {
+        if (!this._system.isNative) {
             this.targetNativeSDK = new SYNativeSDK(this);
-        } else if(this._system.isNative && this._system.isIOS) {
-            cc.log("[pf][NativeSDK] targetNativeSDK-ios")
+        } else if (this._system.isNative && this._system.isIOS) {
+            cc.log('[pf][NativeSDK] targetNativeSDK-ios');
             this.targetNativeSDK = new IOSNativeSDK(this);
-            cc.log("[pf][NativeSDK] targetNativeSDK3: ", this.targetNativeSDK)
-        } else if(this._system.isNative && this._system.isAndroid) {
+            cc.log('[pf][NativeSDK] targetNativeSDK3: ', this.targetNativeSDK);
+        } else if (this._system.isNative && this._system.isAndroid) {
             this.targetNativeSDK = new AndroidNativeSDK(this);
         }
         // TODO: Simulator need to merge into each app os.
         // else {
         //     targetNativeSDK = this.callSimulatorEvent(nativeKey, action.respMsgKey);
-        // } 
+        // }
     }
 
-    destroy(): void {
-
-    }
+    destroy(): void {}
 
     invoke(action: NativeInvokeAction, methodSignature?: string): string {
-        if(!this.targetNativeSDK) {
-            throw new Error("[pf][NativeSDK] targetNativeSDK is undefined");
+        if (!this.targetNativeSDK) {
+            throw new Error('[pf][NativeSDK] targetNativeSDK is undefined');
         } else {
-            cc.log("[pf][NativeSDK] targetNativeSDK exists")
+            cc.log('[pf][NativeSDK] targetNativeSDK exists');
             return this.targetNativeSDK?.invoke(action);
         }
     }
@@ -70,17 +68,17 @@ export class NativeSDK implements INativeSDK {
         cc.log('callback');
     }
 
-    getJSONParam(object: string, method: any, respMsgKey: string, param: any, isSync: boolean): string{
+    getJSONParam(object: string, method: any, respMsgKey: string, param: any, isSync: boolean): string {
         const strParam = JSON.stringify(param);
         const argObj = {
             object,
             method,
             param: strParam,
             isSync: isSync ? 1 : 0,
-            respMsgKey,
+            respMsgKey
         };
         const jsonParam = JSON.stringify(argObj);
-        cc.log("getJSONParam.jsonParam: ", jsonParam)
+        cc.log('getJSONParam.jsonParam: ', jsonParam);
         return jsonParam;
     }
 
@@ -105,7 +103,8 @@ export class NativeSDK implements INativeSDK {
         //         "dversion": "",
         //     });
         // }
-        throw new Error('callSimulatorEvent isn\'t implements');
+        // eslint-disable-next-line autofix/quotes
+        throw new Error("callSimulatorEvent isn't implements");
     }
 
     // TODO: 等待確認
@@ -115,9 +114,9 @@ export class NativeSDK implements INativeSDK {
         const system = ModuleManager.instance.get(System);
         if (system?.isBrowser) {
             // if (cv.tools.isJSONString(e.data) && (JSON.parse(e.data)).url && (JSON.parse(e.data)).url.indexOf('h5StreamLive') != -1) {
-                // cv.MessageCenter.send("on_h5StreamLiveCallback", e.data);
+            // cv.MessageCenter.send("on_h5StreamLiveCallback", e.data);
             // } else {
-                // cv.MessageCenter.send("on_webCcjsCallback", e.data);
+            // cv.MessageCenter.send("on_webCcjsCallback", e.data);
             // }
         } else {
             cc.log('webCcjsCallback error');

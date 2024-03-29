@@ -1,5 +1,5 @@
-import {Module} from '../module/module-index';
-import {View} from './view/view';
+import { Module } from '../module/module-index';
+import { View } from './view/view';
 
 export interface IDeviceInfo {
     dmodel: string;
@@ -13,7 +13,6 @@ export interface GeolocationCoordinates {
     latitude: number;
     longitude: number;
 }
-
 
 /** System variables */
 export class System extends Module {
@@ -78,7 +77,6 @@ export class System extends Module {
         return this.isAndroid || this.isIOS;
     }
 
-
     /** TODO: pkw代碼沒有使用, 那 wpk?? */
     /**
      * 是当IPHONE是否大于11代
@@ -104,7 +102,6 @@ export class System extends Module {
     //     return iphone_cur_level >= IPHONE_DEVICE_LEVEL;
     // }
 
-
     get os(): string {
         return cc.sys.os;
     }
@@ -112,7 +109,6 @@ export class System extends Module {
     get osVersion(): string {
         return cc.sys.osVersion;
     }
-
 
     // 是否允许模拟器玩(是否在白名单中 在白名单中允许模拟器玩)
     // public isallowsimulator: boolean = false;

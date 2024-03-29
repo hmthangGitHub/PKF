@@ -1,4 +1,4 @@
-import {ModuleManager} from '../../core/module/module-manager';
+import { ModuleManager } from '../../core/module/module-manager';
 import { NativeManager } from '../../core/native/native-manager';
 import { NativeSDK } from '../../core/native/native-sdk';
 
@@ -22,13 +22,13 @@ export interface IAudioAPI {
 
 export class AudioAPI extends NativeSDK implements IAudioAPI {
     static nativeName = 'AudioApi';
-    
+
     _audio: IAudioAPI;
 
     init() {
         const nativeManager = ModuleManager.instance.get(NativeManager);
         this._audio = nativeManager.get(AudioAPI);
-    }    
+    }
 
     startRecord(): void {
         console.log('start recording');

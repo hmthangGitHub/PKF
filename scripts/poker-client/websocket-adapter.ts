@@ -37,7 +37,7 @@ export class WebSocketAdapter {
         this._webSocket = webSocket;
     }
 
-    unlink() : void {
+    unlink(): void {
         this._webSocket = null;
     }
 
@@ -48,43 +48,43 @@ export class WebSocketAdapter {
     set onopen(handler: Nullable<SocketOpenHandler>) {
         if (!this._webSocket) {
             throw new InvalidOperationError('Socket has not been established yet.');
-        }     
+        }
 
-        this._webSocket.onopen = handler;   
+        this._webSocket.onopen = handler;
     }
 
     get onclose(): Nullable<SocketCloseHandler> {
         return this._webSocket?.onclose;
     }
 
-    set onclose(handler: Nullable<SocketCloseHandler>) { 
+    set onclose(handler: Nullable<SocketCloseHandler>) {
         if (!this._webSocket) {
             throw new InvalidOperationError('Socket has not been established yet.');
-        }     
+        }
 
-        this._webSocket.onclose = handler;          
+        this._webSocket.onclose = handler;
     }
 
     get onerror(): Nullable<SocketErrorHandler> {
         return this._webSocket?.onerror;
     }
 
-    set onerror(handler: Nullable<SocketErrorHandler>) { 
+    set onerror(handler: Nullable<SocketErrorHandler>) {
         if (!this._webSocket) {
             throw new InvalidOperationError('Socket has not been established yet.');
-        }     
-        this._webSocket.onerror = handler;        
+        }
+        this._webSocket.onerror = handler;
     }
 
     get onmessage(): Nullable<SocketMessageHandler> {
         return this._webSocket?.onmessage;
     }
 
-    set onmessage(handler: Nullable<SocketMessageHandler>) {   
+    set onmessage(handler: Nullable<SocketMessageHandler>) {
         if (!this._webSocket) {
             throw new InvalidOperationError('Socket has not been established yet.');
-        }     
-        this._webSocket.onmessage = handler;               
+        }
+        this._webSocket.onmessage = handler;
     }
 
     connect(url: string, protocols?: string | string[]): Promise<void> {

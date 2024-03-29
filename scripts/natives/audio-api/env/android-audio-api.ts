@@ -1,8 +1,7 @@
-import type {IAudioAPI} from '../audio-api';
-import {NativeSDK} from '../../../core/native/native-sdk';
+import type { IAudioAPI } from '../audio-api';
+import { NativeSDK } from '../../../core/native/native-sdk';
 
 export class AndroidAudioApi extends NativeSDK implements IAudioAPI {
-
     static nativeName = 'AudioApi';
 
     startRecord() {

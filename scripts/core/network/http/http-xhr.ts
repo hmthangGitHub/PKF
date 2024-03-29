@@ -1,4 +1,4 @@
-import {type Options, type Response, defaultOptions } from './http-types';
+import { type Options, type Response, defaultOptions } from './http-types';
 import { HttpError } from '../../defines/errors';
 
 export class Http {
@@ -20,27 +20,27 @@ export class Http {
     }
 
     async request(): Promise<Response> {
-        return new Promise<Response>((resolve, reject) => {       
+        return new Promise<Response>((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             const method = this._options.method || 'GET';
-    
+
             // Build the request URL with optional query string
             const requestUrl = this.buildRequestUrl();
-    
+
             const timeout = this._options.timeout || 5000;
-    
+
             xhr.open(method, requestUrl, true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
-    
+
             // Set up a timeout timer
             const timeoutId = setTimeout(() => {
-                xhr.abort();  // Abort the request
+                xhr.abort(); // Abort the request
                 reject(new HttpError('Request timed out', 408));
             }, timeout);
-    
+
             xhr.onload = function () {
-                clearTimeout(timeoutId);  // Clear the timeout timer
-    
+                clearTimeout(timeoutId); // Clear the timeout timer
+
                 if (xhr.status >= 200 && xhr.status < 300) {
                     // Parse the response and resolve the promise
                     const response: Response = {
@@ -48,24 +48,24 @@ export class Http {
                         data: JSON.parse(xhr.responseText),
                         status: xhr.status
                     };
-    
+
                     resolve(response);
                 } else {
                     // Reject the promise with an HTTP error
                     reject(new HttpError(`HTTP error! Status: ${xhr.status}`, xhr.status));
                 }
             };
-    
+
             xhr.onerror = function () {
-                clearTimeout(timeoutId);  // Clear the timeout timer
+                clearTimeout(timeoutId); // Clear the timeout timer
                 // Reject the promise with a network error
                 reject(new HttpError('Network error', xhr.status || 500));
             };
-    
+
             xhr.send();
         });
     }
-    
+
     // Helper method to build the request URL
     private buildRequestUrl(): string {
         if (this._options.body) {
@@ -74,7 +74,6 @@ export class Http {
         }
         return this._input;
     }
-    
 
     static create(input: string, options?: Options): Http {
         return new Http(input, options);

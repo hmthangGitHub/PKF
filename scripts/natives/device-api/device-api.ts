@@ -1,6 +1,7 @@
-import {ModuleManager} from "../../core/module/module-manager";
-import {GeolocationCoordinates, IDeviceInfo, System} from '../../core/system/system';
-import {NativeSDK} from '../../core/native/native-sdk';
+import { ModuleManager } from '../../core/module/module-manager';
+import type { GeolocationCoordinates, IDeviceInfo } from '../../core/system/system';
+import { System } from '../../core/system/system';
+import { NativeSDK } from '../../core/native/native-sdk';
 
 export interface IDeviceAPI {
     getDeviceInfo(): IDeviceInfo;
@@ -30,26 +31,25 @@ export class DeviceAPI extends NativeSDK implements IDeviceAPI {
     }
 
     setLandscape() {
-        if(this._system.isNative && this._system.isAndroid) {
+        if (this._system.isNative && this._system.isAndroid) {
             /** NOTE: Android 手機 */
             this.invoke({
                 isSync: false,
-                obj: "org/cocos2dx/javascript/AppActivity",
-                method: "changeOrientation",
-                methodSignature: "(I)V",
+                obj: 'org/cocos2dx/javascript/AppActivity',
+                method: 'changeOrientation',
+                methodSignature: '(I)V',
                 param: 0,
-                respMsgKey: "",
-            })
-
-        } else if(this._system.isNative && this._system.isIOS) {
+                respMsgKey: ''
+            });
+        } else if (this._system.isNative && this._system.isIOS) {
             /** NOTE: iOS 手機 */
             this.invoke({
                 isSync: false,
-                obj: "org.cocos2dx.javascript.AppActivity",
-                method: "changeOrientation",
-                param: {"bool": "1"},
-                respMsgKey: "",
-            })
+                obj: 'org.cocos2dx.javascript.AppActivity',
+                method: 'changeOrientation',
+                param: { bool: '1' },
+                respMsgKey: ''
+            });
         } else {
             // TODO: 私语平台
             /** NOTE: 私语平台 */
@@ -60,25 +60,25 @@ export class DeviceAPI extends NativeSDK implements IDeviceAPI {
     }
 
     setPortrait() {
-        if(this._system.isNative && this._system.isAndroid) {
+        if (this._system.isNative && this._system.isAndroid) {
             /** NOTE: Android 手機 */
             this.invoke({
                 isSync: false,
-                obj: "org/cocos2dx/javascript/AppActivity",
-                method: "changeOrientation",
-                methodSignature: "(I)V",
+                obj: 'org/cocos2dx/javascript/AppActivity',
+                method: 'changeOrientation',
+                methodSignature: '(I)V',
                 param: 1,
-                respMsgKey: "",
-            })
-        } else if(this._system.isNative && this._system.isIOS) {
+                respMsgKey: ''
+            });
+        } else if (this._system.isNative && this._system.isIOS) {
             /** NOTE: iOS 手機 */
             this.invoke({
                 isSync: false,
-                obj: "org.cocos2dx.javascript.AppActivity",
-                method: "changeOrientation",
-                param: {"bool": "0"},
-                respMsgKey: "",
-            })
+                obj: 'org.cocos2dx.javascript.AppActivity',
+                method: 'changeOrientation',
+                param: { bool: '0' },
+                respMsgKey: ''
+            });
         } else {
             // TODO: 私语平台
             /** NOTE: 私语平台 */
@@ -87,7 +87,6 @@ export class DeviceAPI extends NativeSDK implements IDeviceAPI {
             // }
         }
     }
-
 
     getLocation(): GeolocationCoordinates {
         return {
@@ -127,7 +126,4 @@ export class DeviceAPI extends NativeSDK implements IDeviceAPI {
     isSiyuType(): boolean {
         return false;
     }
-
-
-
 }

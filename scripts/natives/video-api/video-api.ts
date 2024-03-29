@@ -1,4 +1,4 @@
-import { NativeSDK} from '../../core/native/native-sdk';
+import { NativeSDK } from '../../core/native/native-sdk';
 
 export interface IVideoApi {
     nativeName: string;

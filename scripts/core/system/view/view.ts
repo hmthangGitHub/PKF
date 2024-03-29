@@ -1,12 +1,11 @@
-import {App} from "../../app/app";
-import {AppClientType} from "../../app/app-enum";
-import {System} from '../system';
-import {ModuleManager} from "../../module/module-manager";
-import {NativeManager} from "../../native/native-manager";
+import { App } from '../../app/app';
+import { AppClientType } from '../../app/app-enum';
+import { System } from '../system';
+import { ModuleManager } from '../../module/module-manager';
+import { NativeManager } from '../../native/native-manager';
 // NOTICE: 下面寫法會出錯
 // import {DeviceAPI} from "../../../natives/device-api/device-api";
-import {DeviceAPI} from "../../../natives/natives-index";
-
+import { DeviceAPI } from '../../../natives/natives-index';
 
 export class View {
     _system: System;
@@ -115,11 +114,8 @@ export class View {
         const system = ModuleManager.instance.get(System);
 
         /** NOTE: 如手機已是横屏，直接返回 */
-        if(
-            !(this._system.isMobile && this._system.isBrowser) &&
-            this.width > this.height
-        ) {
-            return ;
+        if (!(this._system.isMobile && this._system.isBrowser) && this.width > this.height) {
+            return;
         }
 
         /** NOTE: 設定橫屏 */
@@ -138,20 +134,23 @@ export class View {
         /** NOTE: 手機模式下，ClientType 不是 CowboyWeb、H5WebPage，或不是 webview */
         /** NOTE: setting frameSize, designResolutionSize */
         if (
-            (
-                app.clientType !== AppClientType.CowboyWeb &&
-                app.clientType !== AppClientType.H5WebPage
-            )
-            ||
+            (app.clientType !== AppClientType.CowboyWeb && app.clientType !== AppClientType.H5WebPage) ||
             system.isWebview === false
-
         ) {
-            const width = cc.view.getFrameSize().height < cc.view.getFrameSize().width ?
-                cc.view.getFrameSize().width : cc.view.getFrameSize().height;
-            const height = cc.view.getFrameSize().height > cc.view.getFrameSize().width ?
-                cc.view.getFrameSize().width : cc.view.getFrameSize().height;
+            const width =
+                cc.view.getFrameSize().height < cc.view.getFrameSize().width
+                    ? cc.view.getFrameSize().width
+                    : cc.view.getFrameSize().height;
+            const height =
+                cc.view.getFrameSize().height > cc.view.getFrameSize().width
+                    ? cc.view.getFrameSize().width
+                    : cc.view.getFrameSize().height;
             cc.view.setFrameSize(width, height);
-            cc.view.setDesignResolutionSize(this._system.view.designHeight, this._system.view.designWidth, cc.ResolutionPolicy.FIXED_WIDTH);
+            cc.view.setDesignResolutionSize(
+                this._system.view.designHeight,
+                this._system.view.designWidth,
+                cc.ResolutionPolicy.FIXED_WIDTH
+            );
         }
 
         this._changeDesignSize();
@@ -168,9 +167,9 @@ export class View {
         const system = ModuleManager.instance.get(System);
 
         if (
-            system.view.height > system.view.width
-            && !(cc.sys.isBrowser && cc.sys.isMobile)
-            //** TODO: 其他特例判斷* */
+            system.view.height > system.view.width &&
+            !(cc.sys.isBrowser && cc.sys.isMobile)
+            //* * TODO: 其他特例判斷* */
             // && cv.config.getCurrentScene() != cv.Enum.SCENE.HOTUPDATE_SCENE
         ) {
             return;
@@ -193,20 +192,23 @@ export class View {
         }
 
         if (
-            (
-                app.clientType !== AppClientType.CowboyWeb &&
-                app.clientType !== AppClientType.H5WebPage
-            )
-            ||
+            (app.clientType !== AppClientType.CowboyWeb && app.clientType !== AppClientType.H5WebPage) ||
             system.isWebview === false
-
         ) {
-            const width = cc.view.getFrameSize().height > cc.view.getFrameSize().width ?
-                cc.view.getFrameSize().width : cc.view.getFrameSize().height;
-            const height = cc.view.getFrameSize().height < cc.view.getFrameSize().width ?
-                cc.view.getFrameSize().width : cc.view.getFrameSize().height;
+            const width =
+                cc.view.getFrameSize().height > cc.view.getFrameSize().width
+                    ? cc.view.getFrameSize().width
+                    : cc.view.getFrameSize().height;
+            const height =
+                cc.view.getFrameSize().height < cc.view.getFrameSize().width
+                    ? cc.view.getFrameSize().width
+                    : cc.view.getFrameSize().height;
             cc.view.setFrameSize(width, height);
-            cc.view.setDesignResolutionSize(this._system.view.designWidth, this._system.view.designHeight, cc.ResolutionPolicy.FIXED_HEIGHT);
+            cc.view.setDesignResolutionSize(
+                this._system.view.designWidth,
+                this._system.view.designHeight,
+                cc.ResolutionPolicy.FIXED_HEIGHT
+            );
         }
 
         this._changeDesignSize();
@@ -274,7 +276,6 @@ export class View {
         }
     }
 
-
     // TODO: refactor
     isIPhoneXScreen(): boolean {
         return this.width > this.height
@@ -324,6 +325,4 @@ export class View {
     // getSafeArea() {
     //     return  cv.SafeAreaWithDifferentDevices.getSafeArea();
     // }
-
-
 }

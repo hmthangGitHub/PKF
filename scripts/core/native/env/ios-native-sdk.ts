@@ -1,4 +1,4 @@
-import type {NativeInvokeAction, NativeSDK} from '../native-sdk';
+import type { NativeInvokeAction, NativeSDK } from '../native-sdk';
 
 export class IOSNativeSDK {
     nativeName = 'IOSNativeSDK';
@@ -7,11 +7,17 @@ export class IOSNativeSDK {
     constructor(nativeSDK: NativeSDK) {
         this._nativeSDK = nativeSDK;
     }
-    
+
     invoke(action: NativeInvokeAction): string {
-        cc.log("debug.IOSNativeSDK.invoke:");
-        cc.log("debug.IOSNativeSDK.invoke: ", JSON.stringify(action));
-        const jsonParam = this._nativeSDK.getJSONParam(action.obj, action.method, action.respMsgKey, action.param, action.isSync);
+        cc.log('debug.IOSNativeSDK.invoke:');
+        cc.log('debug.IOSNativeSDK.invoke: ', JSON.stringify(action));
+        const jsonParam = this._nativeSDK.getJSONParam(
+            action.obj,
+            action.method,
+            action.respMsgKey,
+            action.param,
+            action.isSync
+        );
         return jsb.reflection.callStaticMethod('NativeEvent', 'call_native:', jsonParam);
     }
 

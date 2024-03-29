@@ -1,5 +1,5 @@
-import type {IAudioAPI} from '../audio-api';
-import {NativeSDK} from '../../../core/native/native-sdk';
+import type { IAudioAPI } from '../audio-api';
+import { NativeSDK } from '../../../core/native/native-sdk';
 
 export class IOSAudioAPI extends NativeSDK implements IAudioAPI {
     static nativeName = 'AudioApi';
@@ -10,7 +10,7 @@ export class IOSAudioAPI extends NativeSDK implements IAudioAPI {
             method: 'doStartRecord',
             param: undefined,
             respMsgKey: '',
-            isSync: true,            
+            isSync: true
         });
         return output;
     }
@@ -21,7 +21,7 @@ export class IOSAudioAPI extends NativeSDK implements IAudioAPI {
             method: 'doStopRecord',
             param: undefined,
             respMsgKey: '',
-            isSync: true,            
+            isSync: true
         });
         return output;
     }
@@ -32,7 +32,7 @@ export class IOSAudioAPI extends NativeSDK implements IAudioAPI {
             method: 'PlayLocalVoice',
             param: undefined,
             respMsgKey: '',
-            isSync: true,        
+            isSync: true
         });
         return output;
     }

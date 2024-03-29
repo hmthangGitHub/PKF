@@ -19,7 +19,7 @@ import type {
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
 import { ServerType, GameId, SocketServerErrorCode, SystemInfo } from '../poker-client-types';
-import type { WebSocketAdapter, SocketOpenHandler  } from '../websocket-adapter';
+import type { WebSocketAdapter, SocketOpenHandler } from '../websocket-adapter';
 import { Util } from '../../core/utils/util';
 import { SocketMessage } from '../socket-message';
 import { InvalidOperationError, ServerError } from '../../core/defines/errors';
@@ -48,7 +48,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _originOnClose: Nullable<SocketOpenHandler> = null;
     private _originOnMessage: Nullable<SocketOpenHandler> = null;
     private _origonOnError: Nullable<SocketOpenHandler> = null;
-    private _externalWebSocket : WebSocket = null;
+    private _externalWebSocket: WebSocket = null;
 
     protected _notification = new TypeSafeEventEmitter<SocketNotifications>();
     get notification(): TypeSafeEventEmitter<SocketNotifications> {
@@ -138,7 +138,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     }
 
     unlink(): void {
-        if(this._externalWebSocket) {
+        if (this._externalWebSocket) {
             this.cleanupRequests('socket un-linked');
 
             this._gameSessions.forEach((session) => {
@@ -147,7 +147,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
             this._externalWebSocket.onmessage = this._originOnMessage;
             this._externalWebSocket.onclose = this._originOnClose;
-            this._externalWebSocket.onerror =this._origonOnError;
+            this._externalWebSocket.onerror = this._origonOnError;
 
             this._webSocket.unlink();
             this._externalWebSocket = null;
