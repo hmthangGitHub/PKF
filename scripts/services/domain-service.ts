@@ -39,7 +39,7 @@ export class DomainService extends Service {
             host = domainInfo.avatarServer;
         }
 
-        if (host.at(host.length - 1) !== '/' && avatarPath.at(0) !== '/') {
+        if (host[host.length - 1] !== '/' && avatarPath[0] !== '/') {
             return host + '/' + avatarPath;
         }
         return host + avatarPath;
