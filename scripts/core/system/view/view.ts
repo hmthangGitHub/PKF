@@ -11,6 +11,8 @@ export class View {
     _system: System;
     _designWidth: number = 1080;
     _designHeight: number = 2338;
+    _width: number = 0;
+    _height: number = 0;
 
     FULL_SCREEN_OFF_SET_Y: number = 100;
     FULL_SCREEN_OFF_SET_Y_B: number = 20;
@@ -38,19 +40,19 @@ export class View {
         return this._designHeight;
     }
 
-    set width(width: number) {
-        cc.winSize.width = width;
+    set width(value: number) {
+        this._width = value;
     }
 
     get width(): number {
-        return cc.winSize.width;
+        return this._width;
     }
 
-    set height(height: number) {
-        cc.winSize.height = height;
+    set height(value: number) {
+        this._height = value;
     }
     get height(): number {
-        return cc.winSize.height;
+        return this._height;
     }
 
     /** NOTE: add comment for me */
@@ -250,8 +252,8 @@ export class View {
         // node.getContentSize() + ", " + cc.winSize.width + "~" + cc.winSize.height);
         const isWideScreen = this.isWideScreen();
         // NOTE: 與asia poker 顛倒
-        node.getComponent(cc.Canvas).fitHeight = isWideScreen;
-        node.getComponent(cc.Canvas).fitWidth = !isWideScreen;
+        node.getComponent(cc.Canvas).fitHeight = !isWideScreen;
+        node.getComponent(cc.Canvas).fitWidth = isWideScreen;
     }
 
     /**

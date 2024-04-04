@@ -6,6 +6,11 @@ class Framework {
         core.init();
     }
 
+    initView() {
+        core.system.view.width = cc.winSize.width;
+        core.system.view.height = cc.winSize.height;
+    }
+
     private registerMoudles() {
         // TODO: register modules to core
     }
