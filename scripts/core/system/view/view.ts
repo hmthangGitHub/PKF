@@ -11,8 +11,6 @@ export class View {
     _system: System;
     _designWidth: number = 1080;
     _designHeight: number = 2338;
-    _width: number = 0;
-    _height: number = 0;
 
     FULL_SCREEN_OFF_SET_Y: number = 100;
     FULL_SCREEN_OFF_SET_Y_B: number = 20;
@@ -41,18 +39,18 @@ export class View {
     }
 
     set width(value: number) {
-        this._width = value;
+        cc.winSize.width = value;
     }
 
     get width(): number {
-        return this._width;
+        return cc.winSize.width;
     }
 
     set height(value: number) {
-        this._height = value;
+        cc.winSize.height = value;
     }
     get height(): number {
-        return this._height;
+        return cc.winSize.height;
     }
 
     /** NOTE: add comment for me */
