@@ -20,6 +20,8 @@ export class BundleEntry {
 
     onAfterExit: () => void = null;
 
+    onBeforeLoadScene: () => void = null; // trigger before scene loaded (prior the load cycle in the scene script)
+
     get bundle(): cc.AssetManager.Bundle {
         return this._bundle;
     }

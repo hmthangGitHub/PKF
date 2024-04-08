@@ -38,16 +38,16 @@ export class View {
         return this._designHeight;
     }
 
-    set width(width: number) {
-        cc.winSize.width = width;
+    set width(value: number) {
+        cc.winSize.width = value;
     }
 
     get width(): number {
         return cc.winSize.width;
     }
 
-    set height(height: number) {
-        cc.winSize.height = height;
+    set height(value: number) {
+        cc.winSize.height = value;
     }
     get height(): number {
         return cc.winSize.height;
@@ -250,8 +250,8 @@ export class View {
         // node.getContentSize() + ", " + cc.winSize.width + "~" + cc.winSize.height);
         const isWideScreen = this.isWideScreen();
         // NOTE: 與asia poker 顛倒
-        node.getComponent(cc.Canvas).fitHeight = isWideScreen;
-        node.getComponent(cc.Canvas).fitWidth = !isWideScreen;
+        node.getComponent(cc.Canvas).fitHeight = !isWideScreen;
+        node.getComponent(cc.Canvas).fitWidth = isWideScreen;
     }
 
     /**
