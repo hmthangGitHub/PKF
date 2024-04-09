@@ -12,6 +12,9 @@ export class View {
     _designWidth: number = 1080;
     _designHeight: number = 2338;
 
+    private _screenWidth = 0;
+    private _screenHeight = 0;
+
     FULL_SCREEN_OFF_SET_Y: number = 100;
     FULL_SCREEN_OFF_SET_Y_B: number = 20;
 
@@ -20,6 +23,12 @@ export class View {
 
     constructor(system: System) {
         this._system = system;
+    }
+
+    init(): void {
+        this._screenWidth = cc.winSize.width;
+        this._screenHeight = cc.winSize.height;
+        console.log(`init view screen witdth = ${this._screenWidth} height = ${this._screenHeight}`);
     }
 
     set designWidth(width: number) {
@@ -53,6 +62,13 @@ export class View {
         return cc.winSize.height;
     }
 
+    get screenWidth() {
+        return this._screenWidth;
+    }
+    get screenHeight() {
+        return this._screenHeight;
+    }
+
     /** NOTE: add comment for me */
     get fullscreenOffsetY(): number {
         return this.FULL_SCREEN_OFF_SET_Y;
@@ -72,7 +88,9 @@ export class View {
     }
 
     isFullScreen(): boolean {
-        return this.width > this.height ? this.width / this.height > 2 : this.height / this.width > 2;
+        return this._screenWidth > this._screenHeight
+            ? this._screenWidth / this._screenHeight > 2
+            : this._screenHeight / this._screenWidth > 2;
     }
 
     /** TODO: */
@@ -94,7 +112,7 @@ export class View {
     // }
     /** TODO: refactor me (deprecated) */
     isWideScreen(): boolean {
-        return this.width / this.height > 1080.0 / 1920;
+        return this._screenWidth / this._screenHeight > 1080.0 / 1920;
     }
 
     /**
