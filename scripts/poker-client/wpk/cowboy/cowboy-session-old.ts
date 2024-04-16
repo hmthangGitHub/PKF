@@ -31,7 +31,7 @@ import type {
     BetZoneOption,
     IAdvanceAutoBetCancelNotify,
     IRoomTrendNotice
-} from './cowboy-session-types';
+} from './cowboy-session-types-old';
 
 import { TypeSafeEventEmitter } from '../../../core/event/event-emitter';
 
@@ -53,7 +53,7 @@ export interface CowboyNotifications {
     serverError: (code: number) => void;
 }
 
-export class CowboySession extends GameSession {
+export class CowboySessionOld extends GameSession {
     static readonly sessionName = 'CowboySession';
 
     _session: WPKSession;
