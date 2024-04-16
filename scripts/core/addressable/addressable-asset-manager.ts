@@ -1,4 +1,4 @@
-import { BundleManager } from './../asset/bundle-manager';
+import { BundleManager } from '../asset/bundle-manager';
 import type { IAssetLocator } from './asset-locator';
 import { LocationIndicator } from './asset-locator';
 import { AddressableAssetGroup } from './addressable-group';

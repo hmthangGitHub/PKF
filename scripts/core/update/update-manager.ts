@@ -1,9 +1,10 @@
-import type { Nullable } from './../defines/types';
-import { BundleManifest } from './bundle-manifest';
+import type { Nullable } from '../defines/types';
+import { BundleManifest } from '../asset/bundle-manifest';
 import { Module, ModuleManager } from '../module/module-index';
-import { BundleManager } from './bundle-manager';
 import { LocalStorage } from '../storage/localStorage';
+import { System } from '../system/system';
 import { http } from '../network/network-index';
+import { UpdateItem } from './update-item';
 
 export class UpdateManager extends Module {
     static moduleName = 'UpdateManager';
@@ -14,11 +15,21 @@ export class UpdateManager extends Module {
 
     private _localStorage: Nullable<LocalStorage> = null;
 
+    private _system: Nullable<System> = null;
+
+    private _updateItems = new Map<string, UpdateItem>();
+
     private _isUpdating = false;
+
+    private _storagePath = '';
 
     init(): void {
         super.init();
         this._localStorage = ModuleManager.instance.get(LocalStorage);
+        this._system = ModuleManager.instance.get(System);
+        if (this._system.isNative) {
+            this._storagePath = jsb.fileUtils.getWritablePath() + 'caches/';
+        }
     }
 
     get bundleManifest(): BundleManifest {
@@ -74,49 +85,34 @@ export class UpdateManager extends Module {
     }
 
     async checkUpdate(): Promise<void> {
-        if (!this.loadLocalManifest()) {
-            this.saveLocalManifest();
-        }
+        console.log('UpdateManager check update ...');
+        const promises = [];
 
-        const remoteManifest = await this.loadRemoteManifest();
-
-        let update = false;
-
-        if (this._bundleManifest.remoteManifestUrl !== remoteManifest.remoteManifestUrl) {
-            this._bundleManifest.remoteManifestUrl = remoteManifest.remoteManifestUrl;
-            update = true;
-        }
-
-        if (this._bundleManifest.bundleServerAddress !== remoteManifest.bundleServerAddress) {
-            this._bundleManifest.bundleServerAddress = remoteManifest.bundleServerAddress;
-            update = true;
-        }
-
-        this._bundleManifest.bundles.forEach((bundleInfo, name) => {
-            const remoteBundleInfo = remoteManifest.bundles.get(name);
-            if (remoteBundleInfo) {
-                if (bundleInfo.md5 !== remoteBundleInfo.md5) {
-                    bundleInfo.md5 = remoteBundleInfo.md5;
-                    update = true;
-                }
-            }
+        this._updateItems.forEach((item) => {
+            promises.push(item.checkUpdate());
         });
 
-        if (update) {
-            this.saveLocalManifest();
-        }
+        await Promise.all(promises);
+
+        console.log('UpdateManager check update done');
     }
 
     /** update bundle manifest by remote manifest url of default manifest */
     async updateBundleManifest(): Promise<void> {
+        this._updateItems.clear();
+
+        // if (this._system.isNative) {
+        //     this.loadLocalManifest();
+        // }
+
         const remoteManifest = await this.loadRemoteManifest();
 
-        if (
-            remoteManifest.remoteManifestUrl.length > 0 &&
-            this._bundleManifest.remoteManifestUrl !== remoteManifest.remoteManifestUrl
-        ) {
-            this._bundleManifest.remoteManifestUrl = remoteManifest.remoteManifestUrl;
-        }
+        // if (
+        //     remoteManifest.remoteManifestUrl.length > 0 &&
+        //     this._bundleManifest.remoteManifestUrl !== remoteManifest.remoteManifestUrl
+        // ) {
+        //     this._bundleManifest.remoteManifestUrl = remoteManifest.remoteManifestUrl;
+        // }
 
         if (
             remoteManifest.bundleServerAddress.length > 0 &&
@@ -132,20 +128,36 @@ export class UpdateManager extends Module {
                     bundleInfo.md5 = remoteBundleInfo.md5;
                 }
             }
+
+            console.log(`Add UpdateItem ${name}`);
+            const updateItem = new UpdateItem(name, this.storagePath);
+            this._updateItems.set(name, updateItem);
         });
     }
 
-    updateBundles(): void {
-        const bundleManager = ModuleManager.instance.get(BundleManager);
+    // updateBundles(): void {
+    //     const bundleManager = ModuleManager.instance.get(BundleManager);
 
-        this._bundleManifest.bundles.forEach((bundleInfo, bundleName) => {
-            const url = this._bundleManifest.bundleServerAddress + bundleName;
+    //     this._bundleManifest.bundles.forEach((bundleInfo, bundleName) => {
+    //         const url = this._bundleManifest.bundleServerAddress + bundleName;
 
-            const options = {
-                version: bundleInfo.md5
-            };
+    //         const options = {
+    //             version: bundleInfo.md5
+    //         };
 
-            bundleManager.loadBundle(url, options);
-        });
+    //         bundleManager.loadBundle(url, options);
+    //     });
+    // }
+
+    get storagePath() {
+        return this._storagePath;
+    }
+
+    getUpdateItem(bundle: string): Nullable<UpdateItem> {
+        return this._updateItems.get(bundle);
+    }
+
+    download(bundle: string): Promise<void> {
+        return Promise.resolve();
     }
 }
