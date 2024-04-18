@@ -13,4 +13,5 @@ export * from './event/event-emitter';
 export * from './async/async-operation';
 export * from './network/network-index';
 export * from './collections/collections-index';
+export * from './update/update-index';
 export * from './core';

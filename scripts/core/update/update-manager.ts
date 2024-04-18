@@ -1,21 +1,26 @@
 import type { Nullable } from '../defines/types';
-import { BundleManifest } from '../asset/bundle-manifest';
+import { BundleManifest } from './bundle-manifest';
 import { Module, ModuleManager } from '../module/module-index';
 import { LocalStorage } from '../storage/localStorage';
 import { System } from '../system/system';
 import { http } from '../network/network-index';
-import { UpdateItem } from './update-item';
+import { UpdateState, UpdateItem } from './update-item';
+import type { BundleEntry, IBundleOptions } from '../asset/asset-index';
+import { BundleManager } from '../asset/asset-index';
+import { InvalidOperationError, InternalError } from '../defines/errors';
 
 export class UpdateManager extends Module {
     static moduleName = 'UpdateManager';
 
+    private _system: System = null;
+
+    private _bundleManager: BundleManager = null;
+
+    private _localStorage: LocalStorage = null;
+
     private _localStorageKey = 'BundleManifest';
 
     private _bundleManifest: BundleManifest = new BundleManifest();
-
-    private _localStorage: Nullable<LocalStorage> = null;
-
-    private _system: Nullable<System> = null;
 
     private _updateItems = new Map<string, UpdateItem>();
 
@@ -27,6 +32,8 @@ export class UpdateManager extends Module {
         super.init();
         this._localStorage = ModuleManager.instance.get(LocalStorage);
         this._system = ModuleManager.instance.get(System);
+        this._bundleManager = ModuleManager.instance.get(BundleManager);
+
         if (this._system.isNative) {
             this._storagePath = jsb.fileUtils.getWritablePath() + 'caches/';
         }
@@ -57,9 +64,8 @@ export class UpdateManager extends Module {
         this._localStorage.setItem(this._localStorageKey, this._bundleManifest.toJson());
     }
 
-    loadRemoteManifest(): Promise<BundleManifest> {
+    private loadRemoteManifest(): Promise<BundleManifest> {
         return new Promise<any>((resolve, reject) => {
-            cc.log('loadRemoteManifest');
             if (this._bundleManifest.remoteManifestUrl.length <= 0) {
                 reject(new Error('Remote manifest url is empty!!'));
             } else {
@@ -68,6 +74,9 @@ export class UpdateManager extends Module {
                     // append url with bundle.json if the url is a folder
                     url = this._bundleManifest.remoteManifestUrl + 'bundle.json';
                 }
+
+                cc.log('load remoteManifest ' + url);
+
                 http.get(url)
                     .then((resp) => {
                         const bundleManifest = new BundleManifest();
@@ -85,15 +94,20 @@ export class UpdateManager extends Module {
     }
 
     async checkUpdate(): Promise<void> {
+        if (this._isUpdating) {
+            return Promise.reject(new InvalidOperationError('Update manager is alreay updating'));
+        }
+
         console.log('UpdateManager check update ...');
         const promises = [];
 
         this._updateItems.forEach((item) => {
-            promises.push(item.checkUpdate());
+            if (item.state === UpdateState.UNCHECKED || item.state === UpdateState.UNINITED) {
+                promises.push(item.checkUpdate());
+            }
         });
 
         await Promise.all(promises);
-
         console.log('UpdateManager check update done');
     }
 
@@ -130,7 +144,7 @@ export class UpdateManager extends Module {
             }
 
             console.log(`Add UpdateItem ${name}`);
-            const updateItem = new UpdateItem(name, this.storagePath);
+            const updateItem = new UpdateItem(name, this.storagePath, this._bundleManifest.bundleServerAddress);
             this._updateItems.set(name, updateItem);
         });
     }
@@ -153,11 +167,61 @@ export class UpdateManager extends Module {
         return this._storagePath;
     }
 
+    set storagePath(value: string) {
+        this._storagePath = value;
+    }
+
     getUpdateItem(bundle: string): Nullable<UpdateItem> {
         return this._updateItems.get(bundle);
     }
 
-    download(bundle: string): Promise<void> {
+    // download(bundle: string): Promise<void> {
+    //     const updateItem = this._updateItems.get(bundle);
+
+    //     if (updateItem.state === UpdateState.READY_TO_UPDATE) {
+    //         return updateItem.update();
+    //     }
+
+    //     return Promise.resolve();
+    // }
+
+    download(updateItem: UpdateItem): Promise<void> {
+        if (updateItem.state === UpdateState.READY_TO_UPDATE) {
+            return updateItem.download();
+        }
+
         return Promise.resolve();
+    }
+
+    async loadBundle(updateItem: UpdateItem, options?: IBundleOptions): Promise<BundleEntry> {
+        cc.log(`load bundle ${updateItem.bundle}`);
+
+        if (this._system.isBrowser) {
+            const bundleInfo = this._bundleManifest.bundles.get(updateItem.bundle);
+
+            const url = this._bundleManifest.bundleServerAddress + updateItem.bundle;
+
+            const newOptions = {
+                ...options,
+                version: bundleInfo.md5
+            };
+
+            cc.log('loadbundle', newOptions);
+
+            return this._bundleManager.loadBundle(url, newOptions);
+        } else {
+            if (updateItem.state === UpdateState.READY_TO_UPDATE) {
+                await this.download(updateItem);
+            }
+
+            if (updateItem.state === UpdateState.UP_TO_DATE) {
+                cc.log(`load bundle ${updateItem.bundle}`, options);
+                return this._bundleManager.loadBundle(updateItem.bundle, options);
+            }
+
+            const errMsg = `bundle ${updateItem.bundle} is not ready to load. State: ${updateItem.state}`;
+            cc.warn(errMsg);
+            return Promise.reject(new InternalError(errMsg));
+        }
     }
 }

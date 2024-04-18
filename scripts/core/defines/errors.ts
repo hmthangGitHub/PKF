@@ -54,3 +54,10 @@ export class NotImplementError extends Error {
         this.name = 'NotImplementError';
     }
 }
+
+export class InternalError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'InternalError';
+    }
+}
