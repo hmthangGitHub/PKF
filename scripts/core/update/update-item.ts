@@ -2,7 +2,7 @@ import type { Nullable } from '../defines/types';
 import { System } from '../system/system';
 import { ModuleManager } from '../module/module-index';
 import { AsyncOperation } from '../async/async-operation';
-import { InvalidOperationError } from '../defines/errors';
+import { InternalError, InvalidOperationError } from '../defines/errors';
 
 export enum UpdateState {
     UNINITED,
@@ -20,6 +20,8 @@ export enum UpdateState {
     UP_TO_DATE,
     FAIL_TO_UPDATE
 }
+
+const HOTUPDATE_MANIFEST_FILENAME = 'project.manifest';
 
 export class UpdateItem {
     private _bundle: string = '';
@@ -58,9 +60,9 @@ export class UpdateItem {
             this._storagePath = storagePath;
             this._packageUrl = packageUrl;
             this._remoteManifestUrl = packageUrl + `${bundle}_project.json`;
-            this._assetManager = new jsb.AssetsManager('', storagePath, versionCompareHandle);
+            this._assetManager = new jsb.AssetsManager('', this._storagePath, versionCompareHandle);
 
-            cc.log(`${this._bundle} assetManager state ${this._assetManager.getState()}`);
+            cc.log(`${this._bundle} assetManager storagePath ${this._storagePath}`);
         }
     }
 
@@ -112,9 +114,10 @@ export class UpdateItem {
         }
 
         if (!this._assetManager.getLocalManifest() || !this._assetManager.getLocalManifest().isLoaded()) {
-            cc.log(`${this._bundle} load custom manifest failed`);
-            return;
+            cc.warn(`${this._bundle} load custom manifest failed.`);
+            return Promise.reject(new InternalError(`${this._bundle} load custom manifest failed.`));
         }
+
         this._assetManager.setEventCallback(this.checkCb.bind(this));
 
         this._assetManager.checkUpdate();
@@ -162,11 +165,7 @@ export class UpdateItem {
     }
 
     private checkCb(event: jsb.EventAssetsManager) {
-        cc.log(
-            `${
-                this._bundle
-            } check update Code: ${event.getEventCode()} assetManager state ${this._assetManager.getState()}`
-        );
+        cc.log(`${this._bundle} check update Code: ${event.getEventCode()}`);
         switch (event.getEventCode()) {
             case jsb.EventAssetsManager.ERROR_NO_LOCAL_MANIFEST:
                 cc.warn(`${this._bundle} No local manifest file found, hot update skipped.`);
@@ -174,9 +173,7 @@ export class UpdateItem {
             case jsb.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST:
             case jsb.EventAssetsManager.ERROR_PARSE_MANIFEST:
                 cc.warn(
-                    `[${
-                        this._bundle
-                    }] Fail to download manifest file, hot update skipped. assetManager state ${this._assetManager.getState()}`
+                    `[${this._bundle}] Fail to download manifest file, hot update skipped. Error: ${event.getMessage()}`
                 );
                 break;
             case jsb.EventAssetsManager.ALREADY_UP_TO_DATE:
@@ -201,6 +198,10 @@ export class UpdateItem {
         this._asyncOp = null;
     }
 
+    getBundlePath(): string {
+        return this._storagePath + this._bundle;
+    }
+
     private updateCb(event: jsb.EventAssetsManager) {
         let finished = false;
         switch (event.getEventCode()) {
@@ -208,7 +209,7 @@ export class UpdateItem {
                 this.updateFailed(`${this._bundle} No local manifest file found, hot update skipped.`);
                 break;
             case jsb.EventAssetsManager.UPDATE_PROGRESSION:
-                cc.log(`[${this._bundle}] download ${event.getPercent() * 100} %`);
+                // cc.log(`[${this._bundle}] download ${event.getPercent() * 100} %`);
                 break;
             case jsb.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST:
             case jsb.EventAssetsManager.ERROR_PARSE_MANIFEST:
@@ -237,14 +238,17 @@ export class UpdateItem {
         }
 
         if (finished) {
+            cc.log(`${this._bundle} download finished. }`);
             cc.log(
-                `[${this._bundle}] download finished.` +
-                    event.getMessage() +
-                    ` assetManager state: ${this._assetManager.getState()}`
+                `${this._bundle} download files: ${event.getDownloadedFiles()} bytes: ${event.getDownloadedBytes()}`
             );
-            this._updating = false;
+
+            this.removeChachedFiles();
+
             this._assetManager.setEventCallback(null);
             this._state = this._assetManager.getState() as number;
+            this._updating = false;
+
             this._asyncOp.resolve();
             this._asyncOp = null;
         }
@@ -254,8 +258,18 @@ export class UpdateItem {
         this._assetManager.setEventCallback(null);
         this._updating = false;
         this._state = this._assetManager.getState() as number;
-        cc.warn(reason + ` assetManager state: ${this._assetManager.getState()}`);
+        cc.warn(reason);
+        this.removeChachedFiles();
         this._asyncOp.reject(new Error(reason));
         this._asyncOp = null;
+    }
+
+    private removeChachedFiles(): void {
+        const manifestFile = this._storagePath + HOTUPDATE_MANIFEST_FILENAME;
+
+        if (jsb.fileUtils.isFileExist(manifestFile)) {
+            cc.log(`${this._bundle} remove chached file ${manifestFile}`);
+            jsb.fileUtils.removeFile(manifestFile);
+        }
     }
 }

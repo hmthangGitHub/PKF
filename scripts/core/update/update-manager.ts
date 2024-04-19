@@ -10,7 +10,7 @@ import { BundleManager } from '../asset/asset-index';
 import { InvalidOperationError, InternalError } from '../defines/errors';
 
 export class UpdateManager extends Module {
-    static moduleName = 'UpdateManager';
+    static moduleName = '[UpdateManager]';
 
     private _system: System = null;
 
@@ -35,7 +35,7 @@ export class UpdateManager extends Module {
         this._bundleManager = ModuleManager.instance.get(BundleManager);
 
         if (this._system.isNative) {
-            this._storagePath = jsb.fileUtils.getWritablePath() + 'caches/';
+            this._storagePath = jsb.fileUtils.getWritablePath() + 'bundlecaches/';
         }
     }
 
@@ -98,17 +98,16 @@ export class UpdateManager extends Module {
             return Promise.reject(new InvalidOperationError('Update manager is alreay updating'));
         }
 
-        console.log('UpdateManager check update ...');
+        console.log(`${UpdateManager.moduleName} check update ...`);
         const promises = [];
 
-        this._updateItems.forEach((item) => {
-            if (item.state === UpdateState.UNCHECKED || item.state === UpdateState.UNINITED) {
-                promises.push(item.checkUpdate());
-            }
-        });
+        // this._updateItems.forEach((item) => {
+        //     if (item.state === UpdateState.UNCHECKED || item.state === UpdateState.UNINITED) {
+        //         promises.push(item.checkUpdate());
+        //     }
+        // });
 
         await Promise.all(promises);
-        console.log('UpdateManager check update done');
     }
 
     /** update bundle manifest by remote manifest url of default manifest */
@@ -175,36 +174,32 @@ export class UpdateManager extends Module {
         return this._updateItems.get(bundle);
     }
 
-    // download(bundle: string): Promise<void> {
-    //     const updateItem = this._updateItems.get(bundle);
+    async download(updateItem: UpdateItem): Promise<void> {
+        if (updateItem.state !== UpdateState.READY_TO_UPDATE) {
+            await updateItem.checkUpdate();
+        }
 
-    //     if (updateItem.state === UpdateState.READY_TO_UPDATE) {
-    //         return updateItem.update();
-    //     }
-
-    //     return Promise.resolve();
-    // }
-
-    download(updateItem: UpdateItem): Promise<void> {
         if (updateItem.state === UpdateState.READY_TO_UPDATE) {
             return updateItem.download();
         }
 
-        return Promise.resolve();
+        return Promise.reject(
+            new InvalidOperationError(`invalid update state of bundle: ${updateItem.bundle} state: ${updateItem.state}`)
+        );
     }
 
     async loadBundle(updateItem: UpdateItem, options?: IBundleOptions): Promise<BundleEntry> {
         cc.log(`load bundle ${updateItem.bundle}`);
 
+        const bundleInfo = this._bundleManifest.bundles.get(updateItem.bundle);
+
+        const newOptions = {
+            ...options,
+            version: bundleInfo.md5
+        };
+
         if (this._system.isBrowser) {
-            const bundleInfo = this._bundleManifest.bundles.get(updateItem.bundle);
-
             const url = this._bundleManifest.bundleServerAddress + updateItem.bundle;
-
-            const newOptions = {
-                ...options,
-                version: bundleInfo.md5
-            };
 
             cc.log('loadbundle', newOptions);
 
@@ -215,11 +210,14 @@ export class UpdateManager extends Module {
             }
 
             if (updateItem.state === UpdateState.UP_TO_DATE) {
-                cc.log(`load bundle ${updateItem.bundle}`, options);
-                return this._bundleManager.loadBundle(updateItem.bundle, options);
+                cc.log(`load bundle ${updateItem.bundle}`, newOptions);
+
+                const path = updateItem.getBundlePath();
+
+                return this._bundleManager.loadBundle(path, newOptions);
             }
 
-            const errMsg = `bundle ${updateItem.bundle} is not ready to load. State: ${updateItem.state}`;
+            const errMsg = `${updateItem.bundle} is not ready to load. State: ${updateItem.state}`;
             cc.warn(errMsg);
             return Promise.reject(new InternalError(errMsg));
         }
