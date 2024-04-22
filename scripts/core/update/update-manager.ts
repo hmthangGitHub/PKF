@@ -9,6 +9,8 @@ import type { BundleEntry, IBundleOptions } from '../asset/asset-index';
 import { BundleManager } from '../asset/asset-index';
 import { InvalidOperationError, InternalError } from '../defines/errors';
 
+const MANIFEST_FILENAME = 'bundle.json';
+
 export class UpdateManager extends Module {
     static moduleName = '[UpdateManager]';
 
@@ -20,11 +22,11 @@ export class UpdateManager extends Module {
 
     private _localStorageKey = 'BundleManifest';
 
-    private _bundleManifest: BundleManifest = new BundleManifest();
+    private _localManifest: BundleManifest = new BundleManifest();
+
+    private _remoteManifest: BundleManifest = new BundleManifest();
 
     private _updateItems = new Map<string, UpdateItem>();
-
-    private _isUpdating = false;
 
     private _storagePath = '';
 
@@ -39,40 +41,187 @@ export class UpdateManager extends Module {
         }
     }
 
-    get bundleManifest(): BundleManifest {
-        return this._bundleManifest;
+    get localManifest(): BundleManifest {
+        return this._localManifest;
+    }
+
+    get remoteManifest(): BundleManifest {
+        return this._remoteManifest;
+    }
+
+    get storagePath(): string {
+        return this._storagePath;
+    }
+
+    set storagePath(value: string) {
+        this._storagePath = value;
     }
 
     setDefaultManifest(jsonObj: any): void {
-        this._bundleManifest.fromJson(jsonObj);
+        this._localManifest.fromJson(jsonObj);
     }
 
-    loadLocalManifest(): boolean {
-        const data = this._localStorage.getItem(this._localStorageKey);
-        if (data) {
-            const jsonObj = JSON.parse(data);
+    /** load local and remote bundle manifest */
+    async loadBundleManifest(): Promise<void> {
+        this.loadLocalManifest();
 
-            this._bundleManifest.fromJson(jsonObj);
+        this._remoteManifest = await this.loadRemoteManifest();
 
+        let update = false;
+
+        if (this._remoteManifest.version.length > 0 && this._localManifest.version !== this._remoteManifest.version) {
+            this._localManifest.version = this._remoteManifest.version;
+        }
+
+        if (
+            this._remoteManifest.bundleServerAddress.length > 0 &&
+            this._localManifest.bundleServerAddress !== this._remoteManifest.bundleServerAddress
+        ) {
+            this._localManifest.bundleServerAddress = this._remoteManifest.bundleServerAddress;
+        }
+
+        if (update) {
+            this.saveLocalManifest();
+        }
+    }
+
+    /** check update state of bundles */
+    checkUpdate(): void {
+        cc.log(`${UpdateManager.moduleName} checkUpdate`);
+
+        this._updateItems.clear();
+
+        this._localManifest.bundles.forEach((bundleInfo, name) => {
+            const updateItem = new UpdateItem(name, this.storagePath, this._localManifest.bundleServerAddress);
+
+            if (this._system.isBrowser) {
+                updateItem.state = UpdateState.UP_TO_DATE;
+            } else {
+                const remoteBundleInfo = this._remoteManifest.bundles.get(name);
+                if (remoteBundleInfo) {
+                    if (bundleInfo.md5 !== remoteBundleInfo.md5 && remoteBundleInfo.md5 !== '') {
+                        updateItem.state = UpdateState.NEED_UPDATE;
+                    } else {
+                        updateItem.state = UpdateState.UP_TO_DATE;
+                    }
+                } else {
+                    updateItem.state = UpdateState.UP_TO_DATE;
+                }
+            }
+
+            cc.log(`${UpdateManager.moduleName} add UpdateItem ${name} state: ${updateItem.state}`);
+            this._updateItems.set(name, updateItem);
+        });
+    }
+
+    getUpdateItem(bundle: string): Nullable<UpdateItem> {
+        return this._updateItems.get(bundle);
+    }
+
+    async download(updateItem: UpdateItem): Promise<void> {
+        if (this._system.isBrowser) {
+            return Promise.resolve();
+        }
+
+        if (updateItem.state !== UpdateState.READY_TO_UPDATE) {
+            await updateItem.checkUpdate();
+        }
+
+        if (updateItem.state === UpdateState.READY_TO_UPDATE) {
+            await updateItem.download();
+
+            const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
+            const remoteBundleInfo = this._remoteManifest.bundles.get(updateItem.bundle);
+            bundleInfo.md5 = remoteBundleInfo.md5;
+            bundleInfo.version = remoteBundleInfo.version;
+
+            this.saveLocalManifest();
+            return;
+        }
+
+        return Promise.reject(
+            new InvalidOperationError(`invalid update state of bundle: ${updateItem.bundle} state: ${updateItem.state}`)
+        );
+    }
+
+    async loadBundle(updateItem: UpdateItem, options?: IBundleOptions): Promise<BundleEntry> {
+        let version = '';
+        const remoteBundleInfo = this._remoteManifest.getBundleInfo(updateItem.bundle);
+        if (remoteBundleInfo && remoteBundleInfo.md5 !== '') {
+            version = remoteBundleInfo.md5;
+        } else {
+            const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
+            if (bundleInfo) {
+                version = bundleInfo.md5;
+            }
+        }
+
+        const newOptions = {
+            ...options,
+            version: version
+        };
+
+        if (updateItem.state === UpdateState.READY_TO_UPDATE) {
+            await this.download(updateItem);
+        }
+
+        if (updateItem.state === UpdateState.UP_TO_DATE) {
+            const url = updateItem.getBundleUrl();
+
+            cc.log(`load bundle ${url}`, newOptions);
+
+            return this._bundleManager.loadBundle(url, newOptions);
+        }
+
+        const errMsg = `${updateItem.bundle} is not ready to load. State: ${updateItem.state}`;
+        cc.warn(errMsg);
+        return Promise.reject(new InternalError(errMsg));
+    }
+
+    private loadLocalManifest(): boolean {
+        if (this._system.isBrowser) {
+            return true;
+        }
+
+        const src = this._storagePath + MANIFEST_FILENAME;
+
+        if (jsb.fileUtils.isFileExist(src)) {
+            cc.log(`${UpdateManager.moduleName} load local bundle manifest ${src}`);
+
+            const content = jsb.fileUtils.getStringFromFile(src);
+            if (content === '') {
+                return false;
+            }
+
+            this._localManifest.fromJson(JSON.parse(content));
             return true;
         }
 
         return false;
     }
 
-    saveLocalManifest(): void {
-        this._localStorage.setItem(this._localStorageKey, this._bundleManifest.toJson());
+    private saveLocalManifest(): void {
+        if (this._system.isBrowser) {
+            // only save manifest in native platform
+            return;
+        }
+
+        const dest = this._storagePath + MANIFEST_FILENAME;
+        cc.log(`${UpdateManager.moduleName} save local bundle manifest ${dest}`);
+
+        const content = JSON.stringify(this._localManifest.toJson());
+        jsb.fileUtils.writeStringToFile(content, dest);
     }
 
     private loadRemoteManifest(): Promise<BundleManifest> {
         return new Promise<any>((resolve, reject) => {
-            if (this._bundleManifest.remoteManifestUrl.length <= 0) {
+            if (this._localManifest.remoteManifestUrl.length <= 0) {
                 reject(new Error('Remote manifest url is empty!!'));
             } else {
-                let url = this._bundleManifest.remoteManifestUrl;
-                if (this._bundleManifest.remoteManifestUrl.slice(-1) === '/') {
+                let url = this._localManifest.remoteManifestUrl;
+                if (this._localManifest.remoteManifestUrl.slice(-1) === '/') {
                     // append url with bundle.json if the url is a folder
-                    url = this._bundleManifest.remoteManifestUrl + 'bundle.json';
+                    url = this._localManifest.remoteManifestUrl + 'bundle.json';
                 }
 
                 cc.log('load remoteManifest ' + url);
@@ -91,135 +240,5 @@ export class UpdateManager extends Module {
                     });
             }
         });
-    }
-
-    async checkUpdate(): Promise<void> {
-        if (this._isUpdating) {
-            return Promise.reject(new InvalidOperationError('Update manager is alreay updating'));
-        }
-
-        console.log(`${UpdateManager.moduleName} check update ...`);
-        const promises = [];
-
-        // this._updateItems.forEach((item) => {
-        //     if (item.state === UpdateState.UNCHECKED || item.state === UpdateState.UNINITED) {
-        //         promises.push(item.checkUpdate());
-        //     }
-        // });
-
-        await Promise.all(promises);
-    }
-
-    /** update bundle manifest by remote manifest url of default manifest */
-    async updateBundleManifest(): Promise<void> {
-        this._updateItems.clear();
-
-        // if (this._system.isNative) {
-        //     this.loadLocalManifest();
-        // }
-
-        const remoteManifest = await this.loadRemoteManifest();
-
-        // if (
-        //     remoteManifest.remoteManifestUrl.length > 0 &&
-        //     this._bundleManifest.remoteManifestUrl !== remoteManifest.remoteManifestUrl
-        // ) {
-        //     this._bundleManifest.remoteManifestUrl = remoteManifest.remoteManifestUrl;
-        // }
-
-        if (
-            remoteManifest.bundleServerAddress.length > 0 &&
-            this._bundleManifest.bundleServerAddress !== remoteManifest.bundleServerAddress
-        ) {
-            this._bundleManifest.bundleServerAddress = remoteManifest.bundleServerAddress;
-        }
-
-        this._bundleManifest.bundles.forEach((bundleInfo, name) => {
-            const remoteBundleInfo = remoteManifest.bundles.get(name);
-            if (remoteBundleInfo) {
-                if (bundleInfo.md5 !== remoteBundleInfo.md5) {
-                    bundleInfo.md5 = remoteBundleInfo.md5;
-                }
-            }
-
-            console.log(`Add UpdateItem ${name}`);
-            const updateItem = new UpdateItem(name, this.storagePath, this._bundleManifest.bundleServerAddress);
-            this._updateItems.set(name, updateItem);
-        });
-    }
-
-    // updateBundles(): void {
-    //     const bundleManager = ModuleManager.instance.get(BundleManager);
-
-    //     this._bundleManifest.bundles.forEach((bundleInfo, bundleName) => {
-    //         const url = this._bundleManifest.bundleServerAddress + bundleName;
-
-    //         const options = {
-    //             version: bundleInfo.md5
-    //         };
-
-    //         bundleManager.loadBundle(url, options);
-    //     });
-    // }
-
-    get storagePath() {
-        return this._storagePath;
-    }
-
-    set storagePath(value: string) {
-        this._storagePath = value;
-    }
-
-    getUpdateItem(bundle: string): Nullable<UpdateItem> {
-        return this._updateItems.get(bundle);
-    }
-
-    async download(updateItem: UpdateItem): Promise<void> {
-        if (updateItem.state !== UpdateState.READY_TO_UPDATE) {
-            await updateItem.checkUpdate();
-        }
-
-        if (updateItem.state === UpdateState.READY_TO_UPDATE) {
-            return updateItem.download();
-        }
-
-        return Promise.reject(
-            new InvalidOperationError(`invalid update state of bundle: ${updateItem.bundle} state: ${updateItem.state}`)
-        );
-    }
-
-    async loadBundle(updateItem: UpdateItem, options?: IBundleOptions): Promise<BundleEntry> {
-        cc.log(`load bundle ${updateItem.bundle}`);
-
-        const bundleInfo = this._bundleManifest.bundles.get(updateItem.bundle);
-
-        const newOptions = {
-            ...options,
-            version: bundleInfo.md5
-        };
-
-        if (this._system.isBrowser) {
-            const url = this._bundleManifest.bundleServerAddress + updateItem.bundle;
-
-            cc.log('loadbundle', newOptions);
-
-            return this._bundleManager.loadBundle(url, newOptions);
-        } else {
-            if (updateItem.state === UpdateState.READY_TO_UPDATE) {
-                await this.download(updateItem);
-            }
-
-            if (updateItem.state === UpdateState.UP_TO_DATE) {
-                cc.log(`load bundle ${updateItem.bundle}`, newOptions);
-
-                const path = updateItem.getBundlePath();
-
-                return this._bundleManager.loadBundle(path, newOptions);
-            }
-
-            const errMsg = `${updateItem.bundle} is not ready to load. State: ${updateItem.state}`;
-            cc.warn(errMsg);
-            return Promise.reject(new InternalError(errMsg));
-        }
     }
 }

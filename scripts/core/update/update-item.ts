@@ -52,14 +52,14 @@ export class UpdateItem {
     ) {
         this._system = ModuleManager.instance.get(System);
         this._bundle = bundle;
+        this._packageUrl = packageUrl;
 
         if (this._system.isBrowser) {
             this._state = UpdateState.UP_TO_DATE;
         } else {
             this._state = UpdateState.UNINITED;
             this._storagePath = storagePath;
-            this._packageUrl = packageUrl;
-            this._remoteManifestUrl = packageUrl + `${bundle}_project.json`;
+            this._remoteManifestUrl = packageUrl + this.getManifestName();
             this._assetManager = new jsb.AssetsManager('', this._storagePath, versionCompareHandle);
 
             cc.log(`${this._bundle} assetManager storagePath ${this._storagePath}`);
@@ -99,19 +99,19 @@ export class UpdateItem {
 
         this._asyncOp = new AsyncOperation();
 
-        if (this._assetManager.getState() === jsb.AssetsManager.State.UNINITED) {
+        cc.log(`${this._bundle} load loacl manifest`);
+        let content = this.loadLocalManifestContent();
+        if (content === '') {
             // 不存在版本控制文件 ，生成一个初始版本
             let gameManifest = {
                 version: '0',
                 packageUrl: this._packageUrl,
                 remoteManifestUrl: this._remoteManifestUrl
             };
-            let gameManifestContent = JSON.stringify(gameManifest);
-            let jsbGameManifest = new jsb.Manifest(gameManifestContent, this._storagePath);
-
-            cc.log(`${this._bundle} load custom manifest`);
-            this._assetManager.loadLocalManifest(jsbGameManifest, this._storagePath);
+            content = JSON.stringify(gameManifest);
         }
+        let jsbGameManifest = new jsb.Manifest(content, this._storagePath);
+        this._assetManager.loadLocalManifest(jsbGameManifest, this._storagePath);
 
         if (!this._assetManager.getLocalManifest() || !this._assetManager.getLocalManifest().isLoaded()) {
             cc.warn(`${this._bundle} load custom manifest failed.`);
@@ -198,8 +198,8 @@ export class UpdateItem {
         this._asyncOp = null;
     }
 
-    getBundlePath(): string {
-        return this._storagePath + this._bundle;
+    getBundleUrl(): string {
+        return this._system.isNative ? this._storagePath + this._bundle : this._packageUrl + this._bundle;
     }
 
     private updateCb(event: jsb.EventAssetsManager) {
@@ -238,12 +238,13 @@ export class UpdateItem {
         }
 
         if (finished) {
-            cc.log(`${this._bundle} download finished. }`);
             cc.log(
-                `${this._bundle} download files: ${event.getDownloadedFiles()} bytes: ${event.getDownloadedBytes()}`
+                `${
+                    this._bundle
+                } download finished. Download files: ${event.getDownloadedFiles()} bytes: ${event.getDownloadedBytes()}`
             );
 
-            this.removeChachedFiles();
+            this.saveBundleContentManifest();
 
             this._assetManager.setEventCallback(null);
             this._state = this._assetManager.getState() as number;
@@ -264,12 +265,38 @@ export class UpdateItem {
         this._asyncOp = null;
     }
 
-    private removeChachedFiles(): void {
-        const manifestFile = this._storagePath + HOTUPDATE_MANIFEST_FILENAME;
+    private saveBundleContentManifest(): void {
+        const chachedManifestFile = this._storagePath + HOTUPDATE_MANIFEST_FILENAME;
 
-        if (jsb.fileUtils.isFileExist(manifestFile)) {
-            cc.log(`${this._bundle} remove chached file ${manifestFile}`);
-            jsb.fileUtils.removeFile(manifestFile);
+        if (jsb.fileUtils.isFileExist(chachedManifestFile)) {
+            const content = jsb.fileUtils.getStringFromFile(chachedManifestFile);
+
+            const dest = this._storagePath + this.getManifestName();
+            cc.log(`${this._bundle} save BundleContentManifest ${dest}`);
+            jsb.fileUtils.writeStringToFile(content, dest);
+            jsb.fileUtils.removeFile(chachedManifestFile);
         }
+    }
+
+    private removeChachedFiles(): void {
+        const chachedManifestFile = this._storagePath + HOTUPDATE_MANIFEST_FILENAME;
+
+        if (jsb.fileUtils.isFileExist(chachedManifestFile)) {
+            cc.log(`${this._bundle} remove chached file ${chachedManifestFile}`);
+            jsb.fileUtils.removeFile(chachedManifestFile);
+        }
+    }
+
+    private getManifestName(): string {
+        return `${this._bundle}_project.json`;
+    }
+
+    private loadLocalManifestContent(): string {
+        const src = this._storagePath + this.getManifestName();
+        if (jsb.fileUtils.isFileExist(src)) {
+            return jsb.fileUtils.getStringFromFile(src);
+        }
+
+        return '';
     }
 }
