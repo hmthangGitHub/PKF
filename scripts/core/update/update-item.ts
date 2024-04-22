@@ -23,6 +23,8 @@ export enum UpdateState {
 
 const HOTUPDATE_MANIFEST_FILENAME = 'project.manifest';
 
+export type ProgressCallback = (percentage: number) => void;
+
 export class UpdateItem {
     private _bundle: string = '';
 
@@ -43,6 +45,8 @@ export class UpdateItem {
     private _remoteManifestUrl = '';
 
     private _canRetry = false;
+
+    private _progressCallback: Nullable<ProgressCallback> = null;
 
     constructor(
         bundle: string,
@@ -126,7 +130,7 @@ export class UpdateItem {
         return this._asyncOp.promise;
     }
 
-    download(): Promise<void> {
+    download(onProgress?: ProgressCallback): Promise<void> {
         if (this._updating) {
             return Promise.reject(new InvalidOperationError(`${this._bundle} is updating ...`));
         }
@@ -147,6 +151,7 @@ export class UpdateItem {
         this._asyncOp = new AsyncOperation();
 
         this._assetManager.setEventCallback(this.updateCb.bind(this));
+        this._progressCallback = onProgress;
         this._assetManager.update();
 
         return this._asyncOp.promise;
@@ -209,7 +214,9 @@ export class UpdateItem {
                 this.updateFailed(`${this._bundle} No local manifest file found, hot update skipped.`);
                 break;
             case jsb.EventAssetsManager.UPDATE_PROGRESSION:
-                // cc.log(`[${this._bundle}] download ${event.getPercent() * 100} %`);
+                if (this._progressCallback) {
+                    this._progressCallback(event.getPercent());
+                }
                 break;
             case jsb.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST:
             case jsb.EventAssetsManager.ERROR_PARSE_MANIFEST:

@@ -1,9 +1,9 @@
 import type { Nullable } from '../defines/types';
 import { BundleManifest } from './bundle-manifest';
 import { Module, ModuleManager } from '../module/module-index';
-import { LocalStorage } from '../storage/localStorage';
 import { System } from '../system/system';
 import { http } from '../network/network-index';
+import type { ProgressCallback } from './update-item';
 import { UpdateState, UpdateItem } from './update-item';
 import type { BundleEntry, IBundleOptions } from '../asset/asset-index';
 import { BundleManager } from '../asset/asset-index';
@@ -18,10 +18,6 @@ export class UpdateManager extends Module {
 
     private _bundleManager: BundleManager = null;
 
-    private _localStorage: LocalStorage = null;
-
-    private _localStorageKey = 'BundleManifest';
-
     private _localManifest: BundleManifest = new BundleManifest();
 
     private _remoteManifest: BundleManifest = new BundleManifest();
@@ -30,9 +26,10 @@ export class UpdateManager extends Module {
 
     private _storagePath = '';
 
+    private _skipHotUpdate = false;
+
     init(): void {
         super.init();
-        this._localStorage = ModuleManager.instance.get(LocalStorage);
         this._system = ModuleManager.instance.get(System);
         this._bundleManager = ModuleManager.instance.get(BundleManager);
 
@@ -55,6 +52,13 @@ export class UpdateManager extends Module {
 
     set storagePath(value: string) {
         this._storagePath = value;
+    }
+
+    get skipHotUpdate() {
+        return this._skipHotUpdate;
+    }
+    set skipHotUpdate(value) {
+        this._skipHotUpdate = value;
     }
 
     setDefaultManifest(jsonObj: any): void {
@@ -94,7 +98,7 @@ export class UpdateManager extends Module {
         this._localManifest.bundles.forEach((bundleInfo, name) => {
             const updateItem = new UpdateItem(name, this.storagePath, this._localManifest.bundleServerAddress);
 
-            if (this._system.isBrowser) {
+            if (this._system.isBrowser || this._skipHotUpdate) {
                 updateItem.state = UpdateState.UP_TO_DATE;
             } else {
                 const remoteBundleInfo = this._remoteManifest.bundles.get(name);
@@ -118,7 +122,7 @@ export class UpdateManager extends Module {
         return this._updateItems.get(bundle);
     }
 
-    async download(updateItem: UpdateItem): Promise<void> {
+    async download(updateItem: UpdateItem, onProgress?: ProgressCallback): Promise<void> {
         if (this._system.isBrowser) {
             return Promise.resolve();
         }
@@ -128,7 +132,7 @@ export class UpdateManager extends Module {
         }
 
         if (updateItem.state === UpdateState.READY_TO_UPDATE) {
-            await updateItem.download();
+            await updateItem.download(onProgress);
 
             const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
             const remoteBundleInfo = this._remoteManifest.bundles.get(updateItem.bundle);
@@ -166,7 +170,9 @@ export class UpdateManager extends Module {
         }
 
         if (updateItem.state === UpdateState.UP_TO_DATE) {
-            const url = updateItem.getBundleUrl();
+            const url = this._skipHotUpdate
+                ? this._localManifest.bundleServerAddress + updateItem.bundle
+                : updateItem.getBundleUrl();
 
             cc.log(`load bundle ${url}`, newOptions);
 
