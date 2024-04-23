@@ -197,7 +197,7 @@ export class UpdateItem {
 
         this._assetManager.setEventCallback(null);
         this._state = this._assetManager.getState() as number;
-        cc.log(`[${this._bundle}] state ${this._state}`);
+        cc.log(`${this._bundle} state ${this._state}`);
         this._updating = false;
         this._asyncOp.resolve();
         this._asyncOp = null;

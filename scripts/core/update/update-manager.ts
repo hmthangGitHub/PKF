@@ -96,7 +96,11 @@ export class UpdateManager extends Module {
         this._updateItems.clear();
 
         this._localManifest.bundles.forEach((bundleInfo, name) => {
-            const updateItem = new UpdateItem(name, this.storagePath, this._localManifest.bundleServerAddress);
+            const updateItem = new UpdateItem(name, this.storagePath, this._localManifest.bundleServerAddress, () => {
+                // Note:
+                // force update item downlad
+                return -1;
+            });
 
             if (this._system.isBrowser || this._skipHotUpdate) {
                 updateItem.state = UpdateState.UP_TO_DATE;
@@ -104,6 +108,7 @@ export class UpdateManager extends Module {
                 const remoteBundleInfo = this._remoteManifest.bundles.get(name);
                 if (remoteBundleInfo) {
                     if (bundleInfo.md5 !== remoteBundleInfo.md5 && remoteBundleInfo.md5 !== '') {
+                        // make update item update when bundle md5 is different
                         updateItem.state = UpdateState.NEED_UPDATE;
                     } else {
                         updateItem.state = UpdateState.UP_TO_DATE;
@@ -143,6 +148,10 @@ export class UpdateManager extends Module {
             return;
         }
 
+        if (updateItem.state === UpdateState.UP_TO_DATE) {
+            return;
+        }
+
         return Promise.reject(
             new InvalidOperationError(`invalid update state of bundle: ${updateItem.bundle} state: ${updateItem.state}`)
         );
@@ -174,7 +183,7 @@ export class UpdateManager extends Module {
                 ? this._localManifest.bundleServerAddress + updateItem.bundle
                 : updateItem.getBundleUrl();
 
-            cc.log(`load bundle ${url}`, newOptions);
+            cc.log(`load bundle ${url} ${newOptions.version}`);
 
             return this._bundleManager.loadBundle(url, newOptions);
         }
