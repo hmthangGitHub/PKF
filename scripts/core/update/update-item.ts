@@ -23,7 +23,7 @@ export enum UpdateState {
 
 const HOTUPDATE_MANIFEST_FILENAME = 'project.manifest';
 
-export type ProgressCallback = (percentage: number) => void;
+export type ProgressCallback = (downloadBytes: number, totalBytes: number, percentage: number) => void;
 
 export class UpdateItem {
     private _bundle: string = '';
@@ -145,7 +145,7 @@ export class UpdateItem {
             );
         }
 
-        cc.log(`[${this._bundle}] start download ...`);
+        cc.log(`${this._bundle} start download ...`);
 
         this._updating = true;
         this._asyncOp = new AsyncOperation();
@@ -215,7 +215,7 @@ export class UpdateItem {
                 break;
             case jsb.EventAssetsManager.UPDATE_PROGRESSION:
                 if (this._progressCallback) {
-                    this._progressCallback(event.getPercent());
+                    this._progressCallback(event.getDownloadedBytes(), event.getTotalBytes(), event.getPercent());
                 }
                 break;
             case jsb.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST:
