@@ -137,15 +137,30 @@ export class UpdateManager extends Module {
         }
 
         if (updateItem.state === UpdateState.READY_TO_UPDATE) {
-            await updateItem.download(onProgress);
+            while (1) {
+                try {
+                    if (updateItem.canRetry) {
+                        await updateItem.retry();
+                    } else {
+                        await updateItem.download(onProgress);
 
-            const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
-            const remoteBundleInfo = this._remoteManifest.bundles.get(updateItem.bundle);
-            bundleInfo.md5 = remoteBundleInfo.md5;
-            bundleInfo.version = remoteBundleInfo.version;
+                        const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
+                        const remoteBundleInfo = this._remoteManifest.bundles.get(updateItem.bundle);
+                        bundleInfo.md5 = remoteBundleInfo.md5;
+                        bundleInfo.version = remoteBundleInfo.version;
 
-            this.saveLocalManifest();
-            return;
+                        this.saveLocalManifest();
+                    }
+                    return;
+                } catch (err) {
+                    cc.warn(err);
+                    if (!updateItem.canRetry) {
+                        return Promise.reject(
+                            new InternalError(`fail to update state of bundle: ${updateItem.bundle}`)
+                        );
+                    }
+                }
+            }
         }
 
         if (updateItem.state === UpdateState.UP_TO_DATE) {

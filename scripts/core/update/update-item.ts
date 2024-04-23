@@ -82,6 +82,10 @@ export class UpdateItem {
         this._state = value;
     }
 
+    get canRetry() {
+        return this._canRetry;
+    }
+
     isNeedUpdate(): boolean {
         return this._state === UpdateState.NEED_UPDATE;
     }
@@ -159,6 +163,7 @@ export class UpdateItem {
 
     retry(): Promise<void> {
         if (this._canRetry && !this._updating) {
+            cc.log(`retry download ${this._bundle}`);
             this._asyncOp = new AsyncOperation();
             this._assetManager.setEventCallback(this.updateCb.bind(this));
             this._canRetry = false;
@@ -214,7 +219,7 @@ export class UpdateItem {
                 this.updateFailed(`${this._bundle} No local manifest file found, hot update skipped.`);
                 break;
             case jsb.EventAssetsManager.UPDATE_PROGRESSION:
-                if (this._progressCallback) {
+                if (this._progressCallback && event.getTotalBytes() > 0) {
                     this._progressCallback(event.getDownloadedBytes(), event.getTotalBytes(), event.getPercent());
                 }
                 break;
@@ -233,8 +238,11 @@ export class UpdateItem {
                 this._canRetry = true;
                 break;
             case jsb.EventAssetsManager.ERROR_UPDATING:
+                this._canRetry = true;
                 this.updateFailed(
-                    `${this._bundle} Asset update error: ` + event.getAssetId() + ', ' + event.getMessage()
+                    `${this._bundle} Asset ${event.getAssetId()} update error: ` +
+                        event.getMessage() +
+                        ` assetManager state ${this._assetManager.getState()}`
                 );
                 break;
             case jsb.EventAssetsManager.ERROR_DECOMPRESS:
