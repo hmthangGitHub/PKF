@@ -75,6 +75,7 @@ export class UpdateManager extends Module {
 
         if (this._remoteManifest.version.length > 0 && this._localManifest.version !== this._remoteManifest.version) {
             this._localManifest.version = this._remoteManifest.version;
+            update = true;
         }
 
         if (
@@ -82,6 +83,7 @@ export class UpdateManager extends Module {
             this._localManifest.bundleServerAddress !== this._remoteManifest.bundleServerAddress
         ) {
             this._localManifest.bundleServerAddress = this._remoteManifest.bundleServerAddress;
+            update = true;
         }
 
         if (update) {
@@ -143,14 +145,14 @@ export class UpdateManager extends Module {
                         await updateItem.retry();
                     } else {
                         await updateItem.download(onProgress);
-
-                        const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
-                        const remoteBundleInfo = this._remoteManifest.bundles.get(updateItem.bundle);
-                        bundleInfo.md5 = remoteBundleInfo.md5;
-                        bundleInfo.version = remoteBundleInfo.version;
-
-                        this.saveLocalManifest();
                     }
+
+                    const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
+                    const remoteBundleInfo = this._remoteManifest.bundles.get(updateItem.bundle);
+                    bundleInfo.md5 = remoteBundleInfo.md5;
+                    bundleInfo.version = remoteBundleInfo.version;
+
+                    this.saveLocalManifest();
                     return;
                 } catch (err) {
                     cc.warn(err);

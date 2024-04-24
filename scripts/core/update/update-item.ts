@@ -65,8 +65,6 @@ export class UpdateItem {
             this._storagePath = storagePath;
             this._remoteManifestUrl = packageUrl + this.getManifestName();
             this._assetManager = new jsb.AssetsManager('', this._storagePath, versionCompareHandle);
-
-            cc.log(`${this._bundle} assetManager storagePath ${this._storagePath}`);
         }
     }
 
@@ -107,7 +105,7 @@ export class UpdateItem {
 
         this._asyncOp = new AsyncOperation();
 
-        cc.log(`${this._bundle} load loacl manifest`);
+        cc.log(`${this._bundle} load local manifest`);
         let content = this.loadLocalManifestContent();
         if (content === '') {
             // 不存在版本控制文件 ，生成一个初始版本
