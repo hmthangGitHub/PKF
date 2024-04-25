@@ -9,3 +9,4 @@ export * from './luck-turntable-service';
 export * from './error-message-service';
 export * from './calm-down-service';
 export * from './exchange-currency-service';
+export * from './rebate-service';
