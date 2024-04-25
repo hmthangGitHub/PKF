@@ -1,4 +1,6 @@
 /* eslint-disable camelcase */
+import * as ws_protocol from 'ws_protocol';
+import pb = ws_protocol.pb;
 import type { Nullable } from '../../core/defines/types';
 import type {
     ISocket,
@@ -26,9 +28,6 @@ import { InvalidOperationError, ServerError } from '../../core/defines/errors';
 import { SocketMessageProcessor } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
-
-import * as ws_protocol from './pb/wpk-ws_protocol';
-import pb = ws_protocol.pb;
 
 export class WPKSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<WPKSession> = null;
