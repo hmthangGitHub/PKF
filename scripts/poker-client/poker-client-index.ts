@@ -6,4 +6,3 @@ export * from './poker-client-macros';
 export * from './websocket-adapter';
 export * from './socket-message-processor';
 export * as session from './session/game-session-index';
-export * as cowboy from './wpk/cowboy/cowboy-index';
