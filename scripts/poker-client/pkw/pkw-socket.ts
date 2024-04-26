@@ -1,4 +1,6 @@
 /* eslint-disable camelcase */
+import * as ws_protocol from 'ws_protocol';
+import pb = ws_protocol.pb;
 import type { Nullable } from '../../core/defines/types';
 import type {
     ISocket,
@@ -29,9 +31,6 @@ import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 import { AsyncOperation } from '../../core/async/async-operation';
 import { macros } from '../poker-client-macros';
-
-import * as ws_protocol from './pb/pkw-ws_protocol';
-import pb = ws_protocol.pb;
 
 export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<ISession> = null;
