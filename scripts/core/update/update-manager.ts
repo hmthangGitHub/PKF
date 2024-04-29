@@ -3,7 +3,7 @@ import { BundleManifest } from './bundle-manifest';
 import { Module, ModuleManager } from '../module/module-index';
 import { System } from '../system/system';
 import { http } from '../network/network-index';
-import type { ProgressCallback } from './update-item';
+import type { UpdateProgressCallback } from './update-item';
 import { UpdateState, UpdateItem } from './update-item';
 import type { BundleEntry, IBundleOptions } from '../asset/asset-index';
 import { BundleManager } from '../asset/asset-index';
@@ -129,7 +129,7 @@ export class UpdateManager extends Module {
         return this._updateItems.get(bundle);
     }
 
-    async download(updateItem: UpdateItem, onProgress?: ProgressCallback): Promise<void> {
+    async download(updateItem: UpdateItem, onProgress?: UpdateProgressCallback): Promise<void> {
         if (this._system.isBrowser) {
             return Promise.resolve();
         }

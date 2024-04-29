@@ -23,7 +23,7 @@ export enum UpdateState {
 
 const HOTUPDATE_MANIFEST_FILENAME = 'project.manifest';
 
-export type ProgressCallback = (downloadBytes: number, totalBytes: number, percentage: number) => void;
+export type UpdateProgressCallback = (downloadBytes: number, totalBytes: number, percentage: number) => void;
 
 export class UpdateItem {
     private _bundle: string = '';
@@ -46,7 +46,7 @@ export class UpdateItem {
 
     private _canRetry = false;
 
-    private _progressCallback: Nullable<ProgressCallback> = null;
+    private _progressCallback: Nullable<UpdateProgressCallback> = null;
 
     constructor(
         bundle: string,
@@ -132,7 +132,7 @@ export class UpdateItem {
         return this._asyncOp.promise;
     }
 
-    download(onProgress?: ProgressCallback): Promise<void> {
+    download(onProgress?: UpdateProgressCallback): Promise<void> {
         if (this._updating) {
             return Promise.reject(new InvalidOperationError(`${this._bundle} is updating ...`));
         }
