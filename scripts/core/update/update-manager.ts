@@ -108,15 +108,19 @@ export class UpdateManager extends Module {
                 updateItem.state = UpdateState.UP_TO_DATE;
             } else {
                 const remoteBundleInfo = this._remoteManifest.bundles.get(name);
-                if (remoteBundleInfo) {
-                    if (bundleInfo.md5 !== remoteBundleInfo.md5 && remoteBundleInfo.md5 !== '') {
+                if (remoteBundleInfo && remoteBundleInfo.md5 !== '') {
+                    if (bundleInfo.md5 !== remoteBundleInfo.md5) {
                         // make update item update when bundle md5 is different
                         updateItem.state = UpdateState.NEED_UPDATE;
                     } else {
                         updateItem.state = UpdateState.UP_TO_DATE;
                     }
                 } else {
-                    updateItem.state = UpdateState.UP_TO_DATE;
+                    if(bundleInfo.md5 !== '') {
+                        updateItem.state = UpdateState.UP_TO_DATE;
+                    } else {
+                        updateItem.state = UpdateState.NEED_UPDATE;
+                    }
                 }
             }
 

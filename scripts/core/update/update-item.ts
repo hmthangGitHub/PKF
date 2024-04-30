@@ -217,8 +217,16 @@ export class UpdateItem {
                 this.updateFailed(`${this._bundle} No local manifest file found, hot update skipped.`);
                 break;
             case jsb.EventAssetsManager.UPDATE_PROGRESSION:
-                if (this._progressCallback && event.getTotalBytes() > 0) {
-                    this._progressCallback(event.getDownloadedBytes(), event.getTotalBytes(), event.getPercent());
+                try {
+                    if (this._progressCallback && event.getTotalBytes() > 0) {
+                        this._progressCallback(event.getDownloadedBytes(), event.getTotalBytes(), event.getPercent());
+                    }
+                } catch(err) {
+                    // NOTE:
+                    // This is a workaroud for pkw 
+                    // because progress bar of pkw may be destroyed when get message MiniGamesListResponse
+                    cc.warn(err);
+                    this._progressCallback = null;
                 }
                 break;
             case jsb.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST:
@@ -259,6 +267,7 @@ export class UpdateItem {
 
             this.saveBundleContentManifest();
 
+            this._progressCallback = null;
             this._assetManager.setEventCallback(null);
             this._state = this._assetManager.getState() as number;
             this._updating = false;
@@ -269,6 +278,7 @@ export class UpdateItem {
     }
 
     private updateFailed(reason: string) {
+        this._progressCallback = null;
         this._assetManager.setEventCallback(null);
         this._updating = false;
         this._state = this._assetManager.getState() as number;
