@@ -7,8 +7,13 @@ import type { UpdateProgressCallback } from './update-item';
 import { UpdateState, UpdateItem } from './update-item';
 import type { BundleEntry, IBundleOptions } from '../asset/asset-index';
 import { BundleManager } from '../asset/asset-index';
-import { InvalidOperationError, InternalError, UpdateBoundleFailedError, 
-    LoadRemoteManifestFailedError, InvalidURL } from '../defines/errors';
+import {
+    InvalidOperationError,
+    InternalError,
+    UpdateBoundleFailedError,
+    LoadRemoteManifestFailedError,
+    InvalidURL
+} from '../defines/errors';
 
 const MANIFEST_FILENAME = 'bundle.json';
 
@@ -68,11 +73,11 @@ export class UpdateManager extends Module {
 
     /** load local and remote bundle manifest */
     async loadRemoteBundleManifest(): Promise<void> {
-        if(this._localManifest.remoteManifestUrl.length < 0) {
+        if (this._localManifest.remoteManifestUrl.length < 0) {
             return;
         }
 
-        this._remoteManifest = await this.doLoadRemoteManifest();        
+        this._remoteManifest = await this.doLoadRemoteManifest();
     }
 
     /** check update state of bundles */
@@ -119,7 +124,7 @@ export class UpdateManager extends Module {
                         updateItem.state = UpdateState.UP_TO_DATE;
                     }
                 } else {
-                    if(bundleInfo.md5 !== '') {
+                    if (bundleInfo.md5 !== '') {
                         updateItem.state = UpdateState.UP_TO_DATE;
                     } else {
                         updateItem.state = UpdateState.NEED_UPDATE;
@@ -182,16 +187,9 @@ export class UpdateManager extends Module {
     }
 
     async loadBundle(updateItem: UpdateItem, options?: IBundleOptions): Promise<BundleEntry> {
-        let version = '';
-        const remoteBundleInfo = this._remoteManifest.getBundleInfo(updateItem.bundle);
-        if (remoteBundleInfo && remoteBundleInfo.md5 !== '') {
-            version = remoteBundleInfo.md5;
-        } else {
-            const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
-            if (bundleInfo) {
-                version = bundleInfo.md5;
-            }
-        }
+        const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
+
+        const version = bundleInfo?.md5 ?? '';
 
         const newOptions = {
             ...options,
@@ -276,7 +274,7 @@ export class UpdateManager extends Module {
                     .catch((err) => {
                         const error = err as Error;
                         const msg = `loadRemoteManifest failed: ${error.message}`;
-                        cc.warn(msg);                                                
+                        cc.warn(msg);
                         reject(new LoadRemoteManifestFailedError(msg));
                     });
             }

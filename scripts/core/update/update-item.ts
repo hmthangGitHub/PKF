@@ -192,11 +192,7 @@ export class UpdateItem {
                 );
                 break;
             case jsb.EventAssetsManager.NEW_VERSION_FOUND:
-                cc.log(
-                    `${
-                        this._bundle
-                    } New version found: ${this._assetManager.getTotalBytes()} bytes assetManager state ${this._assetManager.getState()}`
-                );
+                cc.log(`${this._bundle} New version found: ${this._assetManager.getTotalBytes()}}`);
                 break;
             default:
                 return;
