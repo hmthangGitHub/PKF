@@ -7,7 +7,8 @@ import type { UpdateProgressCallback } from './update-item';
 import { UpdateState, UpdateItem } from './update-item';
 import type { BundleEntry, IBundleOptions } from '../asset/asset-index';
 import { BundleManager } from '../asset/asset-index';
-import { InvalidOperationError, InternalError } from '../defines/errors';
+import { InvalidOperationError, InternalError, UpdateBoundleFailedError, 
+    LoadRemoteManifestFailedError, InvalidURL } from '../defines/errors';
 
 const MANIFEST_FILENAME = 'bundle.json';
 
@@ -66,10 +67,19 @@ export class UpdateManager extends Module {
     }
 
     /** load local and remote bundle manifest */
-    async loadBundleManifest(): Promise<void> {
-        this.loadLocalManifest();
+    async loadRemoteBundleManifest(): Promise<void> {
+        if(this._localManifest.remoteManifestUrl.length < 0) {
+            return;
+        }
 
-        this._remoteManifest = await this.loadRemoteManifest();
+        this._remoteManifest = await this.doLoadRemoteManifest();        
+    }
+
+    /** check update state of bundles */
+    checkUpdate(): void {
+        cc.log(`${UpdateManager.moduleName} checkUpdate`);
+
+        this._updateItems.clear();
 
         let update = false;
 
@@ -89,13 +99,6 @@ export class UpdateManager extends Module {
         if (update) {
             this.saveLocalManifest();
         }
-    }
-
-    /** check update state of bundles */
-    checkUpdate(): void {
-        cc.log(`${UpdateManager.moduleName} checkUpdate`);
-
-        this._updateItems.clear();
 
         this._localManifest.bundles.forEach((bundleInfo, name) => {
             const updateItem = new UpdateItem(name, this.storagePath, this._localManifest.bundleServerAddress, () => {
@@ -162,7 +165,7 @@ export class UpdateManager extends Module {
                     cc.warn(err);
                     if (!updateItem.canRetry) {
                         return Promise.reject(
-                            new InternalError(`fail to update state of bundle: ${updateItem.bundle}`)
+                            new UpdateBoundleFailedError(`fail to update state of bundle: ${updateItem.bundle}`)
                         );
                     }
                 }
@@ -214,7 +217,7 @@ export class UpdateManager extends Module {
         return Promise.reject(new InternalError(errMsg));
     }
 
-    private loadLocalManifest(): boolean {
+    loadLocalManifest(): boolean {
         if (this._system.isBrowser) {
             return true;
         }
@@ -236,7 +239,7 @@ export class UpdateManager extends Module {
         return false;
     }
 
-    private saveLocalManifest(): void {
+    saveLocalManifest(): void {
         if (this._system.isBrowser) {
             // only save manifest in native platform
             return;
@@ -249,10 +252,10 @@ export class UpdateManager extends Module {
         jsb.fileUtils.writeStringToFile(content, dest);
     }
 
-    private loadRemoteManifest(): Promise<BundleManifest> {
+    private doLoadRemoteManifest(): Promise<BundleManifest> {
         return new Promise<any>((resolve, reject) => {
             if (this._localManifest.remoteManifestUrl.length <= 0) {
-                reject(new Error('Remote manifest url is empty!!'));
+                reject(new InvalidURL('Remote manifest url is empty!!'));
             } else {
                 let url = this._localManifest.remoteManifestUrl;
                 if (this._localManifest.remoteManifestUrl.slice(-1) === '/') {
@@ -271,8 +274,10 @@ export class UpdateManager extends Module {
                         resolve(bundleManifest);
                     })
                     .catch((err) => {
-                        cc.log('loadRemoteManifest', err);
-                        reject(err);
+                        const error = err as Error;
+                        const msg = `loadRemoteManifest failed: ${error.message}`;
+                        cc.warn(msg);                                                
+                        reject(new LoadRemoteManifestFailedError(msg));
                     });
             }
         });
