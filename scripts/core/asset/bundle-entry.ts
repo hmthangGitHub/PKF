@@ -5,7 +5,7 @@ export enum BundleState {
     Loading,
     Loaded,
     Entering,
-    Entered,
+    Entered
 }
 
 export interface EntryClass<T> {
@@ -27,7 +27,7 @@ export class BundleEntry {
     private _state = BundleState.Unload;
 
     bundleType: BUNDLE_TYPE = BUNDLE_TYPE.BUNDLE_RESOURCE;
-    
+
     onBeforeExit: () => void = null;
 
     onAfterExit: () => void = null;
@@ -39,12 +39,12 @@ export class BundleEntry {
     }
     set bundle(value: cc.AssetManager.Bundle) {
         this._bundle = value;
-    }    
+    }
 
-    public get state() {
+    get state() {
         return this._state;
     }
-    public set state(value) {
+    set state(value) {
         this._state = value;
     }
 
@@ -65,7 +65,7 @@ export class BundleEntry {
             this._state = BundleState.Entering;
             await this.onEnter(options);
             this._state = BundleState.Entered;
-        } catch(err) {
+        } catch (err) {
             this._state = BundleState.Loaded;
             throw err;
         }

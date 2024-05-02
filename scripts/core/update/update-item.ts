@@ -192,7 +192,11 @@ export class UpdateItem {
                 );
                 break;
             case jsb.EventAssetsManager.NEW_VERSION_FOUND:
-                cc.log(`${this._bundle} New version found: ${this._assetManager.getTotalBytes()} bytes`);
+                cc.log(
+                    `${
+                        this._bundle
+                    } New version found: ${this._assetManager.getTotalBytes()} bytes assetManager state ${this._assetManager.getState()}`
+                );
                 break;
             default:
                 return;
@@ -221,9 +225,9 @@ export class UpdateItem {
                     if (this._progressCallback && event.getTotalBytes() > 0) {
                         this._progressCallback(event.getDownloadedBytes(), event.getTotalBytes(), event.getPercent());
                     }
-                } catch(err) {
+                } catch (err) {
                     // NOTE:
-                    // This is a workaroud for pkw 
+                    // This is a workaroud for pkw
                     // because progress bar of pkw may be destroyed when get message MiniGamesListResponse
                     cc.warn(err);
                     this._progressCallback = null;

@@ -43,7 +43,6 @@ export class BundleManager extends Module {
                                 resolve(entry);
                             })
                             .catch((err) => {
-                                BundleState.Unload;
                                 reject(err);
                             })
                             .finally(() => {
