@@ -14,6 +14,7 @@ import {
     LoadRemoteManifestFailedError,
     InvalidURL
 } from '../defines/errors';
+import { sleep } from '../async/async-index';
 
 const MANIFEST_FILENAME = 'bundle.json';
 
@@ -146,44 +147,25 @@ export class UpdateManager extends Module {
             return Promise.resolve();
         }
 
-        if (updateItem.state !== UpdateState.READY_TO_UPDATE) {
+        if (
+            updateItem.state === UpdateState.NEED_UPDATE ||
+            updateItem.state === UpdateState.UNCHECKED ||
+            updateItem.state === UpdateState.UNINITED
+        ) {
             await updateItem.checkUpdate();
         }
 
-        if (updateItem.state === UpdateState.READY_TO_UPDATE) {
-            while (1) {
-                try {
-                    if (updateItem.canRetry) {
-                        await updateItem.retry();
-                    } else {
-                        await updateItem.download(onProgress);
-                    }
-
-                    const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
-                    const remoteBundleInfo = this._remoteManifest.bundles.get(updateItem.bundle);
-                    bundleInfo.md5 = remoteBundleInfo.md5;
-                    bundleInfo.version = remoteBundleInfo.version;
-
-                    this.saveLocalManifest();
-                    return;
-                } catch (err) {
-                    cc.warn(err);
-                    if (!updateItem.canRetry) {
-                        return Promise.reject(
-                            new UpdateBoundleFailedError(`fail to update state of bundle: ${updateItem.bundle}`)
-                        );
-                    }
-                }
-            }
+        if (updateItem.state !== UpdateState.UP_TO_DATE) {
+            return this.doDownload(updateItem, onProgress);
         }
 
-        if (updateItem.state === UpdateState.UP_TO_DATE) {
-            return;
+        if (updateItem.state !== UpdateState.UP_TO_DATE) {
+            return Promise.reject(
+                new InvalidOperationError(
+                    `invalid update state of bundle: ${updateItem.bundle} state: ${updateItem.state}`
+                )
+            );
         }
-
-        return Promise.reject(
-            new InvalidOperationError(`invalid update state of bundle: ${updateItem.bundle} state: ${updateItem.state}`)
-        );
     }
 
     async loadBundle(updateItem: UpdateItem, options?: IBundleOptions): Promise<BundleEntry> {
@@ -279,5 +261,45 @@ export class UpdateManager extends Module {
                     });
             }
         });
+    }
+
+    private async doDownload(updateItem: UpdateItem, onProgress?: UpdateProgressCallback): Promise<void> {
+        while (updateItem.state !== UpdateState.UP_TO_DATE) {
+            try {
+                if (updateItem.state === UpdateState.READY_TO_UPDATE) {
+                    await updateItem.download(onProgress);
+                } else if (updateItem.state === UpdateState.UPDATING) {
+                    await sleep(300);
+                    await updateItem.download(onProgress);
+                } else if (updateItem.state === UpdateState.FAIL_TO_UPDATE && updateItem.canRetry) {
+                    await sleep(300);
+                    await updateItem.retry();
+                } else {
+                    return Promise.reject(
+                        new UpdateBoundleFailedError(
+                            `fail to update bundle: ${updateItem.bundle} state: ${updateItem.state}`
+                        )
+                    );
+                }
+
+                // download finished, update bundle info
+                const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
+                const remoteBundleInfo = this._remoteManifest.bundles.get(updateItem.bundle);
+                bundleInfo.md5 = remoteBundleInfo.md5;
+                bundleInfo.version = remoteBundleInfo.version;
+                this.saveLocalManifest();
+                return;
+            } catch (err) {
+                cc.warn(err);
+
+                if (!updateItem.canRetry && updateItem.state !== UpdateState.UPDATING) {
+                    return Promise.reject(
+                        new UpdateBoundleFailedError(
+                            `fail to update bundle: ${updateItem.bundle} state: ${updateItem.state}`
+                        )
+                    );
+                }
+            }
+        }
     }
 }

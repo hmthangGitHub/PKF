@@ -10,7 +10,7 @@ export * from './service/service-index';
 export * from './system/system';
 export * from './app/app';
 export * from './event/event-emitter';
-export * from './async/async-operation';
+export * from './async/async-index';
 export * from './network/network-index';
 export * from './collections/collections-index';
 export * from './update/update-index';

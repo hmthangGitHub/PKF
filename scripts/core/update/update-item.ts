@@ -46,6 +46,8 @@ export class UpdateItem {
 
     private _canRetry = false;
 
+    private _retryCount = 0;
+
     private _progressCallback: Nullable<UpdateProgressCallback> = null;
 
     constructor(
@@ -145,7 +147,13 @@ export class UpdateItem {
             return Promise.reject(new InvalidOperationError(`${this._bundle} is updating ...`));
         }
 
-        if (this._assetManager.getState() !== jsb.AssetsManager.State.READY_TO_UPDATE) {
+        if (this._assetManager.getState() === jsb.AssetsManager.State.READY_TO_UPDATE) {
+            this._retryCount = 0;
+            cc.log(`${this._bundle} start download... `);
+        } else if (this._assetManager.getState() === jsb.AssetsManager.State.UPDATING) {
+            this._retryCount++;
+            cc.log(`${this._bundle} continue download count: ${this._retryCount}`);
+        } else {
             return Promise.reject(
                 new InvalidOperationError(
                     `[${
@@ -154,8 +162,6 @@ export class UpdateItem {
                 )
             );
         }
-
-        cc.log(`${this._bundle} start download ...`);
 
         this._updating = true;
         this._asyncOp = new AsyncOperation();
@@ -169,7 +175,8 @@ export class UpdateItem {
 
     retry(): Promise<void> {
         if (this._canRetry && !this._updating) {
-            cc.log(`retry download ${this._bundle}`);
+            this._retryCount++;
+            cc.log(`${this._bundle} download retry count: ${this._retryCount}`);
             this._asyncOp = new AsyncOperation();
             this._assetManager.setEventCallback(this.updateCb.bind(this));
             this._canRetry = false;
@@ -248,7 +255,10 @@ export class UpdateItem {
                 finished = true;
                 break;
             case jsb.EventAssetsManager.UPDATE_FAILED:
-                this.updateFailed(`${this._bundle} Update failed. ` + event.getMessage());
+                this.updateFailed(
+                    `${this._bundle} Update failed. assetManager state: ${this._assetManager.getState()}` +
+                        event.getMessage()
+                );
                 this._canRetry = true;
                 break;
             case jsb.EventAssetsManager.ERROR_UPDATING:
