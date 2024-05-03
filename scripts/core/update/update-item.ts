@@ -115,7 +115,15 @@ export class UpdateItem {
                 remoteManifestUrl: this._remoteManifestUrl
             };
             content = JSON.stringify(gameManifest);
+        } else {
+            // NOTE:
+            // replace packageUrl and remoteManifestUrl because packageUrl may change
+            const json = JSON.parse(content);
+            json.packageUrl = this._packageUrl;
+            json.remoteManifestUrl = this._remoteManifestUrl;
+            content = JSON.stringify(json);
         }
+
         let jsbGameManifest = new jsb.Manifest(content, this._storagePath);
         this._assetManager.loadLocalManifest(jsbGameManifest, this._storagePath);
 
@@ -192,7 +200,7 @@ export class UpdateItem {
                 );
                 break;
             case jsb.EventAssetsManager.NEW_VERSION_FOUND:
-                cc.log(`${this._bundle} New version found: ${this._assetManager.getTotalBytes()}}`);
+                cc.log(`${this._bundle} New version found: ${this._assetManager.getTotalBytes()} bytes`);
                 break;
             default:
                 return;
