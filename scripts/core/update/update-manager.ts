@@ -264,11 +264,13 @@ export class UpdateManager extends Module {
     }
 
     private async doDownload(updateItem: UpdateItem, onProgress?: UpdateProgressCallback): Promise<void> {
+        updateItem.resetRetryCount();
+
         while (updateItem.state !== UpdateState.UP_TO_DATE) {
             try {
                 if (updateItem.state === UpdateState.READY_TO_UPDATE) {
                     await updateItem.download(onProgress);
-                } else if (updateItem.state === UpdateState.UPDATING) {
+                } else if (updateItem.state === UpdateState.UPDATING && updateItem.canRetry) {
                     await sleep(300);
                     await updateItem.download(onProgress);
                 } else if (updateItem.state === UpdateState.FAIL_TO_UPDATE && updateItem.canRetry) {
@@ -290,8 +292,6 @@ export class UpdateManager extends Module {
                 this.saveLocalManifest();
                 return;
             } catch (err) {
-                cc.warn(err);
-
                 if (!updateItem.canRetry && updateItem.state !== UpdateState.UPDATING) {
                     return Promise.reject(
                         new UpdateBoundleFailedError(

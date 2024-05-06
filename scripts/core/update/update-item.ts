@@ -23,6 +23,8 @@ export enum UpdateState {
 
 const HOTUPDATE_MANIFEST_FILENAME = 'project.manifest';
 
+const MAX_RETRY_COUNT = 20;
+
 export type UpdateProgressCallback = (downloadBytes: number, totalBytes: number, percentage: number) => void;
 
 export class UpdateItem {
@@ -83,7 +85,7 @@ export class UpdateItem {
     }
 
     get canRetry() {
-        return this._canRetry;
+        return this._retryCount < MAX_RETRY_COUNT && this._canRetry;
     }
 
     isNeedUpdate(): boolean {
@@ -148,6 +150,7 @@ export class UpdateItem {
         }
 
         if (this._assetManager.getState() === jsb.AssetsManager.State.READY_TO_UPDATE) {
+            // reset retry count
             this._retryCount = 0;
             cc.log(`${this._bundle} start download... `);
         } else if (this._assetManager.getState() === jsb.AssetsManager.State.UPDATING) {
@@ -185,6 +188,10 @@ export class UpdateItem {
         }
 
         return Promise.reject(new InvalidOperationError(`${this._bundle} cannot re-download`));
+    }
+
+    resetRetryCount(): void {
+        this._retryCount = 0;
     }
 
     private checkCb(event: jsb.EventAssetsManager) {
