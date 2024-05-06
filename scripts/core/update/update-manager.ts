@@ -115,6 +115,16 @@ export class UpdateManager extends Module {
 
             if (this._system.isBrowser || this._skipHotUpdate) {
                 updateItem.state = UpdateState.UP_TO_DATE;
+
+                const remoteBundleInfo = this._remoteManifest.bundles.get(name);
+
+                if (remoteBundleInfo && remoteBundleInfo.md5 !== '') {
+                    // NOTE: 
+                    // H5 Load bundle from remote every time,
+                    // So just replace local bundle md5 with remote bundle md5 if exist.
+                    bundleInfo.md5 = remoteBundleInfo.md5;
+                }
+
             } else {
                 const remoteBundleInfo = this._remoteManifest.bundles.get(name);
                 if (remoteBundleInfo && remoteBundleInfo.md5 !== '') {
