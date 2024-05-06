@@ -78,7 +78,20 @@ export class UpdateManager extends Module {
             return;
         }
 
-        this._remoteManifest = await this.doLoadRemoteManifest();
+        // retry for preventing network timeout
+        let retryCount = 0;
+        while(retryCount < 5) {            
+            try {
+                this._remoteManifest = await this.doLoadRemoteManifest();
+                return;
+            } catch(err) {
+                cc.warn(`${err}`);
+                sleep(1000);
+                retryCount ++;
+                cc.log(`retry load remote manifest ${this._localManifest.remoteManifestUrl}. count:${retryCount}`);                
+            }
+
+        }
     }
 
     /** check update state of bundles */
