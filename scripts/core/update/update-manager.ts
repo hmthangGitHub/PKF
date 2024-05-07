@@ -313,6 +313,14 @@ export class UpdateManager extends Module {
                 this.saveLocalManifest();
                 return;
             } catch (err) {
+                if(err instanceof InvalidOperationError) {
+                    return Promise.reject(
+                        new UpdateBoundleFailedError(
+                            `fail to update bundle: ${err}`
+                        )
+                    );
+                }
+
                 if (!updateItem.canRetry && updateItem.state !== UpdateState.UPDATING) {
                     return Promise.reject(
                         new UpdateBoundleFailedError(

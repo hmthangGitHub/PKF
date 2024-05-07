@@ -155,8 +155,12 @@ export class UpdateItem {
             cc.log(`${this._bundle} start download... `);
         } else if (this._assetManager.getState() === jsb.AssetsManager.State.UPDATING) {
             this._retryCount++;
-            cc.log(`${this._bundle} continue download count: ${this._retryCount}`);
-        } else {
+            cc.log(`${this._bundle} continue download count: ${this._retryCount}`);   
+        } else if(this._assetManager.getState() === jsb.AssetsManager.State.FAIL_TO_UPDATE && this.canRetry) {
+            // this state of assetManager does not match item state sometime
+            return this.retry();
+        }
+        else {
             return Promise.reject(
                 new InvalidOperationError(
                     `[${
