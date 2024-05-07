@@ -80,17 +80,16 @@ export class UpdateManager extends Module {
 
         // retry for preventing network timeout
         let retryCount = 0;
-        while(retryCount < 5) {            
+        while (retryCount < 5) {
             try {
                 this._remoteManifest = await this.doLoadRemoteManifest();
                 return;
-            } catch(err) {
+            } catch (err) {
                 cc.warn(`${err}`);
                 sleep(1000);
-                retryCount ++;
-                cc.log(`retry load remote manifest ${this._localManifest.remoteManifestUrl}. count:${retryCount}`);                
+                retryCount++;
+                cc.log(`retry load remote manifest ${this._localManifest.remoteManifestUrl}. count:${retryCount}`);
             }
-
         }
     }
 
@@ -132,12 +131,11 @@ export class UpdateManager extends Module {
                 const remoteBundleInfo = this._remoteManifest.bundles.get(name);
 
                 if (remoteBundleInfo && remoteBundleInfo.md5 !== '') {
-                    // NOTE: 
+                    // NOTE:
                     // H5 Load bundle from remote every time,
                     // So just replace local bundle md5 with remote bundle md5 if exist.
                     bundleInfo.md5 = remoteBundleInfo.md5;
                 }
-
             } else {
                 const remoteBundleInfo = this._remoteManifest.bundles.get(name);
                 if (remoteBundleInfo && remoteBundleInfo.md5 !== '') {
