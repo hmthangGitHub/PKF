@@ -15,7 +15,9 @@ import type {
     IResponseGetUserData,
     IResponseCalmDownConfirm,
     IGetScalerQuoteResponse,
-    IExchangeCurrencyResponse
+    IExchangeCurrencyResponse,
+    IGetEventStatusResponse,
+    IClaimRewardResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { WPKSession } from './wpk-session';
@@ -359,6 +361,52 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.error, 'exchangeCurrency');
+
+        return responseProto;
+    }
+
+    async getEventStatus(): Promise<IGetEventStatusResponse> {
+        // TODO: move from pkw...need implementation and test on wpk
+        const requestProto = new pb.GetEventStatusRequest();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgId_Rebate_GetEventStatus_Request,
+            pb.GetEventStatusRequest,
+            pb.MSGID.MsgId_Rebate_GetEventStatus_Response,
+            pb.GetEventStatusResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getEventStatus');
+
+        return responseProto;
+    }
+
+    async getRebateReward(
+        eventId: number,
+        betTimeIdx: number,
+        rewardProgressIndex: number
+    ): Promise<IClaimRewardResponse> {
+        // TODO: move from pkw...need implementation and test on wpk
+        const requestProto = new pb.ClaimRewardRequest();
+
+        requestProto.event_id = eventId;
+        requestProto.bet_time_index = betTimeIdx;
+        requestProto.reward_progress_index = rewardProgressIndex;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgId_Rebate_ReceiveReward_Request,
+            pb.ClaimRewardRequest,
+            pb.MSGID.MsgId_Rebate_ReceiveReward_Response,
+            pb.ClaimRewardResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getRebateReward');
 
         return responseProto;
     }

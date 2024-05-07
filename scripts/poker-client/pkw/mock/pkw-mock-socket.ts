@@ -6,9 +6,11 @@ import type { WebSocketAdapter } from '../../websocket-adapter';
 import type {
     ILuckTurntableResultResponse,
     ILuckTurntableSnaplistResponse,
-    IResponseCalmDownConfirm
+    IResponseCalmDownConfirm,
+    IGetEventStatusResponse
 } from '../../poker-socket';
 import { MockLuckTurntableData } from './mock-luck-turntable-data';
+import { MockRebateData } from './mock-rebate-data';
 
 export class PKWMockSocket extends PKWSocket {
     private _resolveFunc = null;
@@ -96,5 +98,16 @@ export class PKWMockSocket extends PKWSocket {
             numNotification: 1
         };
         this._notification.emit('calmDownConfirm', notify);
+    }
+
+    async getEventStatus(): Promise<IGetEventStatusResponse> {
+        setTimeout(() => this._resolveFunc(), 100);
+        await new Promise((resolve) => {
+            this._resolveFunc = resolve;
+        });
+
+        const now = Date.now() / 1000;
+
+        return MockRebateData.eventStatusType1;
     }
 }

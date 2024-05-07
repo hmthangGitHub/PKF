@@ -1,7 +1,7 @@
 // import type { ISocketOptions } from './poker-client-types';
 import type { GameSession, GameSessionClass } from './session/game-session';
 import type { TypeSafeEventEmitter } from '../core/event/event-emitter';
-import type { ISocketOptions, GameId, MsgType, MttNotifyType } from './poker-client-types';
+import type { GameId, MsgType, MttNotifyType } from './poker-client-types';
 
 export interface ILoginResponse {
     error?: number | null;
@@ -326,6 +326,7 @@ export namespace EventData {
             reward?: number | null;
             can_get?: boolean | null;
             got?: boolean | null;
+            currency_type?: number | null;
         }
     }
 }
@@ -350,6 +351,7 @@ export namespace EventDataWithType4 {
             reward?: number | null;
             can_get?: boolean | null;
             got?: boolean | null;
+            currency_type?: number | null;
         }
 
         export interface IPlayerStatus {
@@ -372,6 +374,7 @@ export namespace EventDataWithType4 {
             can_get?: boolean | null;
             got?: boolean | null;
             top_n_can_get?: number | null;
+            currency_type?: number | null;
         }
     }
 }
@@ -394,7 +397,7 @@ export interface IGetEventStatusResponse {
 export interface IClaimRewardResponse {
     error?: number | null;
     event_id?: number | null;
-    reward_amount?: number | null;
+    reward_amount?: { [k: string]: number } | null;
 }
 
 export interface ISocket {
