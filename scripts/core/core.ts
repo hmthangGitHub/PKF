@@ -1,8 +1,10 @@
 import { macros } from './defines/macros';
-import { BundleManager, UpdateManager } from './asset/asset-index';
-import { AddressableAssetManager } from './addressable/addressable-asset-manager';
 import type { IModule, ModuleClass } from './module/module';
 import { ModuleManager } from './module/module-manager';
+import { BundleManager } from './asset/asset-index';
+import { UpdateManager } from './update/update-manager';
+import { AddressableAssetManager } from './addressable/addressable-asset-manager';
+
 import { AudioManager } from './audio/audio-manager';
 import { LocalStorage } from './storage/localStorage';
 import { LanguageManager } from './language/language-manager';

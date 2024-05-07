@@ -2,7 +2,7 @@ import { Module } from '../module/module';
 import { bundleEntryManager } from './bundle-entry-manager';
 import type { Nullable } from '../defines/defines-index';
 import type { IBundleOptions } from './bundle-entry';
-import { BundleEntry } from './bundle-entry';
+import { BundleEntry, BundleState } from './bundle-entry';
 
 export class BundleManager extends Module {
     static moduleName = 'BundleManager';
@@ -35,9 +35,11 @@ export class BundleManager extends Module {
                         }
 
                         entry.bundle = bundle;
+                        entry.state = BundleState.Loading;
                         entry
                             .onLoad(options)
                             .then(() => {
+                                entry.state = BundleState.Loaded;
                                 resolve(entry);
                             })
                             .catch((err) => {
@@ -59,7 +61,6 @@ export class BundleManager extends Module {
             entry = await this.loadBundle(nameOrUrl);
         }
         return await entry.enter(options);
-        // bundleEntryManager.enterBundle(name);
     }
 
     exitBundle(name: string): void {

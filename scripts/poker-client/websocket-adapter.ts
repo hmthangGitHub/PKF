@@ -123,9 +123,9 @@ export class WebSocketAdapter {
 
         const asyncOp = new AsyncOperation();
 
-        this._webSocket.addEventListener('close', (ev) => {
+        this._webSocket.onclose = (ev) => {
             asyncOp.resolve();
-        });
+        };
 
         this.close();
 

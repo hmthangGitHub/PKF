@@ -12,6 +12,7 @@ export class View {
     _designWidth: number = 1080;
     _designHeight: number = 2338;
 
+    // NOTE: screen width and height is the fixed and not change when the view rotates
     private _screenWidth = 0;
     private _screenHeight = 0;
 
@@ -26,6 +27,7 @@ export class View {
     }
 
     init(): void {
+        // set the init win size as screen size
         this._screenWidth = cc.winSize.width;
         this._screenHeight = cc.winSize.height;
         console.log(`init view screen witdth = ${this._screenWidth} height = ${this._screenHeight}`);
