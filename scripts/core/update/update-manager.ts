@@ -12,11 +12,14 @@ import {
     InternalError,
     UpdateBoundleFailedError,
     LoadRemoteManifestFailedError,
-    InvalidURL
+    InvalidURL,
+    NoBoundleFoundError
 } from '../defines/errors';
 import { sleep } from '../async/async-index';
 
 const MANIFEST_FILENAME = 'bundle.json';
+const MAX_LOAD_REMOTE_MANIFEST_RETRY_COUNT = 5; 
+
 
 export class UpdateManager extends Module {
     static moduleName = '[UpdateManager]';
@@ -75,20 +78,28 @@ export class UpdateManager extends Module {
     /** load local and remote bundle manifest */
     async loadRemoteBundleManifest(): Promise<void> {
         if (this._localManifest.remoteManifestUrl.length < 0) {
-            return;
+            if(this._localManifest.bundleServerAddress.length < 0) {
+                throw new NoBoundleFoundError('No bundle info found');
+            }
+            throw new InvalidURL('Remote manifest url is empty!!'); 
         }
 
         // retry for preventing network timeout
         let retryCount = 0;
-        while (retryCount < 5) {
+        while (retryCount <= MAX_LOAD_REMOTE_MANIFEST_RETRY_COUNT) {
             try {
                 this._remoteManifest = await this.doLoadRemoteManifest();
                 return;
             } catch (err) {
-                cc.warn(`${err}`);
-                sleep(1000);
-                retryCount++;
-                cc.log(`retry load remote manifest ${this._localManifest.remoteManifestUrl}. count:${retryCount}`);
+                cc.warn(`${err}`);                
+                retryCount++;                
+                if(retryCount <= MAX_LOAD_REMOTE_MANIFEST_RETRY_COUNT) {
+                    cc.log(`retry load remote manifest ${this._localManifest.remoteManifestUrl}. count:${retryCount}`);
+                } else {
+                   throw err; 
+                }
+
+                await sleep(200);
             }
         }
     }

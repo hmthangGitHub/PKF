@@ -267,15 +267,16 @@ export class UpdateItem {
                 break;
             case jsb.EventAssetsManager.UPDATE_FAILED:
                 this.updateFailed(
-                    `${this._bundle} Update failed. assetManager state: ${this._assetManager.getState()}` +
-                        event.getMessage()
+                    `${this._bundle} update failed : (${event.getEventCode()}) ` +
+                    event.getMessage() +
+                    ` assetManager state ${this._assetManager.getState()}`
                 );
                 this._canRetry = true;
                 break;
             case jsb.EventAssetsManager.ERROR_UPDATING:
                 this._canRetry = true;
-                this.updateFailed(
-                    `${this._bundle} Asset ${event.getAssetId()} update error: ` +
+                this.updateFailed(                    
+                    `${this._bundle} Asset ${event.getAssetId()} update error: (${event.getEventCode()}) ` +
                         event.getMessage() +
                         ` assetManager state ${this._assetManager.getState()}`
                 );
