@@ -238,7 +238,26 @@ export enum SocketServerErrorCode {
 export enum MsgType {
     common = 0,
     medal = 1,
-    mtt_game_start = 2
+    mtt_game_notify = 2,
+    rank_notify = 3,
+    mtt_NotifyGameDetail = 100,
+    star_big_tip = 303,
+    jackfruit_all_will = 801,
+    rebate_notify = 810,
+    rebate_top_notify = 811,
+    rebate_surpassed_notify = 812
+}
+
+export enum MttNotifyType {
+    notify_type_1min = 0,
+    notify_type_start = 1,
+    notify_type_started = 2,
+    notify_type_blockrobot_startgame = 3,
+    notify_type_blockrobot_stopgame = 4,
+    notify_type_autofeed = 5,
+    notify_type_30min = 6,
+    notify_type_60min = 7,
+    notify_type_180min = 8
 }
 
 export type PlatformType = 'wpk' | 'pkw';

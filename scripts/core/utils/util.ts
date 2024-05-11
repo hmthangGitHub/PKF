@@ -1,3 +1,6 @@
+import { languageManager } from '../core';
+import { LANGUAGE_GROUPS } from '../language/language-types';
+
 export class Util {
     /**
      * 包装 Number, 防止返回 NaN, Infinity 等情况, 默认返回 0
@@ -37,5 +40,19 @@ export class Util {
 
     static getCurTimeInSec(): number {
         return Math.floor(new Date().getTime() / 1000);
+    }
+
+    static getLanguageIndex(): number {
+        let index = 0;
+        if (languageManager.currentLanguage === LANGUAGE_GROUPS.zh_CN) {
+            index = 0;
+        } else if (languageManager.currentLanguage === LANGUAGE_GROUPS.yn_TH) {
+            index = 2;
+        } else if (languageManager.currentLanguage === LANGUAGE_GROUPS.th_PH) {
+            index = 3;
+        } else {
+            index = 1;
+        }
+        return index;
     }
 }

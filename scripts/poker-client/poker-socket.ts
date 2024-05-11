@@ -1,7 +1,7 @@
-import type { ISocketOptions } from './poker-client-types';
+// import type { ISocketOptions } from './poker-client-types';
 import type { GameSession, GameSessionClass } from './session/game-session';
 import type { TypeSafeEventEmitter } from '../core/event/event-emitter';
-import type { GameId, MsgType } from './poker-client-types';
+import type { ISocketOptions, GameId, MsgType, MttNotifyType } from './poker-client-types';
 
 export interface ILoginResponse {
     error?: number | null;
@@ -133,6 +133,7 @@ export interface INoticeGlobalMessage {
     mtt_id?: number | null;
     mttGameName?: string | null;
     mttRemainTime?: number | null;
+    mttNotifyType?: MttNotifyType | null;
 }
 
 export interface ILuckTurntableStartTimeNotice {

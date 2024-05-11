@@ -50,6 +50,8 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
 
     private _errorMessageService: pf.services.ErrorMessageService = null;
 
+    onLuckTurntableRecordRemoved: (recordId: number) => void = null;
+
     constructor(socket: ISocket) {
         super(LuckTurntableService.serviceName);
         this._socket = socket;
@@ -93,6 +95,18 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
 
     get recordList(): any[] {
         return this._recordList;
+    }
+
+    removeLuckTurntableRecord(recordId: number) {
+        for (let i = 0; i < this._luckTurntables.length; i++) {
+            if (this._luckTurntables[i].record_id === recordId) {
+                this._luckTurntables.splice(i, 1);
+                if (this.onLuckTurntableRecordRemoved) {
+                    this.onLuckTurntableRecordRemoved(recordId);
+                }
+                break;
+            }
+        }
     }
 
     clearLuckTurntables() {
