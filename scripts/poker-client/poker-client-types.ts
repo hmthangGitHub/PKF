@@ -39,7 +39,13 @@ export enum GameId {
     Sports = 1000,
     TopMatches = 1001,
     PocketGames = 1010,
-    BlackJack = 1020
+    BlackJackDual = 1020,
+    BlackJack = 1021,
+    OBGames = 1100,
+    CaribbeanStud = 6001,
+    CaribbeanTexasHold = 6002,
+    WealthTrio = 6003,
+    ISlot = 6100
 }
 
 // 客户端类型(详情参见"Config.ts"注释)
