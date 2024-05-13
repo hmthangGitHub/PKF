@@ -1,5 +1,5 @@
 import { EmittableService } from '../core/core-index';
-import type { GameId } from '../poker-client/poker-client-types';
+import type { GameId, MttNotifyType } from '../poker-client/poker-client-types';
 import { MsgType } from '../poker-client/poker-client-types';
 import type { ISocket, INoticeGlobalMessage } from '../poker-client/poker-socket';
 
@@ -11,6 +11,7 @@ export class PushNotification {
     mttId?: number | null;
     mttGameName?: string | null;
     mttRemainTime?: number | null;
+    mttNotifyType?: MttNotifyType | null;
 
     constructor(data: INoticeGlobalMessage) {
         this.repeatCount = data.repeat_count ?? 0;
@@ -20,6 +21,7 @@ export class PushNotification {
         this.mttId = data.mtt_id ?? null;
         this.mttGameName = data.mttGameName ?? null;
         this.mttRemainTime = data.mttRemainTime ?? null;
+        this.mttNotifyType = data.mttNotifyType ?? null;
     }
 }
 
@@ -40,6 +42,8 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
     }
 
     onGlobalMessage(notify: INoticeGlobalMessage) {
+        // TODO: handle MTT notification
+
         this.emit('pushNotification', new PushNotification(notify));
     }
 }

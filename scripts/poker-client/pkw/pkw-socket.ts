@@ -658,7 +658,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleGlobalMessageNotify(protobuf: pb.NoticeGlobalMessage) {
         console.log('global message', protobuf);
-        // this._notification.emit('globalMessage', protobuf);
+        this._notification.emit('globalMessage', protobuf);
     }
 
     protected registerObservers() {

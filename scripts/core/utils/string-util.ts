@@ -1566,16 +1566,16 @@ export class StringUtil {
         // }
     }
 
-    // static getServerStrByLanguage(strData: string): string {
-    //     // 兼容新跑马灯#号分割的问题
-    //     if (strData.search('<color=#') != -1) return strData;
-    //     let strArr = strData.split('#');
-    //     let indx = StringTools.getLanguageIndx();
-    //     if (strArr.length < indx + 1) {
-    //         indx = strArr.length >= 2 ? 1 : 0;
-    //     }
-    //     return strArr[indx];
-    // }
+    static getServerStrByLanguage(strData: string): string {
+        // 兼容新跑马灯#号分割的问题
+        if (strData.search('<color=#') !== -1) return strData;
+        let strArr = strData.split('#');
+        let index = Util.getLanguageIndex();
+        if (strArr.length < index + 1) {
+            index = strArr.length >= 2 ? 1 : 0;
+        }
+        return strArr[index];
+    }
 
     // static getLanguageIndx(): number {
     //     let indx = 0;
