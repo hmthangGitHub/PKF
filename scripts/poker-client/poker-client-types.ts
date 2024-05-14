@@ -393,4 +393,6 @@ export interface IDomainInfo {
     imageUploadServer: string;
     avatarServer: string;
     webServer: string;
+    imageServerWpk: string;
+    imageServerWpto: string;
 }
