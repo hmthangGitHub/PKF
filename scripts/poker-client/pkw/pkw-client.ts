@@ -143,7 +143,9 @@ export class PKWClient implements IPokerClient {
                 imageServer: item.qiniu,
                 avatarServer: item.qiniu,
                 imageUploadServer: item.qiniu2,
-                webServer: item.api
+                webServer: item.api,
+                imageServerWpk: item.wpk,
+                imageServerWpto: ''
             };
 
             this._domains.push(domainInfo);
