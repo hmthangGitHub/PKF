@@ -121,7 +121,7 @@ export class UpdateManager extends Module {
             this._localManifest.bundleServerAddress !== this._remoteManifest.bundleServerAddress
         ) {
             this._localManifest.bundleServerAddress = this._remoteManifest.bundleServerAddress;
-            if (this._localManifest.bundleServerAddress[this._localManifest.bundleServerAddress.length] !== '/') {
+            if (this._localManifest.bundleServerAddress[this._localManifest.bundleServerAddress.length - 1] !== '/') {
                 this._localManifest.bundleServerAddress = this._localManifest.bundleServerAddress + '/';
             }
 
