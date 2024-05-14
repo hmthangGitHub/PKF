@@ -18,8 +18,7 @@ import {
 import { sleep } from '../async/async-index';
 
 const MANIFEST_FILENAME = 'bundle.json';
-const MAX_LOAD_REMOTE_MANIFEST_RETRY_COUNT = 5; 
-
+const MAX_LOAD_REMOTE_MANIFEST_RETRY_COUNT = 5;
 
 export class UpdateManager extends Module {
     static moduleName = '[UpdateManager]';
@@ -78,10 +77,10 @@ export class UpdateManager extends Module {
     /** load local and remote bundle manifest */
     async loadRemoteBundleManifest(): Promise<void> {
         if (this._localManifest.remoteManifestUrl.length < 0) {
-            if(this._localManifest.bundleServerAddress.length < 0) {
+            if (this._localManifest.bundleServerAddress.length < 0) {
                 throw new NoBoundleFoundError('No bundle info found');
             }
-            throw new InvalidURL('Remote manifest url is empty!!'); 
+            throw new InvalidURL('Remote manifest url is empty!!');
         }
 
         // retry for preventing network timeout
@@ -91,12 +90,12 @@ export class UpdateManager extends Module {
                 this._remoteManifest = await this.doLoadRemoteManifest();
                 return;
             } catch (err) {
-                cc.warn(`${err}`);                
-                retryCount++;                
-                if(retryCount <= MAX_LOAD_REMOTE_MANIFEST_RETRY_COUNT) {
+                cc.warn(`${err}`);
+                retryCount++;
+                if (retryCount <= MAX_LOAD_REMOTE_MANIFEST_RETRY_COUNT) {
                     cc.log(`retry load remote manifest ${this._localManifest.remoteManifestUrl}. count:${retryCount}`);
                 } else {
-                   throw err; 
+                    throw err;
                 }
 
                 await sleep(200);
@@ -122,6 +121,10 @@ export class UpdateManager extends Module {
             this._localManifest.bundleServerAddress !== this._remoteManifest.bundleServerAddress
         ) {
             this._localManifest.bundleServerAddress = this._remoteManifest.bundleServerAddress;
+            if (this._localManifest.bundleServerAddress[this._localManifest.bundleServerAddress.length] !== '/') {
+                this._localManifest.bundleServerAddress = this._localManifest.bundleServerAddress + '/';
+            }
+
             update = true;
         }
 
@@ -324,12 +327,8 @@ export class UpdateManager extends Module {
                 this.saveLocalManifest();
                 return;
             } catch (err) {
-                if(err instanceof InvalidOperationError) {
-                    return Promise.reject(
-                        new UpdateBoundleFailedError(
-                            `fail to update bundle: ${err}`
-                        )
-                    );
+                if (err instanceof InvalidOperationError) {
+                    return Promise.reject(new UpdateBoundleFailedError(`fail to update bundle: ${err}`));
                 }
 
                 if (!updateItem.canRetry && updateItem.state !== UpdateState.UPDATING) {

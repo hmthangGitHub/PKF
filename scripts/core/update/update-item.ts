@@ -155,12 +155,11 @@ export class UpdateItem {
             cc.log(`${this._bundle} start download... `);
         } else if (this._assetManager.getState() === jsb.AssetsManager.State.UPDATING) {
             this._retryCount++;
-            cc.log(`${this._bundle} continue download count: ${this._retryCount}`);   
-        } else if(this._assetManager.getState() === jsb.AssetsManager.State.FAIL_TO_UPDATE && this.canRetry) {
+            cc.log(`${this._bundle} continue download count: ${this._retryCount}`);
+        } else if (this._assetManager.getState() === jsb.AssetsManager.State.FAIL_TO_UPDATE && this.canRetry) {
             // this state of assetManager does not match item state sometime
             return this.retry();
-        }
-        else {
+        } else {
             return Promise.reject(
                 new InvalidOperationError(
                     `[${
@@ -268,14 +267,14 @@ export class UpdateItem {
             case jsb.EventAssetsManager.UPDATE_FAILED:
                 this.updateFailed(
                     `${this._bundle} update failed : (${event.getEventCode()}) ` +
-                    event.getMessage() +
-                    ` assetManager state ${this._assetManager.getState()}`
+                        event.getMessage() +
+                        ` assetManager state ${this._assetManager.getState()}`
                 );
                 this._canRetry = true;
                 break;
             case jsb.EventAssetsManager.ERROR_UPDATING:
                 this._canRetry = true;
-                this.updateFailed(                    
+                this.updateFailed(
                     `${this._bundle} Asset ${event.getAssetId()} update error: (${event.getEventCode()}) ` +
                         event.getMessage() +
                         ` assetManager state ${this._assetManager.getState()}`
