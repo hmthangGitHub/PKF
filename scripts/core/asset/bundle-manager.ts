@@ -2,7 +2,7 @@ import { Module } from '../module/module';
 import { bundleEntryManager } from './bundle-entry-manager';
 import type { Nullable } from '../defines/defines-index';
 import type { IBundleOptions } from './bundle-entry';
-import { BundleEntry } from './bundle-entry';
+import { BundleEntry, BundleState } from './bundle-entry';
 
 export class BundleManager extends Module {
     static moduleName = 'BundleManager';
@@ -35,13 +35,18 @@ export class BundleManager extends Module {
                         }
 
                         entry.bundle = bundle;
+                        entry.state = BundleState.Loading;
                         entry
                             .onLoad(options)
                             .then(() => {
+                                entry.state = BundleState.Loaded;
                                 resolve(entry);
                             })
                             .catch((err) => {
                                 reject(err);
+                            })
+                            .finally(() => {
+                                entry.afterOnLoad();
                             });
                     }
                 });
@@ -56,7 +61,6 @@ export class BundleManager extends Module {
             entry = await this.loadBundle(nameOrUrl);
         }
         return await entry.enter(options);
-        // bundleEntryManager.enterBundle(name);
     }
 
     exitBundle(name: string): void {
@@ -128,6 +132,10 @@ export class BundleManager extends Module {
 
     getBundle(bundleOrName: cc.AssetManager.Bundle | string): Nullable<cc.AssetManager.Bundle> {
         return bundleOrName instanceof cc.AssetManager.Bundle ? bundleOrName : cc.assetManager.getBundle(bundleOrName);
+    }
+
+    getEntry(bundleName: string): BundleEntry | undefined {
+        return bundleEntryManager.getEntry(bundleName);
     }
 
     getAsset<T extends cc.Asset = cc.Asset>(

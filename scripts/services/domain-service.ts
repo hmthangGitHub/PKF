@@ -1,43 +1,54 @@
 import { Service } from '../core/service/service';
-import type { ISession } from '../core/core-index';
-import { WPKSession } from '../core/network/poker-client/wpk/wpk-session';
-
-export class DomainInfo {
-    imageServer = '';
-    avatarServer = '';
-    gateAddresses: string[] = [];
-}
+import type { IDomainInfo, IPokerClient } from '../poker-client/poker-client-index';
 
 export class DomainService extends Service {
     static readonly serviceName = 'DomainService';
 
-    _domainInfo: DomainInfo = new DomainInfo();
+    private _client: IPokerClient;
 
-    constructor(session: ISession) {
+    private _domainIndex = 0;
+
+    constructor(client: IPokerClient) {
         super(DomainService.serviceName);
-
-        if (session instanceof WPKSession) {
-            this._domainInfo.imageServer = session.pkwAuthData.pkw_file_addr;
-            this._domainInfo.avatarServer = session.pkwAuthData.avatar_addr;
-            this._domainInfo.gateAddresses = session.pkwAuthData.gate_addr.slice();
-        }
+        this._client = client;
     }
 
-    getDomainInfo(): DomainInfo {
-        return this._domainInfo;
+    get domainIndex() {
+        return this._domainIndex;
+    }
+    set domainIndex(value) {
+        this._domainIndex = value;
+    }
+
+    getDomainInfo(): IDomainInfo {
+        return this._client.getDomains()[this._domainIndex];
+    }
+
+    getDomains(): IDomainInfo[] {
+        return this._client.getDomains();
     }
 
     getAvatarUrl(avatarPath: string, plat: number): string {
+        const domainInfo = this.getDomainInfo();
+
         let host = '';
-        if (plat === 1) {
-            host = this._domainInfo.avatarServer;
-        } else if (plat === 0 || plat === 3) {
-            host = this._domainInfo.imageServer;
+
+        if (plat === 0 || plat === 3) {
+            // pkw & mmp
+            host = domainInfo.imageServer;
+        } else if (plat === 1) {
+            host = domainInfo.imageServerWpk;
+        } else if (plat === 4) {
+            host = domainInfo.imageServerWpto;
         }
 
-        if (host.at(host.length - 1) !== '/' && avatarPath.at(0) !== '/') {
+        if (host[host.length - 1] !== '/' && avatarPath[0] !== '/') {
             return host + '/' + avatarPath;
         }
         return host + avatarPath;
+    }
+
+    getShopUrl(): string {
+        return this._client.getCurrentUser().shopURL;
     }
 }

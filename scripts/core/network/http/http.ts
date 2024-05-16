@@ -1,5 +1,5 @@
 import type { Options, ResponsePromise } from './http-types';
-import { Http } from './http-implement';
+import { Http } from './http-xhr';
 import { HttpMethod } from './http-constants';
 
 export function request(url: string, options?: Options): ResponsePromise {

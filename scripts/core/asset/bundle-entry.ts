@@ -1,5 +1,12 @@
 import { BUNDLE_TYPE } from '../defines/enums';
-import type { ISocket } from './../network/poker-client/poker-socket';
+
+export enum BundleState {
+    Unload,
+    Loading,
+    Loaded,
+    Entering,
+    Entered
+}
 
 export interface EntryClass<T> {
     new (): T;
@@ -10,17 +17,22 @@ export interface EntryClass<T> {
 export interface IBundleOptions {
     /// bundle version
     version?: string;
-    language?: string;
-    socket?: ISocket;
     roomId?: number;
+    onProgress?: (finish: number, total: number) => void;
 }
 
 export class BundleEntry {
     private _bundle: cc.AssetManager.Bundle = null;
 
+    private _state = BundleState.Unload;
+
+    bundleType: BUNDLE_TYPE = BUNDLE_TYPE.BUNDLE_RESOURCE;
+
     onBeforeExit: () => void = null;
 
     onAfterExit: () => void = null;
+
+    onBeforeLoadScene: () => void = null; // trigger before scene loaded (prior the load cycle in the scene script)
 
     get bundle(): cc.AssetManager.Bundle {
         return this._bundle;
@@ -29,23 +41,34 @@ export class BundleEntry {
         this._bundle = value;
     }
 
-    bundleType: BUNDLE_TYPE = BUNDLE_TYPE.BUNDLE_RESOURCE;
-
-    private _isRunning = false;
-    get isRunning(): boolean {
-        return this._isRunning;
+    get state() {
+        return this._state;
     }
+    set state(value) {
+        this._state = value;
+    }
+
+    // private _isRunning = false;
+    // get isRunning(): boolean {
+    //     return this._isRunning;
+    // }
 
     /** @description Called when bundle is loaded */
     onLoad(options?: IBundleOptions): Promise<void> {
-        this.afterLoad();
         return new Promise((resolve) => {
             resolve();
         });
     }
 
     async enter(options?: IBundleOptions): Promise<void> {
-        await this.onEnter(options);
+        try {
+            this._state = BundleState.Entering;
+            await this.onEnter(options);
+            this._state = BundleState.Entered;
+        } catch (err) {
+            this._state = BundleState.Loaded;
+            throw err;
+        }
     }
 
     async exit(): Promise<void> {
@@ -58,6 +81,13 @@ export class BundleEntry {
         if (this.onAfterExit) {
             this.onAfterExit();
         }
+
+        this._state = BundleState.Loaded;
+    }
+
+    /** @description Reconnect network */
+    async reconnect(): Promise<void> {
+        await this.onNetworkReconnect();
     }
 
     /** @description
@@ -76,19 +106,20 @@ export class BundleEntry {
         return new Promise((resolve) => {
             resolve();
         });
-        // if (this.exitCallback) {
-        //     this.exitCallback();
-        // }
     }
 
     /** @description
      * Called when unload bundle. Unload all resources of this bundle in this function.
      */
     onUnload(): void {
-        this._isRunning = false;
+        // this._isRunning = false;
     }
 
-    afterLoad(): void {
-        this._isRunning = true;
+    protected onNetworkReconnect(): Promise<void> {
+        return Promise.resolve();
+    }
+
+    afterOnLoad(): void {
+        // this._isRunning = true;
     }
 }

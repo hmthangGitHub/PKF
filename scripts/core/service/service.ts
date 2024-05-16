@@ -8,6 +8,12 @@ export interface IService {
     // destroy(): void;
 }
 
+export interface ServiceClass<T> {
+    new (...params: any): T;
+
+    serviceName: string;
+}
+
 export abstract class Service implements IService {
     name: string;
 
@@ -30,10 +36,4 @@ export abstract class EmittableService<EventType> extends TypeSafeEventEmitter<E
         super();
         this.name = name;
     }
-}
-
-export interface ServiceClass<T> {
-    new (...params: any): T;
-
-    serviceName: string;
 }

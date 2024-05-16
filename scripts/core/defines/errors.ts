@@ -48,9 +48,58 @@ export class InvalidParameterError extends Error {
     }
 }
 
+export class InvalidURL extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'InvalidURL';
+    }
+}
+
 export class NotImplementError extends Error {
     constructor(message: string) {
         super(message);
         this.name = 'NotImplementError';
+    }
+}
+
+export class InternalError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'InternalError';
+    }
+}
+
+export class LoadLocalManifestFailedError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'LoadLocalManifestFailedError';
+    }
+}
+
+export class LoadRemoteManifestFailedError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'LoadRemoteManifestFailedError';
+    }
+}
+
+export class NoBoundleFoundError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'NoBoundleFoundError';
+    }
+}
+
+export class UpdateBoundleManifestFailedError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'UpdateBoundleManifestFailedError';
+    }
+}
+
+export class UpdateBoundleFailedError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'UpdateBoundleFailedError';
     }
 }

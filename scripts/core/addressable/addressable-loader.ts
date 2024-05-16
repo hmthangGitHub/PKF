@@ -22,6 +22,8 @@ class AddressalbeAssetLoadTask {
 
 type LoadTasks = AddressalbeAssetLoadTask[];
 
+type OnProgressHandler = (finish: number, total: number) => void;
+
 /**
  * load task grouped by bundle
  */
@@ -36,7 +38,9 @@ class AddressalbeAssetLoadTaskGroup {
 
 export class AddressalbeAssetLoader {
     _state = LoadState.None;
-    _loadedCount = 0;
+    private _totalCount = 0;
+
+    _finishCount = 0;
     _loadTaskGroups = new Map<string, AddressalbeAssetLoadTaskGroup>();
 
     _assetManger: AddressableAssetManager = null;
@@ -45,6 +49,10 @@ export class AddressalbeAssetLoader {
     constructor() {
         this._assetManger = ModuleManager.instance.get(AddressableAssetManager);
         this._bundleManger = ModuleManager.instance.get(BundleManager);
+    }
+
+    get totalCount(): number {
+        return this._totalCount;
     }
 
     addLoadAssetTask(key: string): void {
@@ -97,12 +105,13 @@ export class AddressalbeAssetLoader {
         });
     }
 
-    start(): Promise<void> {
+    start(onProgress?: OnProgressHandler): Promise<void> {
         this._state = LoadState.InProgress;
-        this._loadedCount = 0;
+        this._totalCount = 0;
+        this._finishCount = 0;
 
         this._loadTaskGroups.forEach((taskGroup, bundleName) => {
-            this._loadedCount += taskGroup.tasks.length;
+            this._totalCount += taskGroup.tasks.length;
         });
 
         cc.log('adderessable assets loading start ...');
@@ -124,8 +133,13 @@ export class AddressalbeAssetLoader {
                             cc.warn(`Load ${task.assetLocation.name} failed: ${err}`);
                         })
                         .finally(() => {
-                            this._loadedCount -= 1;
-                            if (this._loadedCount <= 0) {
+                            this._finishCount += 1;
+                            if (onProgress) {
+                                onProgress(this._finishCount, this._totalCount);
+                            }
+                            // this._totalAssets -= 1;
+                            // if (this._totalAssets <= 0) {
+                            if (this._finishCount >= this._totalCount) {
                                 this._state = LoadState.Complete;
                                 cc.log('adderessable assets loading complete.');
                                 resolve();

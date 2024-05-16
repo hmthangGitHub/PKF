@@ -13,16 +13,16 @@ export class LanguageGroup {
         return this._strings.get(key);
     }
 
-    addString(key: string, value: string): void {
-        if (this._strings.has(key)) {
+    addString(key: string, value: string, warnOverwrite = false): void {
+        if (this._strings.has(key) && warnOverwrite) {
             cc.warn(`string '${key}' already exists in group ${this._name} . It will be overwrited.`);
         }
         this._strings.set(key, value);
     }
 
-    merge(other: LanguageGroup): void {
+    merge(other: LanguageGroup, warnOverwrite = true): void {
         other._strings.forEach((value, key) => {
-            this.addString(key, value);
+            this.addString(key, value, warnOverwrite);
         });
     }
 

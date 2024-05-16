@@ -1,36 +1,32 @@
 import type { Nullable } from './../defines/types';
 import { LanguageGroup } from './language-group';
 import { EmittableModule } from '../module/module-index';
+import { LANGUAGE_GROUPS } from './language-types';
 
 export interface LanguageEvents {
     languageChange: () => void;
 }
 
 export class LanguageManager extends EmittableModule<LanguageEvents> {
-    static moduleName = 'AddressableALanguageManagerssetManager';
+    static moduleName = 'LanguageManager';
 
     private _languageGroups = new Map<string, LanguageGroup>();
 
     private _currentLanguageGroup: Nullable<LanguageGroup> = null;
 
-    private _currentLanguage = '';
+    private _currentLanguage: string = LANGUAGE_GROUPS.zh_CN;
     get currentLanguage() {
         return this._currentLanguage;
     }
     set currentLanguage(value: string) {
         if (this._currentLanguage !== value) {
-            const lang = this._languageGroups.get(value);
-            if (lang) {
-                this._currentLanguageGroup = lang;
-                this._currentLanguage = value;
-                this.emit('languageChange');
-            } else {
-                cc.warn(`languae ${value} does not exist`);
-            }
+            this._currentLanguage = value;
+            this._currentLanguageGroup = this._languageGroups.get(value);
+            this.emit('languageChange');
         }
     }
 
-    registerfromJosn(json: any) {
+    registerfromJosn(json: any, warnOverwrite = false) {
         Object.entries(json.groups).forEach(([key, value]) => {
             cc.log(`register language group ${key}`);
 
@@ -38,19 +34,19 @@ export class LanguageManager extends EmittableModule<LanguageEvents> {
 
             const group = this._languageGroups.get(key);
             if (group) {
-                group.merge(newGroup);
+                group.merge(newGroup, warnOverwrite);
             } else {
                 this.register(key, newGroup);
-            }
-
-            if (!this._currentLanguageGroup || this._currentLanguage === key) {
-                this._currentLanguageGroup = newGroup;
             }
         });
     }
 
     register(groupName: string, group: LanguageGroup) {
         this._languageGroups.set(groupName, group);
+
+        if (this._currentLanguage === groupName) {
+            this._currentLanguageGroup = group;
+        }
     }
 
     upregister(groupName: string) {
