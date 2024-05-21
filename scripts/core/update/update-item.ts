@@ -88,6 +88,13 @@ export class UpdateItem {
         return this._retryCount < MAX_RETRY_COUNT && this._canRetry;
     }
 
+    get storagePath() {
+        return this._storagePath;
+    }
+    set storagePath(value) {
+        this._storagePath = value;
+    }
+
     isNeedUpdate(): boolean {
         return this._state === UpdateState.NEED_UPDATE;
     }

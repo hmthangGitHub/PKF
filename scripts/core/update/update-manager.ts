@@ -74,6 +74,10 @@ export class UpdateManager extends Module {
         this._localManifest.fromJson(jsonObj);
     }
 
+    get updateItems() {
+        return this._updateItems;
+    }
+
     /** load local and remote bundle manifest */
     async loadRemoteBundleManifest(): Promise<void> {
         if (this._localManifest.remoteManifestUrl.length < 0) {
