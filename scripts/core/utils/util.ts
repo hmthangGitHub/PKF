@@ -85,6 +85,8 @@ export class Util {
                 })
             )
         );
+    }
+
     static getLanguageIndex(): number {
         let index = 0;
         if (languageManager.currentLanguage === LANGUAGE_GROUPS.zh_CN) {
