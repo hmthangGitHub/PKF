@@ -28,9 +28,11 @@ export class View {
 
     init(): void {
         // set the init win size as screen size
-        this._screenWidth = cc.winSize.width;
-        this._screenHeight = cc.winSize.height;
+        this._screenWidth = cc.view.getFrameSize().width;
+        this._screenHeight = cc.view.getFrameSize().height;
         console.log(`init view screen witdth = ${this._screenWidth} height = ${this._screenHeight}`);
+
+        cc.log(`win size witdth = ${cc.winSize.width} height = ${cc.winSize.height}`);
     }
 
     set designWidth(width: number) {
@@ -272,6 +274,8 @@ export class View {
         // NOTE: 與asia poker 顛倒
         node.getComponent(cc.Canvas).fitHeight = !isWideScreen;
         node.getComponent(cc.Canvas).fitWidth = isWideScreen;
+        // node.getComponent(cc.Canvas).fitHeight = true;
+        // node.getComponent(cc.Canvas).fitWidth = false;
     }
 
     /**
