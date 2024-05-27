@@ -482,7 +482,9 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         const responseProto = response.payload;
 
-        this.checkResponseCode(responseProto.error, 'getEventStatus');
+        // skip checking error code here because error code 3 means event stopped
+        // and it will be handled in RebateService
+        // this.checkResponseCode(responseProto.error, 'getEventStatus');
 
         return responseProto;
     }
