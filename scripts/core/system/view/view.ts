@@ -12,10 +12,6 @@ export class View {
     _designWidth: number = 1080;
     _designHeight: number = 2338;
 
-    // NOTE: screen width and height is the fixed and not change when the view rotates
-    private _screenWidth = 0;
-    private _screenHeight = 0;
-
     FULL_SCREEN_OFF_SET_Y: number = 100;
     FULL_SCREEN_OFF_SET_Y_B: number = 20;
 
@@ -28,11 +24,11 @@ export class View {
 
     init(): void {
         // set the init win size as screen size
-        this._screenWidth = cc.view.getFrameSize().width;
-        this._screenHeight = cc.view.getFrameSize().height;
-        console.log(`init view screen witdth = ${this._screenWidth} height = ${this._screenHeight}`);
-
-        cc.log(`win size witdth = ${cc.winSize.width} height = ${cc.winSize.height}`);
+        // this._screenWidth = cc.view.getFrameSize().width;
+        // this._screenHeight = cc.view.getFrameSize().height;
+        cc.log(`init view witdth = ${this.width} height = ${this.height}`);
+        cc.log(`view win size witdth = ${cc.winSize.width} height = ${cc.winSize.height}`);
+        cc.log(`view canvas size witdth = ${cc.view.getCanvasSize().width} height = ${cc.view.getCanvasSize().height}`);
     }
 
     set designWidth(width: number) {
@@ -51,27 +47,29 @@ export class View {
         return this._designHeight;
     }
 
-    set width(value: number) {
-        cc.winSize.width = value;
-    }
+    // set width(value: number) {
+    //     cc.winSize.width = value;
+    // }
 
     get width(): number {
-        return cc.winSize.width;
+        return cc.view.getFrameSize().width;
+        // return cc.winSize.width;
     }
 
-    set height(value: number) {
-        cc.winSize.height = value;
-    }
+    // set height(value: number) {
+    //     cc.winSize.height = value;
+    // }
     get height(): number {
-        return cc.winSize.height;
+        return cc.view.getFrameSize().height;
+        // return cc.winSize.height;
     }
 
-    get screenWidth() {
-        return this._screenWidth;
-    }
-    get screenHeight() {
-        return this._screenHeight;
-    }
+    // get screenWidth() {
+    //     return this._screenWidth;
+    // }
+    // get screenHeight() {
+    //     return this._screenHeight;
+    // }
 
     /** NOTE: add comment for me */
     get fullscreenOffsetY(): number {
@@ -92,9 +90,10 @@ export class View {
     }
 
     isFullScreen(): boolean {
-        return this._screenWidth > this._screenHeight
-            ? this._screenWidth / this._screenHeight > 2
-            : this._screenHeight / this._screenWidth > 2;
+        // return this._screenWidth > this._screenHeight
+        //     ? this._screenWidth / this._screenHeight > 2
+        //     : this._screenHeight / this._screenWidth > 2;
+        return this.width > this.height ? this.width / this.height > 2 : this.height / this.width > 2;
     }
 
     /** TODO: */
@@ -116,7 +115,7 @@ export class View {
     // }
     /** TODO: refactor me (deprecated) */
     isWideScreen(): boolean {
-        return this._screenWidth / this._screenHeight > 1080.0 / 1920;
+        return this.width / this.height > 1080 / 1920;
     }
 
     /**
@@ -168,11 +167,11 @@ export class View {
                     ? cc.view.getFrameSize().width
                     : cc.view.getFrameSize().height;
             cc.view.setFrameSize(width, height);
-            cc.view.setDesignResolutionSize(
-                this._system.view.designHeight,
-                this._system.view.designWidth,
-                cc.ResolutionPolicy.FIXED_WIDTH
-            );
+            // cc.view.setDesignResolutionSize(
+            //     this._designHeight,
+            //     this.designWidth,
+            //     cc.ResolutionPolicy.FIXED_WIDTH
+            // );
         }
 
         this._changeDesignSize();
@@ -226,11 +225,7 @@ export class View {
                     ? cc.view.getFrameSize().width
                     : cc.view.getFrameSize().height;
             cc.view.setFrameSize(width, height);
-            cc.view.setDesignResolutionSize(
-                this._system.view.designWidth,
-                this._system.view.designHeight,
-                cc.ResolutionPolicy.FIXED_HEIGHT
-            );
+            cc.view.setDesignResolutionSize(this.designWidth, this._designHeight, cc.ResolutionPolicy.FIXED_HEIGHT);
         }
 
         this._changeDesignSize();
@@ -239,16 +234,18 @@ export class View {
 
     /** NOTE: change designSize * */
     _changeDesignSize() {
-        const temp = this._system.view.designHeight;
-        this._system.view.designHeight = this._system.view.designWidth;
-        this._system.view.designWidth = temp;
+        cc.view.setDesignResolutionSize(this._designHeight, this.designWidth, cc.ResolutionPolicy.FIXED_WIDTH);
+
+        const temp = this._designHeight;
+        this._designHeight = this._designWidth;
+        this._designWidth = temp;
     }
 
     /** NOTE: change winSize * */
     _changeWinSize() {
-        const temp = this._system.view.height;
-        this._system.view.height = this._system.view.width;
-        this._system.view.width = temp;
+        const temp = cc.winSize.height;
+        cc.winSize.height = cc.winSize.width;
+        cc.winSize.width = temp;
     }
 
     /** TODO: comment for me */

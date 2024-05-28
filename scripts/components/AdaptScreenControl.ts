@@ -7,27 +7,26 @@
 
 const { ccclass, property } = cc._decorator;
 
+import * as core from '../core/core-index';
+
 @ccclass
-export default class AdaptScreenControl extends cc.Component {
+export class AdaptScreenControl extends cc.Component {
     // LIFE-CYCLE CALLBACKS:
 
     onLoad() {
         const canvas = this.getComponent(cc.Canvas);
-        cc.log(
-            `AdaptScreenControl Canvas witdh: ${canvas.designResolution.width} height: ${canvas.designResolution.height}`
-        );
-        cc.log(
-            `AdaptScreenControl frame size witdth = ${cc.view.getFrameSize().width} height = ${
-                cc.view.getFrameSize().height
-            }`
-        );
 
         const fitHeight =
-            canvas.designResolution.height / cc.view.getFrameSize().height >
-            canvas.designResolution.width / cc.view.getFrameSize().width;
+            core.system.view.height / canvas.designResolution.height <
+            core.system.view.width / canvas.designResolution.width;
 
         canvas.fitHeight = fitHeight;
         canvas.fitWidth = !fitHeight;
+
+        cc.log(
+            `AdaptScreenControl Canvas witdh: ${canvas.designResolution.width} height: ${canvas.designResolution.height}`
+        );
+        cc.log(`AdaptScreenControl frame size witdth = ${core.system.view.width} height = ${core.system.view.height}`);
 
         cc.log('AdaptScreenControl fitHeight', fitHeight);
     }
