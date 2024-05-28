@@ -140,8 +140,11 @@ export class View {
         }
 
         /** NOTE: 設定橫屏 */
-        deviceAPI.setLandscape();
-        cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
+        if (this._system.isNative) {
+            deviceAPI.setLandscape();
+        } else {
+            cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
+        }
 
         /** NOTE: 非手機模式下，ClientType 不是 CowboyWeb、H5WebPage */
         if (
@@ -166,12 +169,9 @@ export class View {
                 cc.view.getFrameSize().height > cc.view.getFrameSize().width
                     ? cc.view.getFrameSize().width
                     : cc.view.getFrameSize().height;
+
             cc.view.setFrameSize(width, height);
-            // cc.view.setDesignResolutionSize(
-            //     this._designHeight,
-            //     this.designWidth,
-            //     cc.ResolutionPolicy.FIXED_WIDTH
-            // );
+            cc.view.setDesignResolutionSize(this._designHeight, this.designWidth, cc.ResolutionPolicy.FIXED_WIDTH);
         }
 
         this._changeDesignSize();
@@ -197,8 +197,11 @@ export class View {
         }
 
         /** NOTE: 設定竖屏 */
-        deviceAPI.setPortrait();
-        cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
+        if (this._system.isNative) {
+            deviceAPI.setPortrait();
+        } else {
+            cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
+        }
 
         if (
             cc.sys.isMobile &&
@@ -234,8 +237,6 @@ export class View {
 
     /** NOTE: change designSize * */
     _changeDesignSize() {
-        cc.view.setDesignResolutionSize(this._designHeight, this.designWidth, cc.ResolutionPolicy.FIXED_WIDTH);
-
         const temp = this._designHeight;
         this._designHeight = this._designWidth;
         this._designWidth = temp;
