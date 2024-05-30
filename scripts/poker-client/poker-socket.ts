@@ -224,6 +224,7 @@ export interface SocketNotifications {
     luckTurntableResult: (notify: ILuckTurntableResultNotice) => void;
     userData: (notify: INoticeGetUserData) => void;
     calmDownConfirm: (notify: INoticeCalmDownConfirmResult) => void;
+    rebateEventStatus: () => void;
 }
 
 export interface INoticeCalmDownConfirmResult {

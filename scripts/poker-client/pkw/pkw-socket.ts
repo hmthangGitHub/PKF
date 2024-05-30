@@ -698,6 +698,11 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             pb.NoticeCalmDownConfirmResult,
             this.handleCalmDownNotify.bind(this)
         );
+
+        // no protobuf class needed for MsgId_Rebate_GetEventStatus_Notice
+        this._messageHandlers.set(pb.MSGID.MsgId_Rebate_GetEventStatus_Notice, (msg) => {
+            this.handleRebateEventStatusNotify();
+        });
     }
 
     protected handleUserGoldNumNotify(protobuf: pb.NoticeNotifyUserGoldNum) {
@@ -759,5 +764,9 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleCalmDownNotify(protobuf: pb.NoticeCalmDownConfirmResult) {
         this._notification.emit('calmDownConfirm', protobuf);
+    }
+
+    protected handleRebateEventStatusNotify() {
+        this._notification.emit('rebateEventStatus');
     }
 }

@@ -6,6 +6,7 @@ export interface RebateEvents {
     eventStatusResult: (result: IGetEventStatusResponse) => void;
     eventStatusStop: () => void;
     rebateRewardResult: () => void;
+    refreshEventStatus: () => void;
 }
 
 export class RebateService extends EmittableService<RebateEvents> {
@@ -23,6 +24,8 @@ export class RebateService extends EmittableService<RebateEvents> {
     constructor(socket: ISocket) {
         super(RebateService.serviceName);
         this._socket = socket;
+        this._socket.notification.on('rebateEventStatus', this.onEventStatusNotify.bind(this));
+
         this._errorMessageService = pf.serviceManager.get(pf.services.ErrorMessageService);
     }
 
@@ -47,5 +50,10 @@ export class RebateService extends EmittableService<RebateEvents> {
         const response = await this._socket.getRebateReward(eventId, betTimeIdx, rewardProgressIndex);
         this.emit('rebateRewardResult');
         return response;
+    }
+
+    onEventStatusNotify() {
+        cc.log('rebate event status notify received');
+        this.emit('refreshEventStatus');
     }
 }
