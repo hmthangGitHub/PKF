@@ -95,11 +95,12 @@ export class WPKClient implements IPokerClient {
             return Promise.reject(new ServerError(loginData.errMsg, loginData.errorCode));
         }
 
-        const session = new WPKSession(loginData.sessionToken, loginData.user.userId);
+        const token = WPKUtil.encryptPKWToken(loginData.pkwAuthData.token);
+        const session = new WPKSession(token, loginData.pkwAuthData.uid);
         session.userInfo = { ...loginData.user };
         session.userSecurityInfo = { ...loginData.userSecurityInfo };
         session.pkwAuthData = { ...loginData.pkwAuthData };
-        session.pkwAuthData.token = WPKUtil.encryptPKWToken(session.pkwAuthData.token);
+        // session.pkwAuthData.token = loginData.pkwAuthData.token;
 
         this._session = session;
 

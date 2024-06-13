@@ -12,6 +12,7 @@ export class MiniGameContext implements IGameContext {
     session: Nullable<client.session.IGameSession> = null;
     service: Nullable<IGameService> = null;
     room: Nullable<IMiniGameRoom> = null;
+    platform: client.PlatformType;
 
     isSelfRecharge = false; // 小游戏点击充值切换场景操作
     backToMainTips = '';
