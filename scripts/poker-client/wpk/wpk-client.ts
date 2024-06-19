@@ -100,7 +100,7 @@ export class WPKClient implements IPokerClient {
         session.userInfo = { ...loginData.user };
         session.userSecurityInfo = { ...loginData.userSecurityInfo };
         session.pkwAuthData = { ...loginData.pkwAuthData };
-        // session.pkwAuthData.token = loginData.pkwAuthData.token;
+        session.pkwAuthData.token = token;
 
         this._session = session;
 
