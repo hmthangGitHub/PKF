@@ -5,4 +5,5 @@ export * from './poker-socket';
 export * from './poker-client-macros';
 export * from './websocket-adapter';
 export * from './socket-message-processor';
+export * from './socket-message';
 export * as session from './session/game-session-index';
