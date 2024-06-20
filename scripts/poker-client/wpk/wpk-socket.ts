@@ -12,6 +12,7 @@ import type {
     IAddCoinOrderResponse,
     ILuckTurntableResultResponse,
     ILuckTurntableSnaplistResponse,
+    ILuckTurntableResultNotice,
     IResponseGetUserData,
     IResponseCalmDownConfirm,
     IGetScalerQuoteResponse,
@@ -21,29 +22,43 @@ import type {
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { WPKSession } from './wpk-session';
-import type { ISocketOptions } from '../poker-client-types';
+import type { ISession, ISocketOptions } from '../poker-client-types';
 import { ServerType, GameId, SocketServerErrorCode, SystemInfo } from '../poker-client-types';
-import type { WebSocketAdapter } from '../websocket-adapter';
+import type { WebSocketAdapter, SocketOpenHandler } from '../websocket-adapter';
 import { Util } from '../../core/utils/util';
 import { SocketMessage } from '../socket-message';
 import { InvalidOperationError, ServerError } from '../../core/defines/errors';
 import { SocketMessageProcessor } from '../socket-message-processor';
+import type { IRequest } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
+import { AsyncOperation } from '../../core/async/async-operation';
+import { macros } from '../poker-client-macros';
 
 export class WPKSocket extends SocketMessageProcessor implements ISocket {
-    private _session: Nullable<WPKSession> = null;
+    private _session: Nullable<ISession> = null;
     private _systemInfo: SystemInfo = new SystemInfo();
     private _gameSessions = new Map<string, GameSession>();
     private _messageProcessors = new Map<number, SocketMessageProcessor>();
-    private _heartBeatTimeout: Nullable<NodeJS.Timeout> = null;
+    private _heartBeatInterval: Nullable<NodeJS.Timeout> = null;
+
+    private _tickInterval: Nullable<NodeJS.Timeout> = null;
+
+    private _url = '';
+    private _options: Nullable<ISocketOptions> = null;
+
+    private _originOnClose: Nullable<SocketOpenHandler> = null;
+    private _originOnMessage: Nullable<SocketOpenHandler> = null;
+    private _origonOnError: Nullable<SocketOpenHandler> = null;
+    private _externalWebSocket: WebSocket = null;
+
     private _notification = new TypeSafeEventEmitter<SocketNotifications>();
     get notification(): TypeSafeEventEmitter<SocketNotifications> {
         return this._notification;
     }
 
-    constructor(websocketAdatper: WebSocketAdapter, session: WPKSession, options?: ISocketOptions) {
-        super(ServerType.SeverType_World, GameId.World, session?.pkwAuthData?.uid, websocketAdatper);
+    constructor(websocketAdatper: WebSocketAdapter, session: ISession, options?: ISocketOptions) {
+        super(ServerType.SeverType_World, GameId.World, session.userId, websocketAdatper);
         this._session = session;
         Util.override(this._systemInfo, options);
     }
@@ -82,7 +97,68 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         }
     }
 
+    link(webSocket: WebSocket) {
+        this.unlink();
+
+        this._webSocket.link(webSocket);
+
+        this._externalWebSocket = webSocket;
+
+        this._originOnMessage = webSocket.onmessage;
+        this._originOnClose = webSocket.onclose;
+        this._origonOnError = webSocket.onerror;
+
+        webSocket.onmessage = (event) => {
+            if (this._originOnMessage) {
+                // @ts-ignore
+                // eslint-disable-next-line prefer-rest-params
+                this._originOnMessage(...arguments);
+            }
+            // @ts-ignore
+            this.onMessage(event);
+        };
+
+        webSocket.onclose = (event) => {
+            if (this._originOnClose) {
+                // @ts-ignore
+                // eslint-disable-next-line prefer-rest-params
+                this._originOnClose(...arguments);
+            }
+            // @ts-ignore
+            this.onClose(event);
+        };
+
+        webSocket.onerror = (event) => {
+            if (this._origonOnError) {
+                // @ts-ignore
+                // eslint-disable-next-line prefer-rest-params
+                this._origonOnError(...arguments);
+            }
+            // @ts-ignore
+            this.onError(event);
+        };
+    }
+
+    unlink(): void {
+        if (this._externalWebSocket) {
+            this.cleanupRequests('socket un-linked');
+
+            this._gameSessions.forEach((session) => {
+                session.onDisconnect();
+            });
+
+            this._externalWebSocket.onmessage = this._originOnMessage;
+            this._externalWebSocket.onclose = this._originOnClose;
+            this._externalWebSocket.onerror = this._origonOnError;
+
+            this._webSocket.unlink();
+            this._externalWebSocket = null;
+        }
+    }
+
     async connect(url: string, options?: ISocketOptions): Promise<void> {
+        console.log(`wpk socket connect to ${url}`);
+
         if (this._webSocket.isOpen()) {
             return Promise.resolve();
         }
@@ -93,25 +169,47 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
             await this._webSocket.connect(url);
         }
 
-        this._webSocket.onmessage = this.onMessage.bind(this);
+        this._url = url;
+        this._options = { ...options };
 
-        this._webSocket.onclose = this.onClose.bind(this);
-
-        this._webSocket.onerror = this.onError.bind(this);
+        this.registerObservers();
     }
 
     async disconnect(): Promise<void> {
-        await this._webSocket.disconnect();
-    }
+        if (!this._webSocket.isOpen() && !this._webSocket.isConnecting()) {
+            return Promise.resolve();
+        }
 
-    // TODO: implement link function
-    link(webSocket: WebSocket): void {}
-    unlink(): void {}
+        console.log('socket disconnect');
+
+        this.stopHeartBeat();
+
+        this.stopTick();
+
+        this.cleanupRequests('socket disconnected');
+
+        this._gameSessions.forEach((session) => {
+            session.onDisconnect();
+        });
+
+        const asyncOp = new AsyncOperation();
+
+        this._webSocket
+            .disconnect()
+            .then(() => {
+                asyncOp.resolve();
+            })
+            .catch((err) => {
+                asyncOp.reject(err);
+            });
+
+        return asyncOp.promise;
+    }
 
     async login(): Promise<ILoginResponse> {
         const requestProto = new pb.RequestLogon();
         requestProto.version = this._systemInfo.appVersion;
-        requestProto.token = this._session.pkwAuthData.token;
+        requestProto.token = this._session.token;
         requestProto.device_info = this._systemInfo.deviceInfo;
         requestProto.invitation_code = '';
         requestProto.client_type = this._systemInfo.clientType;
@@ -131,7 +229,10 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
         this.checkResponseCode(responseProto.error, 'login');
 
-        this.startHeartBeat();
+        if (!this._externalWebSocket) {
+            this.startHeartBeat();
+            this.startTick();
+        }
 
         return responseProto;
     }
@@ -169,10 +270,18 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
                     pb.CowBoyGameListResponse
                 );
                 break;
+            case GameId.HumanBoy:
+                requestProto = new pb.HumanBoyGameListRequest();
+                response = await this.sendRequest(
+                    requestProto,
+                    pb.MSGID.MsgID_HumanBoy_List_Request,
+                    pb.HumanBoyGameListRequest,
+                    pb.MSGID.MsgID_HumanBoy_List_Response,
+                    pb.HumanBoyGameListResponse
+                );
+                break;
             // TODO: send other game list request
             // case GameId.VideoCowboy:
-            //     break;
-            // case GameId.HumanBoy:
             //     break;
             // case GameId.PokerMaster:
             //     break;
@@ -184,7 +293,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
         const responseProto = response.payload;
 
-        this.checkResponseCode(responseProto.error, 'getMiniGamesList');
+        this.checkResponseCode(responseProto.error, 'getRoomList');
 
         return { ...responseProto };
     }
@@ -193,7 +302,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         const requestProto = new pb.GetRankRequest();
 
         requestProto.rankId = randId;
-
         const response = await this.sendRequest(
             requestProto,
             pb.MSGID.MsgID_GetRank_Request,
@@ -210,13 +318,13 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     }
 
     async addCoinOrder(payType: number): Promise<IAddCoinOrderResponse> {
-        // TODO: move from pkw...need implementation and test on wpk
         const requestProto = new pb.RequestAddCoinOrder();
 
         requestProto.type = payType;
         requestProto.uid = this._session.userId;
         requestProto.productid = '';
         requestProto.amount = 0;
+        requestProto.geoComplyToken = '';
 
         const response = await this.sendRequest(
             requestProto,
@@ -234,7 +342,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     }
 
     async getLuckTurntableResult(recordId: number): Promise<ILuckTurntableResultResponse> {
-        // TODO: move from pkw...need implementation and test on wpk
         const requestProto = new pb.LuckTurntableResultRequest();
 
         requestProto.record_id = recordId;
@@ -255,7 +362,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     }
 
     async getLuckTurntableSnaplist(lampCount: number, recordCount: number): Promise<ILuckTurntableSnaplistResponse> {
-        // TODO: move from pkw...need implementation and test on wpk
         const requestProto = new pb.LuckTurntableSnaplistRequest();
 
         requestProto.lamp_cnt = lampCount;
@@ -277,7 +383,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     }
 
     async getUserData(userId: number): Promise<IResponseGetUserData> {
-        // TODO: move from pkw...need implementation and test on wpk
         const requestProto = new pb.RequestGetUserData();
 
         requestProto.user_id = userId;
@@ -298,7 +403,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     }
 
     async getCalmDownConfirm(confirm: boolean): Promise<IResponseCalmDownConfirm> {
-        // TODO: move from pkw...need implementation and test on wpk
         const requestProto = new pb.RequestCalmDownConfirm();
         requestProto.confirm = confirm;
 
@@ -318,24 +422,9 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     }
 
     async getScalerQuote(opType: number): Promise<IGetScalerQuoteResponse> {
-        // TODO: move from pkw...need implementation and test on wpk
-        const requestProto = new pb.GetScalerQuoteRequest();
-
-        requestProto.op_type = opType;
-
-        const response = await this.sendRequest(
-            requestProto,
-            pb.MSGID.MsgID_Get_Scaler_Quote_Request,
-            pb.GetScalerQuoteRequest,
-            pb.MSGID.MsgID_Get_Scaler_Quote_Response,
-            pb.GetScalerQuoteResponse
+        return Promise.reject<IGetScalerQuoteResponse>(
+            new InvalidOperationError('getScalerQuote not supported in wpk')
         );
-
-        const responseProto = response.payload;
-
-        this.checkResponseCode(responseProto.error, 'getScalerQuote');
-
-        return responseProto;
     }
 
     async exchangeCurrency(
@@ -343,30 +432,12 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         fromCurrencyAmount: number,
         usePointDeduction: boolean
     ): Promise<IExchangeCurrencyResponse> {
-        // TODO: move from pkw...need implementation and test on wpk
-        const requestProto = new pb.ExchangeCurrencyRequest();
-
-        requestProto.op_type = opType;
-        requestProto.from_amt = fromCurrencyAmount;
-        requestProto.is_point_deduction = usePointDeduction;
-
-        const response = await this.sendRequest(
-            requestProto,
-            pb.MSGID.MsgID_Exchange_Currency_Request,
-            pb.ExchangeCurrencyRequest,
-            pb.MSGID.MsgID_Exchange_Currency_Response,
-            pb.ExchangeCurrencyResponse
+        return Promise.reject<IExchangeCurrencyResponse>(
+            new InvalidOperationError('exchangeCurrency not supported in wpk')
         );
-
-        const responseProto = response.payload;
-
-        this.checkResponseCode(responseProto.error, 'exchangeCurrency');
-
-        return responseProto;
     }
 
     async getEventStatus(): Promise<IGetEventStatusResponse> {
-        // TODO: move from pkw...need implementation and test on wpk
         const requestProto = new pb.GetEventStatusRequest();
 
         const response = await this.sendRequest(
@@ -379,7 +450,9 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
         const responseProto = response.payload;
 
-        this.checkResponseCode(responseProto.error, 'getEventStatus');
+        // skip checking error code here because error code 3 means event stopped
+        // and it will be handled in RebateService
+        // this.checkResponseCode(responseProto.error, 'getEventStatus');
 
         return responseProto;
     }
@@ -389,7 +462,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         betTimeIdx: number,
         rewardProgressIndex: number
     ): Promise<IClaimRewardResponse> {
-        // TODO: move from pkw...need implementation and test on wpk
         const requestProto = new pb.ClaimRewardRequest();
 
         requestProto.event_id = eventId;
@@ -417,7 +489,8 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         requestProto.uid = this._session.userId;
 
         const pos = new pb.PositionInfo();
-        pos.ip = this._session.pkwAuthData.appIP;
+        const wpkSession = this._session as WPKSession;
+        pos.ip = wpkSession.pkwAuthData.appIP;
         pos.latitude = this._systemInfo.coord.latitude;
         pos.longtitude = this._systemInfo.coord.longitude;
 
@@ -435,24 +508,57 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     }
 
     startHeartBeat(): void {
-        this._heartBeatTimeout = setTimeout(() => {
-            this.heartBeat();
-        }, 12000);
+        this._heartBeatInterval = setInterval(() => {
+            this.sendHeartBeat();
+        }, macros.HEART_BEAT_INTERVAL);
     }
 
     stopHeartBeat(): void {
-        if (this._heartBeatTimeout) {
-            clearTimeout(this._heartBeatTimeout);
-            this._heartBeatTimeout = null;
+        if (this._heartBeatInterval) {
+            clearInterval(this._heartBeatInterval);
+            this._heartBeatInterval = null;
         }
     }
 
-    heartBeat(): void {
-        this.sendHeartBeat().then(() => {
-            this._heartBeatTimeout = setTimeout(() => {
-                this.heartBeat();
-            }, 8000);
+    protected startTick(): void {
+        this._tickInterval = setInterval(() => {
+            this.update();
+        }, macros.TICK_INTERVAL);
+    }
+
+    protected stopTick(): void {
+        if (this._tickInterval) {
+            clearInterval(this._tickInterval);
+            this._tickInterval = null;
+        }
+    }
+
+    protected update() {
+        this.checkRequestTimeout();
+
+        this._gameSessions.forEach((session) => {
+            session.update();
         });
+    }
+
+    protected checkRequestTimeout(): void {
+        const current = Date.now();
+
+        const it = this._requests.values();
+
+        while (true) {
+            const result = it.next();
+            if (result.done) {
+                break;
+            }
+
+            let request = result.value as IRequest;
+
+            if (current - request.timestamp > macros.REQUEST_TIMEOUT) {
+                this._notification.emit('timeout');
+                break;
+            }
+        }
     }
 
     protected onMessage(msg: MessageEvent) {
@@ -472,20 +578,15 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     }
 
     protected onError(ev: Event) {
-        cc.warn(ev);
+        cc.warn('socket error', ev);
     }
 
     protected onClose(evt: CloseEvent) {
         if (evt.code !== 1006) {
             console.warn(`socket is close abnormally : ${evt.code} `);
+        } else {
+            console.log('socket closed');
         }
-        this.cleanupRequests(`WebSocket closed: ${evt.code}`);
-
-        this.stopHeartBeat();
-
-        this._gameSessions.forEach((session) => {
-            session.onDisconnect();
-        });
     }
 
     protected checkResponseCode(code: number, requestName: string) {
@@ -506,6 +607,83 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
             pb.NoticeGlobalMessage,
             this.handleGlobalMessageNotify.bind(this)
         );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_StartTime_Notice,
+            pb.LuckTurntableStartTimeNotice,
+            this.handleLuckTurntableStartTimeNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_EndTime_Notice,
+            pb.LuckTurntableEndTimeNotice,
+            this.handleLuckTurntableEndTimeNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_Ready_Notice,
+            pb.LuckTurntableReadyNotice,
+            this.handleLuckTurntableReadyNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_Countdown_Notice,
+            pb.LuckTurntableCountdownNotice,
+            this.handleLuckTurntableCountdownNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_Over_Notice,
+            pb.LuckTurntableOverNotice,
+            this.handleLuckTurntableOverNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_Draw_Notice,
+            pb.LuckTurntableDrawNotice,
+            this.handleLuckTurntableDrawNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_Snaplist_Notice,
+            pb.LuckTurntableSnaplistNotice,
+            this.handleLuckTurntableSnaplistNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Luck_Turntable_Result_Notice,
+            pb.LuckTurntableResultNotice,
+            this.handleLuckTurntableResultNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_GetUserData_Notice,
+            pb.NoticeGetUserData,
+            this.handleUserDataNotify.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_CalmDownConfirmResult_Notice,
+            pb.NoticeCalmDownConfirmResult,
+            this.handleCalmDownNotify.bind(this)
+        );
+
+        // no protobuf class needed for MsgId_Rebate_GetEventStatus_Notice
+        this._messageHandlers.set(pb.MSGID.MsgId_Rebate_GetEventStatus_Notice, (msg) => {
+            this.handleRebateEventStatusNotify();
+        });
+    }
+
+    protected registerObservers() {
+        this._webSocket.onmessage = this.onMessage.bind(this);
+        this._webSocket.onclose = this.onClose.bind(this);
+        this._webSocket.onerror = this.onError.bind(this);
+    }
+
+    protected unregisterObservers() {
+        this._webSocket.onmessage = null;
+        this._webSocket.onclose = null;
+        this._webSocket.onerror = null;
     }
 
     protected handleUserGoldNumNotify(protobuf: pb.NoticeNotifyUserGoldNum) {
@@ -515,5 +693,49 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     protected handleGlobalMessageNotify(protobuf: pb.NoticeGlobalMessage) {
         console.log('global message', protobuf);
         this._notification.emit('globalMessage', protobuf);
+    }
+
+    protected handleLuckTurntableStartTimeNotify(protobuf: pb.LuckTurntableStartTimeNotice) {
+        this._notification.emit('luckTurntableStart', protobuf);
+    }
+
+    protected handleLuckTurntableEndTimeNotify(protobuf: pb.LuckTurntableEndTimeNotice) {
+        this._notification.emit('luckTurntableEnd', protobuf);
+    }
+
+    protected handleLuckTurntableReadyNotify(protobuf: pb.LuckTurntableReadyNotice) {
+        this._notification.emit('luckTurntableReady', protobuf);
+    }
+
+    protected handleLuckTurntableCountdownNotify(protobuf: pb.LuckTurntableCountdownNotice) {
+        this._notification.emit('luckTurntableCountdown', protobuf);
+    }
+
+    protected handleLuckTurntableOverNotify(protobuf: pb.LuckTurntableOverNotice) {
+        this._notification.emit('luckTurntableOver', protobuf);
+    }
+
+    protected handleLuckTurntableDrawNotify(protobuf: pb.LuckTurntableDrawNotice) {
+        this._notification.emit('luckTurntableDraw', protobuf);
+    }
+
+    protected handleLuckTurntableSnaplistNotify(protobuf: pb.LuckTurntableSnaplistNotice) {
+        this._notification.emit('luckTurntableSnaplist', protobuf);
+    }
+
+    protected handleLuckTurntableResultNotify(protobuf: ILuckTurntableResultNotice) {
+        this._notification.emit('luckTurntableResult', protobuf);
+    }
+
+    protected handleUserDataNotify(protobuf: pb.NoticeGetUserData) {
+        this._notification.emit('userData', protobuf);
+    }
+
+    protected handleCalmDownNotify(protobuf: pb.NoticeCalmDownConfirmResult) {
+        this._notification.emit('calmDownConfirm', protobuf);
+    }
+
+    protected handleRebateEventStatusNotify() {
+        this._notification.emit('rebateEventStatus');
     }
 }

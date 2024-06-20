@@ -28,7 +28,7 @@ export class WPKClient implements IPokerClient {
     _baseUrl: string;
     _systemInfo: SystemInfo = new SystemInfo();
 
-    _session: Nullable<WPKSession> = null;
+    _session: Nullable<ISession> = null;
 
     _socket: Nullable<WPKSocket> = null;
 
@@ -68,11 +68,11 @@ export class WPKClient implements IPokerClient {
     link(session: ISession, options?: ILinkOptions): void {
         console.log('WPKClient link', session, options);
 
-        // TODO: implement link function
-        // this._session = {...session};
+        this._session = { ...session };
 
         if (options) {
             this._user = { ...options.user };
+            this._domains = { ...options.domains };
         }
     }
 
@@ -106,12 +106,15 @@ export class WPKClient implements IPokerClient {
 
         // create user
         this._user = {
-            userId: this._session.userInfo.userId,
-            username: this._session.userInfo.account,
-            nickname: this._session.userInfo.nickname,
-            sex: this._session.userInfo.sex,
-            avatarURL: this._session.userInfo.avatar,
-            ip: this._session.pkwAuthData.appIP,
+            // using user id from wpk will lead to wrong fly coin animation
+            // because the player data contains pkw user id
+            // userId: session.userInfo.userId,
+            userId: session.pkwAuthData.uid,
+            username: session.userInfo.account,
+            nickname: session.userInfo.nickname,
+            sex: session.userInfo.sex,
+            avatarURL: session.userInfo.avatar,
+            ip: session.pkwAuthData.appIP,
             payType: 0,
             shopURL: '',
             areaCode: '',
@@ -151,7 +154,7 @@ export class WPKClient implements IPokerClient {
                 imageServer: session.pkwAuthData.pkw_file_addr,
                 imageUploadServer: session.pkwAuthData.pkw_file_addr,
                 webServer: session.pkwAuthData.api_addr,
-                imageServerWpk: '',
+                imageServerWpk: session.pkwAuthData.avatar_addr,
                 imageServerWpto: ''
             };
 
