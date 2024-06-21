@@ -221,6 +221,40 @@ export interface ILuckTurntableResultNotice {
     player_lottery_mode?: number | null;
 }
 
+/// gate proto
+enum CMD {
+    CMD_DUMMY = 0,
+    CONNECT_SERVER_FAILED_NOTIFY = 1003,
+    SERVER_CLOSE_NOTIFY = 1006,
+    SERVER_EXCEPT_NOTIFY = 1007
+}
+
+enum ConnectServerFailedReason {
+    Null = 0,
+    NotFound = 1,
+    DialFailed = 2
+}
+
+enum ErrorCode {
+    ErrorCode_DUMMY = 0,
+    OK = 1
+}
+
+interface IConnectServerFailedNotify {
+    ServerType?: number | null;
+    ServerId?: number | null;
+    Reason?: ConnectServerFailedReason | null;
+}
+
+interface IServerCloseNotify {
+    ServerType?: number | null;
+    ServerId?: number | null;
+    CreateTime?: number | null;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IServerExceptNotify {}
+
 export interface SocketNotifications {
     userGoldNum: (notify: INoticeNotifyUserGoldNum) => void;
     globalMessage: (notify: INoticeGlobalMessage) => void;
@@ -236,6 +270,11 @@ export interface SocketNotifications {
     userData: (notify: INoticeGetUserData) => void;
     calmDownConfirm: (notify: INoticeCalmDownConfirmResult) => void;
     rebateEventStatus: () => void;
+
+    /// server errors
+    connectServerFailed: (notify: IConnectServerFailedNotify) => void;
+    serverClose: (notify: IServerCloseNotify) => void;
+    serverExcept: () => void;
 }
 
 export interface INoticeCalmDownConfirmResult {

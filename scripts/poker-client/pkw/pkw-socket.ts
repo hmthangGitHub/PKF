@@ -18,7 +18,8 @@ import type {
     IGetScalerQuoteResponse,
     IExchangeCurrencyResponse,
     IGetEventStatusResponse,
-    IClaimRewardResponse
+    IClaimRewardResponse,
+    INoticeGlobalMessage
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
@@ -722,7 +723,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleGlobalMessageNotify(protobuf: pb.NoticeGlobalMessage) {
         console.log('global message', protobuf);
-        this._notification.emit('globalMessage', protobuf);
+        this._notification.emit('globalMessage', protobuf as INoticeGlobalMessage);
     }
 
     protected registerObservers() {
