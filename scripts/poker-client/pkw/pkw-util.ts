@@ -6,7 +6,6 @@ import * as md5 from 'md5';
 // import * as CryptoJS from './pf-crypto';
 import * as CryptoJS from 'crypto-js';
 
-
 export class PKWUtil {
     private static getSortSign(): string {
         let client_salt_key = 'PlfBCVcwepsPSGkE&$%adA#$!!E@JK23';
