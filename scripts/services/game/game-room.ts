@@ -90,7 +90,6 @@ export interface IMiniGameRoomEvents {
     advanceAutoBet: (code: number) => void;
 }
 
-
 export interface IGameRoomEvents {
     leaveRoom: () => void;
 }

@@ -1,6 +1,6 @@
-import { IGameContext, Nullable, client } from "../../pf";
-import { IGameRoom } from "./game-room";
-import { IGameService } from "./game-service";
+import type { IGameContext, Nullable, client } from '../../pf';
+import type { IGameRoom } from './game-room';
+import type { IGameService } from './game-service';
 
 export class GameContext implements IGameContext {
     gameId = 0;
