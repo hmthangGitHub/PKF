@@ -68,7 +68,8 @@ export class WPKClient implements IPokerClient {
     link(session: ISession, options?: ILinkOptions): void {
         console.log('WPKClient link', session, options);
 
-        this._session = { ...session };
+        const wpkToken = WPKUtil.encryptPKWToken(session.token);
+        this._session = { userId: session.userId, token: wpkToken };
 
         if (options) {
             this._user = { ...options.user };
