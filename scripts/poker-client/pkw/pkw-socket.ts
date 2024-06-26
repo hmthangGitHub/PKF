@@ -19,7 +19,8 @@ import type {
     IExchangeCurrencyResponse,
     IGetEventStatusResponse,
     IClaimRewardResponse,
-    INoticeGlobalMessage
+    INoticeGlobalMessage,
+    IResponseClubCurrentBoard
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
@@ -550,6 +551,24 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         return { ...responseProto };
     }
 
+    async getClubCurrentBoard(): Promise<IResponseClubCurrentBoard> {
+        const requestProto = new pb.RequestClubCurrentBoard();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_ClubCurrentBoard_Request,
+            pb.RequestClubCurrentBoard,
+            pb.MSGID.MsgID_ClubCurrentBoard_Response,
+            pb.ResponseClubCurrentBoard
+        );
+
+        const responseProto = response.payload;
+
+        // this.checkResponseCode(responseProto.error, 'getClubCurrentBoard');
+
+        return responseProto;
+    }
+
     startHeartBeat(): void {
         this._heartBeatInterval = setInterval(() => {
             this.sendHeartBeat();
@@ -640,6 +659,11 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     protected registerNotificationHandlers(): void {
         this.registerNotificationHandler(
+            pb.MSGID.MsgID_ClubCurrentBoard_Notice,
+            pb.NoticeClubCurrentBoard,
+            this.handleClubCurrentBoardNotify.bind(this)
+        );
+        this.registerNotificationHandler(
             pb.MSGID.MsgID_NotifyUserGoldNum_Notice,
             pb.NoticeNotifyUserGoldNum,
             this.handleUserGoldNumNotify.bind(this)
@@ -715,6 +739,10 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         this._messageHandlers.set(pb.MSGID.MsgId_Rebate_GetEventStatus_Notice, (msg) => {
             this.handleRebateEventStatusNotify();
         });
+    }
+    
+    protected handleClubCurrentBoardNotify(protobuf: pb.INoticeClubCurrentBoard) {
+        this._notification.emit('clubCurrentBoard', protobuf);
     }
 
     protected handleUserGoldNumNotify(protobuf: pb.NoticeNotifyUserGoldNum) {

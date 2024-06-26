@@ -19,7 +19,8 @@ import type {
     IExchangeCurrencyResponse,
     IGetEventStatusResponse,
     IClaimRewardResponse,
-    INoticeGlobalMessage
+    INoticeGlobalMessage,
+    IResponseClubCurrentBoard
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { WPKSession } from './wpk-session';
@@ -522,6 +523,24 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         return { ...responseProto };
     }
 
+    async getClubCurrentBoard(): Promise<IResponseClubCurrentBoard> {
+        const requestProto = new pb.RequestClubCurrentBoard();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_ClubCurrentBoard_Request,
+            pb.RequestClubCurrentBoard,
+            pb.MSGID.MsgID_ClubCurrentBoard_Response,
+            pb.ResponseClubCurrentBoard
+        );
+
+        const responseProto = response.payload;
+
+        // this.checkResponseCode(responseProto.error, 'getClubCurrentBoard');
+
+        return responseProto;
+    }
+
     startHeartBeat(): void {
         this._heartBeatInterval = setInterval(() => {
             this.sendHeartBeat();
@@ -611,6 +630,11 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     }
 
     protected registerNotificationHandlers(): void {
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_ClubCurrentBoard_Notice,
+            pb.NoticeClubCurrentBoard,
+            this.handleClubCurrentBoardNotify.bind(this)
+        );
         this.registerNotificationHandler(
             pb.MSGID.MsgID_NotifyUserGoldNum_Notice,
             pb.NoticeNotifyUserGoldNum,
@@ -752,5 +776,9 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleRebateEventStatusNotify() {
         this._notification.emit('rebateEventStatus');
+    }
+
+    protected handleClubCurrentBoardNotify(protobuf: pb.INoticeClubCurrentBoard) {
+        this._notification.emit('clubCurrentBoard', protobuf);
     }
 }

@@ -256,6 +256,7 @@ interface IServerCloseNotify {
 export interface IServerExceptNotify {}
 
 export interface SocketNotifications {
+    clubCurrentBoard: (notify: IClubCurrentBoardNotice) => void;
     userGoldNum: (notify: INoticeNotifyUserGoldNum) => void;
     globalMessage: (notify: INoticeGlobalMessage) => void;
     timeout: () => void;
@@ -289,6 +290,110 @@ export interface IAddCoinOrderResponse {
     cb_url?: string | null;
     token?: string | null;
     failedReasons?: string | null;
+}
+
+export interface IResponseClubCurrentBoard {
+    error?: number | null;
+}
+
+interface IMvpData {
+    uid?: number | null;
+    nickname?: string | null;
+    thumb?: string | null;
+    plat?: number | null;
+}
+
+interface IProDatas {
+    levelLimit?: number | null;
+    nowNum?: number | null;
+    tableLevel?: number | null;
+}
+interface IStarData {
+    uid?: number | null;
+    nickname?: string | null;
+    thumb?: string | null;
+    status?: number | null;
+}
+
+enum GameLevelEnum {
+    GameLevelEnumNone = 0,
+    GameLevelEnumMicro = 1,
+    GameLevelEnumSmall = 2,
+    GameLevelEnumMedium = 3,
+    GameLevelEnumHigh = 4
+}
+
+export interface ISnapshotClubGame {
+    club_id?: number | null;
+    game_mode?: number | null;
+    room_name?: string | null;
+    player_count?: number | null;
+    small_blind?: number | null;
+    big_blind?: number | null;
+    buyin_min?: number | null;
+    buyin_max?: number | null;
+    create_time?: number | null;
+    insurance?: boolean | null;
+    anti_cheating?: boolean | null;
+    straddle?: boolean | null;
+    ante?: number | null;
+    player_count_max?: number | null;
+    club_name?: string | null;
+    rule_time_limit?: number | null;
+    room_id?: number | null;
+    game_status?: number | null;
+    start_time?: number | null;
+    jackpot_isopen?: boolean | null;
+    is_allin_allfold?: boolean | null;
+    extra_time?: number | null;
+    is_opened_drawback?: boolean | null;
+    short_fullhouse_flush_straight_three?: boolean | null;
+    has_buyin?: number | null;
+    join_password?: string | null;
+    buyin_password?: string | null;
+    is_mirco?: number | null;
+    left_seatnum?: number | null;
+    anti_simulator?: boolean | null;
+    game_id?: number | null;
+    isCriticismField?: boolean | null;
+    minCritProb?: number | null;
+    maxCritProb?: number | null;
+    critNeedMoney?: number | null;
+    anti_simulator_ignore_cond?: number | null;
+    manual_created?: number | null;
+    mvp_data?: IMvpData | null;
+    IscalcIncomePerhand?: boolean | null;
+    starData?: IStarData[] | null;
+    bystanderNum?: number | null;
+    notifyTime?: number | null;
+    proDatas?: IProDatas[] | null;
+    proLevel?: number | null;
+    currencyType?: number | null;
+    red_envelope_switch?: boolean | null;
+    stick_on_top?: boolean | null;
+    forceWithdrawMode?: boolean | null;
+    looseMode?: boolean | null;
+    stickOnLevelTab?: GameLevelEnum | null;
+    is_loose_mode_stick_on_top?: boolean | null;
+    starseatStartTime?: number | null;
+}
+
+export interface IFlagsFeature {
+    shortdeck_visible_micro?: boolean | null;
+    shortdeck_visible_small?: boolean | null;
+    shortdeck_visible_medium?: boolean | null;
+    shortdeck_visible_big?: boolean | null;
+    splash_visble_micro?: boolean | null;
+    splash_visble_small?: boolean | null;
+    splash_visble_medium?: boolean | null;
+    splash_visble_big?: boolean | null;
+}
+
+export interface IClubCurrentBoardNotice {
+    list?: ISnapshotClubGame[] | null;
+    total?: number | null;
+    page?: number | null;
+    flags?: IFlagsFeature | null;
 }
 
 export interface ILuckTurntableResultResponse {
@@ -481,6 +586,8 @@ export interface ISocket {
     getRank(randId: number): Promise<IGetRankResponse>;
 
     addCoinOrder(payType: number): Promise<IAddCoinOrderResponse>;
+
+    getClubCurrentBoard(): Promise<IResponseClubCurrentBoard>;
 
     getLuckTurntableResult(recordId: number, mode?: number): Promise<ILuckTurntableResultResponse>;
 
