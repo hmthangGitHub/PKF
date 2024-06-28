@@ -250,12 +250,10 @@ export class SocketMessageProcessor {
     }
 
     private _decryptBytes(content, secretKey) {
-        content = new Uint8Array(content);
-
-        //let keyBytes = CryptoJS.enc.Utf8.parse(this.AES_KEY);
+        const buffer = new Uint8Array(content);
         let keyBytes = CryptoJS.enc.Utf8.parse(secretKey);
 
-        let srcsBytes = this._int8parse(content);
+        let srcsBytes = this._int8parse(buffer);
         let word = CryptoJS.enc.Base64.stringify(srcsBytes);
 
         let decrypt = CryptoJS.AES.decrypt(word, keyBytes, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 });
@@ -270,7 +268,7 @@ export class SocketMessageProcessor {
                     result.push(a[j]);
                 }
 
-                if (decrypt.sigBytes / 4 == i + 1) break;
+                if (decrypt.sigBytes / 4 === i + 1) break;
             }
             else {
                 let len = decrypt.sigBytes % 4;
@@ -285,14 +283,14 @@ export class SocketMessageProcessor {
     }
 
     private _intTobytes(value) {
-        var a = new Uint8Array(4)
-        a[0] = (value >> 24) & 0xFF
+        let a = new Uint8Array(4);
+        a[0] = (value >> 24) & 0xFF;
 
-        a[1] = (value >> 16) & 0xFF
+        a[1] = (value >> 16) & 0xFF;
 
-        a[2] = (value >> 8) & 0xFF
+        a[2] = (value >> 8) & 0xFF;
 
-        a[3] = value & 0xFF
+        a[3] = value & 0xFF;
 
         return a;
     }
@@ -313,14 +311,14 @@ export class SocketMessageProcessor {
 
     private _base64ToBytes(base64) : Uint8Array {
         // Use browser-native function if it exists
-        let base64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        let base64map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
         // Remove non-base-64 characters
-        base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");
+        let newBase64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
         let bytes = [];
-        for (let i = 0, imod4 = 0; i < base64.length; imod4 = ++i % 4) {
-            if (imod4 == 0) continue;
-            bytes.push(((base64map.indexOf(base64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2)) |
-                (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
+        for (let i = 0, imod4 = 0; i < newBase64.length; imod4 = ++i % 4) {
+            if (imod4 === 0) continue;
+            bytes.push(((base64map.indexOf(newBase64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2)) |
+                (base64map.indexOf(newBase64.charAt(i)) >>> (6 - imod4 * 2)));
         }
         return new Uint8Array(bytes);
     }

@@ -20,7 +20,8 @@ import type {
     IGetEventStatusResponse,
     IClaimRewardResponse,
     INoticeGlobalMessage,
-    IResponseClubCurrentBoard
+    IResponseClubCurrentBoard,
+    ISetSecretKeyExResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { WPKSession } from './wpk-session';
@@ -495,6 +496,28 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.error, 'getRebateReward');
+
+        return responseProto;
+    }
+
+    async getSecretKey(secretKey: number, cli_public_key_x: string, cli_public_key_y: string): Promise<ISetSecretKeyExResponse> {
+        const requestProto = new pb.SetSecretKeyExRequest();
+
+        requestProto.secret_type = secretKey;
+        requestProto.cli_public_key_x = cli_public_key_x;
+        requestProto.cli_public_key_y = cli_public_key_y;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_SetSecretKeyEx_Request,
+            pb.SetSecretKeyExRequest,
+            pb.MSGID.MsgID_SetSecretKeyEx_Response,
+            pb.SetSecretKeyExResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getSecretKey');
 
         return responseProto;
     }
