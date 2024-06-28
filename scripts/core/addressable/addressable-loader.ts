@@ -119,33 +119,37 @@ export class AddressalbeAssetLoader {
         return new Promise<void>((resolve, reject) => {
             this._loadTaskGroups.forEach((taskGroup, bundleName) => {
                 const bundle = this._bundleManger.getBundle(bundleName);
-                taskGroup.tasks.forEach((task: AddressalbeAssetLoadTask) => {
-                    task.state = LoadState.InProgress;
-
-                    this._assetManger
-                        .loadAssetByLocation(bundle, taskGroup.group, task.assetLocation)
-                        .then(() => {
-                            task.state = LoadState.Complete;
-                            cc.log(`Load ${task.assetLocation.name} complete`);
-                        })
-                        .catch((err) => {
-                            task.state = LoadState.Error;
-                            cc.warn(`Load ${task.assetLocation.name} failed: ${err}`);
-                        })
-                        .finally(() => {
-                            this._finishCount += 1;
-                            if (onProgress) {
-                                onProgress(this._finishCount, this._totalCount);
-                            }
-                            // this._totalAssets -= 1;
-                            // if (this._totalAssets <= 0) {
-                            if (this._finishCount >= this._totalCount) {
-                                this._state = LoadState.Complete;
-                                cc.log('adderessable assets loading complete.');
-                                resolve();
-                            }
-                        });
-                });
+                if(taskGroup.tasks.length === 0) resolve();
+                else{
+                    taskGroup.tasks.forEach((task: AddressalbeAssetLoadTask) => {
+                        task.state = LoadState.InProgress;
+    
+                        this._assetManger
+                            .loadAssetByLocation(bundle, taskGroup.group, task.assetLocation)
+                            .then(() => {
+                                task.state = LoadState.Complete;
+                                cc.log(`Load ${task.assetLocation.name} complete`);
+                            })
+                            .catch((err) => {
+                                task.state = LoadState.Error;
+                                cc.warn(`Load ${task.assetLocation.name} failed: ${err}`);
+                            })
+                            .finally(() => {
+                                this._finishCount += 1;
+                                if (onProgress) {
+                                    onProgress(this._finishCount, this._totalCount);
+                                }
+                                // this._totalAssets -= 1;
+                                // if (this._totalAssets <= 0) {
+                                if (this._finishCount >= this._totalCount) {
+                                    this._state = LoadState.Complete;
+                                    cc.log('adderessable assets loading complete.');
+                                    resolve();
+                                }
+                            });
+                    });
+                }
+                
             });
         });
     }

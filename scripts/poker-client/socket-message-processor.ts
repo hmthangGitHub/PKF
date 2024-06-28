@@ -1,9 +1,11 @@
 /* eslint-disable camelcase */
+import * as pf from '../pf';
 import type { ProtobutClass } from './poker-client-types';
 import type { WebSocketAdapter } from './websocket-adapter';
 import { SocketMessage, SocketMessageHeader } from './socket-message';
 import type { IAsyncOperation } from '../core/async/async-operation';
 import { AsyncOperation } from '../core/async/async-operation';
+import * as CryptoJS from 'crypto-js';
 
 export type MessageHandler = (msg: SocketMessage) => void;
 
@@ -169,14 +171,21 @@ export class SocketMessageProcessor {
     }
 
     protected encodeProtobuf<T>(protobuf: T, protobufClass: ProtobutClass<T>): string | Uint8Array {
-        const payload = protobufClass.encode(protobuf).finish();
-        // TODO:encrypt payload
-
+        let payload = protobufClass.encode(protobuf).finish();
+        if(this._isNeedEncrypt()){
+            const secretKeySevice = pf.serviceManager.get(pf.services.SecretKeyService);
+           return this._encryptBytes(payload,secretKeySevice.key);
+        }
         return payload;
     }
 
     protected decodeProtobuf<T>(buf: Uint8Array | string, protobufClass: ProtobutClass<T>): T {
         if (buf instanceof Uint8Array) {
+            if(this._isNeedEncrypt()){
+                const secretKeySevice = pf.serviceManager.get(pf.services.SecretKeyService);
+                const buf1 = this._decryptBytes(buf,secretKeySevice.key);
+                return protobufClass.decode(buf1);
+            }
             return protobufClass.decode(buf);
         } else {
             // TODO:encrypt payload
@@ -214,8 +223,7 @@ export class SocketMessageProcessor {
         handler: NotificationHandler<T>
     ): void {
         this._messageHandlers.set(id, (msg) => {
-            const protobuf = protoClass.decode(msg.payload as Uint8Array);
-
+            const protobuf = this.decodeProtobuf(msg.payload,protoClass);
             handler(protobuf);
         });
     }
@@ -230,5 +238,94 @@ export class SocketMessageProcessor {
         if (handler) {
             handler(msg);
         }
+    }
+
+    private _encryptBytes(content, secretKey) :Uint8Array {
+        let keyBytes = CryptoJS.enc.Utf8.parse(secretKey);
+        let srcsBytes = this._int8parse(content);
+
+        let encrypted = CryptoJS.AES.encrypt(srcsBytes, keyBytes, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 });
+
+        return this._base64ToBytes(encrypted.toString());
+    }
+
+    private _decryptBytes(content, secretKey) {
+        content = new Uint8Array(content);
+
+        //let keyBytes = CryptoJS.enc.Utf8.parse(this.AES_KEY);
+        let keyBytes = CryptoJS.enc.Utf8.parse(secretKey);
+
+        let srcsBytes = this._int8parse(content);
+        let word = CryptoJS.enc.Base64.stringify(srcsBytes);
+
+        let decrypt = CryptoJS.AES.decrypt(word, keyBytes, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 });
+
+        let result = [];
+        let decryptLength = decrypt.words.length;
+        for (let i = 0; i < decryptLength; i++) {
+
+            let a = this._intTobytes(decrypt.words[i]);
+            if (decrypt.sigBytes / 4 >= i + 1) {
+                for (let j = 0; j < 4; j++) {
+                    result.push(a[j]);
+                }
+
+                if (decrypt.sigBytes / 4 == i + 1) break;
+            }
+            else {
+                let len = decrypt.sigBytes % 4;
+                for (let j = 0; j < len; j++) {
+                    result.push(a[j]);
+                }
+                break;
+            }
+
+        }
+        return new Uint8Array(result);
+    }
+
+    private _intTobytes(value) {
+        var a = new Uint8Array(4)
+        a[0] = (value >> 24) & 0xFF
+
+        a[1] = (value >> 16) & 0xFF
+
+        a[2] = (value >> 8) & 0xFF
+
+        a[3] = value & 0xFF
+
+        return a;
+    }
+
+    private _int8parse(u8arr) {
+        // Shortcut
+        let len = u8arr.length | u8arr.byteLength;
+
+        // Convert
+        let words = [];
+        for (let i = 0; i < len; i++) {
+            let x = u8arr[i];
+            words[i >>> 2] |= (u8arr[i] & 0xff) << (24 - (i % 4) * 8);
+        }
+
+        return CryptoJS.lib.WordArray.create(words, len);
+    }
+
+    private _base64ToBytes(base64) : Uint8Array {
+        // Use browser-native function if it exists
+        let base64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        // Remove non-base-64 characters
+        base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");
+        let bytes = [];
+        for (let i = 0, imod4 = 0; i < base64.length; imod4 = ++i % 4) {
+            if (imod4 == 0) continue;
+            bytes.push(((base64map.indexOf(base64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2)) |
+                (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
+        }
+        return new Uint8Array(bytes);
+    }
+
+    private _isNeedEncrypt(): boolean{
+        return this._serverId === 2;
     }
 }

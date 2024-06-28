@@ -221,6 +221,19 @@ export interface ILuckTurntableResultNotice {
     player_lottery_mode?: number | null;
 }
 
+export enum SecretType {
+    UseX = 0,
+    UseY = 1,
+    UseXY = 2
+}
+
+export interface ISetSecretKeyExResponse {
+    error?: (number|null);
+    secret_type?: (SecretType|null);
+    svr_public_key_x?: (string|null);
+    svr_public_key_y?: (string|null);
+}
+
 /// gate proto
 enum CMD {
     CMD_DUMMY = 0,
@@ -557,6 +570,10 @@ export interface IClaimRewardResponse {
     reward_amount?: { [k: string]: number } | null;
 }
 
+export interface ISetSecretKeyResponse {
+    error?: (number|null);
+}
+
 export interface ISocket {
     verbose: boolean;
 
@@ -596,6 +613,8 @@ export interface ISocket {
         recordCount: number,
         mode?: number
     ): Promise<ILuckTurntableSnaplistResponse>;
+
+    getSecretKey(secretKey: number, publicKeyX: string, publicKeyY: string): Promise<ISetSecretKeyExResponse>;
 
     getUserData(userId: number): Promise<IResponseGetUserData>;
 
