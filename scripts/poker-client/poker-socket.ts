@@ -234,6 +234,10 @@ export interface ISetSecretKeyExResponse {
     svr_public_key_y?: (string|null);
 }
 
+export interface IAuthVerifyResponse {
+    error?: (number|null);
+}
+
 /// gate proto
 enum CMD {
     CMD_DUMMY = 0,
@@ -616,6 +620,8 @@ export interface ISocket {
 
     getSecretKey(secretKey: number, publicKeyX: string, publicKeyY: string): Promise<ISetSecretKeyExResponse>;
 
+    requestAuthVerify(result: number): Promise<IAuthVerifyResponse>;
+    
     getUserData(userId: number): Promise<IResponseGetUserData>;
 
     getCalmDownConfirm(comfirm: boolean): Promise<IResponseCalmDownConfirm>;

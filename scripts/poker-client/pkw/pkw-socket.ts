@@ -21,7 +21,8 @@ import type {
     IClaimRewardResponse,
     INoticeGlobalMessage,
     IResponseClubCurrentBoard,
-    ISetSecretKeyExResponse
+    ISetSecretKeyExResponse,
+    IAuthVerifyResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
@@ -548,6 +549,21 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         this.checkResponseCode(responseProto.error, 'getSecretKey');
 
+        return responseProto;
+    }
+
+    async requestAuthVerify(result: number): Promise<IAuthVerifyResponse> {
+        const requestProto = new pb.AuthVerifyRequest();
+        requestProto.result = result;
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_AuthVerify_Request,
+            pb.AuthVerifyRequest,
+            pb.MSGID.MsgID_AuthVerify_Response,
+            pb.AuthVerifyResponse
+        );
+        const responseProto = response.payload;
+        this.checkResponseCode(responseProto.error, 'requestAuthVerify');
         return responseProto;
     }
 

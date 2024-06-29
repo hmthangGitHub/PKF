@@ -10,4 +10,5 @@ export * from './error-message-service';
 export * from './calm-down-service';
 export * from './exchange-currency-service';
 export * from './rebate-service';
-export * from './secret-key-service'; 
+export * from './secret-key-service';
+export * from './auth-verify-service';  
