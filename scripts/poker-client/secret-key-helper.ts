@@ -7,7 +7,7 @@ enum SecretType {
     UseXY = 2
 }
 
-export class SecretKeyControl {
+export class SecretKeyHelper {
     private q: string = '';
     private a: string = '';
     private b: string = '';

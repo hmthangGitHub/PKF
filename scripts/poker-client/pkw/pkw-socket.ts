@@ -36,7 +36,7 @@ import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 import { AsyncOperation } from '../../core/async/async-operation';
 import { macros } from '../poker-client-macros';
-import { SecretKeyControl } from '../secret-key-control';
+import { SecretKeyHelper } from '../secret-key-helper';
 
 export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<ISession> = null;
@@ -50,7 +50,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _url = '';
     private _options: Nullable<ISocketOptions> = null;
 
-    private _secretKeyControl: SecretKeyControl = null;
+    private _secretKeyHelper: SecretKeyHelper = null;
 
     private _originOnClose: Nullable<SocketOpenHandler> = null;
     private _originOnMessage: Nullable<SocketOpenHandler> = null;
@@ -67,8 +67,8 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         this._session = session;
         Util.override(this._systemInfo, options);
 
-        this._secretKeyControl = new SecretKeyControl();
-        this._secretKeyControl.ecdhInit();
+        this._secretKeyHelper = new SecretKeyHelper();
+        this._secretKeyHelper.ecdhInit();
     }
 
     createGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T {
@@ -543,8 +543,8 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         const requestProto = new pb.SetSecretKeyExRequest();
 
         requestProto.secret_type = 0;
-        requestProto.cli_public_key_x = this._secretKeyControl.clientPubX;
-        requestProto.cli_public_key_y = this._secretKeyControl.clientPubY;
+        requestProto.cli_public_key_x = this._secretKeyHelper.clientPubX;
+        requestProto.cli_public_key_y = this._secretKeyHelper.clientPubY;
 
         const response = await this.sendRequest(
             requestProto,
@@ -559,8 +559,8 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         if (resp.error === 1) {
             const serverPubX = resp.svr_public_key_x;
             const serverPubY = resp.svr_public_key_y;
-            this._secretKeyControl.ecdhGenClientKey(serverPubX, serverPubY);
-            this._secretKey = this._secretKeyControl.getFinalKey(resp.secret_type);
+            this._secretKeyHelper.ecdhGenClientKey(serverPubX, serverPubY);
+            this._secretKey = this._secretKeyHelper.getFinalKey(resp.secret_type);
         }
     }
 
