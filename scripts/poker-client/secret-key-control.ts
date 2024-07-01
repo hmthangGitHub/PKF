@@ -1,9 +1,4 @@
-import { Service } from 'protobufjs';
 import * as pf from '../pf';
-import {
-    type ISetSecretKeyExResponse,
-    type IPokerClient
-} from '../poker-client/poker-client-index';
 
 enum SecretType {
     UseX = 0,
@@ -11,11 +6,7 @@ enum SecretType {
     UseXY = 2
 }
 
-export class SecretKeyService extends Service {
-    static readonly serviceName = 'SecreKeyService';
-
-    _client: IPokerClient;
-
+export class SecretKeyControl{
     private q:string = '';
     private a:string = '';
     private b:string = '';
@@ -29,8 +20,17 @@ export class SecretKeyService extends Service {
     private serverPubY:string = '';
 
     // 客户端公钥对
-    private clientPubX:string = '';
-    private clientPubY:string = '';
+    private _clientPubX:string = '';
+    private _clientPubY:string = '';
+
+    public get clientPubX()
+    {
+        return this._clientPubX;
+    }
+    public get clientPubY()
+    {
+        return this._clientPubY;
+    }
     // 客户端私钥
     private clientPriv:string = '';
     // 客户端生成的密码对
@@ -40,19 +40,7 @@ export class SecretKeyService extends Service {
 
     private bNeedGenKey:boolean = true;
 
-    private _storeKey:string = '';
-
-    get key(){
-        return this._storeKey;
-    }
-
     private _ecdhJs:any = new window.ecdhJs();
-
-
-    constructor(client: IPokerClient) {
-        super(SecretKeyService.serviceName);
-        this._client = client;
-    }
 
     private setInit() {
         if(this.q.length === 0) 
@@ -116,8 +104,8 @@ export class SecretKeyService extends Service {
         const a = new this._ecdhJs.BigInteger(this.clientPriv);
         const P = G.multiply(a);
 
-        this.clientPubX = P.getX().toBigInteger().toString();
-        this.clientPubY = P.getY().toBigInteger().toString();
+        this._clientPubX = P.getX().toBigInteger().toString();
+        this._clientPubY = P.getY().toBigInteger().toString();
     }
 
     // 生成客户端密码
@@ -177,14 +165,8 @@ export class SecretKeyService extends Service {
         this.ecdhClientGenSecretkey();
     }
 
-    async getSecretKey():Promise<ISetSecretKeyExResponse>{
-        const resp = await this._client.getSocket().getSecretKey(0, this.clientPubX, this.clientPubY);
-        if(resp.error === 1){
-            const secretType = resp.secret_type;
-            const serverPubX = resp.svr_public_key_x;
-            const serverPubY = resp.svr_public_key_y;
-            this.ecdhGenClientKey(serverPubX, serverPubY);
-            let secretKey = '';
+    getFinalKey(secretType:SecretType): string{
+        let secretKey = '';
             switch(secretType){
                 case SecretType.UseX:
                     secretKey = this.clientKeyX;
@@ -199,11 +181,6 @@ export class SecretKeyService extends Service {
                     console.log('onEcdhSecretResponse secretType error.');
                     return;
             }
-            this._storeKey = pf.Crypto.md5(secretKey);
-        }else{
-            // cv.SwitchLoadingView.hide();
-            // cv.netWorkManager.OnNeedRelogin(msg.error);
-        }
-
+            return pf.Crypto.md5(secretKey);
     }
 }

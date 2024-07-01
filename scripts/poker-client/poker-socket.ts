@@ -618,8 +618,6 @@ export interface ISocket {
         mode?: number
     ): Promise<ILuckTurntableSnaplistResponse>;
 
-    getSecretKey(secretKey: number, publicKeyX: string, publicKeyY: string): Promise<ISetSecretKeyExResponse>;
-
     requestAuthVerify(result: number): Promise<IAuthVerifyResponse>;
     
     getUserData(userId: number): Promise<IResponseGetUserData>;
@@ -637,4 +635,8 @@ export interface ISocket {
     getEventStatus(): Promise<IGetEventStatusResponse>;
 
     getRebateReward(eventId: number, betTimeIdx: number, rewardProgressIndex: number): Promise<IClaimRewardResponse>;
+
+    requestSecretKey(): Promise<void>;
+
+    getSecretKey():string;
 }

@@ -38,6 +38,8 @@ export class SocketMessageProcessor {
     protected _serverId: number;
     protected _playId: number = 0;
 
+    protected _secretKey: string = '';
+
     constructor(serverType: number, serverId: number, playerId: number, websocketAdapter: WebSocketAdapter) {
         this._serverType = serverType;
         this._serverId = serverId;
@@ -173,8 +175,7 @@ export class SocketMessageProcessor {
     protected encodeProtobuf<T>(protobuf: T, protobufClass: ProtobutClass<T>): string | Uint8Array {
         let payload = protobufClass.encode(protobuf).finish();
         if(this._isNeedEncrypt()){
-            const secretKeySevice = pf.serviceManager.get(pf.services.SecretKeyService);
-           return this._encryptBytes(payload,secretKeySevice.key);
+           return this._encryptBytes(payload, this._secretKey);
         }
         return payload;
     }
@@ -182,8 +183,7 @@ export class SocketMessageProcessor {
     protected decodeProtobuf<T>(buf: Uint8Array | string, protobufClass: ProtobutClass<T>): T {
         if (buf instanceof Uint8Array) {
             if(this._isNeedEncrypt()){
-                const secretKeySevice = pf.serviceManager.get(pf.services.SecretKeyService);
-                const buf1 = this._decryptBytes(buf,secretKeySevice.key);
+                const buf1 = this._decryptBytes(buf,this._secretKey);
                 return protobufClass.decode(buf1);
             }
             return protobufClass.decode(buf);
@@ -238,6 +238,10 @@ export class SocketMessageProcessor {
         if (handler) {
             handler(msg);
         }
+    }
+
+    public setSecretKey(key:string):void{
+        this._secretKey = key;
     }
 
     private _encryptBytes(content, secretKey) :Uint8Array {
@@ -324,6 +328,6 @@ export class SocketMessageProcessor {
     }
 
     private _isNeedEncrypt(): boolean{
-        return this._serverId === 2;
+        return this._secretKey !== '';
     }
 }

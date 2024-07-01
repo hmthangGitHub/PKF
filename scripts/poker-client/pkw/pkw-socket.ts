@@ -2,27 +2,28 @@
 import * as ws_protocol from 'ws_protocol';
 import pb = ws_protocol.pb;
 import type { Nullable } from '../../core/defines/types';
-import type {
-    ISocket,
-    SocketNotifications,
-    ILoginResponse,
-    IMiniGamesListResponse,
-    IGameRoomListResponse,
-    IGetRankResponse,
-    IAddCoinOrderResponse,
-    ILuckTurntableResultResponse,
-    ILuckTurntableSnaplistResponse,
-    ILuckTurntableResultNotice,
-    IResponseGetUserData,
-    IResponseCalmDownConfirm,
-    IGetScalerQuoteResponse,
-    IExchangeCurrencyResponse,
-    IGetEventStatusResponse,
-    IClaimRewardResponse,
-    INoticeGlobalMessage,
-    IResponseClubCurrentBoard,
-    ISetSecretKeyExResponse,
-    IAuthVerifyResponse
+import {
+    type ISocket,
+    type SocketNotifications,
+    type ILoginResponse,
+    type IMiniGamesListResponse,
+    type IGameRoomListResponse,
+    type IGetRankResponse,
+    type IAddCoinOrderResponse,
+    type ILuckTurntableResultResponse,
+    type ILuckTurntableSnaplistResponse,
+    type ILuckTurntableResultNotice,
+    type IResponseGetUserData,
+    type IResponseCalmDownConfirm,
+    type IGetScalerQuoteResponse,
+    type IExchangeCurrencyResponse,
+    type IGetEventStatusResponse,
+    type IClaimRewardResponse,
+    type INoticeGlobalMessage,
+    type IResponseClubCurrentBoard,
+    type ISetSecretKeyExResponse,
+    type IAuthVerifyResponse,
+    SecretType
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
@@ -37,6 +38,7 @@ import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 import { AsyncOperation } from '../../core/async/async-operation';
 import { macros } from '../poker-client-macros';
+import { SecretKeyControl } from '../secret-key-control';
 
 export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<ISession> = null;
@@ -49,6 +51,8 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     private _url = '';
     private _options: Nullable<ISocketOptions> = null;
+
+    private _secretKeyControl: SecretKeyControl = null;
 
     private _originOnClose: Nullable<SocketOpenHandler> = null;
     private _originOnMessage: Nullable<SocketOpenHandler> = null;
@@ -64,6 +68,9 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         super(ServerType.SeverType_World, GameId.World, session.userId, websocketAdatper);
         this._session = session;
         Util.override(this._systemInfo, options);
+
+        this._secretKeyControl = new SecretKeyControl();
+        this._secretKeyControl.ecdhInit();
     }
 
     createGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T {
@@ -530,12 +537,16 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         return responseProto;
     }
 
-    async getSecretKey(secretKey: number, cli_public_key_x: string, cli_public_key_y: string): Promise<ISetSecretKeyExResponse> {
+    getSecretKey(): string {
+        return this._secretKey;
+    }
+
+    async requestSecretKey(): Promise<void> {
         const requestProto = new pb.SetSecretKeyExRequest();
 
-        requestProto.secret_type = secretKey;
-        requestProto.cli_public_key_x = cli_public_key_x;
-        requestProto.cli_public_key_y = cli_public_key_y;
+        requestProto.secret_type = 0;
+        requestProto.cli_public_key_x = this._secretKeyControl.clientPubX;
+        requestProto.cli_public_key_y = this._secretKeyControl.clientPubY;
 
         const response = await this.sendRequest(
             requestProto,
@@ -545,11 +556,14 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             pb.SetSecretKeyExResponse
         );
 
-        const responseProto = response.payload;
+        const resp = response.payload;
 
-        this.checkResponseCode(responseProto.error, 'getSecretKey');
-
-        return responseProto;
+        if(resp.error === 1){
+            const serverPubX = resp.svr_public_key_x;
+            const serverPubY = resp.svr_public_key_y;
+            this._secretKeyControl.ecdhGenClientKey(serverPubX, serverPubY);
+            this._secretKey = this._secretKeyControl.getFinalKey(resp.secret_type);
+        }
     }
 
     async requestAuthVerify(result: number): Promise<IAuthVerifyResponse> {
