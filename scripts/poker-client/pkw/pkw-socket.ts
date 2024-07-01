@@ -563,7 +563,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             pb.AuthVerifyResponse
         );
         const responseProto = response.payload;
-        this.checkResponseCode(responseProto.error, 'requestAuthVerify');
+        // this.checkResponseCode(responseProto.error, 'requestAuthVerify');
         return responseProto;
     }
 
