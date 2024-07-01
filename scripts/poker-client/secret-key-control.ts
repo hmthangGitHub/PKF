@@ -95,7 +95,7 @@ export class SecretKeyControl {
     // 客户端生成公钥对
     private ecdhClientGenPub() {
         if (this.clientPriv.length === 0) {
-            console.log("Please generate client's private value first");
+            console.log('Please generate client\'s private value first');
             return;
         }
 
@@ -111,12 +111,12 @@ export class SecretKeyControl {
     // 生成客户端密码
     private ecdhClientGenSecretkey() {
         if (this.clientPriv.length === 0) {
-            console.log("Please generate client's private value first");
+            console.log('Please generate client\'s private value first');
             return;
         }
 
         if (this.serverPubX.length === 0) {
-            console.log("Please compute server's public value first");
+            console.log('Please compute server\'s public value first');
             return;
         }
         let curve = this.getCurve(this.q, this.a, this.b);
