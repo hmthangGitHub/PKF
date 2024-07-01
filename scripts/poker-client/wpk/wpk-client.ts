@@ -111,6 +111,7 @@ export class WPKClient implements IPokerClient {
             // because the player data contains pkw user id
             // userId: session.userInfo.userId,
             userId: session.pkwAuthData.uid,
+            userToken: '',
             username: session.userInfo.account,
             nickname: session.userInfo.nickname,
             sex: session.userInfo.sex,

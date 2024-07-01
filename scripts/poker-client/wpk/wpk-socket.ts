@@ -21,7 +21,8 @@ import type {
     IClaimRewardResponse,
     INoticeGlobalMessage,
     IResponseClubCurrentBoard,
-    ISetSecretKeyExResponse
+    ISetSecretKeyExResponse,
+    IAuthVerifyResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { WPKSession } from './wpk-session';
@@ -56,6 +57,8 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     private _externalWebSocket: WebSocket = null;
 
     private _notification = new TypeSafeEventEmitter<SocketNotifications>();
+
+    private _secretKeyControl: SecretKeyControl = null;
     get notification(): TypeSafeEventEmitter<SocketNotifications> {
         return this._notification;
     }
@@ -64,6 +67,8 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         super(ServerType.SeverType_World, GameId.World, session.userId, websocketAdatper);
         this._session = session;
         Util.override(this._systemInfo, options);
+        this._secretKeyControl = new SecretKeyControl();
+        this._secretKeyControl.ecdhInit();
     }
 
     createGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T {
@@ -500,12 +505,16 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         return responseProto;
     }
 
-    async getSecretKey(secretKey: number, cli_public_key_x: string, cli_public_key_y: string): Promise<ISetSecretKeyExResponse> {
+    getSecretKey(): string {
+        return this._secretKey;
+    }
+
+    async requestSecretKey(): Promise<void> {
         const requestProto = new pb.SetSecretKeyExRequest();
 
-        requestProto.secret_type = secretKey;
-        requestProto.cli_public_key_x = cli_public_key_x;
-        requestProto.cli_public_key_y = cli_public_key_y;
+        requestProto.secret_type = 0;
+        requestProto.cli_public_key_x = this._secretKeyControl.clientPubX;
+        requestProto.cli_public_key_y = this._secretKeyControl.clientPubY;
 
         const response = await this.sendRequest(
             requestProto,
@@ -515,11 +524,14 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
             pb.SetSecretKeyExResponse
         );
 
-        const responseProto = response.payload;
+        const resp = response.payload;
 
-        this.checkResponseCode(responseProto.error, 'getSecretKey');
-
-        return responseProto;
+        if(resp.error === 1){
+            const serverPubX = resp.svr_public_key_x;
+            const serverPubY = resp.svr_public_key_y;
+            this._secretKeyControl.ecdhGenClientKey(serverPubX, serverPubY);
+            this._secretKey = this._secretKeyControl.getFinalKey(resp.secret_type);
+        }
     }
 
     async sendHeartBeat(): Promise<IHeartBeatResponse> {
@@ -561,6 +573,22 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
         // this.checkResponseCode(responseProto.error, 'getClubCurrentBoard');
 
+        return responseProto;
+    }
+
+
+    async requestAuthVerify(result: number): Promise<IAuthVerifyResponse> {
+        const requestProto = new pb.AuthVerifyRequest();
+        requestProto.result = result;
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_AuthVerify_Request,
+            pb.AuthVerifyRequest,
+            pb.MSGID.MsgID_AuthVerify_Response,
+            pb.AuthVerifyResponse
+        );
+        const responseProto = response.payload;
+        // this.checkResponseCode(responseProto.error, 'requestAuthVerify');
         return responseProto;
     }
 
