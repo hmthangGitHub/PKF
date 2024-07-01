@@ -228,14 +228,14 @@ export enum SecretType {
 }
 
 export interface ISetSecretKeyExResponse {
-    error?: (number|null);
-    secret_type?: (SecretType|null);
-    svr_public_key_x?: (string|null);
-    svr_public_key_y?: (string|null);
+    error?: number | null;
+    secret_type?: SecretType | null;
+    svr_public_key_x?: string | null;
+    svr_public_key_y?: string | null;
 }
 
 export interface IAuthVerifyResponse {
-    error?: (number|null);
+    error?: number | null;
 }
 
 /// gate proto
@@ -575,7 +575,7 @@ export interface IClaimRewardResponse {
 }
 
 export interface ISetSecretKeyResponse {
-    error?: (number|null);
+    error?: number | null;
 }
 
 export interface ISocket {
@@ -619,7 +619,7 @@ export interface ISocket {
     ): Promise<ILuckTurntableSnaplistResponse>;
 
     requestAuthVerify(result: number): Promise<IAuthVerifyResponse>;
-    
+
     getUserData(userId: number): Promise<IResponseGetUserData>;
 
     getCalmDownConfirm(comfirm: boolean): Promise<IResponseCalmDownConfirm>;
@@ -638,5 +638,5 @@ export interface ISocket {
 
     requestSecretKey(): Promise<void>;
 
-    getSecretKey():string;
+    getSecretKey(): string;
 }

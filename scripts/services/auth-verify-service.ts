@@ -2,7 +2,6 @@ import { Service } from 'protobufjs';
 import type { IPokerClient } from '../poker-client/poker-client';
 import type { IAuthVerifyResponse } from '../poker-client/poker-client-index';
 
-
 export class AuthVerifyService extends Service {
     static readonly serviceName = 'AuthVerifyService';
     _client: IPokerClient;

@@ -1,5 +1,4 @@
 /* eslint-disable camelcase */
-import * as pf from '../pf';
 import type { ProtobutClass } from './poker-client-types';
 import type { WebSocketAdapter } from './websocket-adapter';
 import { SocketMessage, SocketMessageHeader } from './socket-message';
@@ -174,16 +173,16 @@ export class SocketMessageProcessor {
 
     protected encodeProtobuf<T>(protobuf: T, protobufClass: ProtobutClass<T>): string | Uint8Array {
         let payload = protobufClass.encode(protobuf).finish();
-        if(this._isNeedEncrypt()){
-           return this._encryptBytes(payload, this._secretKey);
+        if (this._isNeedEncrypt()) {
+            return this._encryptBytes(payload, this._secretKey);
         }
         return payload;
     }
 
     protected decodeProtobuf<T>(buf: Uint8Array | string, protobufClass: ProtobutClass<T>): T {
         if (buf instanceof Uint8Array) {
-            if(this._isNeedEncrypt()){
-                const buf1 = this._decryptBytes(buf,this._secretKey);
+            if (this._isNeedEncrypt()) {
+                const buf1 = this._decryptBytes(buf, this._secretKey);
                 return protobufClass.decode(buf1);
             }
             return protobufClass.decode(buf);
@@ -223,7 +222,7 @@ export class SocketMessageProcessor {
         handler: NotificationHandler<T>
     ): void {
         this._messageHandlers.set(id, (msg) => {
-            const protobuf = this.decodeProtobuf(msg.payload,protoClass);
+            const protobuf = this.decodeProtobuf(msg.payload, protoClass);
             handler(protobuf);
         });
     }
@@ -240,15 +239,18 @@ export class SocketMessageProcessor {
         }
     }
 
-    public setSecretKey(key:string):void{
+    setSecretKey(key: string): void {
         this._secretKey = key;
     }
 
-    private _encryptBytes(content, secretKey) :Uint8Array {
+    private _encryptBytes(content, secretKey): Uint8Array {
         let keyBytes = CryptoJS.enc.Utf8.parse(secretKey);
         let srcsBytes = this._int8parse(content);
 
-        let encrypted = CryptoJS.AES.encrypt(srcsBytes, keyBytes, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 });
+        let encrypted = CryptoJS.AES.encrypt(srcsBytes, keyBytes, {
+            mode: CryptoJS.mode.ECB,
+            padding: CryptoJS.pad.Pkcs7
+        });
 
         return this._base64ToBytes(encrypted.toString());
     }
@@ -265,7 +267,6 @@ export class SocketMessageProcessor {
         let result = [];
         let decryptLength = decrypt.words.length;
         for (let i = 0; i < decryptLength; i++) {
-
             let a = this._intTobytes(decrypt.words[i]);
             if (decrypt.sigBytes / 4 >= i + 1) {
                 for (let j = 0; j < 4; j++) {
@@ -273,28 +274,26 @@ export class SocketMessageProcessor {
                 }
 
                 if (decrypt.sigBytes / 4 === i + 1) break;
-            }
-            else {
+            } else {
                 let len = decrypt.sigBytes % 4;
                 for (let j = 0; j < len; j++) {
                     result.push(a[j]);
                 }
                 break;
             }
-
         }
         return new Uint8Array(result);
     }
 
     private _intTobytes(value) {
         let a = new Uint8Array(4);
-        a[0] = (value >> 24) & 0xFF;
+        a[0] = (value >> 24) & 0xff;
 
-        a[1] = (value >> 16) & 0xFF;
+        a[1] = (value >> 16) & 0xff;
 
-        a[2] = (value >> 8) & 0xFF;
+        a[2] = (value >> 8) & 0xff;
 
-        a[3] = value & 0xFF;
+        a[3] = value & 0xff;
 
         return a;
     }
@@ -313,21 +312,23 @@ export class SocketMessageProcessor {
         return CryptoJS.lib.WordArray.create(words, len);
     }
 
-    private _base64ToBytes(base64) : Uint8Array {
+    private _base64ToBytes(base64): Uint8Array {
         // Use browser-native function if it exists
         let base64map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
         // Remove non-base-64 characters
-        let newBase64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
+        let newBase64 = base64.replace(/[^A-Z0-9+\/]/gi, '');
         let bytes = [];
         for (let i = 0, imod4 = 0; i < newBase64.length; imod4 = ++i % 4) {
             if (imod4 === 0) continue;
-            bytes.push(((base64map.indexOf(newBase64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2)) |
-                (base64map.indexOf(newBase64.charAt(i)) >>> (6 - imod4 * 2)));
+            bytes.push(
+                ((base64map.indexOf(newBase64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2)) |
+                    (base64map.indexOf(newBase64.charAt(i)) >>> (6 - imod4 * 2))
+            );
         }
         return new Uint8Array(bytes);
     }
 
-    private _isNeedEncrypt(): boolean{
+    private _isNeedEncrypt(): boolean {
         return this._secretKey !== '';
     }
 }

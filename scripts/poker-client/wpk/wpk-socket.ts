@@ -21,7 +21,6 @@ import type {
     IClaimRewardResponse,
     INoticeGlobalMessage,
     IResponseClubCurrentBoard,
-    ISetSecretKeyExResponse,
     IAuthVerifyResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
@@ -526,7 +525,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
         const resp = response.payload;
 
-        if(resp.error === 1){
+        if (resp.error === 1) {
             const serverPubX = resp.svr_public_key_x;
             const serverPubY = resp.svr_public_key_y;
             this._secretKeyControl.ecdhGenClientKey(serverPubX, serverPubY);
@@ -575,7 +574,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
         return responseProto;
     }
-
 
     async requestAuthVerify(result: number): Promise<IAuthVerifyResponse> {
         const requestProto = new pb.AuthVerifyRequest();

@@ -413,15 +413,14 @@ export interface IDomainInfo {
  * 创建牌局模式
  */
 export enum CreateGameMode {
-    CreateGame_Mode_None = 0,           // 无
-    CreateGame_Mode_Normal,             // 普通牌局
-    CreateGame_Mode_MATCH,              //
-    CreateGame_Mode_Short,              // 短牌局
-    CreateGame_Mode_Other,              //
+    CreateGame_Mode_None = 0, // 无
+    CreateGame_Mode_Normal, // 普通牌局
+    CreateGame_Mode_MATCH, //
+    CreateGame_Mode_Short, // 短牌局
+    CreateGame_Mode_Other //
 }
 
 export enum CurrencyType {
     GOLD = 0,
     USDT = 101
 }
-

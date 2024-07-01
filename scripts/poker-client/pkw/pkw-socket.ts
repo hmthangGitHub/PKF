@@ -2,28 +2,26 @@
 import * as ws_protocol from 'ws_protocol';
 import pb = ws_protocol.pb;
 import type { Nullable } from '../../core/defines/types';
-import {
-    type ISocket,
-    type SocketNotifications,
-    type ILoginResponse,
-    type IMiniGamesListResponse,
-    type IGameRoomListResponse,
-    type IGetRankResponse,
-    type IAddCoinOrderResponse,
-    type ILuckTurntableResultResponse,
-    type ILuckTurntableSnaplistResponse,
-    type ILuckTurntableResultNotice,
-    type IResponseGetUserData,
-    type IResponseCalmDownConfirm,
-    type IGetScalerQuoteResponse,
-    type IExchangeCurrencyResponse,
-    type IGetEventStatusResponse,
-    type IClaimRewardResponse,
-    type INoticeGlobalMessage,
-    type IResponseClubCurrentBoard,
-    type ISetSecretKeyExResponse,
-    type IAuthVerifyResponse,
-    SecretType
+import type {
+    ISocket,
+    SocketNotifications,
+    ILoginResponse,
+    IMiniGamesListResponse,
+    IGameRoomListResponse,
+    IGetRankResponse,
+    IAddCoinOrderResponse,
+    ILuckTurntableResultResponse,
+    ILuckTurntableSnaplistResponse,
+    ILuckTurntableResultNotice,
+    IResponseGetUserData,
+    IResponseCalmDownConfirm,
+    IGetScalerQuoteResponse,
+    IExchangeCurrencyResponse,
+    IGetEventStatusResponse,
+    IClaimRewardResponse,
+    INoticeGlobalMessage,
+    IResponseClubCurrentBoard,
+    IAuthVerifyResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
@@ -558,7 +556,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         const resp = response.payload;
 
-        if(resp.error === 1){
+        if (resp.error === 1) {
             const serverPubX = resp.svr_public_key_x;
             const serverPubY = resp.svr_public_key_y;
             this._secretKeyControl.ecdhGenClientKey(serverPubX, serverPubY);
@@ -793,7 +791,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             this.handleRebateEventStatusNotify();
         });
     }
-    
+
     protected handleClubCurrentBoardNotify(protobuf: pb.INoticeClubCurrentBoard) {
         this._notification.emit('clubCurrentBoard', protobuf);
     }

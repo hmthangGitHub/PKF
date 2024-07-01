@@ -119,11 +119,11 @@ export class AddressalbeAssetLoader {
         return new Promise<void>((resolve, reject) => {
             this._loadTaskGroups.forEach((taskGroup, bundleName) => {
                 const bundle = this._bundleManger.getBundle(bundleName);
-                if(taskGroup.tasks.length === 0) resolve();
-                else{
+                if (taskGroup.tasks.length === 0) resolve();
+                else {
                     taskGroup.tasks.forEach((task: AddressalbeAssetLoadTask) => {
                         task.state = LoadState.InProgress;
-    
+
                         this._assetManger
                             .loadAssetByLocation(bundle, taskGroup.group, task.assetLocation)
                             .then(() => {
@@ -149,7 +149,6 @@ export class AddressalbeAssetLoader {
                             });
                     });
                 }
-                
             });
         });
     }
