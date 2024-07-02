@@ -329,6 +329,6 @@ export class SocketMessageProcessor {
     }
 
     private _isNeedEncrypt(): boolean {
-        return this._secretKey !== '';
+        return this.serverId === 2 && this._secretKey !== '';
     }
 }
