@@ -36,7 +36,7 @@ import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 import { AsyncOperation } from '../../core/async/async-operation';
 import { macros } from '../poker-client-macros';
-import { SecretKeyHelper } from '../secret-key-helper';
+import { SecretKeyHelper } from '../encrypt/secret-key-helper';
 
 export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<ISession> = null;

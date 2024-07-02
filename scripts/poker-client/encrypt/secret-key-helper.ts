@@ -1,5 +1,5 @@
 /* eslint-disable autofix/quotes */
-import * as pf from '../pf';
+import * as pf from '../../pf';
 
 enum SecretType {
     UseX = 0,
@@ -39,6 +39,7 @@ export class SecretKeyHelper {
 
     private bNeedGenKey: boolean = true;
 
+    // TODO: refactor ecdh implement
     // eslint-disable-next-line new-cap
     private _ecdhJs: any = new window.ecdhJs();
 

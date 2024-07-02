@@ -329,6 +329,7 @@ export class SocketMessageProcessor {
     }
 
     private _isNeedEncrypt(): boolean {
+        // TODO: query need encrpyt from server
         return this.serverId === 2 && this._secretKey !== '';
     }
 }

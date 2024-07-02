@@ -35,6 +35,7 @@ import { SocketMessageProcessor } from '../socket-message-processor';
 import type { IRequest } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
+import { SecretKeyHelper } from '../encrypt/secret-key-helper';
 import { AsyncOperation } from '../../core/async/async-operation';
 import { macros } from '../poker-client-macros';
 
