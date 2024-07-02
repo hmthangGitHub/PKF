@@ -307,6 +307,7 @@ export class SystemInfo implements ISystemInfoOptions {
 }
 
 export interface IClientOptions extends ISystemInfoOptions {
+    scheme?: string;
     port?: number;
     basePath?: string;
     baseURL?: string;
