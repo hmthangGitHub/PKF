@@ -74,8 +74,7 @@ export class Http {
             };
             if (method === 'post' && this._bodyData) {
                 xhr.send(this._bodyData);
-            }
-            else {
+            } else {
                 xhr.send();
             }
         });
