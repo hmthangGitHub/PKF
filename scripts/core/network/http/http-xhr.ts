@@ -4,12 +4,16 @@ import { HttpError } from '../../defines/errors';
 export class Http {
     protected _input: string;
     protected _options: Options;
+    protected _bodyData: string;
 
-    constructor(input: string, options?: Options) {
+    constructor(input: string, options?: Options, bodyData?: string) {
         if (typeof input !== 'string') {
             throw new TypeError('`input` must be a string');
         }
         this._input = input;
+        this._bodyData = bodyData;
+
+        // ====================
 
         // copy defulat options
         this._options = { ...defaultOptions };
@@ -68,8 +72,12 @@ export class Http {
                 // Reject the promise with a network error
                 reject(new HttpError('Network error', xhr.status || 500));
             };
-
-            xhr.send();
+            if (method === 'post' && this._bodyData) {
+                xhr.send(this._bodyData);
+            }
+            else {
+                xhr.send();
+            }
         });
     }
 
@@ -82,7 +90,7 @@ export class Http {
         return this._input;
     }
 
-    static create(input: string, options?: Options): Http {
-        return new Http(input, options);
+    static create(input: string, options?: Options, bodyData?: string): Http {
+        return new Http(input, options, bodyData);
     }
 }

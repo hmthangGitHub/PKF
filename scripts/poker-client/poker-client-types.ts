@@ -336,6 +336,7 @@ export interface ISocketOptions extends ISystemInfoOptions {
 
 export interface RequestOtpions {
     aesKey?: string;
+    onceToken?: string;
 }
 
 /** A user in the system. */
