@@ -341,7 +341,6 @@ export interface RequestOtpions {
 /** A user in the system. */
 export interface IUser {
     userId: number;
-    userToken: '';
     username: string;
     nickname: string;
     avatarURL: string;

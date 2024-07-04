@@ -104,7 +104,6 @@ export class PKWClient implements IPokerClient {
         // create user
         this._user = {
             userId: loginData.user_id,
-            userToken: '',
             username: loginData.nick_name,
             nickname: loginData.nick_name,
             sex: 0,

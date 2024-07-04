@@ -5,7 +5,7 @@ import type { IGameRoom, IMiniGameRoom } from './game-room';
 export interface IGameService extends IService {
     serverId: number;
 
-    login(): Promise<void>;
+    login(ip?:string): Promise<void>;
 
     joinRoom(roomId: number): Promise<IGameRoom>;
 }
@@ -20,7 +20,7 @@ export abstract class GameService<EventType> extends TypeSafeEventEmitter<EventT
 
     abstract get serverId(): number;
 
-    abstract login(): Promise<void>;
+    abstract login(ip:string): Promise<void>;
 
     abstract joinRoom(roomId: number): Promise<IGameRoom>;
 
