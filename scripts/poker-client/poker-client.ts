@@ -12,6 +12,7 @@ import type {
 import type { ISocket } from './poker-socket';
 import { PKWClient } from './pkw/pkw-client';
 import { WPKClient } from './wpk/wpk-client';
+import type { http } from '../pf';
 
 export interface IPokerClient {
     /** link PokerClient to exist login session */
@@ -26,6 +27,10 @@ export interface IPokerClient {
     createSocket(options?: ISocketOptions): ISocket;
 
     getSocket(): ISocket;
+
+    request(url: string, params: Object): Promise<http.Response>;
+
+    post(url: string, params: Object): Promise<http.Response>;
 }
 
 export class PokerClient {

@@ -30,7 +30,14 @@ export class Http {
             const timeout = this._options.timeout || 5000;
 
             xhr.open(method, requestUrl, true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
+            if (this._options.headers) {
+                let headers = this._options.headers;
+                for (let key in headers) {
+                    xhr.setRequestHeader(key, headers[key]);
+                }
+            } else {
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
+            }
 
             // Set up a timeout timer
             const timeoutId = setTimeout(() => {

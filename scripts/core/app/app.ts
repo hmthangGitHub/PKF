@@ -10,6 +10,8 @@ export interface IAppEvents {
     showRedEnvelopeTooltip: (param: any) => void;
 
     hideWebview: () => void;
+
+    showToastMsg: (msg: string) => void;
 }
 
 export interface IGameContext {

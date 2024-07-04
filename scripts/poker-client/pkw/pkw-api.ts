@@ -12,6 +12,9 @@ export interface IRequestParams {
     dmodel?: string;
     clientType?: number;
     language?: string;
+
+    user_id?: string;
+    token?: string;
 }
 
 export interface IResponseData {

@@ -104,6 +104,7 @@ export class PKWClient implements IPokerClient {
         // create user
         this._user = {
             userId: loginData.user_id,
+            userToken: token,
             username: loginData.nick_name,
             nickname: loginData.nick_name,
             sex: 0,
@@ -166,11 +167,11 @@ export class PKWClient implements IPokerClient {
         return this._domains;
     }
 
-    protected async request(url: string, params: IRequestParams): Promise<http.Response> {
-        // if (this._session) {
-        //     data.userId = this._session.userId;
-        //     data.sessionToken = this._session.token;
-        // }
+    async request(url: string, params: IRequestParams): Promise<http.Response> {
+        if (this._session) {
+            params.user_id = this._session.userId.toString();
+            params.token = this._session.token;
+        }
 
         params.version = '1.0.0'; // just hard code
         params.hot_update_version = this._systemInfo.appVersion;
@@ -196,6 +197,38 @@ export class PKWClient implements IPokerClient {
         const fullUrl = url + '?' + searchParams;
 
         return await http.get(fullUrl);
+    }
+
+    async post(url: string, params: IRequestParams): Promise<http.Response> {
+        if (this._session) {
+            params.user_id = this._session.userId.toString();
+            params.token = this._session.token;
+        }
+
+        params.version = '1.0.0'; // just hard code
+        params.hot_update_version = this._systemInfo.appVersion;
+        params.device_uuid = this._deviceId;
+        params.latitude = this._systemInfo.coord.latitude;
+        params.longitude = this._systemInfo.coord.longitude;
+        params.domain_type = this._systemInfo.domainType;
+        params.deviceType = this._deviceType;
+        params.is_down_sl = this._systemInfo.isInstallSiliao ? 1 : 0;
+        params.device_version = this._systemInfo.deviceVersion;
+        params.is_emulator = this._systemInfo.isEmulator ? 1 : 0;
+        params.dmodel = this._systemInfo.deviceInfo;
+        params.clientType = this._systemInfo.clientType;
+        params.language = this._systemInfo.langauage;
+
+        const data = JSON.stringify(params);
+
+        // sign params
+        const sign = PKWUtil.createSign(data);
+
+        const searchParams = new URLSearchParams({ data: data, sign: sign });
+
+        return await http.post(url, {
+            body: searchParams.toString()
+        });
     }
 
     createSocket(options?: ISocketOptions): ISocket {

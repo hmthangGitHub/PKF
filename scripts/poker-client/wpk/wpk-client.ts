@@ -186,7 +186,7 @@ export class WPKClient implements IPokerClient {
         return this._domains;
     }
 
-    protected async request(url: string, data: PostParams): Promise<http.Response> {
+    async request(url: string, data: PostParams): Promise<http.Response> {
         if (this._session) {
             data.userId = this._session.userId;
             data.sessionToken = this._session.token;
@@ -208,6 +208,10 @@ export class WPKClient implements IPokerClient {
             },
             body: searchParams.toString()
         });
+    }
+
+    async post(url: string, data: PostParams): Promise<http.Response> {
+        return await this.request(url, data);
     }
 
     createSocket(options?: ISocketOptions): ISocket {
