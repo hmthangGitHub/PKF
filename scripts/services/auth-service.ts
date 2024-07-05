@@ -121,6 +121,7 @@ export class AuthService extends EmittableService<AuthEvents> {
                 }
 
                 asyncOp.resolve();
+                this.emit('modifyUserInfoSucc');
             })
             .catch((msg) => {
                 asyncOp.reject(msg);

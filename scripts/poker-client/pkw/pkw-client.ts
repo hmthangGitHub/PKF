@@ -259,6 +259,15 @@ export class PKWClient implements IPokerClient {
         return this._socket;
     }
 
+    getDomainInfo(): IDomainInfo {
+        const domainService = serviceManager.get(DomainService);
+        return domainService.getDomainInfo();
+    }
+
+    getWebServer(): string {
+        return this.getDomainInfo().webServer;
+    }
+
     async uploadAvatar(avatar: string): Promise<string> {
         let newPic = '';
         if (cc.sys.isBrowser) {
@@ -277,11 +286,8 @@ export class PKWClient implements IPokerClient {
             ext: 'jpg'
         };
 
-        const domainService = serviceManager.get(DomainService);
-        let url = domainService.getDomainInfo().imageUploadServer + WebApi.WEB_API_MODIFY_UPLOADVAR;
+        let url = this.getDomainInfo().imageUploadServer + WebApi.WEB_API_MODIFY_UPLOADVAR;
         let response = await this.post(url, data);
-
-        const loginResponse = response.data as ILoginResponseData;
         let respMsg = response.data;
 
         const asyncOp = new AsyncOperation<string>();
@@ -305,7 +311,7 @@ export class PKWClient implements IPokerClient {
         data.img_ext = 'jpg';
         data.avatar_thumb = localHeadPath;
 
-        let url = this._baseUrl + WebApi.WEB_API_MODIFY_INFO;
+        let url = this.getWebServer() + WebApi.WEB_API_MODIFY_INFO;
         let response = await this.request(url, data);
         let respMsg = response.data as IModifyPlayerInfoResponseData;
 
