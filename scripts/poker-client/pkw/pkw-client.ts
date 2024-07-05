@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 require('url-search-params-polyfill');
 import type { Nullable } from '../../core/core-index';
-import { ServerError, Util } from '../../core/core-index';
+import { AsyncOperation, ServerError, Util, serviceManager } from '../../core/core-index';
 import * as http from '../../core/network/http/http-index';
 import type { IPokerClient } from '../poker-client';
 import type {
@@ -18,9 +18,19 @@ import type { ISocket } from '../poker-socket';
 import { PKWSession } from './pkw-session';
 import { PKWSocket } from './pkw-socket';
 import { PKWUtil } from './pkw-util';
-import type { IRequestParams, ILoginParams, ILoginResponseData, ILoginData } from './pkw-api';
+import {
+    type IRequestParams,
+    type ILoginParams,
+    type ILoginResponseData,
+    type ILoginData,
+    WebApi,
+    type IUploadAvatarParams,
+    type IModifyPlayerInfoParams,
+    type IModifyPlayerInfoResponseData
+} from './pkw-api';
 import { WebSocketAdapter } from '../websocket-adapter';
 import { PKWMockSocket } from './mock/pkw-mock-socket';
+import { DomainService } from '../../services/services-index';
 
 export class PKWClient implements IPokerClient {
     _deviceType: string;
@@ -104,7 +114,6 @@ export class PKWClient implements IPokerClient {
         // create user
         this._user = {
             userId: loginData.user_id,
-            userToken: token,
             username: loginData.nick_name,
             nickname: loginData.nick_name,
             sex: 0,
@@ -248,5 +257,67 @@ export class PKWClient implements IPokerClient {
 
     getSocket(): ISocket {
         return this._socket;
+    }
+
+    async uploadAvatar(avatar: string): Promise<string> {
+        let newPic = '';
+        if (cc.sys.isBrowser) {
+            const base64url = avatar.split('base64,'); // web版本下base64字符串会带有前缀data:image/jpeg;base64，后端解析时要去掉才能成功；
+            if (base64url[1]) {
+                newPic = base64url[1];
+            } else {
+                newPic = avatar;
+            }
+        } else {
+            newPic = avatar;
+        }
+
+        const data: IUploadAvatarParams = {
+            avatar: newPic,
+            ext: 'jpg'
+        };
+
+        const domainService = serviceManager.get(DomainService);
+        let url = domainService.getDomainInfo().imageUploadServer + WebApi.WEB_API_MODIFY_UPLOADVAR;
+        let response = await this.post(url, data);
+
+        const loginResponse = response.data as ILoginResponseData;
+        let respMsg = response.data;
+
+        const asyncOp = new AsyncOperation<string>();
+        if (respMsg.code === 0) {
+            const data: any = respMsg.data;
+            console.log(`new avatar url = ${data.filename}`);
+            asyncOp.resolve(data.filename);
+        } else {
+            asyncOp.reject(respMsg.msg);
+        }
+
+        return asyncOp.promise;
+    }
+
+    async sendModifyPlayerInfo(nickname: string, gender: number, localHeadPath: string): Promise<any> {
+        const data: IModifyPlayerInfoParams = {
+            gender: gender === 0 ? '1' : gender.toString(),
+            avatar: localHeadPath
+        };
+        data.nick_name = nickname;
+        data.img_ext = 'jpg';
+        data.avatar_thumb = localHeadPath;
+
+        let url = this._baseUrl + WebApi.WEB_API_MODIFY_INFO;
+        let response = await this.request(url, data);
+        let respMsg = response.data as IModifyPlayerInfoResponseData;
+
+        console.log('modifyPlayerInfo response:' + JSON.stringify(respMsg));
+        const asyncOp = new AsyncOperation<any>();
+
+        if (respMsg.msg_code === '0') {
+            asyncOp.resolve(respMsg.data);
+        } else {
+            asyncOp.reject(respMsg.msg);
+        }
+
+        return asyncOp.promise;
     }
 }

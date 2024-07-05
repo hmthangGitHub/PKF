@@ -341,7 +341,6 @@ export interface RequestOtpions {
 /** A user in the system. */
 export interface IUser {
     userId: number;
-    userToken: string;
     username: string;
     nickname: string;
     avatarURL: string;
@@ -407,6 +406,11 @@ export interface IDomainInfo {
     webServer: string;
     imageServerWpk: string;
     imageServerWpto: string;
+}
+
+export interface IDocPromise {
+    docName: string;
+    content: string;
 }
 
 /**

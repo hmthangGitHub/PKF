@@ -7,12 +7,12 @@ import type {
     ISession,
     PlatformType,
     IUser,
-    IDomainInfo
+    IDomainInfo,
+    IDocPromise
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
 import { PKWClient } from './pkw/pkw-client';
 import { WPKClient } from './wpk/wpk-client';
-import type { http } from '../pf';
 
 export interface IPokerClient {
     /** link PokerClient to exist login session */
@@ -28,9 +28,17 @@ export interface IPokerClient {
 
     getSocket(): ISocket;
 
-    request(url: string, params?: Object): Promise<http.Response>;
+    uploadAvatar(avatar: string): Promise<string>;
 
-    post(url: string, params: Object): Promise<http.Response>;
+    sendModifyPlayerInfo(nickname: string, gender: number, localHeadPath: string): Promise<any>;
+
+    getNotificationSettings?: () => Promise<any>;
+
+    setNotificationSettings?: (useEmail: boolean, useSms: boolean, sendLoginNotification: boolean) => Promise<void>;
+
+    getLegalDocs?: (docName: string, version: number) => Promise<IDocPromise>;
+
+    getBonusCenterDatas?: () => Promise<any>;
 }
 
 export class PokerClient {

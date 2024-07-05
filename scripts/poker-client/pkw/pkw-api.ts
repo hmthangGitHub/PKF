@@ -65,3 +65,32 @@ export interface ILoginData {
 export interface ILoginResponseData extends IResponseData {
     data: ILoginData;
 }
+
+export enum WebApi {
+    WEB_API_MODIFY_INFO = 'index.php/User/Ucenter/modifyUserInfo',
+    WEB_API_MODIFY_UPLOADVAR = 'uploadavar'
+}
+
+export interface IUploadAvatarParams extends IRequestParams {
+    avatar: string;
+    ext: string;
+}
+
+export interface IModifyPlayerInfoParams extends IRequestParams {
+    nick_name?: string;
+    gender: string;
+    img_ext?: string;
+    avatar: string;
+    avatar_thumb?: string;
+}
+
+export interface IModifyPlayerInfoData {
+    user_id?: number;
+    nick_name?: string;
+    gender?: number;
+    avatar?: string;
+}
+
+export interface IModifyPlayerInfoResponseData extends IResponseData {
+    data: IModifyPlayerInfoData;
+}

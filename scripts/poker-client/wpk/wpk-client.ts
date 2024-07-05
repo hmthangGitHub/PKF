@@ -20,6 +20,7 @@ import { WPKSocket } from './wpk-socket';
 import { WPKUtil } from './wpk-util';
 import { Util } from '../../core/utils/util';
 import { WebSocketAdapter } from '../websocket-adapter';
+import { AsyncOperation } from '../../pf';
 
 export class WPKClient implements IPokerClient {
     _deviceType: number;
@@ -227,5 +228,17 @@ export class WPKClient implements IPokerClient {
 
     getSocket(): ISocket {
         return this._socket;
+    }
+
+    async uploadAvatar(avatar: string): Promise<string> {
+        const asyncOp = new AsyncOperation<string>();
+        asyncOp.reject('功能未实现');
+        return asyncOp.promise;
+    }
+
+    async sendModifyPlayerInfo(nickname: string, gender: number, localHeadPath: string): Promise<any> {
+        const asyncOp = new AsyncOperation<any>();
+        asyncOp.reject('功能未实现');
+        return asyncOp.promise;
     }
 }
