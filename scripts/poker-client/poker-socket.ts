@@ -578,7 +578,16 @@ export interface ISetSecretKeyResponse {
     error?: number | null;
 }
 
-export interface ISocket {
+/* Rebate apis 
+   Rebate apis are optional because some platform like wpt does not support rebate 
+*/
+export interface IRebateable {
+    getEventStatus?(): Promise<IGetEventStatusResponse>;
+
+    getRebateReward?(eventId: number, betTimeIdx: number, rewardProgressIndex: number): Promise<IClaimRewardResponse>;
+}
+
+export interface ISocket extends IRebateable {
     verbose: boolean;
 
     notification: TypeSafeEventEmitter<SocketNotifications>;
@@ -631,10 +640,6 @@ export interface ISocket {
         fromCurrencyAmount: number,
         usePointDeduction: boolean
     ): Promise<IExchangeCurrencyResponse>;
-
-    getEventStatus(): Promise<IGetEventStatusResponse>;
-
-    getRebateReward(eventId: number, betTimeIdx: number, rewardProgressIndex: number): Promise<IClaimRewardResponse>;
 
     requestSecretKey(): Promise<void>;
 

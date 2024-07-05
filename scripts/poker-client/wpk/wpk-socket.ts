@@ -460,21 +460,23 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     }
 
     async getEventStatus(): Promise<IGetEventStatusResponse> {
+        // TODO: move from pkw...need implementation and test on wpk
+        // @ts-ignore ingore here becasue some project does not has rebate definition
         const requestProto = new pb.GetEventStatusRequest();
 
         const response = await this.sendRequest(
             requestProto,
             pb.MSGID.MsgId_Rebate_GetEventStatus_Request,
+            // @ts-ignore
             pb.GetEventStatusRequest,
             pb.MSGID.MsgId_Rebate_GetEventStatus_Response,
+            // @ts-ignore
             pb.GetEventStatusResponse
         );
 
         const responseProto = response.payload;
-
-        // skip checking error code here because error code 3 means event stopped
-        // and it will be handled in RebateService
-        // this.checkResponseCode(responseProto.error, 'getEventStatus');
+        // @ts-ignore
+        this.checkResponseCode(responseProto.error, 'getEventStatus');
 
         return responseProto;
     }
@@ -484,6 +486,8 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         betTimeIdx: number,
         rewardProgressIndex: number
     ): Promise<IClaimRewardResponse> {
+        // TODO: move from pkw...need implementation and test on wpk
+        // @ts-ignore
         const requestProto = new pb.ClaimRewardRequest();
 
         requestProto.event_id = eventId;
@@ -492,14 +496,19 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
         const response = await this.sendRequest(
             requestProto,
+            // @ts-ignore
             pb.MSGID.MsgId_Rebate_ReceiveReward_Request,
+            // @ts-ignore
             pb.ClaimRewardRequest,
+            // @ts-ignore
             pb.MSGID.MsgId_Rebate_ReceiveReward_Response,
+            // @ts-ignore
             pb.ClaimRewardResponse
         );
 
         const responseProto = response.payload;
 
+        // @ts-ignore
         this.checkResponseCode(responseProto.error, 'getRebateReward');
 
         return responseProto;

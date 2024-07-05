@@ -490,13 +490,16 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     }
 
     async getEventStatus(): Promise<IGetEventStatusResponse> {
+        // @ts-ignore ingore here becasue some project does not has rebate definition
         const requestProto = new pb.GetEventStatusRequest();
 
         const response = await this.sendRequest(
             requestProto,
             pb.MSGID.MsgId_Rebate_GetEventStatus_Request,
+            // @ts-ignore
             pb.GetEventStatusRequest,
             pb.MSGID.MsgId_Rebate_GetEventStatus_Response,
+            // @ts-ignore
             pb.GetEventStatusResponse
         );
 
@@ -514,6 +517,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         betTimeIdx: number,
         rewardProgressIndex: number
     ): Promise<IClaimRewardResponse> {
+        // @ts-ignore
         const requestProto = new pb.ClaimRewardRequest();
 
         requestProto.event_id = eventId;
@@ -522,14 +526,19 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         const response = await this.sendRequest(
             requestProto,
+            // @ts-ignore
             pb.MSGID.MsgId_Rebate_ReceiveReward_Request,
+            // @ts-ignore
             pb.ClaimRewardRequest,
+            // @ts-ignore
             pb.MSGID.MsgId_Rebate_ReceiveReward_Response,
+            // @ts-ignore
             pb.ClaimRewardResponse
         );
 
         const responseProto = response.payload;
 
+        // @ts-ignore
         this.checkResponseCode(responseProto.error, 'getRebateReward');
 
         return responseProto;
