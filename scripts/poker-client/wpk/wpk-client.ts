@@ -213,7 +213,7 @@ export class WPKClient implements IPokerClient {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
             },
-            body: searchParams.toString()
+            params: searchParams.toString()
         });
     }
 

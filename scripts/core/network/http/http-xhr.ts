@@ -4,16 +4,12 @@ import { HttpError } from '../../defines/errors';
 export class Http {
     protected _input: string;
     protected _options: Options;
-    protected _bodyData: string;
 
-    constructor(input: string, options?: Options, bodyData?: string) {
+    constructor(input: string, options?: Options) {
         if (typeof input !== 'string') {
             throw new TypeError('`input` must be a string');
         }
         this._input = input;
-        this._bodyData = bodyData;
-
-        // ====================
 
         // copy defulat options
         this._options = { ...defaultOptions };
@@ -32,16 +28,14 @@ export class Http {
             const requestUrl = this.buildRequestUrl();
 
             const timeout = this._options.timeout || 5000;
+            const responseType = this._options.responseType || '';
+            const body = this._options.body || '';
 
             xhr.open(method, requestUrl, true);
-            if (this._options.headers) {
-                let headers = this._options.headers;
-                for (let key in headers) {
-                    xhr.setRequestHeader(key, headers[key]);
-                }
-            } else {
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
-            }
+            xhr.responseType = responseType;
+            const headers = this._options.headers;
+            const value = headers && headers['Content-Type'] ? headers['Content-Type'] : 'application/x-www-form-urlencoded; charset=utf-8';
+            xhr.setRequestHeader('Content-Type', value);
 
             // Set up a timeout timer
             const timeoutId = setTimeout(() => {
@@ -53,12 +47,27 @@ export class Http {
                 clearTimeout(timeoutId); // Clear the timeout timer
 
                 if (xhr.status >= 200 && xhr.status < 300) {
-                    // Parse the response and resolve the promise
                     const response: Response = {
                         url: requestUrl,
-                        data: JSON.parse(xhr.responseText),
+                        data: null,
                         status: xhr.status
                     };
+                    if (!responseType || responseType === 'text') {
+                        try {
+                            response.data = JSON.parse(xhr.responseText);
+                        }
+                        catch (err) {
+                            response.data = {};
+                            response.errorDes = '解析responseText成json出错';
+                            console.error(`${response.errorDes}`);
+                        }
+                    }
+                    else if (responseType === 'document') {
+                        response.data = xhr.responseXML;
+                    }
+                    else {
+                        response.data = xhr.response;
+                    }
 
                     resolve(response);
                 } else {
@@ -72,24 +81,21 @@ export class Http {
                 // Reject the promise with a network error
                 reject(new HttpError('Network error', xhr.status || 500));
             };
-            if (method === 'post' && this._bodyData) {
-                xhr.send(this._bodyData);
-            } else {
-                xhr.send();
-            }
+
+            xhr.send(body.toString());
         });
     }
 
     // Helper method to build the request URL
     private buildRequestUrl(): string {
-        if (this._options.body) {
+        if (this._options.params) {
             // Assuming this._options.body is a URL-encoded string
-            return `${this._input}?${this._options.body}`;
+            return `${this._input}?${this._options.params}`;
         }
         return this._input;
     }
 
-    static create(input: string, options?: Options, bodyData?: string): Http {
-        return new Http(input, options, bodyData);
+    static create(input: string, options?: Options): Http {
+        return new Http(input, options);
     }
 }

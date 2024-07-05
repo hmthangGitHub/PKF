@@ -13,9 +13,9 @@ export function get(url: string, options?: Options): ResponsePromise {
     return request(url, opts);
 }
 
-export function post(url: string, options?: Options, bodyData?: string): ResponsePromise {
+export function post(url: string, options?: Options): ResponsePromise {
     const opts = { ...options, method: HttpMethod.Post };
 
-    const impl = Http.create(url, opts, bodyData);
+    const impl = Http.create(url, opts);
     return impl.request();
 }
