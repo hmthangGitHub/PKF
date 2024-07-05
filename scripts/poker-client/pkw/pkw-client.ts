@@ -167,7 +167,12 @@ export class PKWClient implements IPokerClient {
         return this._domains;
     }
 
-    async request(url: string, params: IRequestParams): Promise<http.Response> {
+    async request(url: string, obj?: IRequestParams): Promise<http.Response> {
+        let params: IRequestParams = obj;
+        if (!params) {
+            params = {};
+        }
+
         if (this._session) {
             params.user_id = this._session.userId.toString();
             params.token = this._session.token;

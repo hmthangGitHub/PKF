@@ -1,6 +1,7 @@
 import type { Nullable } from '../core/core-index';
-import { EmittableService } from '../core/core-index';
-import * as pf from '../pf';
+import { AsyncOperation, EmittableService, Util, serviceManager } from '../core/core-index';
+import { DomainService } from '../services/domain-service';
+
 import type {
     IPokerClient,
     RequestOtpions,
@@ -13,7 +14,6 @@ import type {
 export interface AuthEvents {
     userData: () => void;
     modifyUserInfoSucc: () => void;
-    onClickAvatar: (avatarId: number) => void;
 }
 
 export class AuthService extends EmittableService<AuthEvents> {
@@ -80,15 +80,8 @@ export class AuthService extends EmittableService<AuthEvents> {
         this.emit('userData');
     }
 
-    /** 修改系统头像 */
-    async sendModifyAvatarId(avatarId: number) {
-        console.log('sendModifyAvatarId:' + avatarId);
-        const userData = this.currentUser;
-        await this.sendModifyPlayerInfo(userData.nickname, userData.sex, avatarId.toString());
-    }
-
     /** 上次自定义头像并进行鉴黄 */
-    async requestUploadVar(avatar: string) {
+    async uploadAvatar(avatar: string): Promise<string> {
         let newPic = '';
         if (cc.sys.isBrowser) {
             const base64url = avatar.split('base64,'); // web版本下base64字符串会带有前缀data:image/jpeg;base64，后端解析时要去掉才能成功；
@@ -101,47 +94,44 @@ export class AuthService extends EmittableService<AuthEvents> {
             newPic = avatar;
         }
 
-        const authService = pf.serviceManager.get(pf.services.AuthService);
-        const userData = authService.currentUser;
-
         let data = {
-            language: pf.languageManager.currentLanguage,
-            // user_id: userData.userId ? userData.userId.toString() : '0',
             avatar: newPic,
             ext: 'jpg'
         };
-        data['user_id'] = userData.userId ? userData.userId.toString() : '0';
 
-        const domainService = pf.serviceManager.get(pf.services.DomainService);
+        const domainService = serviceManager.get(DomainService);
         let url = domainService.getDomainInfo().imageUploadServer + this.WEB_API_MODIFY_UPLOADVAR;
         let response = await this._client.post(url, data);
         let respMsg = response.data;
 
+        const asyncOp = new AsyncOperation<string>();
         if (respMsg.code === 0) {
             const data: any = respMsg.data;
             console.log(`new avatar url = ${data.filename}`);
-            await this.sendModifyNativeAvatar(data.filename);
+            asyncOp.resolve(data.filename);
         } else {
-            pf.app.emit('showToastMsg', respMsg.msg);
+            asyncOp.reject(respMsg.msg);
         }
+
+        return asyncOp.promise;
     }
 
-    /** 修改自定义头像 */
-    async sendModifyNativeAvatar(url: string) {
-        console.log('sendModifyNativeAvatar:' + url);
+    /** 修改头像 */
+    async sendModifyAvatar(avatar: string | number): Promise<void> {
+        console.log('sendModifyAvatar:' + avatar);
         const userData = this.currentUser;
-        await this.sendModifyPlayerInfo(userData.nickname, userData.sex, url);
+        return await this.sendModifyPlayerInfo(userData.nickname, userData.sex, avatar.toString());
     }
 
     /** 修改昵称 */
-    async sendModifyNickName(nickname: string) {
+    async sendModifyNickName(nickname: string): Promise<void> {
         console.log('sendModifyNickName:' + nickname);
         const userData = this.currentUser;
-        await this.sendModifyPlayerInfo(nickname, userData.sex, userData.avatarURL);
+        return await this.sendModifyPlayerInfo(nickname, userData.sex, userData.avatarURL);
     }
 
     /** 发送修改用户信息请求 */
-    private async sendModifyPlayerInfo(nickname: string, gender: number, localHeadPath: string) {
+    async sendModifyPlayerInfo(nickname: string, gender: number, localHeadPath: string): Promise<void> {
         if (!this._client) {
             console.error('_clent is errror');
             return;
@@ -159,34 +149,36 @@ export class AuthService extends EmittableService<AuthEvents> {
         data['img_ext'] = 'jpg';
         data['avatar_thumb'] = localHeadPath;
 
-        const domainService = pf.serviceManager.get(pf.services.DomainService);
+        const domainService = serviceManager.get(DomainService);
         let url = domainService.getDomainInfo().webServer + this.WEB_API_MODIFY_INFO;
         let response = await this._client.request(url, data);
         let respMsg = response.data;
 
         console.log('modifyPlayerInfo response:' + JSON.stringify(respMsg));
+        const asyncOp = new AsyncOperation<void>();
+
         if (respMsg.msg_code === '0') {
-            const authService = pf.serviceManager.get(pf.services.AuthService);
-            let userData = authService.currentUser;
-
-            const kDataRoot = respMsg.data;
-            if (kDataRoot.user_id) {
-                userData.userId = pf.Util.Number(kDataRoot.user_id);
+            let userData = this.currentUser;
+            const dataRoot = respMsg.data;
+            if (dataRoot.user_id) {
+                userData.userId = Util.Number(dataRoot.user_id);
             }
-            if (kDataRoot.nick_name) {
-                userData.nickname = pf.Util.String(kDataRoot.nick_name);
+            if (dataRoot.nick_name) {
+                userData.nickname = Util.String(dataRoot.nick_name);
             }
-            if (kDataRoot.gender) {
-                userData.sex = pf.Util.Number(kDataRoot.gender);
+            if (dataRoot.gender) {
+                userData.sex = Util.Number(dataRoot.gender);
             }
-            if (kDataRoot.avatar) {
-                userData.avatarURL = kDataRoot.avatar;
+            if (dataRoot.avatar) {
+                userData.avatarURL = dataRoot.avatar;
             }
 
-            // pf.app.emit('showToastMsg', respMsg.msg);
             this.emit('modifyUserInfoSucc');
+            asyncOp.resolve();
         } else {
-            pf.app.emit('showToastMsg', respMsg.msg);
+            asyncOp.reject(respMsg.msg);
         }
+
+        return asyncOp.promise;
     }
 }

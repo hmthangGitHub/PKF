@@ -28,7 +28,7 @@ export interface IPokerClient {
 
     getSocket(): ISocket;
 
-    request(url: string, params: Object): Promise<http.Response>;
+    request(url: string, params?: Object): Promise<http.Response>;
 
     post(url: string, params: Object): Promise<http.Response>;
 }

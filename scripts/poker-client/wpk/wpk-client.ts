@@ -186,7 +186,12 @@ export class WPKClient implements IPokerClient {
         return this._domains;
     }
 
-    async request(url: string, data: PostParams): Promise<http.Response> {
+    async request(url: string, obj?: PostParams): Promise<http.Response> {
+        let data: PostParams = obj;
+        if (!data) {
+            data = {};
+        }
+
         if (this._session) {
             data.userId = this._session.userId;
             data.sessionToken = this._session.token;
