@@ -34,7 +34,10 @@ export class Http {
             xhr.open(method, requestUrl, true);
             xhr.responseType = responseType;
             const headers = this._options.headers;
-            const value = headers && headers['Content-Type'] ? headers['Content-Type'] : 'application/x-www-form-urlencoded; charset=utf-8';
+            const value =
+                headers && headers['Content-Type']
+                    ? headers['Content-Type']
+                    : 'application/x-www-form-urlencoded; charset=utf-8';
             xhr.setRequestHeader('Content-Type', value);
 
             // Set up a timeout timer
@@ -55,17 +58,14 @@ export class Http {
                     if (!responseType || responseType === 'text') {
                         try {
                             response.data = JSON.parse(xhr.responseText);
-                        }
-                        catch (err) {
+                        } catch (err) {
                             response.data = {};
                             response.errorDes = '解析responseText成json出错';
                             console.error(`${response.errorDes}`);
                         }
-                    }
-                    else if (responseType === 'document') {
+                    } else if (responseType === 'document') {
                         response.data = xhr.responseXML;
-                    }
-                    else {
+                    } else {
                         response.data = xhr.response;
                     }
 
