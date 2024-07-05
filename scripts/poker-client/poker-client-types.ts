@@ -423,3 +423,11 @@ export enum CurrencyType {
     GOLD = 0,
     USDT = 101
 }
+
+export enum GameSizeType {
+    None = 0,
+    Micro = 1,
+    Small = 2,
+    Medium = 3,
+    High = 4
+}
