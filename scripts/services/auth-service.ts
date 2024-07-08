@@ -17,9 +17,8 @@ export interface AuthEvents {
 
 export class AuthService extends EmittableService<AuthEvents> {
     static readonly serviceName = 'AuthService';
+
     _client: IPokerClient;
-    private readonly WEB_API_MODIFY_INFO: string = 'index.php/User/Ucenter/modifyUserInfo';
-    private readonly WEB_API_MODIFY_UPLOADVAR: string = 'uploadavar';
 
     // private _currentUser: Nullable<IUser> = null;
 
