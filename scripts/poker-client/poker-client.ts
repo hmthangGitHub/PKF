@@ -8,8 +8,7 @@ import type {
     PlatformType,
     IUser,
     IDomainInfo,
-    IDocPromise,
-    UrlType
+    IDocPromise
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
 import { PKWClient } from './pkw/pkw-client';
@@ -40,8 +39,6 @@ export interface IPokerClient {
     getLegalDocs?: (docName: string, version: number) => Promise<IDocPromise>;
 
     getBonusCenterDatas?: () => Promise<any>;
-
-    getUrl?: (key: UrlType) => string;
 }
 
 export class PokerClient {

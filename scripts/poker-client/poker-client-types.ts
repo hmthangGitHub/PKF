@@ -436,9 +436,3 @@ export enum GameSizeType {
     Medium = 3,
     High = 4
 }
-
-export enum UrlType {
-    None = 0,
-    reedback = 1,
-    kycPolicy = 2
-}
