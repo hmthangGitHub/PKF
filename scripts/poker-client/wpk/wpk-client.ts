@@ -1,6 +1,6 @@
 require('url-search-params-polyfill');
 import type { Nullable } from '../../core/defines/types';
-import { ServerError } from '../../core/defines/errors';
+import { NotImplementError, ServerError } from '../../core/defines/errors';
 import type { IPokerClient } from '../poker-client';
 import type {
     IClientOptions,
@@ -22,7 +22,6 @@ import { WPKSocket } from './wpk-socket';
 import { WPKUtil } from './wpk-util';
 import { Util } from '../../core/utils/util';
 import { WebSocketAdapter } from '../websocket-adapter';
-import { AsyncOperation } from '../../pf';
 
 export class WPKClient implements IPokerClient {
     _deviceType: number;
@@ -233,14 +232,18 @@ export class WPKClient implements IPokerClient {
     }
 
     async uploadAvatar(imgUploadUrl: string, avatar: string): Promise<string> {
-        const asyncOp = new AsyncOperation<string>();
-        asyncOp.reject(new Error('功能未实现'));
-        return asyncOp.promise;
+        // const asyncOp = new AsyncOperation<string>();
+        // asyncOp.reject(new Error('功能未实现'));
+        // return asyncOp.promise;
+
+        return Promise.reject<string>(new NotImplementError('uploadAvatar is not implement'));
     }
 
     async modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<IModifyPlayerInfoData> {
-        const asyncOp = new AsyncOperation<any>();
-        asyncOp.reject(new Error('功能未实现'));
-        return asyncOp.promise;
+        // const asyncOp = new AsyncOperation<any>();
+        // asyncOp.reject(new Error('功能未实现'));
+        // return asyncOp.promise;
+
+        return Promise.reject<IModifyPlayerInfoData>(new NotImplementError('modifyPlayerInfo is not implement'));
     }
 }
