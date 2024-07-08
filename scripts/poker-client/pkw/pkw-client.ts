@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 require('url-search-params-polyfill');
 import type { Nullable } from '../../core/core-index';
-import { AsyncOperation, ServerError, Util, serviceManager } from '../../core/core-index';
+import { AsyncOperation, ServerError, Util } from '../../core/core-index';
 import * as http from '../../core/network/http/http-index';
 import type { IPokerClient } from '../poker-client';
 import type {
@@ -11,7 +11,9 @@ import type {
     RequestOtpions,
     ISession,
     IUser,
-    IDomainInfo
+    IDomainInfo,
+    IModifyPlayerInfoData,
+    IModifyPlayerParams
 } from '../poker-client-types';
 import { SystemInfo } from '../poker-client-types';
 import type { ISocket } from '../poker-socket';
@@ -30,7 +32,6 @@ import {
 } from './pkw-api';
 import { WebSocketAdapter } from '../websocket-adapter';
 import { PKWMockSocket } from './mock/pkw-mock-socket';
-import { DomainService } from '../../services/services-index';
 
 export class PKWClient implements IPokerClient {
     _deviceType: string;
@@ -259,16 +260,7 @@ export class PKWClient implements IPokerClient {
         return this._socket;
     }
 
-    getDomainInfo(): IDomainInfo {
-        const domainService = serviceManager.get(DomainService);
-        return domainService.getDomainInfo();
-    }
-
-    getWebServer(): string {
-        return this.getDomainInfo().webServer;
-    }
-
-    async uploadAvatar(avatar: string): Promise<string> {
+    async uploadAvatar(imgUploadUrl: string, avatar: string): Promise<string> {
         let newPic = '';
         if (cc.sys.isBrowser) {
             const base64url = avatar.split('base64,'); // web版本下base64字符串会带有前缀data:image/jpeg;base64，后端解析时要去掉才能成功；
@@ -286,7 +278,7 @@ export class PKWClient implements IPokerClient {
             ext: 'jpg'
         };
 
-        let url = this.getDomainInfo().imageUploadServer + WebApi.WEB_API_MODIFY_UPLOADVAR;
+        let url = imgUploadUrl + WebApi.WEB_API_MODIFY_UPLOADVAR;
         let response = await this.post(url, data);
         let respMsg = response.data;
 
@@ -302,16 +294,16 @@ export class PKWClient implements IPokerClient {
         return asyncOp.promise;
     }
 
-    async sendModifyPlayerInfo(nickname: string, gender: number, localHeadPath: string): Promise<any> {
+    async modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<IModifyPlayerInfoData> {
         const data: IModifyPlayerInfoParams = {
-            gender: gender === 0 ? '1' : gender.toString(),
-            avatar: localHeadPath
+            gender: params.gender === 0 ? '1' : params.gender.toString(),
+            avatar: params.localHeadPath
         };
-        data.nick_name = nickname;
+        data.nick_name = params.nickname;
         data.img_ext = 'jpg';
-        data.avatar_thumb = localHeadPath;
+        data.avatar_thumb = params.localHeadPath;
 
-        let url = this.getWebServer() + WebApi.WEB_API_MODIFY_INFO;
+        let url = webUrl + WebApi.WEB_API_MODIFY_INFO;
         let response = await this.request(url, data);
         let respMsg = response.data as IModifyPlayerInfoResponseData;
 

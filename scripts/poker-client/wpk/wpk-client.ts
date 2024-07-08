@@ -9,7 +9,9 @@ import type {
     ISession,
     IUser,
     IDomainInfo,
-    ILinkOptions
+    ILinkOptions,
+    IModifyPlayerInfoData,
+    IModifyPlayerParams
 } from '../poker-client-types';
 import { SystemInfo } from '../poker-client-types';
 import type { ISocket } from '../poker-socket';
@@ -230,13 +232,13 @@ export class WPKClient implements IPokerClient {
         return this._socket;
     }
 
-    async uploadAvatar(avatar: string): Promise<string> {
+    async uploadAvatar(imgUploadUrl: string, avatar: string): Promise<string> {
         const asyncOp = new AsyncOperation<string>();
         asyncOp.reject('功能未实现');
         return asyncOp.promise;
     }
 
-    async sendModifyPlayerInfo(nickname: string, gender: number, localHeadPath: string): Promise<any> {
+    async modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<IModifyPlayerInfoData> {
         const asyncOp = new AsyncOperation<any>();
         asyncOp.reject('功能未实现');
         return asyncOp.promise;

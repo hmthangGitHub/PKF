@@ -7,7 +7,8 @@ import type {
     ISession,
     IUser,
     INoticeGetUserData,
-    IResponseGetUserData
+    IResponseGetUserData,
+    IModifyPlayerParams
 } from '../poker-client/poker-client-index';
 
 export interface AuthEvents {
@@ -79,31 +80,36 @@ export class AuthService extends EmittableService<AuthEvents> {
     }
 
     /** 上传自定义头像并进行鉴黄 */
-    async uploadAvatar(avatar: string): Promise<string> {
-        const result = await this._client.uploadAvatar(avatar);
+    async uploadAvatar(imageServer: string, avatar: string): Promise<string> {
+        const result = await this._client.uploadAvatar(imageServer, avatar);
         return result;
     }
 
     /** 修改头像 */
-    async sendModifyAvatar(avatar: string | number): Promise<void> {
+    async sendModifyAvatar(webUrl: string, avatar: string | number): Promise<void> {
         console.log('sendModifyAvatar:' + avatar);
         const userData = this.currentUser;
-        return await this.sendModifyPlayerInfo(userData.nickname, userData.sex, avatar.toString());
+        return await this.sendModifyPlayerInfo(webUrl, userData.nickname, userData.sex, avatar.toString());
     }
 
     /** 修改昵称 */
-    async sendModifyNickName(nickname: string): Promise<void> {
+    async sendModifyNickName(webUrl: string, nickname: string): Promise<void> {
         console.log('sendModifyNickName:' + nickname);
         const userData = this.currentUser;
-        return await this.sendModifyPlayerInfo(nickname, userData.sex, userData.avatarURL);
+        return await this.sendModifyPlayerInfo(webUrl, nickname, userData.sex, userData.avatarURL);
     }
 
     /** 发送修改用户信息请求 */
-    async sendModifyPlayerInfo(nickname: string, gender: number, localHeadPath: string): Promise<void> {
+    async sendModifyPlayerInfo(webUrl: string, nickname: string, gender: number, localHeadPath: string): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
+        const params: IModifyPlayerParams = {
+            nickname,
+            gender,
+            localHeadPath
+        };
 
         await this._client
-            .sendModifyPlayerInfo(nickname, gender, localHeadPath)
+            .modifyPlayerInfo(webUrl, params)
             .then((data) => {
                 let userData = this.currentUser;
                 if (data.user_id) {

@@ -413,6 +413,43 @@ export interface IDocPromise {
     content: string;
 }
 
+export interface IModifyPlayerParams {
+    nickname: string;
+    gender: number;
+    localHeadPath: string;
+}
+
+export interface IModifyPlayerInfoData {
+    user_id?: number;
+    nick_name?: string;
+    gender?: number;
+    avatar?: string;
+}
+
+export interface INotificationSetParams {
+    useEmail: boolean;
+    useSms: boolean;
+    sendLoginNotification: boolean;
+}
+
+export interface INotificationSetData {
+    useEmail?: boolean;
+    useSms?: boolean;
+    sendLoginNotification?: boolean;
+}
+
+export interface IBonusItemData {
+    bonusName: string;
+    description: string;
+    createTime: number;
+    expireTime: number;
+    totalAmount: string;
+    realizedAmount: string;
+    bonusPoints?: string;
+    currency?: string;
+    status?: string;
+}
+
 /**
  * 创建牌局模式
  */

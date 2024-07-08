@@ -8,7 +8,12 @@ import type {
     PlatformType,
     IUser,
     IDomainInfo,
-    IDocPromise
+    IDocPromise,
+    IModifyPlayerInfoData,
+    IModifyPlayerParams,
+    INotificationSetParams,
+    INotificationSetData,
+    IBonusItemData
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
 import { PKWClient } from './pkw/pkw-client';
@@ -28,17 +33,17 @@ export interface IPokerClient {
 
     getSocket(): ISocket;
 
-    uploadAvatar(avatar: string): Promise<string>;
+    uploadAvatar(imgUploadUrl: string, avatar: string): Promise<string>;
 
-    sendModifyPlayerInfo(nickname: string, gender: number, localHeadPath: string): Promise<any>;
+    modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<IModifyPlayerInfoData>;
 
-    getNotificationSettings?: () => Promise<any>;
+    getNotificationSettings?: (webUrl: string) => Promise<INotificationSetData>;
 
-    setNotificationSettings?: (useEmail: boolean, useSms: boolean, sendLoginNotification: boolean) => Promise<void>;
+    setNotificationSettings?: (webUrl: string, params: INotificationSetParams) => Promise<void>;
 
-    getLegalDocs?: (docName: string, version: number) => Promise<IDocPromise>;
+    getLegalDocs?: (webUrl: string, docName: string, version: number) => Promise<IDocPromise>;
 
-    getBonusCenterDatas?: () => Promise<any>;
+    getBonusCenterDatas?: (webUrl: string) => Promise<IBonusItemData[]>;
 }
 
 export class PokerClient {
