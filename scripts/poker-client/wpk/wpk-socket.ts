@@ -1,8 +1,6 @@
 /* eslint-disable camelcase */
 import * as ws_protocol from 'ws_protocol';
 import pb = ws_protocol.pb;
-import * as data from 'data';
-import data_pb = data.data_proto;
 import type { Nullable } from '../../core/defines/types';
 import type {
     ISocket,
@@ -23,8 +21,7 @@ import type {
     IClaimRewardResponse,
     INoticeGlobalMessage,
     IResponseClubCurrentBoard,
-    IAuthVerifyResponse,
-    IDataMessage
+    IAuthVerifyResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { WPKSession } from './wpk-session';
@@ -557,36 +554,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
             this._secretKeyHelper.ecdhGenClientKey(serverPubX, serverPubY);
             this._secretKey = this._secretKeyHelper.getFinalKey(resp.secret_type);
         }
-    }
-
-    async getSelfStatisticalData(date: any): Promise<IDataMessage> {
-        const dataSession = this._messageProcessors.get(GameId.DataServer);
-        const requestProto = new data_pb.DataMessage();
-        requestProto.message = JSON.stringify(data);
-        const response = await dataSession.sendRequest(
-            requestProto,
-            data_pb.CMD.GET_DATA_REQ,
-            data_pb.DataMessage,
-            data_pb.CMD.GET_DATA_RESP,
-            data_pb.DataMessage
-        );
-        const responseProto = response.payload;
-        return responseProto;
-    }
-
-    async getPublicData(data: any): Promise<IDataMessage> {
-        const dataSession = this._messageProcessors.get(GameId.DataServer);
-        const requestProto = new data_pb.DataMessage();
-        requestProto.message = JSON.stringify(data);
-        const response = await dataSession.sendRequest(
-            requestProto,
-            data_pb.CMD.GET_PUBLIC_DATA_REQ,
-            data_pb.DataMessage,
-            data_pb.CMD.GET_PUBLIC_DATA_RESP,
-            data_pb.DataMessage
-        );
-        const responseProto = response.payload;
-        return responseProto;
     }
 
     async sendHeartBeat(): Promise<IHeartBeatResponse> {

@@ -636,10 +636,6 @@ export interface ISocket extends IRebateable {
 
     requestAuthVerify(result: number): Promise<IAuthVerifyResponse>;
 
-    getSelfStatisticalData(date: any): Promise<IDataMessage>;
-
-    getPublicData(data: any): Promise<IDataMessage>;
-
     getUserData(userId: number): Promise<IResponseGetUserData>;
 
     getCalmDownConfirm(comfirm: boolean): Promise<IResponseCalmDownConfirm>;

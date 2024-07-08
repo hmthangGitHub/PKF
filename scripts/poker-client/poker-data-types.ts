@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 export class OtherStatisticalData {
     enterRate?: number | null;
     PfrRate?: number | null;
@@ -13,16 +14,16 @@ export class OtherStatisticalData {
     static createFromString(data: string): OtherStatisticalData {
         const value = JSON.parse(data);
         const result = new OtherStatisticalData();
-        result.enterRate = value.Enter_rate;
-        result.PfrRate = value.Pfr_rate;
-        result.totalEndRoomCount = value.Total_end_room_count;
-        result.totalHandCardCount = value.Total_hand_card_count;
-        result.VpipRate = value.Vpip_rate;
-        result.WinRate = value.Win_rate;
-        result.hasLiked = value.has_liked;
-        result.levelHands = value.level_hands;
-        result.likedCount = value.liked_count;
-        result.friendNum = value.intimacy;
+        result.enterRate = value?.Enter_rate || 0;
+        result.PfrRate = value?.Pfr_rate || 0;
+        result.totalEndRoomCount = value?.Total_end_room_count || 0;
+        result.totalHandCardCount = value?.Total_hand_card_count || 0;
+        result.VpipRate = value?.Vpip_rate || 0;
+        result.WinRate = value?.Win_rate || 0;
+        result.hasLiked = value?.has_liked || 0;
+        result.levelHands = value?.level_hands || 0;
+        result.likedCount = value?.liked_count || 0;
+        result.friendNum = value?.intimacy || 0;
         return result;
     }
 }
@@ -94,54 +95,54 @@ export class SelfStatisticalData {
     intimacy?: number | null;
     levelHands?: number | null;
     likedCount?: number | null;
-    0;
+
     static createFromString(data: string): SelfStatisticalData {
         const value = JSON.parse(data);
         const result = new SelfStatisticalData();
-        result.afRate = value.Af_rate;
-        result.cbetRate = value.Cbet_rate;
-        result.enterRate = value.Enter_rate;
-        result.etfRate = value.Etf_rate;
-        result.pfrRate = value.Pfr_rate;
-        result.preFlopActiveRaiseCount = value.Preflop_active_raise_count;
-        result.preFlopAddBetCount = value.Preflop_add_bet_count;
-        result.rate3Bet = value.Rate_3bet;
-        result.rateFoldTo3bet = value.Rate_fold_to_3bet;
-        result.sbRate = value.Sb_rate;
-        result.total3betChanceCount = value.Total_3bet_chance_count;
-        result.total3betCount = value.Total_3bet_count;
-        result.totalAfterFlopWinCount = value.Total_after_flop_win_count;
-        result.totalBe3betCount = value.Total_be_3bet_count;
-        result.totalBe3betFoldCount = value.Total_be_3bet_fold_count;
-        result.totalBetCount = value.Total_bet_count;
-        result.totalBuyin = value.Total_buyin;
-        result.totalCallCount = value.Total_call_count;
-        result.totalCbetCount = value.Total_cbet_count;
-        result.totalEndRoomCount = value.Total_end_room_count;
-        result.totalEnterFlopCount = value.Total_enter_flop_count;
-        result.totalEnterGameCount = value.Total_enter_game_count;
-        result.totalFlopCount = value.Total_flop_count;
-        result.totalHandCardCount = value.Total_hand_card_count;
-        result.totalPreflopLastBetCount = value.Total_preflop_last_bet_count;
-        result.totalRaiseCount = value.Total_raise_count;
-        result.totalRiverCount = value.Total_river_count;
-        result.totalRiverWinCount = value.Total_river_win_count;
-        result.totalShowdownCount = value.Total_showdown_count;
-        result.totalShowdownWinCount = value.Total_showdown_win_count;
-        result.totalStealBlindChanceCount = value.Total_steal_blind_chance_count;
-        result.totalWinCount = value.Total_win_count;
-        result.totalWinMoney = value.Total_win_money;
-        result.UID = value.UID;
-        result.vpipRate = value.Vpip_rate;
-        result.winRate = value.Win_rate;
-        result.wsdRate = value.Wsd_rate;
-        result.wsfRate = value.Wsf_rate;
-        result.wtsdRate = value.Wtsd_rate;
-        result.bb100s = BbData.map(value.bb_100_s);
-        result.hasLiked = value.has_liked;
-        result.intimacy = value.intimacy;
-        result.levelHands = value.level_hands;
-        result.likedCount = value.liked_count;
+        result.afRate = value?.Af_rate || 0;
+        result.cbetRate = value?.Cbet_rate || 0;
+        result.enterRate = value?.Enter_rate || 0;
+        result.etfRate = value?.Etf_rate || 0;
+        result.pfrRate = value?.Pfr_rate || 0;
+        result.preFlopActiveRaiseCount = value?.Preflop_active_raise_count || 0;
+        result.preFlopAddBetCount = value?.Preflop_add_bet_count || 0;
+        result.rate3Bet = value?.Rate_3bet || 0;
+        result.rateFoldTo3bet = value?.Rate_fold_to_3bet || 0;
+        result.sbRate = value?.Sb_rate || 0;
+        result.total3betChanceCount = value?.Total_3bet_chance_count || 0;
+        result.total3betCount = value?.Total_3bet_count || 0;
+        result.totalAfterFlopWinCount = value?.Total_after_flop_win_count || 0;
+        result.totalBe3betCount = value?.Total_be_3bet_count || 0;
+        result.totalBe3betFoldCount = value?.Total_be_3bet_fold_count || 0;
+        result.totalBetCount = value?.Total_bet_count || 0;
+        result.totalBuyin = value?.Total_buyin || 0;
+        result.totalCallCount = value?.Total_call_count || 0;
+        result.totalCbetCount = value?.Total_cbet_count || 0;
+        result.totalEndRoomCount = value?.Total_end_room_count || 0;
+        result.totalEnterFlopCount = value?.Total_enter_flop_count || 0;
+        result.totalEnterGameCount = value?.Total_enter_game_count || 0;
+        result.totalFlopCount = value?.Total_flop_count || 0;
+        result.totalHandCardCount = value?.Total_hand_card_count || 0;
+        result.totalPreflopLastBetCount = value?.Total_preflop_last_bet_count || 0;
+        result.totalRaiseCount = value?.Total_raise_count || 0;
+        result.totalRiverCount = value?.Total_river_count || 0;
+        result.totalRiverWinCount = value?.Total_river_win_count || 0;
+        result.totalShowdownCount = value?.Total_showdown_count || 0;
+        result.totalShowdownWinCount = value?.Total_showdown_win_count || 0;
+        result.totalStealBlindChanceCount = value?.Total_steal_blind_chance_count || 0;
+        result.totalWinCount = value?.Total_win_count || 0;
+        result.totalWinMoney = value?.Total_win_money || 0;
+        result.UID = value?.UID || 0;
+        result.vpipRate = value?.Vpip_rate || 0;
+        result.winRate = value?.Win_rate || 0;
+        result.wsdRate = value?.Wsd_rate || 0;
+        result.wsfRate = value?.Wsf_rate || 0;
+        result.wtsdRate = value?.Wtsd_rate || 0;
+        result.bb100s = BbData.map(value?.bb_100_s) || [];
+        result.hasLiked = value?.has_liked || false;
+        result.intimacy = value?.intimacy || 0;
+        result.levelHands = value?.level_hands || 0;
+        result.likedCount = value?.liked_count || 0;
         return result;
     }
 }
@@ -157,14 +158,14 @@ export class PublicData {
         const value = JSON.parse(data);
         const result = new PublicData();
         if (isSelf) {
-            result.data = SelfStatisticalData.createFromString(value.data);
+            result.data = SelfStatisticalData.createFromString(value?.data);
         } else {
-            result.data = OtherStatisticalData.createFromString(value.data);
+            result.data = OtherStatisticalData.createFromString(value?.data);
         }
-        result.identity = value.identity;
-        result.levelHands = value.level_hands;
-        result.starDuration = value.star_duration;
-        result.uid = value.uid;
+        result.identity = value?.identity || 0;
+        result.levelHands = value?.level_hands || 0;
+        result.starDuration = value?.star_duration || 0;
+        result.uid = value?.uid || 0;
         return result;
     }
 }

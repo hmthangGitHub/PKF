@@ -3,19 +3,24 @@ import { Service } from 'protobufjs';
 import type { IPokerClient } from '../poker-client/poker-client';
 import { PKWUtil } from '../poker-client/pkw/pkw-util';
 import { PublicData } from '../poker-client/poker-data-types';
+import type {
+    DataServerSession,
+    IRequestGetPublicData,
+    IRequestSelfStatisticalData
+} from '../poker-client/session/data-session';
 
 export class DataService extends Service {
     static readonly serviceName = 'DataService';
     _client: IPokerClient;
+    _session: DataServerSession = null;
 
     constructor(client: IPokerClient) {
         super(DataService.serviceName);
         this._client = client;
+        this._session = this._client.getSocket().createDataSession();
     }
 
     async getSelfStatisticalData(
-        u32Uid: number,
-        userToken: string,
         umode: number,
         uGameid: number,
         blind: number,
@@ -23,9 +28,9 @@ export class DataService extends Service {
         identity: number,
         currencyType: number
     ): Promise<PublicData> {
-        const obj = {
-            uid: u32Uid,
-            token: userToken,
+        const obj: IRequestSelfStatisticalData = {
+            uid: this._client.getCurrentUser().userId,
+            token: this._client.getCurrentUser().userToken,
             mode: umode,
             gameid: uGameid,
             blind,
@@ -33,13 +38,13 @@ export class DataService extends Service {
             identity,
             currencyType: currencyType
         };
-        const response = await this._client.getSocket().getSelfStatisticalData(obj);
+        const response = await this._session.getSelfStatisticalData(obj);
         const data = PublicData.createFromString(PKWUtil.unzip(response.message), true);
         return data;
     }
 
     async getPublicData(
-        u32Uid: number,
+        uid: number,
         umode: number,
         uGameid: number,
         blind: number,
@@ -48,8 +53,8 @@ export class DataService extends Service {
         requestuid: number,
         currencyType: number
     ): Promise<PublicData> {
-        const obj = {
-            uid: u32Uid,
+        const obj: IRequestGetPublicData = {
+            uid: uid,
             mode: umode,
             gameid: uGameid,
             blind,
@@ -59,7 +64,7 @@ export class DataService extends Service {
             req_uid: requestuid,
             currencyType: currencyType
         };
-        const response = await this._client.getSocket().getPublicData(obj);
+        const response = await this._session.getPublicData(obj);
         const data = PublicData.createFromString(response.message, false);
         return data;
     }
