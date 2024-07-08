@@ -288,7 +288,7 @@ export class PKWClient implements IPokerClient {
             console.log(`new avatar url = ${data.filename}`);
             asyncOp.resolve(data.filename);
         } else {
-            asyncOp.reject(respMsg.msg);
+            asyncOp.reject(new Error(respMsg.msg));
         }
 
         return asyncOp.promise;
@@ -313,7 +313,7 @@ export class PKWClient implements IPokerClient {
         if (respMsg.msg_code === '0') {
             asyncOp.resolve(respMsg.data);
         } else {
-            asyncOp.reject(respMsg.msg);
+            asyncOp.reject(new Error(respMsg.msg));
         }
 
         return asyncOp.promise;

@@ -234,13 +234,13 @@ export class WPKClient implements IPokerClient {
 
     async uploadAvatar(imgUploadUrl: string, avatar: string): Promise<string> {
         const asyncOp = new AsyncOperation<string>();
-        asyncOp.reject('功能未实现');
+        asyncOp.reject(new Error('功能未实现'));
         return asyncOp.promise;
     }
 
     async modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<IModifyPlayerInfoData> {
         const asyncOp = new AsyncOperation<any>();
-        asyncOp.reject('功能未实现');
+        asyncOp.reject(new Error('功能未实现'));
         return asyncOp.promise;
     }
 }
