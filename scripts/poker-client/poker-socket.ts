@@ -2,6 +2,7 @@ import type { ISocketOptions } from './poker-client-types';
 import type { GameSession, GameSessionClass } from './session/game-session';
 import type { TypeSafeEventEmitter } from '../core/event/event-emitter';
 import type { GameId, MsgType, MttNotifyType } from './poker-client-types';
+import { DataServerSession } from './session/data-session';
 
 export interface ILoginResponse {
     error?: number | null;
@@ -22,6 +23,7 @@ enum MiniLabel {
     MiniLabelNormal = 0,
     MiniLabelNew = 1
 }
+
 
 export interface IPgGameData {
     gameCode?: string | null;
@@ -237,6 +239,11 @@ export interface ISetSecretKeyExResponse {
 export interface IAuthVerifyResponse {
     error?: number | null;
 }
+
+export interface IDataMessage {
+    message?: (string|null);
+}
+
 
 /// gate proto
 enum CMD {
@@ -601,6 +608,8 @@ export interface ISocket extends IRebateable {
     connect(url: string, options?: ISocketOptions): Promise<void>;
     disconnect(): Promise<void>;
 
+    createDataSession(): DataServerSession;
+
     createGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T;
 
     getGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T | undefined;
@@ -628,6 +637,10 @@ export interface ISocket extends IRebateable {
     ): Promise<ILuckTurntableSnaplistResponse>;
 
     requestAuthVerify(result: number): Promise<IAuthVerifyResponse>;
+
+    getSelfStatisticalData(date:any): Promise<IDataMessage>
+
+    getPublicData(data:any): Promise<IDataMessage>;
 
     getUserData(userId: number): Promise<IResponseGetUserData>;
 

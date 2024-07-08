@@ -342,6 +342,7 @@ export interface RequestOtpions {
 export interface IUser {
     userId: number;
     username: string;
+    userToken: string;
     nickname: string;
     avatarURL: string;
     sex: number;

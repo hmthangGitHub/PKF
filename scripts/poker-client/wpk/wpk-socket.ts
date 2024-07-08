@@ -1,6 +1,8 @@
 /* eslint-disable camelcase */
 import * as ws_protocol from 'ws_protocol';
 import pb = ws_protocol.pb;
+import * as data from 'data';
+import data_pb = data.data_proto;
 import type { Nullable } from '../../core/defines/types';
 import type {
     ISocket,
@@ -21,7 +23,8 @@ import type {
     IClaimRewardResponse,
     INoticeGlobalMessage,
     IResponseClubCurrentBoard,
-    IAuthVerifyResponse
+    IAuthVerifyResponse,
+    IDataMessage
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { WPKSession } from './wpk-session';
@@ -38,6 +41,7 @@ import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 import { SecretKeyHelper } from '../encrypt/secret-key-helper';
 import { AsyncOperation } from '../../core/async/async-operation';
 import { macros } from '../poker-client-macros';
+import { DataServerSession } from '../session/data-session';
 
 export class WPKSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<ISession> = null;
@@ -69,6 +73,18 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         Util.override(this._systemInfo, options);
         this._secretKeyHelper = new SecretKeyHelper();
         this._secretKeyHelper.ecdhInit();
+    }
+    createDataSession(): DataServerSession {
+        if (this._messageProcessors.has(GameId.DataServer)) {
+            throw new InvalidOperationError(`DataSession already exists!`);
+        }
+
+        const dataSession = new DataServerSession(this._webSocket, this._session);
+        dataSession.verbose = this._verbose;
+
+        this._messageProcessors.set(dataSession.serverId, dataSession);
+
+        return dataSession;
     }
 
     createGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T {
@@ -541,6 +557,38 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
             this._secretKeyHelper.ecdhGenClientKey(serverPubX, serverPubY);
             this._secretKey = this._secretKeyHelper.getFinalKey(resp.secret_type);
         }
+    }
+
+
+    
+    async getSelfStatisticalData(date: any): Promise<IDataMessage> {
+        const dataSession = this._messageProcessors.get(GameId.DataServer);
+        const requestProto = new data_pb.DataMessage();
+        requestProto.message = JSON.stringify(data);
+        const response = await dataSession.sendRequest(
+            requestProto,
+            data_pb.CMD.GET_DATA_REQ,
+            data_pb.DataMessage,
+            data_pb.CMD.GET_DATA_RESP,
+            data_pb.DataMessage
+        );
+        const responseProto = response.payload;
+        return responseProto;
+    }
+
+    async getPublicData(data: any): Promise<IDataMessage> {
+        const dataSession = this._messageProcessors.get(GameId.DataServer);
+        const requestProto = new data_pb.DataMessage();
+        requestProto.message = JSON.stringify(data);
+        const response = await dataSession.sendRequest(
+            requestProto,
+            data_pb.CMD.GET_PUBLIC_DATA_REQ,
+            data_pb.DataMessage,
+            data_pb.CMD.GET_PUBLIC_DATA_RESP,
+            data_pb.DataMessage
+        );
+        const responseProto = response.payload;
+        return responseProto;
     }
 
     async sendHeartBeat(): Promise<IHeartBeatResponse> {

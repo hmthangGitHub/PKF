@@ -5,6 +5,7 @@
 import * as md5 from 'md5';
 // import * as CryptoJS from './pf-crypto';
 import * as CryptoJS from 'crypto-js';
+import * as pako from 'pako';
 
 export class PKWUtil {
     private static getSortSign(): string {
@@ -124,5 +125,13 @@ export class PKWUtil {
         a[3] = value & 0xff;
 
         return a;
+    }
+
+    static unzip(response: string): string {
+        let strData = window.atob(response);
+        let charData = strData.split('').map(function (x) { return x.charCodeAt(0); });
+        let binData = new Uint8Array(charData);
+        response = pako.inflate(binData, { to: 'string' });
+        return response;
     }
 }

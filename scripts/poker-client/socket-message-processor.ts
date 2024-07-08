@@ -68,7 +68,7 @@ export class SocketMessageProcessor {
     }
 
     /** Send a request and return response protobuf with Promise */
-    protected sendRequest<RequestProtoType, ResponseProtoType>(
+    public sendRequest<RequestProtoType, ResponseProtoType>(
         requestProto: RequestProtoType,
         requestId: number,
         requestProtoClass: ProtobutClass<RequestProtoType>,

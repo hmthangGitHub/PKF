@@ -1,4 +1,5 @@
 export * from './poker-client-types';
+export * from './poker-data-types';
 export * from './poker-socket-types';
 export * from './poker-client';
 export * from './poker-socket';
