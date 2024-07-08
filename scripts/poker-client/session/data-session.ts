@@ -1,7 +1,8 @@
-import { Nullable } from "../../pf";
-import { GameId, ISession, ServerType } from "../poker-client-types";
-import { SocketMessageProcessor } from "../socket-message-processor";
-import { WebSocketAdapter } from "../websocket-adapter";
+import type { Nullable } from '../../pf';
+import type { ISession } from '../poker-client-types';
+import { GameId, ServerType } from '../poker-client-types';
+import { SocketMessageProcessor } from '../socket-message-processor';
+import type { WebSocketAdapter } from '../websocket-adapter';
 
 export class DataServerSession extends SocketMessageProcessor {
     static readonly sessionName = 'DataServer';

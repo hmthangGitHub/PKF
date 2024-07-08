@@ -129,9 +129,11 @@ export class PKWUtil {
 
     static unzip(response: string): string {
         let strData = window.atob(response);
-        let charData = strData.split('').map(function (x) { return x.charCodeAt(0); });
+        let charData = strData.split('').map((x) => {
+            return x.charCodeAt(0);
+        });
         let binData = new Uint8Array(charData);
-        response = pako.inflate(binData, { to: 'string' });
-        return response;
+        const result = pako.inflate(binData, { to: 'string' });
+        return result;
     }
 }

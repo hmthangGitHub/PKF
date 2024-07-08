@@ -559,8 +559,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         }
     }
 
-
-    
     async getSelfStatisticalData(date: any): Promise<IDataMessage> {
         const dataSession = this._messageProcessors.get(GameId.DataServer);
         const requestProto = new data_pb.DataMessage();
