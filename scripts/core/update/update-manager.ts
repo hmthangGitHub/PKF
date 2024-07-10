@@ -334,7 +334,7 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
 
                 cc.log('load remoteManifest ' + url);
 
-                http.get(url)
+                http.request(url)
                     .then((resp) => {
                         const bundleManifest = new BundleManifest();
                         bundleManifest.fromJson(resp.data);

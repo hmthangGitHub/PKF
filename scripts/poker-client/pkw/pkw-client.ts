@@ -32,6 +32,7 @@ import {
 } from './pkw-api';
 import { WebSocketAdapter } from '../websocket-adapter';
 import { PKWMockSocket } from './mock/pkw-mock-socket';
+import { HttpMethod } from '../../core/network/http/http-constants';
 
 export class PKWClient implements IPokerClient {
     _deviceType: string;
@@ -178,17 +179,26 @@ export class PKWClient implements IPokerClient {
         return this._domains;
     }
 
-    async request(url: string, obj?: IRequestParams): Promise<http.Response> {
-        let params: IRequestParams = obj;
-        if (!params) {
-            params = {};
-        }
-
+    /**
+     *
+     * @param url 请求地址
+     * @param params 请求参数
+     * @param options 请求选项
+     * @param isSign 是否加密
+     * @param isBody 数据是否放在body中
+     * @returns
+     */
+    protected async request(
+        url: string,
+        params: IRequestParams = {},
+        options: http.Options = { method: HttpMethod.Get },
+        isSign: boolean = true,
+        isBody: boolean = false
+    ): Promise<http.Response> {
         if (this._session) {
             params.user_id = this._session.userId.toString();
             params.token = this._session.token;
         }
-
         params.version = '1.0.0'; // just hard code
         params.hot_update_version = this._systemInfo.appVersion;
         params.device_uuid = this._deviceId;
@@ -203,48 +213,21 @@ export class PKWClient implements IPokerClient {
         params.clientType = this._systemInfo.clientType;
         params.language = this._systemInfo.langauage;
 
-        const data = JSON.stringify(params);
-
+        let data = JSON.stringify(params);
         // sign params
-        const sign = PKWUtil.createSign(data);
-
-        const searchParams = new URLSearchParams({ data: data, sign: sign });
-
-        const fullUrl = url + '?' + searchParams;
-
-        return await http.get(fullUrl);
-    }
-
-    async post(url: string, params: IRequestParams): Promise<http.Response> {
-        if (this._session) {
-            params.user_id = this._session.userId.toString();
-            params.token = this._session.token;
+        if (isSign) {
+            const sign = PKWUtil.createSign(data);
+            const searchParams = new URLSearchParams({ data: data, sign: sign });
+            data = searchParams.toString();
         }
 
-        params.version = '1.0.0'; // just hard code
-        params.hot_update_version = this._systemInfo.appVersion;
-        params.device_uuid = this._deviceId;
-        params.latitude = this._systemInfo.coord.latitude;
-        params.longitude = this._systemInfo.coord.longitude;
-        params.domain_type = this._systemInfo.domainType;
-        params.deviceType = this._deviceType;
-        params.is_down_sl = this._systemInfo.isInstallSiliao ? 1 : 0;
-        params.device_version = this._systemInfo.deviceVersion;
-        params.is_emulator = this._systemInfo.isEmulator ? 1 : 0;
-        params.dmodel = this._systemInfo.deviceInfo;
-        params.clientType = this._systemInfo.clientType;
-        params.language = this._systemInfo.langauage;
+        if (isBody) {
+            options.body = data;
+        } else {
+            url = url + '?' + data;
+        }
 
-        const data = JSON.stringify(params);
-
-        // sign params
-        const sign = PKWUtil.createSign(data);
-
-        const searchParams = new URLSearchParams({ data: data, sign: sign });
-
-        return await http.post(url, {
-            body: searchParams.toString()
-        });
+        return await http.request(url, options);
     }
 
     createSocket(options?: ISocketOptions): ISocket {
@@ -280,7 +263,7 @@ export class PKWClient implements IPokerClient {
         };
 
         let url = imgUploadUrl + WebApi.WEB_API_MODIFY_UPLOADVAR;
-        let response = await this.post(url, data);
+        let response = await this.request(url, data, { method: HttpMethod.Post });
         let respMsg = response.data;
 
         const asyncOp = new AsyncOperation<string>();
@@ -305,7 +288,7 @@ export class PKWClient implements IPokerClient {
         data.avatar_thumb = params.localHeadPath;
 
         let url = webUrl + WebApi.WEB_API_MODIFY_INFO;
-        let response = await this.request(url, data);
+        let response = await this.request(url, data, { method: HttpMethod.Post });
         let respMsg = response.data as IModifyPlayerInfoResponseData;
 
         console.log('modifyPlayerInfo response:' + JSON.stringify(respMsg));

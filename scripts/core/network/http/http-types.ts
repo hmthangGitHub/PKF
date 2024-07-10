@@ -11,8 +11,6 @@ export interface Options extends RequestInit {
     @default 10000
     */
     timeout?: number;
-    /** url data params */
-    params?: any;
 }
 
 export interface Response {

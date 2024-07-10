@@ -1,5 +1,6 @@
 import { type Options, type Response, defaultOptions } from './http-types';
 import { HttpError } from '../../defines/errors';
+import { HttpMethod } from './http-constants';
 
 export class Http {
     protected _input: string;
@@ -22,10 +23,10 @@ export class Http {
     async request(): Promise<Response> {
         return new Promise<Response>((resolve, reject) => {
             const xhr = new XMLHttpRequest();
-            const method = this._options.method || 'GET';
+            const method = this._options.method || HttpMethod.Get;
 
             // Build the request URL with optional query string
-            const requestUrl = this.buildRequestUrl();
+            const requestUrl = this._input;
 
             const timeout = this._options.timeout || 5000;
             const responseType = this._options.responseType || '';
@@ -84,15 +85,6 @@ export class Http {
 
             xhr.send(body.toString());
         });
-    }
-
-    // Helper method to build the request URL
-    private buildRequestUrl(): string {
-        if (this._options.params) {
-            // Assuming this._options.body is a URL-encoded string
-            return `${this._input}?${this._options.params}`;
-        }
-        return this._input;
     }
 
     static create(input: string, options?: Options): Http {

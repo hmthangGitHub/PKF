@@ -22,6 +22,7 @@ import { WPKSocket } from './wpk-socket';
 import { WPKUtil } from './wpk-util';
 import { Util } from '../../core/utils/util';
 import { WebSocketAdapter } from '../websocket-adapter';
+import { HttpMethod } from '../../core/network/http/http-constants';
 
 export class WPKClient implements IPokerClient {
     _deviceType: number;
@@ -188,12 +189,7 @@ export class WPKClient implements IPokerClient {
         return this._domains;
     }
 
-    async request(url: string, obj?: PostParams): Promise<http.Response> {
-        let data: PostParams = obj;
-        if (!data) {
-            data = {};
-        }
-
+    async request(url: string, data: PostParams = {}): Promise<http.Response> {
         if (this._session) {
             data.userId = this._session.userId;
             data.sessionToken = this._session.token;
@@ -209,11 +205,12 @@ export class WPKClient implements IPokerClient {
         data['sign'] = WPKUtil.sign(data);
         const searchParams = new URLSearchParams(data as any);
 
+        url = url + '?' + searchParams.toString();
+
         return await http.post(url, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-            },
-            params: searchParams.toString()
+            }
         });
     }
 
