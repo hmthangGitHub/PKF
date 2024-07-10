@@ -223,11 +223,10 @@ export class PKWClient implements IPokerClient {
 
         if (isBody) {
             options.body = data;
-        } else {
-            url = url + '?' + data;
         }
+        const requestURL = isBody ? url : url + '?' + data;
 
-        return await http.request(url, options);
+        return await http.request(requestURL, options);
     }
 
     createSocket(options?: ISocketOptions): ISocket {

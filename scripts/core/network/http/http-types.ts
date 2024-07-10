@@ -16,7 +16,6 @@ export interface Options extends RequestInit {
 export interface Response {
     readonly status: number;
     readonly url: string;
-    errorDes?: string;
     data: any;
 }
 

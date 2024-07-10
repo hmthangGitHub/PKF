@@ -61,8 +61,7 @@ export class Http {
                             response.data = JSON.parse(xhr.responseText);
                         } catch (err) {
                             response.data = {};
-                            response.errorDes = '解析responseText成json出错';
-                            console.error(`${response.errorDes}`);
+                            console.warn('fail to parse data:', err);
                         }
                     } else if (responseType === 'document') {
                         response.data = xhr.responseXML;
