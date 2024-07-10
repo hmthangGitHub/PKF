@@ -29,6 +29,13 @@ export interface IRequestGetPublicData {
     req_uid: number | null;
 }
 
+export interface IRequestGameHand {
+    uid: number | null;
+    game_uuid_js: string | null;
+    gameid: number | null;
+    token: string | null;
+}
+
 export class DataServerSession extends SocketMessageProcessor {
     static readonly sessionName = 'DataServer';
 
@@ -62,6 +69,20 @@ export class DataServerSession extends SocketMessageProcessor {
             data_pb.CMD.GET_PUBLIC_DATA_REQ,
             data_pb.DataMessage,
             data_pb.CMD.GET_PUBLIC_DATA_RESP,
+            data_pb.DataMessage
+        );
+        const responseProto = response.payload;
+        return responseProto;
+    }
+
+    async getGameHand(data: IRequestGameHand): Promise<IDataMessage> {
+        const requestProto = new data_pb.DataMessage();
+        requestProto.message = JSON.stringify(data);
+        const response = await this.sendRequest(
+            requestProto,
+            data_pb.CMD.GAME_HAND_REQ,
+            data_pb.DataMessage,
+            data_pb.CMD.GAME_HAND_RESP,
             data_pb.DataMessage
         );
         const responseProto = response.payload;
