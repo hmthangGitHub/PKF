@@ -34,12 +34,18 @@ export class Http {
 
             xhr.open(method, requestUrl, true);
             xhr.responseType = responseType;
-            const headers = this._options.headers;
-            const value =
-                headers && headers['Content-Type']
-                    ? headers['Content-Type']
-                    : 'application/x-www-form-urlencoded; charset=utf-8';
-            xhr.setRequestHeader('Content-Type', value);
+
+            if (this._options.headers) {
+                const headers = this._options.headers;
+                for (let key in headers) {
+                    xhr.setRequestHeader(key, headers[key]);
+                }
+                if (!headers['Content-Type']) {
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
+                }
+            } else {
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
+            }
 
             // Set up a timeout timer
             const timeoutId = setTimeout(() => {
