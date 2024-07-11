@@ -12,3 +12,4 @@ export * from './exchange-currency-service';
 export * from './rebate-service';
 export * from './auth-verify-service';
 export * from './data-service';
+export * from './audit-service';

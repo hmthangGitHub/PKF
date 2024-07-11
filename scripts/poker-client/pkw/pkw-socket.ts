@@ -22,7 +22,9 @@ import type {
     IClaimRewardResponse,
     INoticeGlobalMessage,
     IResponseClubCurrentBoard,
-    IAuthVerifyResponse
+    IAuthVerifyResponse,
+    IResponseQuerySendFairReport,
+    IResponseFairPlayReport
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
@@ -600,6 +602,44 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         );
         const responseProto = response.payload;
         // this.checkResponseCode(responseProto.error, 'requestAuthVerify');
+        return responseProto;
+    }
+
+
+
+    async requestQuerySendFairReport(clubId:number, roomUuidJs:string, gameUuidJs:string): Promise<IResponseQuerySendFairReport> {
+        const requestProto = new pb.RequestQuerySendFairReport();
+        requestProto.club_id = clubId;
+        requestProto.room_uuid_js = roomUuidJs;
+        requestProto.game_uuid_js = gameUuidJs;
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_QuerySendFairReport_Request,
+            pb.RequestQuerySendFairReport,
+            pb.MSGID.MsgID_QuerySendFairReport_Response,
+            pb.ResponseQuerySendFairReport
+        );
+        const responseProto = response.payload;
+        return responseProto;
+    }
+
+    async requestAuditPlayers(roomid: number, clubId: number, room_uuid: number, game_uuid: number, suspect_uids: number[], contact: string): Promise<IResponseFairPlayReport>{
+        const requestProto = new pb.RequestFairPlayReport();
+        requestProto.roomid = roomid;
+        requestProto.clubid = clubId;
+        requestProto.room_uuid = room_uuid;
+        requestProto.game_uuid = game_uuid;
+        requestProto.suspect_uids = suspect_uids;
+        requestProto.contact = contact;
+        requestProto.detail = 'nice';
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_FairPlay_Report_Request,
+            pb.RequestFairPlayReport,
+            pb.MSGID.MsgID_FairPlay_Report_Response,
+            pb.ResponseFairPlayReport
+        );
+        const responseProto = response.payload;
         return responseProto;
     }
 
