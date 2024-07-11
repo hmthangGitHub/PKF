@@ -351,7 +351,7 @@ interface IStarData {
     status?: number | null;
 }
 
-enum GameLevelEnum {
+export enum GameLevelEnum {
     GameLevelEnumNone = 0,
     GameLevelEnumMicro = 1,
     GameLevelEnumSmall = 2,

@@ -473,5 +473,20 @@ export enum GameSizeType {
     Micro = 1,
     Small = 2,
     Medium = 3,
-    High = 4
+    High = 4,
+    OpenSeat = 5
+}
+
+export enum DiscoverGameType {
+    ALL = 0,
+    DZPK,
+    DZPK_SHORT,
+    AOF,
+    BET,
+    ZOOM_TEXAS,
+    MTT,
+    JACKFRUIT,
+    PLO,
+    BLACKJACKPVP,
+    JSNG
 }
