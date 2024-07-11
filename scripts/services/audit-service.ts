@@ -1,6 +1,6 @@
 import { Service } from 'protobufjs';
 import type { IPokerClient } from '../poker-client/poker-client';
-import { IResponseQuerySendFairReport } from '../poker-client/poker-socket';
+import type { IResponseQuerySendFairReport } from '../poker-client/poker-socket';
 
 export class AuditService extends Service {
     static readonly serviceName = 'AuditService';
@@ -11,13 +11,22 @@ export class AuditService extends Service {
         this._client = client;
     }
 
-    async requestInitAudit(clubId:number, gameUuid:string, roomUuid:string): Promise<IResponseQuerySendFairReport> {
-        const response = await this._client.getSocket().requestQuerySendFairReport(clubId,gameUuid,roomUuid);
+    async requestInitAudit(clubId: number, gameUuid: string, roomUuid: string): Promise<IResponseQuerySendFairReport> {
+        const response = await this._client.getSocket().requestQuerySendFairReport(clubId, gameUuid, roomUuid);
         return response;
     }
-    
-    async requestAuditPlayers(roomid: number, clubId: number, room_uuid: number, game_uuid: number, suspect_uids: number[], contact: string): Promise<IResponseQuerySendFairReport> {
-        const response = await this._client.getSocket().requestAuditPlayers(roomid,clubId,room_uuid,game_uuid,suspect_uids,contact);
+
+    async requestAuditPlayers(
+        roomid: number,
+        clubId: number,
+        roomUuid: number,
+        gameUuid: number,
+        suspectUids: number[],
+        contact: string
+    ): Promise<IResponseQuerySendFairReport> {
+        const response = await this._client
+            .getSocket()
+            .requestAuditPlayers(roomid, clubId, roomUuid, gameUuid, suspectUids, contact);
         return response;
     }
 }

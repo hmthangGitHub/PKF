@@ -240,17 +240,17 @@ export interface IAuthVerifyResponse {
 }
 
 export interface IResponseQuerySendFairReport {
-    error?: (number|null);
-    isfirst?: (number|null);
-    isgoldenough?: (number|null);
-    chargefee?: (number|null);
-    freecounts?: (number|null);
-    room_uuid_js?: (string|null);
-    game_uuid_js?: (string|null);
+    error?: number | null;
+    isfirst?: number | null;
+    isgoldenough?: number | null;
+    chargefee?: number | null;
+    freecounts?: number | null;
+    room_uuid_js?: string | null;
+    game_uuid_js?: string | null;
 }
 
 export interface IResponseFairPlayReport {
-    error?: (number|null);
+    error?: number | null;
 }
 
 export interface IDataMessage {
@@ -650,9 +650,20 @@ export interface ISocket extends IRebateable {
 
     requestAuthVerify(result: number): Promise<IAuthVerifyResponse>;
 
-    requestQuerySendFairReport(clubId:number, roomUuidJs:string, gameUuidJs:string): Promise<IResponseQuerySendFairReport>;
+    requestQuerySendFairReport(
+        clubId: number,
+        roomUuidJs: string,
+        gameUuidJs: string
+    ): Promise<IResponseQuerySendFairReport>;
 
-    requestAuditPlayers(roomid: number, clubId: number, room_uuid: number, game_uuid: number, suspect_uids: number[], contact: string): Promise<IResponseFairPlayReport>
+    requestAuditPlayers(
+        roomid: number,
+        clubId: number,
+        room_uuid: number,
+        game_uuid: number,
+        suspect_uids: number[],
+        contact: string
+    ): Promise<IResponseFairPlayReport>;
 
     getUserData(userId: number): Promise<IResponseGetUserData>;
 

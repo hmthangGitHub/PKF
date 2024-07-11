@@ -615,9 +615,11 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         return responseProto;
     }
 
-
-
-    async requestQuerySendFairReport(clubId:number, roomUuidJs:string, gameUuidJs:string): Promise<IResponseQuerySendFairReport> {
+    async requestQuerySendFairReport(
+        clubId: number,
+        roomUuidJs: string,
+        gameUuidJs: string
+    ): Promise<IResponseQuerySendFairReport> {
         const requestProto = new pb.RequestQuerySendFairReport();
         requestProto.club_id = clubId;
         requestProto.room_uuid_js = roomUuidJs;
@@ -633,7 +635,14 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         return responseProto;
     }
 
-    async requestAuditPlayers(roomid: number, clubId: number, room_uuid: number, game_uuid: number, suspect_uids: number[], contact: string): Promise<IResponseFairPlayReport>{
+    async requestAuditPlayers(
+        roomid: number,
+        clubId: number,
+        room_uuid: number,
+        game_uuid: number,
+        suspect_uids: number[],
+        contact: string
+    ): Promise<IResponseFairPlayReport> {
         const requestProto = new pb.RequestFairPlayReport();
         requestProto.roomid = roomid;
         requestProto.clubid = clubId;
