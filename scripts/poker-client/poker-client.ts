@@ -9,7 +9,6 @@ import type {
     IUser,
     IDomainInfo,
     IDocPromise,
-    IModifyPlayerInfoData,
     IModifyPlayerParams,
     INotificationSetParams,
     INotificationSetData,
@@ -35,7 +34,9 @@ export interface IPokerClient {
 
     uploadAvatar(imgUploadUrl: string, avatar: string): Promise<string>;
 
-    modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<IModifyPlayerInfoData>;
+    modifyPlayerInfoOld(webUrl: string, params: IModifyPlayerParams): Promise<void>;
+
+    modifyPlayerInfo?: (params: IModifyPlayerParams) => Promise<void>;
 
     getNotificationSettings?: (webUrl: string) => Promise<INotificationSetData>;
 

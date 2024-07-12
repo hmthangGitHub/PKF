@@ -416,14 +416,7 @@ export interface IDocPromise {
 }
 
 export interface IModifyPlayerParams {
-    nickname: string;
-    gender: number;
-    localHeadPath: string;
-}
-
-export interface IModifyPlayerInfoData {
-    user_id?: number;
-    nick_name?: string;
+    nickname?: string;
     gender?: number;
     avatar?: string;
 }

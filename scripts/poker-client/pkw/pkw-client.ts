@@ -12,7 +12,6 @@ import type {
     ISession,
     IUser,
     IDomainInfo,
-    IModifyPlayerInfoData,
     IModifyPlayerParams
 } from '../poker-client-types';
 import { SystemInfo } from '../poker-client-types';
@@ -28,7 +27,7 @@ import {
     WebApi,
     type IUploadAvatarParams,
     type IModifyPlayerInfoParams,
-    type IModifyPlayerInfoResponseData
+    type IResponseData
 } from './pkw-api';
 import { WebSocketAdapter } from '../websocket-adapter';
 import { PKWMockSocket } from './mock/pkw-mock-socket';
@@ -277,24 +276,32 @@ export class PKWClient implements IPokerClient {
         return asyncOp.promise;
     }
 
-    async modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<IModifyPlayerInfoData> {
-        const data: IModifyPlayerInfoParams = {
-            gender: params.gender === 0 ? '1' : params.gender.toString(),
-            avatar: params.localHeadPath
-        };
-        data.nick_name = params.nickname;
-        data.img_ext = 'jpg';
-        data.avatar_thumb = params.localHeadPath;
+    async modifyPlayerInfoOld(webUrl: string, params: IModifyPlayerParams): Promise<void> {
+        const data: IModifyPlayerInfoParams = {};
+
+        if (params.avatar) {
+            data.avatar = params.avatar;
+            data.avatar_thumb = params.avatar;
+            data.img_ext = 'jpg';
+        }
+
+        if (params.nickname) {
+            data.nick_name = params.nickname;
+        }
+
+        if (params.gender) {
+            data.gender = params.gender === 0 ? '1' : params.gender.toString();
+        }
 
         let url = webUrl + WebApi.WEB_API_MODIFY_INFO;
         let response = await this.request(url, data, { method: HttpMethod.Post });
-        let respMsg = response.data as IModifyPlayerInfoResponseData;
+        let respMsg = response.data as IResponseData;
 
         console.log('modifyPlayerInfo response:' + JSON.stringify(respMsg));
-        const asyncOp = new AsyncOperation<any>();
+        const asyncOp = new AsyncOperation<void>();
 
         if (respMsg.msg_code === '0') {
-            asyncOp.resolve(respMsg.data);
+            asyncOp.resolve();
         } else {
             asyncOp.reject(new ServerError(respMsg.message, Number(respMsg.msg_code)));
         }

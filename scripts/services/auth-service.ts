@@ -1,5 +1,5 @@
 import type { Nullable } from '../core/core-index';
-import { AsyncOperation, EmittableService, Util } from '../core/core-index';
+import { AsyncOperation, EmittableService } from '../core/core-index';
 
 import type {
     IPokerClient,
@@ -86,43 +86,89 @@ export class AuthService extends EmittableService<AuthEvents> {
     }
 
     /** 修改头像 */
-    async sendModifyAvatar(webUrl: string, avatar: string | number): Promise<void> {
+    async sendModifyAvatarOld(webUrl: string, avatar: string | number): Promise<void> {
         console.log('sendModifyAvatar:' + avatar);
-        const userData = this.currentUser;
-        return await this.sendModifyPlayerInfo(webUrl, userData.nickname, userData.sex, avatar.toString());
+        const params: IModifyPlayerParams = {
+            avatar: avatar.toString()
+        };
+        return await this.sendModifyPlayerInfoOld(webUrl, params);
     }
 
     /** 修改昵称 */
-    async sendModifyNickName(webUrl: string, nickname: string): Promise<void> {
+    async sendModifyNickNameOld(webUrl: string, nickname: string): Promise<void> {
         console.log('sendModifyNickName:' + nickname);
-        const userData = this.currentUser;
-        return await this.sendModifyPlayerInfo(webUrl, nickname, userData.sex, userData.avatarURL);
+        const params: IModifyPlayerParams = {
+            nickname: nickname
+        };
+        return await this.sendModifyPlayerInfoOld(webUrl, params);
     }
 
     /** 发送修改用户信息请求 */
-    async sendModifyPlayerInfo(webUrl: string, nickname: string, gender: number, localHeadPath: string): Promise<void> {
+    async sendModifyPlayerInfoOld(webUrl: string, params: IModifyPlayerParams): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
-        const params: IModifyPlayerParams = {
-            nickname,
-            gender,
-            localHeadPath
-        };
+
+        const userData = this.currentUser;
+        params.nickname = params.nickname || userData.nickname;
+        params.gender = params.gender || userData.sex;
+        params.avatar = params.avatar || userData.avatarURL;
 
         await this._client
-            .modifyPlayerInfo(webUrl, params)
-            .then((data) => {
+            .modifyPlayerInfoOld(webUrl, params)
+            .then(() => {
+                if (params.nickname) {
+                    userData.nickname = params.nickname;
+                }
+                if (params.gender) {
+                    userData.sex = params.gender;
+                }
+                if (params.avatar) {
+                    userData.avatarURL = params.avatar;
+                }
+
+                asyncOp.resolve();
+                this.emit('modifyUserInfoSucc');
+            })
+            .catch((err) => {
+                asyncOp.reject(err);
+            });
+
+        return asyncOp.promise;
+    }
+
+    /** 修改头像 */
+    async sendModifyAvatar(avatar: string | number): Promise<void> {
+        console.log('sendModifyAvatar:' + avatar);
+        const params: IModifyPlayerParams = {
+            avatar: avatar.toString()
+        };
+        return await this.sendModifyPlayerInfo(params);
+    }
+
+    /** 修改昵称 */
+    async sendModifyNickName(nickname: string): Promise<void> {
+        console.log('sendModifyNickName:' + nickname);
+        const params: IModifyPlayerParams = {
+            nickname: nickname
+        };
+        return await this.sendModifyPlayerInfo(params);
+    }
+
+    /** 发送修改用户信息请求 */
+    async sendModifyPlayerInfo(params: IModifyPlayerParams): Promise<void> {
+        const asyncOp = new AsyncOperation<void>();
+        await this._client
+            .modifyPlayerInfo(params)
+            .then(() => {
                 let userData = this.currentUser;
-                if (data.user_id) {
-                    userData.userId = Util.Number(data.user_id);
+
+                if (params.nickname) {
+                    userData.nickname = params.nickname;
                 }
-                if (data.nick_name) {
-                    userData.nickname = Util.String(data.nick_name);
+                if (params.gender) {
+                    userData.sex = params.gender;
                 }
-                if (data.gender) {
-                    userData.sex = Util.Number(data.gender);
-                }
-                if (data.avatar) {
-                    userData.avatarURL = data.avatar;
+                if (params.avatar) {
+                    userData.avatarURL = params.avatar;
                 }
 
                 asyncOp.resolve();

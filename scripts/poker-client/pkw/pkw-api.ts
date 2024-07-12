@@ -1,5 +1,3 @@
-import type { IModifyPlayerInfoData } from '../poker-client-types';
-
 export interface IRequestParams {
     version?: string; // just hard code
     hot_update_version?: string;
@@ -80,12 +78,8 @@ export interface IUploadAvatarParams extends IRequestParams {
 
 export interface IModifyPlayerInfoParams extends IRequestParams {
     nick_name?: string;
-    gender: string;
+    gender?: string;
     img_ext?: string;
-    avatar: string;
+    avatar?: string;
     avatar_thumb?: string;
-}
-
-export interface IModifyPlayerInfoResponseData extends IResponseData {
-    data: IModifyPlayerInfoData;
 }

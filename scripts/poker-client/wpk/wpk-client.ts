@@ -10,7 +10,6 @@ import type {
     IUser,
     IDomainInfo,
     ILinkOptions,
-    IModifyPlayerInfoData,
     IModifyPlayerParams
 } from '../poker-client-types';
 import { SystemInfo } from '../poker-client-types';
@@ -235,11 +234,11 @@ export class WPKClient implements IPokerClient {
         return Promise.reject<string>(new NotImplementError('uploadAvatar is not implement'));
     }
 
-    async modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<IModifyPlayerInfoData> {
+    async modifyPlayerInfoOld(webUrl: string, params: IModifyPlayerParams): Promise<void> {
         // const asyncOp = new AsyncOperation<any>();
         // asyncOp.reject(new Error('功能未实现'));
         // return asyncOp.promise;
 
-        return Promise.reject<IModifyPlayerInfoData>(new NotImplementError('modifyPlayerInfo is not implement'));
+        return Promise.reject(new NotImplementError('modifyPlayerInfo is not implement'));
     }
 }
