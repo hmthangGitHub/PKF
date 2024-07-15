@@ -7,9 +7,10 @@ import type {
     IRequestGetPublicData,
     IRequestSelfStatisticalData
 } from '../../poker-client/session/data-session';
-import type { PokerHandData } from './hand-data';
-import type { OpponentPublicData } from './data-opponent-public';
-import type { SelfPublicData } from './data-self-public';
+import { PokerHandData } from './hand-data';
+import { OpponentPublicData } from './data-opponent-public';
+import { SelfPublicData } from './data-self-public';
+import { ValueObject } from '../../pf';
 
 export class DataService extends Service {
     static readonly serviceName = 'DataService';
@@ -41,7 +42,8 @@ export class DataService extends Service {
             currencyType: currencyType
         };
         const response = await this._session.getSelfPublicData(obj);
-        return response;
+        const result = ValueObject.fromProto(SelfPublicData, response);
+        return result;
     }
 
     async getOpponentPublicData(
@@ -66,7 +68,8 @@ export class DataService extends Service {
             currencyType: currencyType
         };
         const response = await this._session.getOpponentPublicData(obj);
-        return response;
+        const result = ValueObject.fromProto(OpponentPublicData, response);
+        return result;
     }
 
     async getGameHand(uuidJs: string, gameId: number): Promise<PokerHandData> {
@@ -78,6 +81,7 @@ export class DataService extends Service {
             game_uuid_js: uuidJs
         };
         const response = await this._session.getGameHand(obj);
-        return response;
+        const hand: PokerHandData = ValueObject.fromProto(PokerHandData, response);
+        return hand;
     }
 }

@@ -1,14 +1,18 @@
 import type { IValueObject } from '../../pf';
 import { ValueObject, ValueObjectArray } from '../../pf';
-import type { IHandCardType } from './hand-card';
+import type {
+    IReplayData,
+    IReplayFlopData,
+    IReplayPotInfo,
+    IReplayPotsInfo,
+    IReplayRoomInfo,
+    IReplayRoundsInfo,
+    IReplaySeatInfo,
+    IReplaySeatsInfo,
+    IReplaySettlementRoundData,
+    IReplayTableInfo
+} from '../../poker-client/session/data-session-types';
 import { HandCardType } from './hand-card';
-
-export interface IReplayData {
-    RoomInfo: IReplayRoomInfo;
-    RoundsInfo: IReplayRoundsInfo;
-    SeatsInfo: IReplaySeatsInfo;
-    TableInfo: IReplayTableInfo;
-}
 
 export class ReplayData implements IValueObject {
     roomInfo: ReplayRoomInfo | null = null;
@@ -23,15 +27,6 @@ export class ReplayData implements IValueObject {
         this.tableInfo = ValueObject.fromProto(ReplayTableInfo, data.TableInfo);
         return data;
     }
-}
-
-export interface IReplayRoomInfo {
-    ante: number;
-    blind: number;
-    double_ante: boolean;
-    mode: number;
-    players_count: number;
-    type: string;
 }
 
 export class ReplayRoomInfo implements IValueObject {
@@ -50,26 +45,6 @@ export class ReplayRoomInfo implements IValueObject {
         this.playersCount = data.players_count || 0;
         this.type = data.type || '';
     }
-}
-
-export interface IReplayRoundsInfo {
-    ante_round: boolean;
-    blind_round: boolean;
-    end_ante_round: IReplayPotsInfo;
-    end_flop_round: IReplayPotsInfo;
-    end_preflop_round: IReplayPotsInfo;
-    end_river_round: IReplayPotsInfo;
-    end_turn_round: IReplayPotsInfo;
-    flop: IReplayFlopData[];
-    preflop: IReplayFlopData[];
-    river: IReplayFlopData[];
-    turn: IReplayFlopData[];
-    settlement_round: IReplaySettlementRoundData[];
-    flop_community_cards: IHandCardType[];
-    is_now_crit_time: boolean;
-    jp_total_winbet: number;
-    river_community_card: IHandCardType;
-    turn_community_card: IHandCardType;
 }
 
 export class ReplayRoundsInfo implements IValueObject {
@@ -112,21 +87,12 @@ export class ReplayRoundsInfo implements IValueObject {
     }
 }
 
-interface IReplayPotsInfo {
-    pots_info: IReplayPotInfo[];
-}
-
 export class ReplayPotsInfo implements IValueObject {
     potsInfo: ReplayPotInfo[] | null = [];
 
     fromProto(data: IReplayPotsInfo) {
         ValueObjectArray.cloneFromProto(ReplayPotInfo, this.potsInfo, data.pots_info);
     }
-}
-
-interface IReplayPotInfo {
-    amount: number;
-    pot_id: number;
 }
 
 export class ReplayPotInfo implements IValueObject {
@@ -137,14 +103,6 @@ export class ReplayPotInfo implements IValueObject {
         this.amount = data?.amount ?? 0;
         this.potId = data?.pot_id ?? 0;
     }
-}
-
-interface IReplayFlopData {
-    action_time: number;
-    action_type: number;
-    amount: number;
-    seat_no: number;
-    seq: number;
 }
 
 export class ReplayFlopData implements IValueObject {
@@ -163,12 +121,6 @@ export class ReplayFlopData implements IValueObject {
     }
 }
 
-interface IReplaySettlementRoundData {
-    jackpot_type: number;
-    win_amount: number;
-    win_seat_no: number;
-}
-
 export class ReplaySettlementRoundData implements IValueObject {
     jackpotType: number | null = 0;
     winAmount: number | null = 0;
@@ -179,19 +131,6 @@ export class ReplaySettlementRoundData implements IValueObject {
         this.winAmount = data?.win_amount ?? 0;
         this.winSeatNo = data?.win_seat_no ?? 0;
     }
-}
-
-interface IReplaySeatInfo {
-    UID: number;
-    head_url: string;
-    is_muck: boolean;
-    is_pro: number;
-    label: string;
-    name: string;
-    plat: number;
-    seat_no: number;
-    stake: number;
-    holecards: IHandCardType[];
 }
 
 export class ReplaySeatInfo implements IValueObject {
@@ -220,25 +159,12 @@ export class ReplaySeatInfo implements IValueObject {
     }
 }
 
-interface IReplaySeatsInfo {
-    seats_info: IReplaySeatInfo[];
-}
-
 export class ReplaySeatsInfo implements IValueObject {
     seatsInfo: ReplaySeatInfo[] | null = [];
 
     fromProto(data: IReplaySeatsInfo) {
         ValueObjectArray.cloneFromProto(ReplaySeatInfo, this.seatsInfo, data.seats_info);
     }
-}
-
-interface IReplayTableInfo {
-    bb_seat: number;
-    dealer_seat: number;
-    post_seats: number[];
-    sb_seat: number;
-    showdown_seats: number[];
-    straddle_seat: number;
 }
 
 export class ReplayTableInfo implements IValueObject {

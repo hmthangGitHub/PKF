@@ -1,52 +1,6 @@
 import type { IValueObject } from '../../pf';
 import { ValueObject, ValueObjectArray } from '../../pf';
-
-interface ISelfStatisticalData {
-    Af_rate: number;
-    Cbet_rate: number;
-    Enter_rate: number;
-    Etf_rate: number;
-    Pfr_rate: number;
-    Preflop_active_raise_count: number;
-    Preflop_add_bet_count: number;
-    Rate_3bet: number;
-    Rate_fold_to_3bet: number;
-    Sb_rate: number;
-    Total_3bet_chance_count: number;
-    Total_3bet_count: number;
-    Total_after_flop_win_count: number;
-    Total_be_3bet_count: number;
-    Total_be_3bet_fold_count: number;
-    Total_bet_count: number;
-    Total_buyin: number;
-    Total_call_count: number;
-    Total_cbet_count: number;
-    Total_end_room_count: number;
-    Total_enter_flop_count: number;
-    Total_enter_game_count: number;
-    Total_flop_count: number;
-    Total_hand_card_count: number;
-    Total_preflop_last_bet_count: number;
-    Total_raise_count: number;
-    Total_river_count: number;
-    Total_river_win_count: number;
-    Total_showdown_count: number;
-    Total_showdown_win_count: number;
-    Total_steal_blind_chance_count: number;
-    Total_win_count: number;
-    Total_win_money: number;
-    UID: number;
-    Vpip_rate: number;
-    Win_rate: number;
-    Wsd_rate: number;
-    Wsf_rate: number;
-    Wtsd_rate: number;
-    bb_100_s: IBbData[];
-    has_liked: boolean;
-    intimacy: number;
-    level_hands: number;
-    liked_count: number;
-}
+import type { IBbData, ISelfPublicData, ISelfStatisticalData } from '../../poker-client/session/data-session-types';
 
 export class SelfStatisticalData implements IValueObject {
     afRate?: number | null = 0;
@@ -144,14 +98,6 @@ export class SelfStatisticalData implements IValueObject {
     }
 }
 
-export interface ISelfPublicData {
-    data: ISelfStatisticalData;
-    identity: number;
-    level_hands: number;
-    star_duration: number;
-    uid: number;
-}
-
 export class SelfPublicData implements IValueObject {
     data?: SelfStatisticalData | null = null;
     identity?: number | null = 0;
@@ -166,13 +112,6 @@ export class SelfPublicData implements IValueObject {
         this.starDuration = data?.star_duration ?? 0;
         this.uid = data?.uid ?? 0;
     }
-}
-
-interface IBbData {
-    bb_value: number;
-    total_win_bb_count: number;
-    total_hand_count: number;
-    bb_100: number;
 }
 
 export class BbData implements IValueObject {

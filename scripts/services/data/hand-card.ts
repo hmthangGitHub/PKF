@@ -1,10 +1,6 @@
 import type { IValueObject } from '../../pf';
 import { CardNum, CardSuit } from '../../poker-client/poker-data-types';
-
-export interface IHandCardType {
-    number: number;
-    suit: number;
-}
+import type { IHandCardType } from '../../poker-client/session/data-session-types';
 
 export class HandCardType implements IValueObject {
     eCardNum: CardNum = CardNum.CARD_2;

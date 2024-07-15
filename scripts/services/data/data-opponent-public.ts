@@ -1,18 +1,6 @@
 import type { IValueObject } from '../../pf';
 import { ValueObject } from '../../pf';
-
-interface IOpponentStatisticalData {
-    Enter_rate: number;
-    Pfr_rate: number;
-    Total_end_room_count: number;
-    Total_hand_card_count: number;
-    Vpip_rate: number;
-    Win_rate: number;
-    has_liked: number;
-    level_hands: number;
-    liked_count: number;
-    intimacy: number;
-}
+import type { IOpponentPublicData, IOpponentStatisticalData } from '../../poker-client/session/data-session-types';
 
 export class OpponentStatisticalData implements IValueObject {
     enterRate?: number | null = 0;
@@ -38,14 +26,6 @@ export class OpponentStatisticalData implements IValueObject {
         this.likedCount = data?.liked_count ?? 0;
         this.friendNum = data?.intimacy ?? 0;
     }
-}
-
-export interface IOpponentPublicData {
-    data: IOpponentStatisticalData;
-    identity: number;
-    level_hands: number;
-    star_duration: number;
-    uid: number;
 }
 
 export class OpponentPublicData {

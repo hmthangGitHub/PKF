@@ -2,36 +2,9 @@
 /* eslint-disable camelcase */
 import type { IValueObject } from '../../pf';
 import { ValueObject, ValueObjectArray } from '../../pf';
-import type { IHandCardType } from './hand-card';
+import type { IGameRecord, IPlayerRecord, IPokerHandData } from '../../poker-client/session/data-session-types';
 import { HandCardType } from './hand-card';
-import type { IReplayData } from './replay-data';
 import { ReplayData } from './replay-data';
-
-export class IPokerHandData {
-    game_record: IGameRecord;
-    clubid: number;
-    roomid: number;
-    game_uuid_js: string;
-    room_uuid_js: string;
-    start_time: number;
-    max_port: number;
-    insurace_winbet: number;
-    jackpot_winbet: number;
-    game_mode: number;
-    short_full: number;
-    ismirco: boolean;
-    gameid: number;
-    is_associated_jackpot: boolean;
-    replay: IReplayData;
-    replayinsurance: any;
-    force_showcard: boolean;
-    is_star_closed: boolean;
-    force_show_coin: number;
-    next_show_left_coin: number;
-    fee: number;
-    spectator_enabled: boolean;
-    show_card_bystander_uid: number[];
-}
 
 export class PokerHandData implements IValueObject {
     gameRecord: GameRecord | null = null;
@@ -117,13 +90,6 @@ export class PokerHandData implements IValueObject {
     }
 }
 
-interface IGameRecord {
-    public_cards: IHandCardType[];
-    records: IPlayerRecord[];
-    total_pot: number;
-    unsend_public_cards: IHandCardType[];
-}
-
 class GameRecord implements IValueObject {
     publicCards: HandCardType[] | null = [];
     unSendPublicCards: HandCardType[] | null = [];
@@ -137,31 +103,6 @@ class GameRecord implements IValueObject {
         this.totalPot = data?.total_pot ?? 0;
     }
 }
-
-interface IPlayerRecord {
-    IsShowDown: boolean;
-    LastRoundType: number;
-    cards: IHandCardType[];
-    hand_total_valid_bet: number;
-    is_show_card: boolean;
-    last_buyin_clubid: number;
-    player_betting_round_bet: number;
-    player_head: string;
-    player_name: string;
-    playerid: number;
-    send_card_len: number;
-    show_card_ids: number;
-    win_bet: number;
-    insurance_bet_amount: number;
-    insurance_winbet: number;
-    is_fold: boolean;
-    is_muck: boolean;
-    is_active_show: boolean;
-    is_force_show: boolean;
-    plat: number;
-    jack_winbet: number;
-}
-
 export class PlayerRecord implements IValueObject {
     lastRoundType: number | null = 0;
     cards: HandCardType[] | null = [];
