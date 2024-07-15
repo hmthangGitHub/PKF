@@ -44,9 +44,8 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
 
     onGlobalMessage(notify: INoticeGlobalMessage) {
         // TODO: handle MTT notification
-        const mtt_game_start = 2;  //mtt比赛开始通知
-        if (notify.msg_type == mtt_game_start) {
-
+        const mttGameStart = 2; // mtt比赛开始通知
+        if (notify.msg_type === mttGameStart) {
             return;
         }
 
@@ -63,6 +62,6 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
     }
 
     isCanShowNotice(): boolean {
-        return this._pushType !== 0; //PUSH_ERROR
+        return this._pushType !== 0; // PUSH_ERROR
     }
 }
