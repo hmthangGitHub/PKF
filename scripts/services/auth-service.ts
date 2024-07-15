@@ -86,86 +86,43 @@ export class AuthService extends EmittableService<AuthEvents> {
     }
 
     /** 修改头像 */
-    async sendModifyAvatarOld(webUrl: string, avatar: string | number): Promise<void> {
+    async sendModifyAvatar(webUrl: string, avatar: string | number): Promise<void> {
         console.log('sendModifyAvatar:' + avatar);
         const params: IModifyPlayerParams = {
             avatar: avatar.toString()
         };
-        return await this.sendModifyPlayerInfoOld(webUrl, params);
+        return await this.sendModifyPlayerInfo(webUrl, params);
     }
 
     /** 修改昵称 */
-    async sendModifyNickNameOld(webUrl: string, nickname: string): Promise<void> {
+    async sendModifyNickName(webUrl: string, nickname: string): Promise<void> {
         console.log('sendModifyNickName:' + nickname);
         const params: IModifyPlayerParams = {
             nickname: nickname
         };
-        return await this.sendModifyPlayerInfoOld(webUrl, params);
+        return await this.sendModifyPlayerInfo(webUrl, params);
     }
 
     /** 发送修改用户信息请求 */
-    async sendModifyPlayerInfoOld(webUrl: string, params: IModifyPlayerParams): Promise<void> {
-        const asyncOp = new AsyncOperation<void>();
-
+    async sendModifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void> {
         const userData = this.currentUser;
-        params.nickname = params.nickname || userData.nickname;
-        params.gender = params.gender || userData.sex;
-        params.avatar = params.avatar || userData.avatarURL;
+        if (this.isWebLogin) {
+            params.id = userData.userId;
+        } else {
+            params.nickname = params.nickname || userData.nickname;
+            params.gender = (params.gender || userData.sex).toString();
+            params.avatar = params.avatar || userData.avatarURL;
+        }
 
-        await this._client
-            .modifyPlayerInfoOld(webUrl, params)
-            .then(() => {
-                if (params.nickname) {
-                    userData.nickname = params.nickname;
-                }
-                if (params.gender) {
-                    userData.sex = params.gender;
-                }
-                if (params.avatar) {
-                    userData.avatarURL = params.avatar;
-                }
-
-                asyncOp.resolve();
-                this.emit('modifyUserInfoSucc');
-            })
-            .catch((err) => {
-                asyncOp.reject(err);
-            });
-
-        return asyncOp.promise;
-    }
-
-    /** 修改头像 */
-    async sendModifyAvatar(avatar: string | number): Promise<void> {
-        console.log('sendModifyAvatar:' + avatar);
-        const params: IModifyPlayerParams = {
-            avatar: avatar.toString()
-        };
-        return await this.sendModifyPlayerInfo(params);
-    }
-
-    /** 修改昵称 */
-    async sendModifyNickName(nickname: string): Promise<void> {
-        console.log('sendModifyNickName:' + nickname);
-        const params: IModifyPlayerParams = {
-            nickname: nickname
-        };
-        return await this.sendModifyPlayerInfo(params);
-    }
-
-    /** 发送修改用户信息请求 */
-    async sendModifyPlayerInfo(params: IModifyPlayerParams): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
         await this._client
-            .modifyPlayerInfo(params)
+            .modifyPlayerInfo(webUrl, params)
             .then(() => {
-                let userData = this.currentUser;
-
                 if (params.nickname) {
                     userData.nickname = params.nickname;
                 }
                 if (params.gender) {
-                    userData.sex = params.gender;
+                    userData.sex = Number(params.gender);
                 }
                 if (params.avatar) {
                     userData.avatarURL = params.avatar;
@@ -179,5 +136,9 @@ export class AuthService extends EmittableService<AuthEvents> {
             });
 
         return asyncOp.promise;
+    }
+
+    private get isWebLogin(): boolean {
+        return this._client['isWebLogin'];
     }
 }

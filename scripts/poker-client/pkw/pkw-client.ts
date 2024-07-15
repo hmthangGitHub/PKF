@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 require('url-search-params-polyfill');
 import type { Nullable } from '../../core/core-index';
-import { AsyncOperation, ServerError, Util } from '../../core/core-index';
+import { AsyncOperation, InvalidParameterError, ServerError, Util } from '../../core/core-index';
 import * as http from '../../core/network/http/http-index';
 import type { IPokerClient } from '../poker-client';
 import type {
@@ -26,7 +26,6 @@ import {
     type ILoginData,
     WebApi,
     type IUploadAvatarParams,
-    type IModifyPlayerInfoParams,
     type IResponseData
 } from './pkw-api';
 import { WebSocketAdapter } from '../websocket-adapter';
@@ -276,29 +275,24 @@ export class PKWClient implements IPokerClient {
         return asyncOp.promise;
     }
 
-    async modifyPlayerInfoOld(webUrl: string, params: IModifyPlayerParams): Promise<void> {
-        const data: IModifyPlayerInfoParams = {};
-
-        if (params.avatar) {
-            data.avatar = params.avatar;
-            data.avatar_thumb = params.avatar;
-            data.img_ext = 'jpg';
+    async modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void> {
+        const asyncOp = new AsyncOperation<void>();
+        if (!params.nickname || !params.gender || !params.avatar) {
+            asyncOp.reject(new InvalidParameterError('params: IModifyPlayerParams missing parmeter'));
         }
 
-        if (params.nickname) {
-            data.nick_name = params.nickname;
-        }
+        params.nick_name = params.nickname;
+        params.avatar_thumb = params.avatar;
+        params.img_ext = 'jpg';
+        params.gender = Number(params.gender) === 0 ? '1' : params.gender.toString();
 
-        if (params.gender) {
-            data.gender = params.gender === 0 ? '1' : params.gender.toString();
-        }
+        const data = params as IRequestParams;
 
         let url = webUrl + WebApi.WEB_API_MODIFY_INFO;
         let response = await this.request(url, data, { method: HttpMethod.Post });
         let respMsg = response.data as IResponseData;
 
         console.log('modifyPlayerInfo response:' + JSON.stringify(respMsg));
-        const asyncOp = new AsyncOperation<void>();
 
         if (respMsg.msg_code === '0') {
             asyncOp.resolve();

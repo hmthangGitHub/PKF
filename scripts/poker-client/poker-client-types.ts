@@ -416,9 +416,16 @@ export interface IDocPromise {
 }
 
 export interface IModifyPlayerParams {
+    /** 在外部赋值 */
     nickname?: string;
-    gender?: number;
+    gender?: number | string;
     avatar?: string;
+
+    /** 在底层赋值 */
+    id?: number;
+    avatar_thumb?: string;
+    nick_name?: string;
+    img_ext?: string;
 }
 
 export interface INotificationSetParams {

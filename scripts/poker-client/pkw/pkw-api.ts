@@ -75,11 +75,3 @@ export interface IUploadAvatarParams extends IRequestParams {
     avatar: string;
     ext: string;
 }
-
-export interface IModifyPlayerInfoParams extends IRequestParams {
-    nick_name?: string;
-    gender?: string;
-    img_ext?: string;
-    avatar?: string;
-    avatar_thumb?: string;
-}
