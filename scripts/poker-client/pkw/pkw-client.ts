@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 require('url-search-params-polyfill');
 import type { Nullable } from '../../core/core-index';
-import { AsyncOperation, InvalidParameterError, ServerError, Util } from '../../core/core-index';
+import { AsyncOperation, ServerError, Util } from '../../core/core-index';
 import * as http from '../../core/network/http/http-index';
 import type { IPokerClient } from '../poker-client';
 import type {
