@@ -1,4 +1,5 @@
-import { IValueObject, ValueObject } from '../../pf';
+import type { IValueObject } from '../../pf';
+import { ValueObject } from '../../pf';
 
 interface IOpponentStatisticalData {
     Enter_rate: number;

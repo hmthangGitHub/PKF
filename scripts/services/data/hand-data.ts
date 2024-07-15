@@ -1,6 +1,11 @@
-import { IValueObject, ValueObject, ValueObjectArray } from '../../pf';
-import { HandCardType, IHandCardType } from './hand-card';
-import { IReplayData, ReplayData } from './replay-data';
+/* eslint-disable complexity */
+/* eslint-disable camelcase */
+import type { IValueObject } from '../../pf';
+import { ValueObject, ValueObjectArray } from '../../pf';
+import type { IHandCardType } from './hand-card';
+import { HandCardType } from './hand-card';
+import type { IReplayData } from './replay-data';
+import { ReplayData } from './replay-data';
 
 export class IPokerHandData {
     game_record: IGameRecord;
@@ -84,25 +89,23 @@ export class PokerHandData implements IValueObject {
             const tableInfo = data.replay.TableInfo;
             const seatsInfo = data.replay.SeatsInfo.seats_info;
             const roundsInfo = data.replay.RoundsInfo;
-            for (let i = 0; i < seatsInfo.length; ++i) {
+            for (const seatInfo of seatsInfo) {
                 const psi = {
-                    seatNo: seatsInfo[i].seat_no,
+                    seatNo: seatInfo.seat_no,
                     seatInfo: 0,
                     jackpotType: 0,
-                    uid: seatsInfo[i].UID
+                    uid: seatInfo.UID
                 };
                 const settlementRound = roundsInfo.settlement_round.filter(
-                    (round) => round.win_seat_no === seatsInfo[i].seat_no
+                    (round) => round.win_seat_no === seatInfo.seat_no
                 );
                 psi.jackpotType = settlementRound[0].jackpot_type;
 
                 if (psi.seatNo === tableInfo.dealer_seat) {
                     psi.seatInfo |= 1; // D 001
-                }
-                if (psi.seatNo === tableInfo.sb_seat) {
+                } else if (psi.seatNo === tableInfo.sb_seat) {
                     psi.seatInfo |= 2; // SB 010
-                }
-                if (psi.seatNo === tableInfo.bb_seat) {
+                } else if (psi.seatNo === tableInfo.bb_seat) {
                     psi.seatInfo |= 4; // BB 100
                 }
                 playerSeatInfo.set(psi.uid, psi);

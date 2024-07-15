@@ -6,10 +6,12 @@ import type { WebSocketAdapter } from '../websocket-adapter';
 import * as data from 'data';
 import data_pb = data.data_proto;
 import { PKWUtil } from '../pkw/pkw-util';
-import { IPokerHandData, PokerHandData } from '../../services/data/hand-data';
+import { PokerHandData } from '../../services/data/hand-data';
 import { ValueObject } from '../../pf';
-import { IOpponentPublicData, OpponentPublicData } from '../../services/data/data-opponent-public';
-import { ISelfPublicData, SelfPublicData } from '../../services/data/data-self-public';
+import type { IOpponentPublicData } from '../../services/data/data-opponent-public';
+import { OpponentPublicData } from '../../services/data/data-opponent-public';
+import type { ISelfPublicData } from '../../services/data/data-self-public';
+import { SelfPublicData } from '../../services/data/data-self-public';
 
 export interface IRequestSelfStatisticalData {
     uid: number | null;

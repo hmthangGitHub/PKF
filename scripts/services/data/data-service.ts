@@ -7,9 +7,9 @@ import type {
     IRequestGetPublicData,
     IRequestSelfStatisticalData
 } from '../../poker-client/session/data-session';
-import { PokerHandData } from './hand-data';
-import { OpponentPublicData } from './data-opponent-public';
-import { SelfPublicData } from './data-self-public';
+import type { PokerHandData } from './hand-data';
+import type { OpponentPublicData } from './data-opponent-public';
+import type { SelfPublicData } from './data-self-public';
 
 export class DataService extends Service {
     static readonly serviceName = 'DataService';

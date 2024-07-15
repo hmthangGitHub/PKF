@@ -1,5 +1,7 @@
-import { IValueObject, ValueObject, ValueObjectArray } from '../../pf';
-import { HandCardType, IHandCardType } from './hand-card';
+import type { IValueObject } from '../../pf';
+import { ValueObject, ValueObjectArray } from '../../pf';
+import type { IHandCardType } from './hand-card';
+import { HandCardType } from './hand-card';
 
 export interface IReplayData {
     RoomInfo: IReplayRoomInfo;

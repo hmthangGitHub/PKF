@@ -1,4 +1,5 @@
-import { IValueObject, ValueObject, ValueObjectArray } from '../../pf';
+import type { IValueObject } from '../../pf';
+import { ValueObject, ValueObjectArray } from '../../pf';
 
 interface ISelfStatisticalData {
     Af_rate: number;
@@ -94,8 +95,8 @@ export class SelfStatisticalData implements IValueObject {
     levelHands?: number | null = 0;
     likedCount?: number | null = 0;
 
+    // eslint-disable-next-line complexity
     fromProto(data?: ISelfStatisticalData) {
-        const result = new SelfStatisticalData();
         this.afRate = data?.Af_rate ?? 0;
         this.cbetRate = data?.Cbet_rate ?? 0;
         this.enterRate = data?.Enter_rate ?? 0;
