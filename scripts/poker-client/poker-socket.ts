@@ -20,9 +20,9 @@ export interface ILoginResponse {
 }
 
 export interface INoticeLogin {
-    playerid?: (number|null);
-    gameid?: (number|null);
-    roomid?: (number|null);
+    playerid?: number | null;
+    gameid?: number | null;
+    roomid?: number | null;
     // gameStates?: (pb.IPlayerGameState[]|null);
 }
 
@@ -314,7 +314,7 @@ export interface SocketNotifications {
     userData: (notify: INoticeGetUserData) => void;
     calmDownConfirm: (notify: INoticeCalmDownConfirmResult) => void;
     rebateEventStatus: () => void;
-    noticeLogIn:(notify: INoticeLogin)=>void;
+    noticeLogIn: (notify: INoticeLogin) => void;
 
     /// server errors
     connectServerFailed: (notify: IConnectServerFailedNotify) => void;
