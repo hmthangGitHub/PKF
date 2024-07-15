@@ -859,10 +859,20 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             this.handleCalmDownNotify.bind(this)
         );
 
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Login_Notice,
+            pb.NoticeLogin,
+            this.handleNoticeLogin.bind(this)
+        );
+
         // no protobuf class needed for MsgId_Rebate_GetEventStatus_Notice
         this._messageHandlers.set(pb.MSGID.MsgId_Rebate_GetEventStatus_Notice, (msg) => {
             this.handleRebateEventStatusNotify();
         });
+    }
+
+    protected handleNoticeLogin(protobuf: pb.INoticeLogin) {
+        this._notification.emit('noticeLogIn', protobuf);
     }
 
     protected handleClubCurrentBoardNotify(protobuf: pb.INoticeClubCurrentBoard) {
