@@ -1,16 +1,16 @@
 /* eslint-disable max-params */
 import { Service } from 'protobufjs';
 import type { IPokerClient } from '../../poker-client/poker-client';
-import type {
-    DataServerSession,
-    IRequestGameHand,
-    IRequestGetPublicData,
-    IRequestSelfStatisticalData
-} from '../../poker-client/session/data-session';
+import type { DataServerSession } from '../../poker-client/session/data-session';
 import { PokerHandData } from './hand-data';
 import { OpponentPublicData } from './data-opponent-public';
 import { SelfPublicData } from './data-self-public';
 import { ValueObject } from '../../pf';
+import type {
+    IRequestGameHand,
+    IRequestGetPublicData,
+    IRequestSelfStatisticalData
+} from '../../poker-client/session/data-session-types';
 
 export class DataService extends Service {
     static readonly serviceName = 'DataService';
