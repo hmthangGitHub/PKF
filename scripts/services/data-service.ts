@@ -2,14 +2,13 @@
 import { Service } from 'protobufjs';
 import type { IPokerClient } from '../poker-client/poker-client';
 import { PKWUtil } from '../poker-client/pkw/pkw-util';
-import { PublicData } from '../poker-client/poker-data-types';
+import { PokerHandData, PublicData } from '../poker-client/poker-data-types';
 import type {
     DataServerSession,
     IRequestGameHand,
     IRequestGetPublicData,
     IRequestSelfStatisticalData
 } from '../poker-client/session/data-session';
-import { PokerHandData } from '../../../scripts/common/data/RecordData';
 
 export class DataService extends Service {
     static readonly serviceName = 'DataService';
