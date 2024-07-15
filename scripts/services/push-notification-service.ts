@@ -33,6 +33,8 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
     static readonly serviceName = 'PushNotificationService';
 
     _socket: ISocket;
+    private _canShowPanel: boolean;
+    private _pushType: number = 0;
 
     constructor(socket: ISocket) {
         super(PushNotificationService.serviceName);
@@ -43,7 +45,30 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
 
     onGlobalMessage(notify: INoticeGlobalMessage) {
         // TODO: handle MTT notification
+        const mtt_game_start = 2;  //mtt比赛开始通知
+        if (notify.msg_type == mtt_game_start) {
+
+            return;
+        }
 
         this.emit('pushNotification', new PushNotification(notify));
+    }
+
+    /** 设置当前场景是否允许显示。如登陆界面，加载页面不显示跑马灯 */
+    setCanShowPanel(canShow: boolean) {
+        this._canShowPanel = canShow;
+    }
+
+    isCanShowNotice(): boolean {
+        return this._canShowPanel;
+    }
+
+    /** 设置当前是哪个场景（某些通知只特定场景显示） */
+    setPushType(type: number): void {
+        this._pushType = type;
+    }
+
+    getPushType(): number {
+        return this._pushType;
     }
 }
