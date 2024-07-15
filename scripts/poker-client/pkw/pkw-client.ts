@@ -277,12 +277,11 @@ export class PKWClient implements IPokerClient {
 
     async modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
-        if (!params.nickname || !params.gender || !params.avatar) {
-            asyncOp.reject(new InvalidParameterError('params: IModifyPlayerParams missing parmeter'));
-        }
 
-        params.nick_name = params.nickname;
-        params.avatar_thumb = params.avatar;
+        const userData = this.getCurrentUser();
+        params.nick_name = params.nickname || userData.nickname;
+        params.gender = (params.gender || userData.sex).toString();
+        params.avatar_thumb = params.avatar = params.avatar || userData.avatarURL;
         params.img_ext = 'jpg';
         params.gender = Number(params.gender) === 0 ? '1' : params.gender.toString();
 

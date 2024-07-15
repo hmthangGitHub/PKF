@@ -105,19 +105,11 @@ export class AuthService extends EmittableService<AuthEvents> {
 
     /** 发送修改用户信息请求 */
     async sendModifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void> {
-        const userData = this.currentUser;
-        if (this.isWebLogin) {
-            params.id = userData.userId;
-        } else {
-            params.nickname = params.nickname || userData.nickname;
-            params.gender = (params.gender || userData.sex).toString();
-            params.avatar = params.avatar || userData.avatarURL;
-        }
-
         const asyncOp = new AsyncOperation<void>();
         await this._client
             .modifyPlayerInfo(webUrl, params)
             .then(() => {
+                const userData = this.currentUser;
                 if (params.nickname) {
                     userData.nickname = params.nickname;
                 }
@@ -136,9 +128,5 @@ export class AuthService extends EmittableService<AuthEvents> {
             });
 
         return asyncOp.promise;
-    }
-
-    private get isWebLogin(): boolean {
-        return this._client['isWebLogin'];
     }
 }
