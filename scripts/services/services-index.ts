@@ -11,5 +11,5 @@ export * from './calm-down-service';
 export * from './exchange-currency-service';
 export * from './rebate-service';
 export * from './auth-verify-service';
-export * from './data-service';
+export * from './data/data-service';
 export * from './audit-service';
