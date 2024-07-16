@@ -213,6 +213,8 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         this.cleanupRequests('socket disconnected');
 
+        this._secretKey = '';
+
         this._gameSessions.forEach((session) => {
             session.onDisconnect();
         });
