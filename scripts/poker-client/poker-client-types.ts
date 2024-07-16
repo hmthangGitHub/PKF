@@ -473,8 +473,7 @@ export enum GameSizeType {
     Micro = 1,
     Small = 2,
     Medium = 3,
-    High = 4,
-    OpenSeat = 5
+    High = 4
 }
 
 export enum DiscoverGameType {
