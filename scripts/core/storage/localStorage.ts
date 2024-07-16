@@ -17,6 +17,10 @@ export class LocalStorage extends Module {
         return cc.sys.localStorage.getItem(key);
     }
 
+    getBool(key: string): boolean {
+        return this.getItem(key) === 'true';
+    }
+
     removeItem(key: string): void {
         cc.sys.localStorage.removeItem();
     }

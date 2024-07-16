@@ -27,13 +27,13 @@ export class PushNotification {
 
 export interface PushNotificationEvents {
     pushNotification: (notify: PushNotification) => void;
+    enablePushNotice: (value: boolean) => void;
 }
 
 export class PushNotificationService extends EmittableService<PushNotificationEvents> {
     static readonly serviceName = 'PushNotificationService';
 
     _socket: ISocket;
-    private _pushType: number = 0;
 
     constructor(socket: ISocket) {
         super(PushNotificationService.serviceName);
@@ -52,11 +52,22 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
         this.emit('pushNotification', new PushNotification(notify));
     }
 
+    private _enablePush = true;
+    get enablePush() {
+        return this._enablePush;
+    }
+    set enablePush(value) {
+        if (this._enablePush === value) return;
+
+        this._enablePush = value;
+        this.emit('enablePushNotice', value);
+    }
+
     /** 设置当前是哪个场景（某些通知只特定场景显示） */
+    private _pushType: number = 0;
     setPushType(type: number): void {
         this._pushType = type;
     }
-
     getPushType(): number {
         return this._pushType;
     }
