@@ -21,6 +21,8 @@ export class AuthService extends EmittableService<AuthEvents> {
 
     _client: IPokerClient;
 
+    private _lastLoginData: Date = null;
+
     // private _currentUser: Nullable<IUser> = null;
 
     get currentUser(): Nullable<IUser> {
@@ -128,5 +130,20 @@ export class AuthService extends EmittableService<AuthEvents> {
             });
 
         return asyncOp.promise;
+    }
+
+    async getLastLogin(): Promise<Date> {
+        const asyncOp = new AsyncOperation<Date>();
+        if (this._lastLoginData) {
+            asyncOp.resolve(this._lastLoginData);
+        }
+
+        // TODO 从后端获取最后一次登陆时间
+
+        this._lastLoginData = new Date();// 暂时用当前时间
+        asyncOp.resolve(this._lastLoginData);
+
+        return asyncOp.promise;
+
     }
 }
