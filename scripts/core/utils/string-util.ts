@@ -11,6 +11,7 @@ import { Util } from './util';
 // https://github.com/MikeMcl/bignumber.js/
 // $ npm install bignumber.js
 import BigNumber from './bignumber';
+import { languageManager } from '../core';
 
 // mathjs 库
 // https://github.com/josdejong/mathjs
@@ -1678,5 +1679,26 @@ export class StringUtil {
         }
 
         return strValue.substr(0, strValue.length - count);
+    }
+
+    // 将时间（秒数）转换为xx时xx分xx秒形式  支持多语言(如果 时 分为0则省略)
+    static getStringByTime(time: number): string {
+        const h = Math.floor(time / 3600);
+        const m = Math.floor((time % 3600) / 60);
+        const s = Math.floor(time % 60);
+        if (h === 0) {
+            if (m === 0) {
+                return s + languageManager.getString('seconds');
+            }
+            return m + languageManager.getString('minute') + s + languageManager.getString('seconds');
+        }
+        return (
+            h +
+            languageManager.getString('hour') +
+            m +
+            languageManager.getString('minute') +
+            s +
+            languageManager.getString('seconds')
+        );
     }
 }
