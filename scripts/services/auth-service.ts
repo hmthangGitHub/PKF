@@ -140,10 +140,9 @@ export class AuthService extends EmittableService<AuthEvents> {
 
         // TODO 从后端获取最后一次登陆时间
 
-        this._lastLoginData = new Date();// 暂时用当前时间
+        this._lastLoginData = new Date(); // 暂时用当前时间
         asyncOp.resolve(this._lastLoginData);
 
         return asyncOp.promise;
-
     }
 }
