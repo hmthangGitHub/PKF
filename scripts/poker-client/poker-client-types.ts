@@ -422,6 +422,7 @@ export interface IModifyPlayerParams {
     nickname?: string;
     gender?: number | string;
     avatar?: string;
+    mobile?: string;
 
     /** 在底层赋值 */
     id?: number | string;

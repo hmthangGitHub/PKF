@@ -107,6 +107,15 @@ export class AuthService extends EmittableService<AuthEvents> {
         return await this.sendModifyPlayerInfo(webUrl, params);
     }
 
+    /** 修改手机号 */
+    async sendModifyMobile(webUrl: string, mobile: string): Promise<void> {
+        console.log('sendModifyMobile:' + mobile);
+        const params: IModifyPlayerParams = {
+            mobile: mobile
+        };
+        return await this.sendModifyPlayerInfo(webUrl, params);
+    }
+
     /** 发送修改用户信息请求 */
     async sendModifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
@@ -122,6 +131,9 @@ export class AuthService extends EmittableService<AuthEvents> {
                 }
                 if (params.avatar) {
                     userData.avatarURL = params.avatar;
+                }
+                if (params.mobile) {
+                    userData.mobile = params.mobile;
                 }
 
                 asyncOp.resolve();
