@@ -84,7 +84,7 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
     onGameMessage(type: PushNoticeType, content: string) {
         if (!this.enablePush) return;
         this._noticeListeners.forEach((v, k) => {
-            if (k === type) {
+            if (type === PushNoticeType.PUSH_WORLD || k === type) {
                 v.callback(content);
             }
         });
