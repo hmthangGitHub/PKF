@@ -19,20 +19,20 @@ export enum PushNoticeType {
     // PUSH_STAR_SEAT,     // 明星桌
 }
 
-export class PushNoticeData {
-    str: string = '';
-    msgType: PushNoticeType[] = [];
+export interface PushNotificationEvents {
+    clearPushNotice: () => void;
 }
 
-export interface PushNotificationEvents {
-    pushNotification: (notify: PushNoticeData) => void;
-    enablePushNotice: (value: boolean) => void;
+class INotificationListener {
+    callback: (msg: string) => void;
+    target?: any;
 }
 
 export class PushNotificationService extends EmittableService<PushNotificationEvents> {
     static readonly serviceName = 'PushNotificationService';
 
     _socket: ISocket;
+    _noticeListeners = new Map<PushNoticeType, INotificationListener>();
 
     constructor(socket: ISocket) {
         super(PushNotificationService.serviceName);
@@ -48,24 +48,22 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
             return;
         }
 
-        if (notify.repeat_count && notify.msg) {
+        if (this.enablePush && notify.repeat_count && notify.msg) {
             let cout = notify.repeat_count;
             let content: string = StringUtil.getServerStrByLanguage(notify.msg);
-
-            let data: PushNoticeData = new PushNoticeData();
-            data.str = content;
+            let msgType = new Set<PushNoticeType>();
 
             if (!notify.source_type || notify.source_type.length === 0) {
-                data.msgType.push(PushNoticeType.PUSH_WORLD);
+                msgType.add(PushNoticeType.PUSH_WORLD);
             } else {
                 let len = notify.source_type.length;
                 for (let i = 0; i < len; i++) {
                     switch (notify.source_type[i]) {
                         case GameId.World:
-                            data.msgType.push(PushNoticeType.PUSH_LOBBY);
+                            msgType.add(PushNoticeType.PUSH_LOBBY);
                             break;
                         case GameId.Texas:
-                            data.msgType.push(PushNoticeType.PUSH_TEXAS);
+                            msgType.add(PushNoticeType.PUSH_TEXAS);
                             break;
                         default:
                             break;
@@ -73,10 +71,23 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
                 }
             }
 
-            for (let i = 0; i < cout; i++) {
-                this.emit('pushNotification', data);
-            }
+            this._noticeListeners.forEach((v, k) => {
+                if (msgType.has(PushNoticeType.PUSH_WORLD) || msgType.has(k)) {
+                    for (let i = 0; i < cout; i++) {
+                        v.callback(content);
+                    }
+                }
+            });
         }
+    }
+
+    onGameMessage(type: PushNoticeType, content: string) {
+        if (!this.enablePush) return;
+        this._noticeListeners.forEach((v, k) => {
+            if (k === type) {
+                v.callback(content);
+            }
+        });
     }
 
     private _enablePush = true;
@@ -85,21 +96,27 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
     }
     set enablePush(value) {
         if (this._enablePush === value) return;
-
         this._enablePush = value;
-        this.emit('enablePushNotice', value);
+        if (!this._enablePush) {
+            this.emit('clearPushNotice');
+        }
     }
 
-    /** 设置当前是哪个场景（某些通知只特定场景显示） */
-    private _pushType: number = 0;
-    setPushType(type: number): void {
-        this._pushType = type;
-    }
-    getPushType(): number {
-        return this._pushType;
+    addNotificationListener(type: PushNoticeType, callback: (msg: string) => void, target: any): void {
+        // 清理notice内容
+        this.emit('clearPushNotice');
+
+        this._noticeListeners.set(type, {
+            callback,
+            target
+        });
     }
 
-    isCanShowNotice(): boolean {
-        return this._pushType !== 0; // PUSH_ERROR
+    delNotificationListener(target: any): void {
+        this._noticeListeners.forEach((v, k) => {
+            if (v.target === target) {
+                this._noticeListeners.delete(k);
+            }
+        });
     }
 }
