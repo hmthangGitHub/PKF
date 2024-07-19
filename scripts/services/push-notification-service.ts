@@ -19,20 +19,20 @@ export enum PushNoticeType {
     // PUSH_STAR_SEAT,     // 明星桌
 }
 
-export interface PushNotificationEvents {
-    clearPushNotice: () => void;
+export class PushNoticeData {
+    content: string = '';
+    msgType: PushNoticeType[] = [];
+    count: number = 1;
 }
 
-class INotificationListener {
-    callback: (msg: string) => void;
-    target?: any;
+export interface PushNotificationEvents {
+    pushNotification: (notify: PushNoticeData) => void;
 }
 
 export class PushNotificationService extends EmittableService<PushNotificationEvents> {
     static readonly serviceName = 'PushNotificationService';
 
     _socket: ISocket;
-    _noticeListeners = new Map<PushNoticeType, INotificationListener>();
 
     constructor(socket: ISocket) {
         super(PushNotificationService.serviceName);
@@ -49,45 +49,37 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
         }
 
         if (this.enablePush && notify.repeat_count && notify.msg) {
-            let cout = notify.repeat_count;
-            let content: string = StringUtil.getServerStrByLanguage(notify.msg);
-            let msgType = new Set<PushNoticeType>();
+            if (notify.repeat_count && notify.msg) {
+                let data: PushNoticeData = new PushNoticeData();
+                data.content = StringUtil.getServerStrByLanguage(notify.msg);
+                data.count = notify.repeat_count || 1;
 
-            if (!notify.source_type || notify.source_type.length === 0) {
-                msgType.add(PushNoticeType.PUSH_WORLD);
-            } else {
-                let len = notify.source_type.length;
-                for (let i = 0; i < len; i++) {
-                    switch (notify.source_type[i]) {
-                        case GameId.World:
-                            msgType.add(PushNoticeType.PUSH_LOBBY);
-                            break;
-                        case GameId.Texas:
-                            msgType.add(PushNoticeType.PUSH_TEXAS);
-                            break;
-                        default:
-                            break;
+                if (!notify.source_type || notify.source_type.length === 0) {
+                    data.msgType.push(PushNoticeType.PUSH_WORLD);
+                } else {
+                    let len = notify.source_type.length;
+                    for (let i = 0; i < len; i++) {
+                        switch (notify.source_type[i]) {
+                            case GameId.World:
+                                data.msgType.push(PushNoticeType.PUSH_LOBBY);
+                                break;
+                            case GameId.Texas:
+                                data.msgType.push(PushNoticeType.PUSH_TEXAS);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
+
+                this.emit('pushNotification', data);
             }
-
-            this._noticeListeners.forEach((v, k) => {
-                if (msgType.has(PushNoticeType.PUSH_WORLD) || msgType.has(k)) {
-                    for (let i = 0; i < cout; i++) {
-                        v.callback(content);
-                    }
-                }
-            });
         }
     }
 
-    onGameMessage(type: PushNoticeType, content: string) {
+    onGameMessage(data: PushNoticeData) {
         if (!this.enablePush) return;
-        this._noticeListeners.forEach((v, k) => {
-            if (type === PushNoticeType.PUSH_WORLD || k === type) {
-                v.callback(content);
-            }
-        });
+        this.emit('pushNotification', data);
     }
 
     private _enablePush = true;
@@ -97,26 +89,5 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
     set enablePush(value) {
         if (this._enablePush === value) return;
         this._enablePush = value;
-        if (!this._enablePush) {
-            this.emit('clearPushNotice');
-        }
-    }
-
-    addNotificationListener(type: PushNoticeType, callback: (msg: string) => void, target: any): void {
-        // 清理notice内容
-        this.emit('clearPushNotice');
-
-        this._noticeListeners.set(type, {
-            callback,
-            target
-        });
-    }
-
-    delNotificationListener(target: any): void {
-        this._noticeListeners.forEach((v, k) => {
-            if (v.target === target) {
-                this._noticeListeners.delete(k);
-            }
-        });
     }
 }
