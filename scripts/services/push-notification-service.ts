@@ -48,7 +48,7 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
             return;
         }
 
-        if (this.enablePush && notify.repeat_count && notify.msg) {
+        if (notify.repeat_count && notify.msg) {
             if (notify.repeat_count && notify.msg) {
                 let data: PushNoticeData = new PushNoticeData();
                 data.content = StringUtil.getServerStrByLanguage(notify.msg);
@@ -72,12 +72,12 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
                     }
                 }
 
-                this.emit('pushNotification', data);
+                this.pushMessage(data);
             }
         }
     }
 
-    onGameMessage(data: PushNoticeData) {
+    pushMessage(data: PushNoticeData) {
         if (!this.enablePush) return;
         this.emit('pushNotification', data);
     }
