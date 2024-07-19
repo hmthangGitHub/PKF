@@ -316,6 +316,11 @@ export interface SocketNotifications {
     rebateEventStatus: () => void;
     noticeLogIn: (notify: INoticeLogin) => void;
 
+    /// jackpot
+    noticeCurrentRoomJackpot: (notify: INoticeCurrentRoomJackpot) => void;
+    noticeGetJackpotData: (notify: INoticeGetJackpotData) => void;
+    noticeJackpotAmount: (notify: INoticeJackpotAmout) => void;
+
     /// server errors
     connectServerFailed: (notify: IConnectServerFailedNotify) => void;
     serverClose: (notify: IServerCloseNotify) => void;
@@ -459,6 +464,49 @@ export interface IGetScalerQuoteResponse {
     error?: number | null;
     op_type?: number | null;
     rate?: string | null;
+}
+
+export interface IResponseCurrentRoomJackpot {
+    error?: number | null;
+}
+
+export interface IAwardType {
+    hand_level?: number | null;
+    award_percent?: number | null;
+}
+
+export interface INoticeCurrentRoomJackpot {
+    profit_scale?: number | null;
+    drawin_amount?: number | null;
+    awardTypes?: IAwardType[] | null;
+}
+
+export interface IJackpot {
+    amount?: number | null;
+    blind_level?: number | null;
+}
+
+export interface INoticeGetJackpotData {
+    club_id?: number | null;
+    club_name?: string | null;
+    club_avatar?: string | null;
+    club_area?: string | null;
+    jackpots?: IJackpot[] | null;
+}
+
+export interface IResponseGetJackpotData {
+    error?: number | null;
+}
+
+export interface IResponseJackpotAwardRecord {
+    error?: number | null;
+}
+
+export interface INoticeJackpotAmout {
+    club_id?: number | null;
+    blind_level?: number | null;
+    prev_amount?: number | null;
+    current_amout?: number | null;
 }
 
 export interface IExchangeCurrencyResponse {
@@ -684,6 +732,12 @@ export interface ISocket extends IRebateable {
         fromCurrencyAmount: number,
         usePointDeduction: boolean
     ): Promise<IExchangeCurrencyResponse>;
+
+    requestCurrentRoomJackpot(club: number, roomID: number, blindLevel: number): Promise<IResponseCurrentRoomJackpot>;
+
+    requestGetJackpotData(clubID: number, roomID: number): Promise<IResponseGetJackpotData>;
+
+    requestJackpotAwardRecord(club: number, roomID: number, blindLevel: number): Promise<IResponseJackpotAwardRecord>;
 
     requestSecretKey(): Promise<void>;
 
