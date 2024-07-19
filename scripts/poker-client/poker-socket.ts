@@ -320,6 +320,8 @@ export interface SocketNotifications {
     noticeCurrentRoomJackpot: (notify: INoticeCurrentRoomJackpot) => void;
     noticeGetJackpotData: (notify: INoticeGetJackpotData) => void;
     noticeJackpotAmount: (notify: INoticeJackpotAmout) => void;
+    noticeJackpotAwardInfo: (notify: INoticeJackPotAwardInfo) => void;
+    noticeJackpotAwardRecord: (notify: INoticeJackpotAwardRecord) => void;
 
     /// server errors
     connectServerFailed: (notify: IConnectServerFailedNotify) => void;
@@ -507,6 +509,51 @@ export interface INoticeJackpotAmout {
     blind_level?: number | null;
     prev_amount?: number | null;
     current_amout?: number | null;
+}
+
+enum AwardInfoType {
+    None = 0,
+    JP_Normal = 1,
+    JP_Earth = 2,
+    JP_Mars = 3
+}
+
+interface IAwardInfos {
+    award_playid?: number | null;
+    award_amount?: number | null;
+    hand_level?: number | null;
+    award_player_name?: string | null;
+    type?: AwardInfoType | null;
+}
+
+export interface INoticeJackPotAwardInfo {
+    awardInfo?: IAwardInfos[] | null;
+    cur_time?: number | null;
+    msg_type?: number | null;
+    blind_level?: number | null;
+    sys_msg_type?: number | null;
+    gameId?: number | null;
+    mode?: number | null;
+    playGameIds?: number[] | null;
+}
+
+interface IAwardInfo {
+    player_id?: number | null;
+    hand_level?: number | null;
+    award_amount?: number | null;
+    award_time?: number | null;
+    player_name?: string | null;
+    avatar?: string | null;
+    game_uuid?: number | null;
+    type?: AwardInfoType | null;
+    platform?: number | null;
+    award_ratio?: number | null;
+}
+
+export interface INoticeJackpotAwardRecord {
+    club_id?: number | null;
+    luckDog?: IAwardInfo | null;
+    awardInfos?: IAwardInfo[] | null;
 }
 
 export interface IExchangeCurrencyResponse {
