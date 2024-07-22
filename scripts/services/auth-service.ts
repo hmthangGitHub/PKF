@@ -119,6 +119,7 @@ export class AuthService extends EmittableService<AuthEvents> {
     /** 发送修改用户信息请求 */
     async sendModifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
+        const modifyName: boolean = params.nickname ? true : false;
         await this._client
             .modifyPlayerInfo(webUrl, params)
             .then(() => {
@@ -134,6 +135,10 @@ export class AuthService extends EmittableService<AuthEvents> {
                 }
                 if (params.mobile) {
                     userData.mobile = params.mobile;
+                }
+
+                if (modifyName) {
+                    userData.is_allow_update_name = false;
                 }
 
                 asyncOp.resolve();

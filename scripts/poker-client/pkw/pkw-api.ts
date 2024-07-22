@@ -60,6 +60,7 @@ export interface ILoginData {
     cdn: string;
     domain: IDomainData[];
     encry_switch: number[];
+    is_allow_update_name: boolean;
 }
 
 export interface ILoginResponseData extends IResponseData {
