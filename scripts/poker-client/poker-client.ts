@@ -43,6 +43,8 @@ export interface IPokerClient {
     getLegalDocs?: (webUrl: string, docName: string, version: number) => Promise<IDocPromise>;
 
     getBonusCenterDatas?: (webUrl: string) => Promise<IBonusItemData[]>;
+
+    getLoginTime?: () => Promise<Date>;
 }
 
 export class PokerClient {
