@@ -23,7 +23,10 @@ import type {
     IResponseClubCurrentBoard,
     IAuthVerifyResponse,
     IResponseFairPlayReport,
-    IResponseQuerySendFairReport
+    IResponseQuerySendFairReport,
+    IResponseCurrentRoomJackpot,
+    IResponseGetJackpotData,
+    IResponseJackpotAwardRecord
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { WPKSession } from './wpk-session';
@@ -659,6 +662,73 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
             pb.ResponseFairPlayReport
         );
         const responseProto = response.payload;
+        return responseProto;
+    }
+
+    async requestCurrentRoomJackpot(
+        club: number,
+        roomID: number,
+        blindLevel: number
+    ): Promise<IResponseCurrentRoomJackpot> {
+        const requestProto = new pb.RequestCurrentRoomJackpot();
+        requestProto.club_id = club;
+        requestProto.room_id = roomID;
+        requestProto.blind_level = blindLevel;
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_CurrentRoomJackpot_Request,
+            pb.RequestCurrentRoomJackpot,
+            pb.MSGID.MsgID_CurrentRoomJackpot_Response,
+            pb.ResponseCurrentRoomJackpot
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'requestCurrentRoomJackpot');
+
+        return responseProto;
+    }
+
+    async requestGetJackpotData(clubID: number, roomID: number): Promise<IResponseGetJackpotData> {
+        const requestProto = new pb.RequestGetJackpotData();
+        requestProto.club_id = clubID;
+        requestProto.room_id = roomID;
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_GetJackpotData_Request,
+            pb.RequestGetJackpotData,
+            pb.MSGID.MsgID_GetJackpotData_Response,
+            pb.ResponseGetJackpotData
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'requestGetJackpotData');
+
+        return responseProto;
+    }
+
+    async requestJackpotAwardRecord(
+        club: number,
+        roomID: number,
+        blindLevel: number
+    ): Promise<IResponseJackpotAwardRecord> {
+        const requestProto = new pb.RequestJackpotAwardRecord();
+        requestProto.club_id = club;
+        requestProto.room_id = roomID;
+        requestProto.blind_level = blindLevel;
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_JackpotAwardRecord_Request,
+            pb.RequestJackpotAwardRecord,
+            pb.MSGID.MsgID_JackpotAwardRecord_Response,
+            pb.ResponseJackpotAwardRecord
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'requestJackpotAwardRecord');
+
         return responseProto;
     }
 
