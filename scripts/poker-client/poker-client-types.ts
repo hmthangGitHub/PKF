@@ -465,7 +465,8 @@ export enum CreateGameMode {
 
 export enum CurrencyType {
     GOLD = 0,
-    USDT = 101
+    USDT = 101,
+    SWEP = 105
 }
 
 export enum GameSizeType {
