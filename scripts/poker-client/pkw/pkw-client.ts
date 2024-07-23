@@ -30,7 +30,7 @@ import {
 } from './pkw-api';
 import { WebSocketAdapter } from '../websocket-adapter';
 import { PKWMockSocket } from './mock/pkw-mock-socket';
-import { HttpMethod } from '../../core/network/http/http-constants';
+import { HttpEcdType, HttpMethod } from '../../core/network/http/http-constants';
 
 export class PKWClient implements IPokerClient {
     _deviceType: string;
@@ -190,7 +190,7 @@ export class PKWClient implements IPokerClient {
         url: string,
         params: IRequestParams = {},
         options: http.Options = { method: HttpMethod.Get },
-        isSign: boolean = true,
+        signType: HttpEcdType = HttpEcdType.COIN5,
         isBody: boolean = false
     ): Promise<http.Response> {
         if (this._session) {
@@ -213,10 +213,17 @@ export class PKWClient implements IPokerClient {
 
         let data = JSON.stringify(params);
         // sign params
-        if (isSign) {
+        if (signType === HttpEcdType.COIN5) {
             const sign = PKWUtil.createSign(data);
             const searchParams = new URLSearchParams({ data: data, sign: sign });
             data = searchParams.toString();
+        } else if (signType === HttpEcdType.V3) {
+            const signV3Token = PKWUtil.createClientOneTimeV3Token(this._session.token, isBody ? data : '');
+            options.headers = options.headers || {};
+            options.headers['Authorization'] = signV3Token;
+            options.headers['uid'] = this._session.userId?.toString();
+        } else if (signType === HttpEcdType.Test) {
+            console.log('HttpEcdType.Test');
         }
 
         if (isBody) {

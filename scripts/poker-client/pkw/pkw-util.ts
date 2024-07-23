@@ -2,6 +2,7 @@
 /* eslint-disable no-var */
 /* eslint-disable camelcase */
 
+import { TokenCrypto } from '../encrypt/encrypt-index';
 import * as md5 from 'md5';
 // import * as CryptoJS from './pf-crypto';
 import * as CryptoJS from 'crypto-js';
@@ -136,4 +137,20 @@ export class PKWUtil {
         const result = pako.inflate(binData, { to: 'string' });
         return result;
     }
+
+    // =====================begin v3加解密 begin================================ //
+    static async generateV3Keys() {
+        return TokenCrypto.getInstance().getLoginKeys();
+    }
+    static async decryptV3Token(encryptedToken) {
+        // eslint-disable-next-line no-useless-concat
+        let key: string = '@lnFi8' + '<eIKYazt:$_;' + 'MX9T/d(gk[JW3{Upcw';
+        key = key.substring(0, 32);
+        const base64Toket = PKWUtil.DecryptBase64(encryptedToken, key);
+        return md5(md5(TokenCrypto.getInstance().decryptToken(base64Toket)));
+    }
+    static createClientOneTimeV3Token(decryptedToken, reqBody) {
+        return TokenCrypto.getInstance().createClientOneTimeToken(decryptedToken, reqBody);
+    }
+    // =======================end v3加解密 end================================== //
 }
