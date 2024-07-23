@@ -65,10 +65,9 @@ export class BundleManager extends Module {
 
     exitBundle(name: string): void {
         const entry = bundleEntryManager.getEntry(name);
-        if (entry) {
+        if (entry && entry.state === BundleState.Entered) {
             entry.exit();
         }
-        // bundleEntryManager.exitBundle(name);
     }
 
     loadAsset<T extends cc.Asset>(
