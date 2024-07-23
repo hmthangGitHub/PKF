@@ -382,7 +382,8 @@ export interface IUser {
     sportsTrialCoinExpiration: number; // 体育体验金期限
     sportsBettingBalance: number; // 牌桌內體育可用餘額 金幣+體驗金
 
-    is_allow_update_name: boolean;
+    allowUpdateName?: boolean;
+    email?: string;
 }
 
 /** A session authenticated for a user with poke server. */
@@ -425,6 +426,7 @@ export interface IModifyPlayerParams {
     gender?: number | string;
     avatar?: string;
     mobile?: string;
+    email?: string;
 
     /** 在底层赋值 */
     id?: number | string;

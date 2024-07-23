@@ -108,12 +108,21 @@ export class AuthService extends EmittableService<AuthEvents> {
     }
 
     /** 修改手机号 */
-    async sendModifyMobile(webUrl: string, mobile: string): Promise<void> {
+    async sendModifyMobile(mobile: string): Promise<void> {
         console.log('sendModifyMobile:' + mobile);
         const params: IModifyPlayerParams = {
-            mobile: mobile
+            mobile
         };
-        return await this.sendModifyPlayerInfo(webUrl, params);
+        return await this.sendModifyPlayerInfo('', params);
+    }
+
+    /** 修改邮箱 */
+    async sendModifyEmail(email: string): Promise<void> {
+        console.log('sendModifyEmail:' + email);
+        const params: IModifyPlayerParams = {
+            email
+        };
+        return await this.sendModifyPlayerInfo('', params);
     }
 
     /** 发送修改用户信息请求 */
@@ -136,9 +145,12 @@ export class AuthService extends EmittableService<AuthEvents> {
                 if (params.mobile) {
                     userData.mobile = params.mobile;
                 }
+                if (params.email) {
+                    userData.email = params.email;
+                }
 
                 if (modifyName) {
-                    userData.is_allow_update_name = false;
+                    userData.allowUpdateName = false;
                 }
 
                 asyncOp.resolve();

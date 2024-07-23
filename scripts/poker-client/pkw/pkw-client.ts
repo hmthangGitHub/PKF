@@ -151,7 +151,7 @@ export class PKWClient implements IPokerClient {
             sportsTrialCoinExpiration: 0,
             sportsBettingBalance: 0,
 
-            is_allow_update_name: loginData.is_allow_update_name
+            allowUpdateName: loginData.is_allow_update_name
         };
 
         // create domain info

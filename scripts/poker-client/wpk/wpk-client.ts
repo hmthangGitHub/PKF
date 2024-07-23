@@ -147,8 +147,7 @@ export class WPKClient implements IPokerClient {
             sportsTrialCoin: 0,
             sportsTrialCoinExpiration: 0,
             sportsBettingBalance: 0,
-
-            is_allow_update_name: loginData.is_allow_update_name
+            allowUpdateName: loginData.is_allow_update_name
         };
 
         // create domain info

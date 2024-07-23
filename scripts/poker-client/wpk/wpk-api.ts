@@ -84,5 +84,5 @@ export interface LoginData extends ResposeData {
     user: UserInfo;
     userSecurityInfo: UserSecurityInfo;
     pkwAuthData: PkwAuthData;
-    is_allow_update_name: boolean;
+    is_allow_update_name?: boolean;
 }
