@@ -315,6 +315,7 @@ export interface SocketNotifications {
     calmDownConfirm: (notify: INoticeCalmDownConfirmResult) => void;
     rebateEventStatus: () => void;
     noticeLogIn: (notify: INoticeLogin) => void;
+    duplicatedLogIn: () => void;
 
     /// jackpot
     noticeCurrentRoomJackpot: (notify: INoticeCurrentRoomJackpot) => void;

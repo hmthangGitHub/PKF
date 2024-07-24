@@ -937,6 +937,12 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             this.handleNoticeLogin.bind(this)
         );
 
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_DupLogin_Notice,
+            pb.DupLoginNotice,
+            this.handleDuplicatedLogin.bind(this)
+        );
+
         // no protobuf class needed for MsgId_Rebate_GetEventStatus_Notice
         this._messageHandlers.set(pb.MSGID.MsgId_Rebate_GetEventStatus_Notice, (msg) => {
             this.handleRebateEventStatusNotify();
@@ -945,6 +951,10 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleNoticeLogin(protobuf: pb.INoticeLogin) {
         this._notification.emit('noticeLogIn', protobuf);
+    }
+
+    protected handleDuplicatedLogin(): void {
+        this._notification.emit('duplicatedLogIn');
     }
 
     protected handleClubCurrentBoardNotify(protobuf: pb.INoticeClubCurrentBoard) {
