@@ -1,5 +1,5 @@
 import type { Nullable } from '../core/core-index';
-import { AsyncOperation, EmittableService } from '../core/core-index';
+import { AsyncOperation, EmittableService, NotImplementError } from '../core/core-index';
 
 import type {
     IPokerClient,
@@ -8,7 +8,8 @@ import type {
     IUser,
     INoticeGetUserData,
     IResponseGetUserData,
-    IModifyPlayerParams
+    IModifyPlayerParams,
+    VerificationType
 } from '../poker-client/poker-client-index';
 
 export interface AuthEvents {
@@ -169,8 +170,16 @@ export class AuthService extends EmittableService<AuthEvents> {
             asyncOp.resolve(this._lastLoginData);
         }
 
-        // TODO 从后端获取最后一次登陆时间
+        // if (!this._client.getLoginTime) {
+        //     return Promise.reject<Date>(new NotImplementError('getLoginTime is not implement'));
+        // } else {
+        //     await this._client.getLoginTime().then(() => {
+        //         // TODO 本地存储查询到值
 
+        //     });
+        // }
+
+        // TODO 从后端获取最后一次登陆时间
         this._lastLoginData = new Date(); // 暂时用当前时间
         asyncOp.resolve(this._lastLoginData);
 
@@ -179,5 +188,23 @@ export class AuthService extends EmittableService<AuthEvents> {
 
     onDuplicatedLogin() {
         this.emit('duplicatedLogin');
+    }
+
+    /** 发送验证码 */
+    async sendVerificationCode(type: VerificationType, content: string): Promise<void> {
+        if (!this._client.sendVerificationCode) {
+            return Promise.reject(new NotImplementError('sendVerificationCode is not implement'));
+        } else {
+            return await this._client.sendVerificationCode(type, content);
+        }
+    }
+
+    /** 校验验证码 */
+    async verifyVerificationCode(type: VerificationType, content: string, code: string): Promise<void> {
+        if (!this._client.sendVerificationCode) {
+            return Promise.reject(new NotImplementError('verifyVerificationCode is not implement'));
+        } else {
+            return await this._client.verifyVerificationCode(type, content, code);
+        }
     }
 }

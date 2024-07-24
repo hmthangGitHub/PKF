@@ -12,7 +12,8 @@ import type {
     IModifyPlayerParams,
     INotificationSetParams,
     INotificationSetData,
-    IBonusItemData
+    IBonusItemData,
+    VerificationType
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
 import { PKWClient } from './pkw/pkw-client';
@@ -45,6 +46,10 @@ export interface IPokerClient {
     getBonusCenterDatas?: (webUrl: string) => Promise<IBonusItemData[]>;
 
     getLoginTime?: () => Promise<Date>;
+
+    sendVerificationCode?: (type: VerificationType, content: string) => Promise<void>;
+
+    verifyVerificationCode?: (type: VerificationType, content: string, code: string) => Promise<void>;
 }
 
 export class PokerClient {

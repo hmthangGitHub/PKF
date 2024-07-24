@@ -497,3 +497,8 @@ export enum DiscoverGameType {
     BLACKJACKPVP,
     JSNG
 }
+
+export enum VerificationType {
+    MOBLIE,
+    EMAIL
+}
