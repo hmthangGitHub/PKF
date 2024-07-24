@@ -14,6 +14,7 @@ import type {
 export interface AuthEvents {
     userData: () => void;
     modifyUserInfoSucc: () => void;
+    duplicatedLogin: () => void;
 }
 
 export class AuthService extends EmittableService<AuthEvents> {
@@ -44,6 +45,7 @@ export class AuthService extends EmittableService<AuthEvents> {
 
     registerNotificationHandlers() {
         this._client.getSocket().notification.on('userData', this.onUserDataNotify.bind(this));
+        this._client.getSocket().notification.on('duplicatedLogIn', this.onDuplicatedLogin.bind(this));
     }
 
     async getUserData(): Promise<IResponseGetUserData> {
@@ -144,5 +146,9 @@ export class AuthService extends EmittableService<AuthEvents> {
         asyncOp.resolve(this._lastLoginData);
 
         return asyncOp.promise;
+    }
+
+    onDuplicatedLogin() {
+        this.emit('duplicatedLogin');
     }
 }
