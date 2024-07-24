@@ -9,16 +9,10 @@ export class Base64Util {
     }
 
     encode(tInput) {
-        let chr1;
-        let chr2;
-        let chr3;
-        let enc1;
-        let enc2;
-        let enc3;
-        let enc4;
-        let output = '';
-        const input = this._utf8Encode(tInput);
         let i = 0;
+        let output = '';
+        let [chr1, chr2, chr3, enc1, enc2, enc3, enc4] = [0, 0, 0, 0, 0, 0, 0];
+        const input = this._utf8Encode(tInput);
         while (i < input.length) {
             chr1 = input.charCodeAt(i++);
             chr2 = input.charCodeAt(i++);
@@ -42,15 +36,9 @@ export class Base64Util {
         return output;
     }
     decode(tInput) {
-        let output = '';
-        let chr1;
-        let chr2;
-        let chr3;
-        let enc1;
-        let enc2;
-        let enc3;
-        let enc4;
         let i = 0;
+        let output = '';
+        let [chr1, chr2, chr3, enc1, enc2, enc3, enc4] = [0, 0, 0, 0, 0, 0, 0];
         const input = tInput.replace(/[^A-Za-z0-9\+\/\=]/g, '');
         while (i < input.length) {
             enc1 = this._keyStr.indexOf(input.charAt(i++));
@@ -92,11 +80,9 @@ export class Base64Util {
     }
 
     private _utf8Decode(utftext) {
-        let string = '';
         let i = 0;
-        let c = 0;
-        let c2 = 0;
-        let c3 = 0;
+        let string = '';
+        let [c, c2, c3] = [0, 0, 0];
         while (i < utftext.length) {
             c = utftext.charCodeAt(i);
             if (c < 128) {

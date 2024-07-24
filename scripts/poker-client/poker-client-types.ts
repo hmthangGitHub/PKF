@@ -424,7 +424,7 @@ export interface IModifyPlayerParams {
     avatar?: string;
 
     /** 在底层赋值 */
-    id?: number;
+    id?: number | string;
     avatar_thumb?: string;
     nick_name?: string;
     img_ext?: string;

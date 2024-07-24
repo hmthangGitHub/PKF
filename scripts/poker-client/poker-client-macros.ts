@@ -9,4 +9,15 @@ export namespace macros {
 
     /// tickinterval in milliseconds
     export const TICK_INTERVAL = 500;
+
+    export enum HttpEcdType {
+        /** 不加密 */
+        NULL = 'NULL',
+        /** 旧加密(coin5) */
+        COIN5 = 'COIN5',
+        /** 新加密（v3） */
+        V3 = 'V3',
+        /** 只用于测试 */
+        Test = 'Test'
+    }
 }
