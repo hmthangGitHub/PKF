@@ -170,18 +170,20 @@ export class AuthService extends EmittableService<AuthEvents> {
             asyncOp.resolve(this._lastLoginData);
         }
 
-        // if (!this._client.getLoginTime) {
-        //     return Promise.reject<Date>(new NotImplementError('getLoginTime is not implement'));
-        // } else {
-        //     await this._client.getLoginTime().then(() => {
-        //         // TODO 本地存储查询到值
-
-        //     });
-        // }
-
-        // TODO 从后端获取最后一次登陆时间
-        this._lastLoginData = new Date(); // 暂时用当前时间
-        asyncOp.resolve(this._lastLoginData);
+        if (!this._client.getLoginTime) {
+            return Promise.reject<Date>(new NotImplementError('getLoginTime is not implement'));
+        } else {
+            await this._client
+                .getLoginTime()
+                .then(() => {
+                    // TODO 本地存储查询到值
+                })
+                .catch((err) => {
+                    console.warn(err);
+                    this._lastLoginData = new Date(); // 暂时用当前时间
+                    asyncOp.resolve(this._lastLoginData);
+                });
+        }
 
         return asyncOp.promise;
     }
