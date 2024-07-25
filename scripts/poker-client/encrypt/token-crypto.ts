@@ -24,6 +24,10 @@ export class TokenCrypto {
         return this.loginkey;
     }
 
+    clearLoginKeys() {
+        this.loginkey = null;
+    }
+
     private _generateRSAKeys(): LoginKeys {
         const keypair = rs.KEYUTIL.generateKeypair('RSA', 2048);
         let publicKey = rs.KEYUTIL.getPEM(keypair.pubKeyObj);
