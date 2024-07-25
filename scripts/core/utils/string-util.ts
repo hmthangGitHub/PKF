@@ -904,6 +904,7 @@ export class StringUtil {
         tmpRichText.fontFamily = richTxt.fontFamily;
         tmpRichText.useSystemFont = richTxt.useSystemFont;
         tmpRichText.horizontalAlign = cc.macro.TextAlignment.LEFT;
+        // @ts-ignore
         tmpRichText.node['_activeInHierarchy'] = true; // 强制RichText去渲染
         tmpRichText.string = str;
         if (tmpRichText.node.width > limitWidth) {
