@@ -48,7 +48,7 @@ export class SecretKeyHelper {
         this.rng = new this._ecdhJs.SecureRandom();
     }
 
-    private setEcParams(name) {
+    private setEcParams(name: string) {
         let cure = this._ecdhJs.getSECCurveByName(name);
         this.q = cure.getCurve().getQ().toString();
         this.a = cure.getCurve().getA().toBigInteger().toString();
@@ -58,7 +58,7 @@ export class SecretKeyHelper {
         this.n = cure.getN().toString();
     }
 
-    private getCurve(q, a, b) {
+    private getCurve(q: string, a: string, b: string) {
         return new this._ecdhJs.ECCurveFp(
             new this._ecdhJs.BigInteger(q),
             new this._ecdhJs.BigInteger(a),
@@ -66,7 +66,7 @@ export class SecretKeyHelper {
         );
     }
 
-    private getG(curve) {
+    private getG(curve: any) {
         return new this._ecdhJs.ECPointFp(
             curve,
             curve.fromBigInteger(new this._ecdhJs.BigInteger(this.gx)),
@@ -143,7 +143,7 @@ export class SecretKeyHelper {
     }
 
     // 设置是否已经生成公钥
-    ecdhSetNeedGenKeyState(state): void {
+    ecdhSetNeedGenKeyState(state: boolean): void {
         this.bNeedGenKey = state;
     }
 

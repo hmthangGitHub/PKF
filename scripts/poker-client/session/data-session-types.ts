@@ -258,3 +258,16 @@ export interface IHandCardType {
     number: number;
     suit: number;
 }
+
+export interface IReplayInsuranceData {
+    Amount: number;
+    BoughtInsurancePlayerInfo: any[];
+    BuyOutsUd: number[];
+    IncuranceInfo: any;
+    InsuranceMode: number;
+    InsureWinBet: number;
+    Isbuyinsurance: boolean;
+    Option: number;
+    Round: number;
+    Shot: boolean;
+}

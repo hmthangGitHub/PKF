@@ -4,7 +4,7 @@ import type { IValueObject } from '../../pf';
 import { ValueObject, ValueObjectArray } from '../../pf';
 import type { IGameRecord, IPlayerRecord, IPokerHandData } from '../../poker-client/session/data-session-types';
 import { HandCardType } from './hand-card';
-import { ReplayData } from './replay-data';
+import { ReplayData, ReplayInsuranceData } from './replay-data';
 
 export class PokerHandData implements IValueObject {
     gameRecord: GameRecord | null = null;
@@ -22,7 +22,7 @@ export class PokerHandData implements IValueObject {
     nGameid: number | null = 0; // 当前游戏ID
     bAssociatedJackpot: boolean | null = true; // 是否有关联的JP
     objReplay: ReplayData | null = null; // 牌局回放数据串对象
-    objReplayInsurance: Object | null = null; // 保险回放数据串对象
+    objReplayInsurance: ReplayInsuranceData[] | null = []; // 保险回放数据串对象
     bForceShowcard: boolean | null = false; // 该手牌局是否开启"强制亮牌"功能
     bStarClosed: boolean | null = true; // 明星桌是否关闭(默认:true, 关闭后即为普通桌)
     vShowCardByStanderUID: number[] | null = []; // 旁观者发齐强制亮牌的uid数组
@@ -47,7 +47,7 @@ export class PokerHandData implements IValueObject {
         this.nGameid = data?.gameid ?? 0;
         this.bAssociatedJackpot = data?.is_associated_jackpot ?? false;
         this.objReplay = ValueObject.fromProto(ReplayData, data.replay);
-        this.objReplayInsurance = data?.replayinsurance ?? null;
+        ValueObjectArray.cloneFromProto(ReplayInsuranceData, this.objReplayInsurance, data.replayinsurance);
         this.bForceShowcard = data?.force_showcard ?? false;
         this.bStarClosed = true;
         this.nForceShowCoin = data?.force_show_coin ?? 0;

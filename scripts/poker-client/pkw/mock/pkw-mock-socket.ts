@@ -13,7 +13,7 @@ import { MockLuckTurntableData } from './mock-luck-turntable-data';
 import { MockRebateData } from './mock-rebate-data';
 
 export class PKWMockSocket extends PKWSocket {
-    private _resolveFunc = null;
+    private _resolveFunc: Function = null;
 
     constructor(websocketAdatper: WebSocketAdapter, session: ISession, options?: ISocketOptions) {
         super(websocketAdatper, session, options);

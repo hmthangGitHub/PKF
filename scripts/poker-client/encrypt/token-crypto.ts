@@ -25,14 +25,14 @@ export class TokenCrypto {
     }
 
     // decrypt the encrypted token from server
-    decryptToken(encryptedToken, priKey) {
+    decryptToken(encryptedToken: string, priKey: any) {
         let encryptedHex = Base64Util.getInstance().decode(encryptedToken);
         encryptedHex = rs.b64tohex(encryptedToken);
         const decryptedHex = rs.KJUR.crypto.Cipher.decrypt(encryptedHex, priKey, 'RSA');
         return decryptedHex;
     }
 
-    createClientOneTimeToken(decryptedToken, reqBody) {
+    createClientOneTimeToken(decryptedToken: string, reqBody: string) {
         const timestamp = Math.floor(new Date().getTime() / 1000);
         const md = new rs.KJUR.crypto.MessageDigest({ alg: 'md5', prov: 'cryptojs' });
         md.updateString(`${timestamp}${decryptedToken}${reqBody}`);

@@ -82,7 +82,7 @@ export enum NATIVE_KEY {
 }
 
 export class NativeMethodMap {
-    static METHOD_MAP = {
+    static METHOD_MAP: Record<number, any> = {
         // test
         [NATIVE_KEY.KEY_TEST_CALL]: {
             obj: 'org.cocos2dx.javascript.NativeCallTest',

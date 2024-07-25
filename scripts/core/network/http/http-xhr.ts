@@ -36,7 +36,7 @@ export class Http {
             xhr.responseType = responseType;
 
             if (this._options.headers) {
-                const headers = this._options.headers;
+                const headers = this._options.headers as Record<string, string>;
                 for (let key in headers) {
                     xhr.setRequestHeader(key, headers[key]);
                 }

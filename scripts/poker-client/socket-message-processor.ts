@@ -243,7 +243,7 @@ export class SocketMessageProcessor {
         this._secretKey = key;
     }
 
-    private _encryptBytes(content, secretKey): Uint8Array {
+    private _encryptBytes(content: Uint8Array, secretKey: string): Uint8Array {
         let keyBytes = CryptoJS.enc.Utf8.parse(secretKey);
         let srcsBytes = this._int8parse(content);
 
@@ -255,7 +255,7 @@ export class SocketMessageProcessor {
         return this._base64ToBytes(encrypted.toString());
     }
 
-    private _decryptBytes(content, secretKey) {
+    private _decryptBytes(content: Uint8Array, secretKey: string) {
         const buffer = new Uint8Array(content);
         let keyBytes = CryptoJS.enc.Utf8.parse(secretKey);
 
@@ -285,7 +285,7 @@ export class SocketMessageProcessor {
         return new Uint8Array(result);
     }
 
-    private _intTobytes(value) {
+    private _intTobytes(value: number) {
         let a = new Uint8Array(4);
         a[0] = (value >> 24) & 0xff;
 
@@ -298,21 +298,20 @@ export class SocketMessageProcessor {
         return a;
     }
 
-    private _int8parse(u8arr) {
+    private _int8parse(u8arr: Uint8Array) {
         // Shortcut
         let len = u8arr.length | u8arr.byteLength;
 
         // Convert
-        let words = [];
+        let words: number[] = [];
         for (let i = 0; i < len; i++) {
-            let x = u8arr[i];
             words[i >>> 2] |= (u8arr[i] & 0xff) << (24 - (i % 4) * 8);
         }
 
         return CryptoJS.lib.WordArray.create(words, len);
     }
 
-    private _base64ToBytes(base64): Uint8Array {
+    private _base64ToBytes(base64: string): Uint8Array {
         // Use browser-native function if it exists
         let base64map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
         // Remove non-base-64 characters

@@ -3,6 +3,7 @@ import { ValueObject, ValueObjectArray } from '../../pf';
 import type {
     IReplayData,
     IReplayFlopData,
+    IReplayInsuranceData,
     IReplayPotInfo,
     IReplayPotsInfo,
     IReplayRoomInfo,
@@ -181,5 +182,31 @@ export class ReplayTableInfo implements IValueObject {
         this.sbSeat = data?.sb_seat ?? 0;
         this.showdownSeats = data?.showdown_seats ?? [];
         this.straddleSeat = data?.straddle_seat ?? 0;
+    }
+}
+
+export class ReplayInsuranceData implements IValueObject {
+    Amount: number;
+    BoughtInsurancePlayerInfo: any[];
+    BuyOutsUd: number[];
+    IncuranceInfo: any;
+    InsuranceMode: number;
+    InsureWinBet: number;
+    Isbuyinsurance: boolean;
+    Option: number;
+    Round: number;
+    Shot: boolean;
+
+    fromProto(data: IReplayInsuranceData) {
+        this.Amount = data?.Amount ?? 0;
+        this.BoughtInsurancePlayerInfo = data?.BoughtInsurancePlayerInfo ?? null;
+        this.BuyOutsUd = data?.BuyOutsUd ?? [];
+        this.IncuranceInfo = data?.IncuranceInfo ?? null;
+        this.InsuranceMode = data?.InsuranceMode ?? 0;
+        this.InsureWinBet = data?.InsureWinBet ?? 0;
+        this.Isbuyinsurance = data?.Isbuyinsurance ?? false;
+        this.Option = data?.Option ?? 0;
+        this.Round = data?.Round ?? 0;
+        this.Shot = data?.Shot ?? false;
     }
 }

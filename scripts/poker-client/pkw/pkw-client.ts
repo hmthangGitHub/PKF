@@ -222,7 +222,7 @@ export class PKWClient implements IPokerClient {
             data = searchParams.toString();
         } else if (signType === macros.HttpEcdType.V3) {
             const signV3Token = PKWUtil.createClientOneTimeV3Token(this._session.token, isBody ? data : '');
-            options.headers = options.headers || {};
+            options.headers = (options.headers as Record<string, string>) || {};
             options.headers['Authorization'] = signV3Token;
             options.headers['uid'] = this._session.userId?.toString();
         } else if (signType === macros.HttpEcdType.Test) {

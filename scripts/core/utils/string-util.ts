@@ -140,7 +140,7 @@ export class StringUtil {
     static formatC(str: string, ...arr: any[]): string {
         let i = 0;
         // eslint-disable-next-line complexity
-        let callback = function (exp, sign, min, precision, attach, type) {
+        let callback = function (exp: string, sign: any, min: any, precision: any, attach: any, type: any) {
             if (i < 0 || i >= arr.length) return;
 
             let preLen = !precision ? precision : parseInt(precision.substr(1));
@@ -189,21 +189,21 @@ export class StringUtil {
                 case 'F':
                     val = preLen
                         ? parseFloat(Util.Number(arr[i]).toString()).toFixed(preLen)
-                        : parseFloat(Util.Number(arr[i]).toString());
+                        : parseFloat(Util.Number(arr[i]).toString()).toString();
                     break;
 
                 case 'p':
                 case 'P':
                     val = preLen
                         ? parseFloat(Util.Number(arr[i]).toString()).toPrecision(preLen)
-                        : parseFloat(Util.Number(arr[i]).toString());
+                        : parseFloat(Util.Number(arr[i]).toString()).toString();
                     break;
 
                 case 'e':
                 case 'E':
                     val = preLen
                         ? parseFloat(Util.Number(arr[i]).toString()).toExponential(preLen)
-                        : parseFloat(Util.Number(arr[i]).toString());
+                        : parseFloat(Util.Number(arr[i]).toString()).toString();
                     break;
 
                 case 'ld':
@@ -220,7 +220,7 @@ export class StringUtil {
                 case 'LF':
                     val = preLen
                         ? parseFloat(Util.Number(arr[i]).toString()).toFixed(preLen)
-                        : parseFloat(Util.Number(arr[i]).toString());
+                        : parseFloat(Util.Number(arr[i]).toString()).toString();
                     break;
 
                 default:
@@ -396,7 +396,7 @@ export class StringUtil {
      * @param leftTime      剩余秒数
      * @param type          时间类型
      */
-    static countTime(leftTime, type: number): string {
+    static countTime(leftTime: number, type: number): string {
         let timeStr = '';
         let d;
         let h;
@@ -1087,7 +1087,7 @@ export class StringUtil {
      * 判断字符串是否为数字
      * @param val 字符串
      */
-    static isNumber(val): boolean {
+    static isNumber(val: string): boolean {
         let regPos = /^\d+(\.\d+)?$/; // 非负浮点数
         let regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/; // 负浮点数
         if (regPos.test(val) || regNeg.test(val)) {
@@ -1522,9 +1522,8 @@ export class StringUtil {
      * 去掉小数末尾的0  例1.0 =>1  1.150 =>1.15  1.200=>1.2
      * @param old
      */
-    static cutZero(old) {
+    static cutZero(old: string) {
         // 拷贝一份 返回去掉零的新串
-        old = old.toString();
         let newstr = old;
         // 循环变量 小数部分长度
         let leng = old.length - old.indexOf('.') - 1;

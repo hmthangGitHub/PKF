@@ -8,7 +8,7 @@ export class Base64Util {
         return this.instance;
     }
 
-    encode(tInput) {
+    encode(tInput: string) {
         let i = 0;
         let output = '';
         let [chr1, chr2, chr3, enc1, enc2, enc3, enc4] = [0, 0, 0, 0, 0, 0, 0];
@@ -35,7 +35,7 @@ export class Base64Util {
         }
         return output;
     }
-    decode(tInput) {
+    decode(tInput: string) {
         let i = 0;
         let output = '';
         let [chr1, chr2, chr3, enc1, enc2, enc3, enc4] = [0, 0, 0, 0, 0, 0, 0];
@@ -60,7 +60,7 @@ export class Base64Util {
         return output;
     }
 
-    private _utf8Encode(tstring) {
+    private _utf8Encode(tstring: string) {
         let string = tstring.replace(/\r\n/g, '\n');
         let utftext = '';
         for (let n = 0; n < string.length; n++) {
@@ -79,7 +79,7 @@ export class Base64Util {
         return utftext;
     }
 
-    private _utf8Decode(utftext) {
+    private _utf8Decode(utftext: string) {
         let i = 0;
         let string = '';
         let [c, c2, c3] = [0, 0, 0];
