@@ -8,7 +8,6 @@ interface LoginKeys {
 
 export class TokenCrypto {
     private static _instance: TokenCrypto = null;
-    private loginkey: LoginKeys = null;
 
     static getInstance(): TokenCrypto {
         if (!this._instance) {
@@ -17,30 +16,19 @@ export class TokenCrypto {
         return this._instance;
     }
 
-    getLoginKeys(): LoginKeys {
-        if (!this.loginkey) {
-            this.loginkey = this._generateRSAKeys();
-        }
-        return this.loginkey;
-    }
-
-    clearLoginKeys() {
-        this.loginkey = null;
-    }
-
-    private _generateRSAKeys(): LoginKeys {
+    generateRSAKeys(): LoginKeys {
         const keypair = rs.KEYUTIL.generateKeypair('RSA', 2048);
         let publicKey = rs.KEYUTIL.getPEM(keypair.pubKeyObj);
         // Base64Util.getInstance().encode(publicKey);
         publicKey = Base64Util.getInstance().encode(publicKey);
-        return { priKey: keypair.prvKeyObj, pubKey: publicKey };
+        return { priKey: keypair.prvKeyObj, pubKey: publicKey } as LoginKeys;
     }
 
     // decrypt the encrypted token from server
-    decryptToken(encryptedToken) {
+    decryptToken(encryptedToken, priKey) {
         let encryptedHex = Base64Util.getInstance().decode(encryptedToken);
         encryptedHex = rs.b64tohex(encryptedToken);
-        const decryptedHex = rs.KJUR.crypto.Cipher.decrypt(encryptedHex, this.loginkey.priKey, 'RSA');
+        const decryptedHex = rs.KJUR.crypto.Cipher.decrypt(encryptedHex, priKey, 'RSA');
         return decryptedHex;
     }
 

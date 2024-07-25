@@ -140,14 +140,14 @@ export class PKWUtil {
 
     // =====================begin v3加解密 begin================================ //
     static async generateV3Keys() {
-        return TokenCrypto.getInstance().getLoginKeys();
+        return TokenCrypto.getInstance().generateRSAKeys();
     }
-    static async decryptV3Token(encryptedToken) {
+    static async decryptV3Token(encryptedToken, priKey) {
         // eslint-disable-next-line no-useless-concat
         let key: string = '@lnFi8' + '<eIKYazt:$_;' + 'MX9T/d(gk[JW3{Upcw';
         key = key.substring(0, 32);
         const base64Toket = PKWUtil.DecryptBase64(encryptedToken, key);
-        return md5(md5(TokenCrypto.getInstance().decryptToken(base64Toket)));
+        return md5(md5(TokenCrypto.getInstance().decryptToken(base64Toket, priKey)));
     }
     static createClientOneTimeV3Token(decryptedToken, reqBody) {
         return TokenCrypto.getInstance().createClientOneTimeToken(decryptedToken, reqBody);
