@@ -45,7 +45,7 @@ export interface IPokerClient {
 
     getBonusCenterDatas?: (webUrl: string) => Promise<IBonusItemData[]>;
 
-    getLoginTime?: () => Promise<Date>;
+    getLoginTime?: () => Promise<number>;
 
     sendVerificationCode?: (type: VerificationType, content: string) => Promise<void>;
 

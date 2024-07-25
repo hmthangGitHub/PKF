@@ -23,7 +23,7 @@ export class AuthService extends EmittableService<AuthEvents> {
 
     _client: IPokerClient;
 
-    private _lastLoginData: Date = null;
+    private _lastLoginTime: number = -1; // -1表示未从服务端获取，0表示获取不到
 
     // private _currentUser: Nullable<IUser> = null;
 
@@ -164,24 +164,27 @@ export class AuthService extends EmittableService<AuthEvents> {
         return asyncOp.promise;
     }
 
-    async getLastLogin(): Promise<Date> {
-        const asyncOp = new AsyncOperation<Date>();
-        if (this._lastLoginData) {
-            asyncOp.resolve(this._lastLoginData);
+    getLastLoginNum(): number {
+        return this._lastLoginTime;
+    }
+
+    async getLastLogin(): Promise<number> {
+        const asyncOp = new AsyncOperation<number>();
+        if (this._lastLoginTime !== -1) {
+            asyncOp.resolve(this._lastLoginTime);
         }
 
         if (!this._client.getLoginTime) {
-            return Promise.reject<Date>(new NotImplementError('getLoginTime is not implement'));
+            return Promise.reject<number>(new NotImplementError('getLoginTime is not implement'));
         } else {
             await this._client
                 .getLoginTime()
-                .then(() => {
-                    // TODO 本地存储查询到值
+                .then((time) => {
+                    this._lastLoginTime = time;
+                    asyncOp.resolve(time);
                 })
                 .catch((err) => {
-                    console.warn(err);
-                    this._lastLoginData = new Date(); // 暂时用当前时间
-                    asyncOp.resolve(this._lastLoginData);
+                    asyncOp.reject(err);
                 });
         }
 
