@@ -25,6 +25,12 @@ export interface IPokerClient {
 
     login(username: string, password: string, options?: RequestOtpions): Promise<ISession>;
 
+    signInWithOneTimeToken(token: string): Promise<ISession>;
+
+    signInWithSession(session: ISession): Promise<ISession>;
+
+    signInWithUserNameAndPassword(username: string, password: string): Promise<ISession>;
+
     getCurrentUser(): Nullable<IUser>;
 
     getDomains(): IDomainInfo[];

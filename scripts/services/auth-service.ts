@@ -44,6 +44,18 @@ export class AuthService extends EmittableService<AuthEvents> {
         return session;
     }
 
+    signInWithOneTimeToken(token: string): Promise<ISession> {
+        return this._client.signInWithOneTimeToken(token);
+    }
+
+    signInWithSession(session: ISession): Promise<ISession> {
+        return this._client.signInWithSession(session);
+    }
+
+    signInWithUserNameAndPassword(username: string, password: string): Promise<ISession> {
+        return this._client.signInWithUserNameAndPassword(username, password);
+    }
+
     registerNotificationHandlers() {
         this._client.getSocket().notification.on('userData', this.onUserDataNotify.bind(this));
         this._client.getSocket().notification.on('duplicatedLogIn', this.onDuplicatedLogin.bind(this));
