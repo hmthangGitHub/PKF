@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 require('url-search-params-polyfill');
 import type { Nullable } from '../../core/core-index';
-import { AsyncOperation, ServerError, Util } from '../../core/core-index';
+import { AsyncOperation, InvalidOperationError, ServerError, Util } from '../../core/core-index';
 import * as http from '../../core/network/http/http-index';
 import type { IPokerClient } from '../poker-client';
 import type {
@@ -170,6 +170,22 @@ export class PKWClient implements IPokerClient {
         });
 
         return this._session;
+    }
+
+    signInWithOneTimeToken(token: string): Promise<ISession> {
+        const asyncOp = new AsyncOperation<ISession>();
+        asyncOp.reject(new InvalidOperationError('pkw-client not implement signInWithOneTimeToken'));
+        return asyncOp.promise;
+    }
+
+    signInWithSession(session: ISession): Promise<ISession> {
+        const asyncOp = new AsyncOperation<ISession>();
+        asyncOp.reject(new InvalidOperationError('pkw-client not implement signInWithSession'));
+        return asyncOp.promise;
+    }
+
+    signInWithUserNameAndPassword(username: string, password: string): Promise<ISession> {
+        return this.login(username, password);
     }
 
     getCurrentUser(): Nullable<IUser> {

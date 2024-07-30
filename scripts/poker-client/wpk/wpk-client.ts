@@ -1,6 +1,6 @@
 require('url-search-params-polyfill');
 import type { Nullable } from '../../core/defines/types';
-import { NotImplementError, ServerError } from '../../core/defines/errors';
+import { InvalidOperationError, NotImplementError, ServerError } from '../../core/defines/errors';
 import type { IPokerClient } from '../poker-client';
 import type {
     IClientOptions,
@@ -21,6 +21,7 @@ import { WPKSocket } from './wpk-socket';
 import { WPKUtil } from './wpk-util';
 import { Util } from '../../core/utils/util';
 import { WebSocketAdapter } from '../websocket-adapter';
+import { AsyncOperation } from '../../pf';
 
 export class WPKClient implements IPokerClient {
     _deviceType: number;
@@ -166,6 +167,24 @@ export class WPKClient implements IPokerClient {
         });
 
         return session;
+    }
+
+    signInWithOneTimeToken(token: string): Promise<ISession> {
+        const asyncOp = new AsyncOperation<ISession>();
+        asyncOp.reject(new InvalidOperationError('wpk-client not implement signInWithOneTimeToken'));
+        return asyncOp.promise;
+    }
+
+    signInWithSession(session: ISession): Promise<ISession> {
+        const asyncOp = new AsyncOperation<ISession>();
+        asyncOp.reject(new InvalidOperationError('wpk-client not implement signInWithSession'));
+        return asyncOp.promise;
+    }
+
+    signInWithUserNameAndPassword(username: string, password: string): Promise<ISession> {
+        const asyncOp = new AsyncOperation<ISession>();
+        asyncOp.reject(new InvalidOperationError('wpk-client not implement signInWithUserNameAndPassword'));
+        return asyncOp.promise;
     }
 
     getCurrentUser(): Nullable<IUser> {
