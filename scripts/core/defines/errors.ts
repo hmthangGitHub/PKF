@@ -83,23 +83,23 @@ export class LoadRemoteManifestFailedError extends Error {
     }
 }
 
-export class NoBoundleFoundError extends Error {
+export class NoBundleFoundError extends Error {
     constructor(message: string) {
         super(message);
-        this.name = 'NoBoundleFoundError';
+        this.name = 'NoBundleFoundError';
     }
 }
 
-export class UpdateBoundleManifestFailedError extends Error {
+export class UpdateBundleManifestFailedError extends Error {
     constructor(message: string) {
         super(message);
-        this.name = 'UpdateBoundleManifestFailedError';
+        this.name = 'UpdateBundleManifestFailedError';
     }
 }
 
-export class UpdateBoundleFailedError extends Error {
+export class UpdateBundleFailedError extends Error {
     constructor(message: string) {
         super(message);
-        this.name = 'UpdateBoundleFailedError';
+        this.name = 'UpdateBundleFailedError';
     }
 }

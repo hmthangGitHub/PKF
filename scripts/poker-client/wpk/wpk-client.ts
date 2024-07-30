@@ -47,7 +47,7 @@ export class WPKClient implements IPokerClient {
         if (options) {
             Object.assign(opts, options);
         }
-        if(opts.scheme) {
+        if (opts.scheme) {
             this._baseUrl = `${opts.scheme}${host}`;
         } else {
             this._baseUrl = `${this._scheme}${host}`;
