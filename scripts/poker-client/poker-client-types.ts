@@ -371,6 +371,7 @@ export interface IUser {
     totalAmount: number; // 用户总金额
     usdt: number; // 用户usdt数量
     depositUsdt: number; // 存储usdt
+    diamond: number;
     priorityAreaCode: string; // 手机区号，优先绑定的
     priorityMobile: string; // 手机号，优先绑定的
     systemTime: number; // 当前系统时间戳 秒级
@@ -470,7 +471,7 @@ export enum CreateGameMode {
 export enum CurrencyType {
     GOLD = 0,
     USDT = 101,
-    SWEP = 105
+    SWEP = 105 // same as diamond value from server
 }
 
 export enum GameSizeType {

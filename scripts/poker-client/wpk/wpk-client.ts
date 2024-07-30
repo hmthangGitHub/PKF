@@ -141,6 +141,7 @@ export class WPKClient implements IPokerClient {
             totalAmount: 0,
             usdt: 0,
             depositUsdt: 0,
+            diamond: 0,
             priorityAreaCode: '',
             priorityMobile: '',
             systemTime: 0,

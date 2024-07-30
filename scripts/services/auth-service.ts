@@ -85,6 +85,7 @@ export class AuthService extends EmittableService<AuthEvents> {
         this.currentUser.depositGold = notify.deposit_gold ?? 0;
         this.currentUser.usdt = notify.usdt ?? 0;
         this.currentUser.depositUsdt = notify.deposit_usdt ?? 0;
+        this.currentUser.diamond = notify.diamond ?? 0;
         this.currentUser.priorityAreaCode = notify.areaCode ?? '';
         this.currentUser.priorityMobile = notify.mobile2 ?? '';
         this.currentUser.sportsTrialCoin = notify.sports_trial_coin?.coins ?? 0;
