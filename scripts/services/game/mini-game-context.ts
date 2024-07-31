@@ -17,5 +17,7 @@ export class MiniGameContext implements IGameContext {
     isSelfRecharge = false; // 小游戏点击充值切换场景操作
     backToMainTips = '';
 
+    updateWallet: () => void;
+
     exitCallback: () => void;
 }
