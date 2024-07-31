@@ -413,11 +413,6 @@ export interface IDomainInfo {
     imageServerWpto: string;
 }
 
-export interface IDocPromise {
-    docName: string;
-    content: string;
-}
-
 export interface IModifyPlayerParams {
     /** 在外部赋值 */
     nickname?: string;
@@ -443,18 +438,6 @@ export interface INotificationSetData {
     useEmail?: boolean;
     useSms?: boolean;
     sendLoginNotification?: boolean;
-}
-
-export interface IBonusItemData {
-    bonusName: string;
-    description: string;
-    createTime: number;
-    expireTime: number;
-    totalAmount: string;
-    realizedAmount: string;
-    bonusPoints?: string;
-    currency?: string;
-    status?: string;
 }
 
 /**

@@ -8,11 +8,9 @@ import type {
     PlatformType,
     IUser,
     IDomainInfo,
-    IDocPromise,
     IModifyPlayerParams,
     INotificationSetParams,
     INotificationSetData,
-    IBonusItemData,
     VerificationType
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
@@ -46,10 +44,6 @@ export interface IPokerClient {
     getNotificationSettings?: (webUrl: string) => Promise<INotificationSetData>;
 
     setNotificationSettings?: (webUrl: string, params: INotificationSetParams) => Promise<void>;
-
-    getLegalDocs?: (webUrl: string, docName: string, version: number) => Promise<IDocPromise>;
-
-    getBonusCenterDatas?: (webUrl: string) => Promise<IBonusItemData[]>;
 
     getLoginTime?: () => Promise<number>;
 
