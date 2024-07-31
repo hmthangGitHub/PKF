@@ -1,4 +1,4 @@
-import * as infra from 'poker-infra';
+import { BUNDLE_TYPE } from '../defines/enums';
 
 export enum BundleState {
     Unload,
@@ -26,7 +26,7 @@ export class BundleEntry {
 
     private _state = BundleState.Unload;
 
-    bundleType: infra.BUNDLE_TYPE = infra.BUNDLE_TYPE.BUNDLE_RESOURCE;
+    bundleType: BUNDLE_TYPE = BUNDLE_TYPE.BUNDLE_RESOURCE;
 
     onBeforeExit: () => void = null;
 

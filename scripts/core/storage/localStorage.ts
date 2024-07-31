@@ -1,10 +1,11 @@
-import * as infra from 'poker-infra';
+import type { Nullable } from './../defines/types';
+import { Module } from '../module/module-index';
 import { Util } from '../utils/util';
 
 const DEFAULT_MUSIC_VOLUME = 0.5;
 const DEFAULT_SOUND_EFFECT_VOLUME = 0.5;
 
-export class LocalStorage extends infra.Module {
+export class LocalStorage extends Module {
     static moduleName = 'LocalStorage';
 
     setItem<T>(key: string, value: T) {
@@ -12,7 +13,7 @@ export class LocalStorage extends infra.Module {
         cc.sys.localStorage.setItem(key, storeValue);
     }
 
-    getItem(key: string): infra.Nullable<string> {
+    getItem(key: string): Nullable<string> {
         return cc.sys.localStorage.getItem(key);
     }
 

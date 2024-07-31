@@ -1,10 +1,14 @@
-import * as infra from 'poker-infra';
+import { macros } from './defines/macros';
+import type { IModule, ModuleClass } from './module/module';
+import { ModuleManager } from './module/module-manager';
 import { BundleManager } from './asset/asset-index';
 import { UpdateManager } from './update/update-manager';
 import { AddressableAssetManager } from './addressable/addressable-asset-manager';
+
 import { AudioManager } from './audio/audio-manager';
 import { LocalStorage } from './storage/localStorage';
 import { LanguageManager } from './language/language-manager';
+import { ServiceManager } from './service/service-manager';
 import { System } from './system/system';
 import { App } from './app/app';
 import { NativeManager } from './native/native-manager';
@@ -19,72 +23,72 @@ class Core {
         this.registerModule(AudioManager);
         this.registerModule(LocalStorage);
         this.registerModule(LanguageManager);
-        this.registerModule(infra.ServiceManager);
+        this.registerModule(ServiceManager);
         this.registerModule(System);
         this.registerModule(NativeManager);
         this.registerModule(App);
     }
 
     get bundleManager(): BundleManager {
-        return infra.ModuleManager.instance.get(BundleManager);
+        return ModuleManager.instance.get(BundleManager);
     }
 
     get updateManager(): UpdateManager {
-        return infra.ModuleManager.instance.get(UpdateManager);
+        return ModuleManager.instance.get(UpdateManager);
     }
 
     get addressableAssetManager(): AddressableAssetManager {
-        return infra.ModuleManager.instance.get(AddressableAssetManager);
+        return ModuleManager.instance.get(AddressableAssetManager);
     }
 
     get audioManager(): AudioManager {
-        return infra.ModuleManager.instance.get(AudioManager);
+        return ModuleManager.instance.get(AudioManager);
     }
 
     get localStorage(): LocalStorage {
-        return infra.ModuleManager.instance.get(LocalStorage);
+        return ModuleManager.instance.get(LocalStorage);
     }
 
     get languageManager(): LanguageManager {
-        return infra.ModuleManager.instance.get(LanguageManager);
+        return ModuleManager.instance.get(LanguageManager);
     }
 
-    get serviceManager(): infra.ServiceManager {
-        return infra.ModuleManager.instance.get(infra.ServiceManager);
+    get serviceManager(): ServiceManager {
+        return ModuleManager.instance.get(ServiceManager);
     }
 
     get system(): System {
-        return infra.ModuleManager.instance.get(System);
+        return ModuleManager.instance.get(System);
     }
 
     get app(): App {
-        return infra.ModuleManager.instance.get(App);
+        return ModuleManager.instance.get(App);
     }
 
     get nativeManager(): NativeManager {
-        return infra.ModuleManager.instance.get(NativeManager);
+        return ModuleManager.instance.get(NativeManager);
     }
 
-    registerModule<T extends infra.IModule>(moduleClass: infra.ModuleClass<T>): void {
-        infra.ModuleManager.instance.register(moduleClass);
+    registerModule<T extends IModule>(moduleClass: ModuleClass<T>): void {
+        ModuleManager.instance.register(moduleClass);
     }
 
-    getModule<T extends infra.IModule>(module: infra.ModuleClass<T>): T | undefined {
-        return infra.ModuleManager.instance.get(module);
+    getModule<T extends IModule>(module: ModuleClass<T>): T | undefined {
+        return ModuleManager.instance.get(module);
     }
 
     init(): void {
         if (!this._isInit) {
-            console.log(`Poker Framework ${infra.macros.FRAMEWORK_VERSION} init`);
+            console.log(`Poker Framework ${macros.FRAMEWORK_VERSION} init`);
 
-            infra.ModuleManager.instance.init();
+            ModuleManager.instance.init();
             this._isInit = true;
         }
     }
 
     destroy(): void {
         if (this._isInit) {
-            infra.ModuleManager.instance.destroy();
+            ModuleManager.instance.destroy();
             this._isInit = false;
         }
     }

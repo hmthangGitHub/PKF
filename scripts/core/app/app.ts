@@ -1,5 +1,6 @@
-import * as infra from 'poker-infra';
+import { EmittableModule, ModuleManager } from '../module/module-index';
 import { NativeManager } from '../native/native-index';
+import type { Nullable } from '../defines/types';
 import { DeviceAPI } from '../../natives/natives-index';
 
 export interface IAppEvents {
@@ -11,23 +12,27 @@ export interface IAppEvents {
     hideWebview: () => void;
 }
 
-class GameContext implements infra.IGameContext {
+export interface IGameContext {
+    gameId: number;
+}
+
+class GameContext implements IGameContext {
     gameId: number;
 }
 
 /** Application state and events */
-export class App extends infra.EmittableModule<IAppEvents> {
+export class App extends EmittableModule<IAppEvents> {
     static moduleName = 'App';
 
-    private _gameContext: infra.Nullable<infra.IGameContext> = null;
-    set gameContext(context: infra.IGameContext) {
+    private _gameContext: Nullable<IGameContext> = null;
+    set gameContext(context: IGameContext) {
         this._gameContext = context;
     }
-    get gameContext(): infra.Nullable<infra.IGameContext> {
+    get gameContext(): Nullable<IGameContext> {
         return this._gameContext;
     }
 
-    getGameContext<T>(): infra.Nullable<T> {
+    getGameContext<T>(): Nullable<T> {
         return this._gameContext as T;
     }
 
@@ -42,7 +47,7 @@ export class App extends infra.EmittableModule<IAppEvents> {
         return this._currentScene;
     }
 
-    private _nativeManager: NativeManager = infra.ModuleManager.instance.get(NativeManager);
+    private _nativeManager: NativeManager = ModuleManager.instance.get(NativeManager);
 
     // NOTE: cc.game.on->pf notification->asia poker
     init(): void {

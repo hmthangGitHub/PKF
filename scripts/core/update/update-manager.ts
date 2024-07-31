@@ -1,16 +1,26 @@
-import * as infra from 'poker-infra';
+import type { Nullable } from '../defines/types';
 import { BundleManifest } from './bundle-manifest';
+import { Module, ModuleManager } from '../module/module-index';
 import { System } from '../system/system';
+import { http } from '../network/network-index';
 import type { UpdateProgressCallback } from './update-item';
 import { UpdateState, UpdateItem } from './update-item';
 import type { BundleEntry, IBundleOptions } from '../asset/asset-index';
 import { BundleManager } from '../asset/asset-index';
-
+import {
+    InvalidOperationError,
+    InternalError,
+    UpdateBoundleFailedError,
+    LoadRemoteManifestFailedError,
+    InvalidURL,
+    NoBoundleFoundError
+} from '../defines/errors';
+import { sleep } from '../async/async-index';
 
 const MANIFEST_FILENAME = 'bundle.json';
 const MAX_LOAD_REMOTE_MANIFEST_RETRY_COUNT = 5;
 
-export class UpdateManager extends infra.Module {
+export class UpdateManager extends Module {
     static moduleName = '[UpdateManager]';
 
     private _system: System = null;
@@ -29,8 +39,8 @@ export class UpdateManager extends infra.Module {
 
     init(): void {
         super.init();
-        this._system = infra.ModuleManager.instance.get(System);
-        this._bundleManager = infra.ModuleManager.instance.get(BundleManager);
+        this._system = ModuleManager.instance.get(System);
+        this._bundleManager = ModuleManager.instance.get(BundleManager);
 
         if (this._system.isNative) {
             this._storagePath = jsb.fileUtils.getWritablePath() + 'bundlecaches/';
@@ -72,9 +82,9 @@ export class UpdateManager extends infra.Module {
     async loadRemoteBundleManifest(): Promise<void> {
         if (this._localManifest.remoteManifestUrl.length < 0) {
             if (this._localManifest.bundleServerAddress.length < 0) {
-                throw new infra.NoBoundleFoundError('No bundle info found');
+                throw new NoBoundleFoundError('No bundle info found');
             }
-            throw new infra.InvalidURL('Remote manifest url is empty!!');
+            throw new InvalidURL('Remote manifest url is empty!!');
         }
 
         // retry for preventing network timeout
@@ -92,7 +102,7 @@ export class UpdateManager extends infra.Module {
                     throw err;
                 }
 
-                await infra.sleep(200);
+                await sleep(200);
             }
         }
     }
@@ -167,7 +177,7 @@ export class UpdateManager extends infra.Module {
         });
     }
 
-    getUpdateItem(bundle: string): infra.Nullable<UpdateItem> {
+    getUpdateItem(bundle: string): Nullable<UpdateItem> {
         return this._updateItems.get(bundle);
     }
 
@@ -190,7 +200,7 @@ export class UpdateManager extends infra.Module {
 
         if (updateItem.state !== UpdateState.UP_TO_DATE) {
             return Promise.reject(
-                new infra.InvalidOperationError(
+                new InvalidOperationError(
                     `invalid update state of bundle: ${updateItem.bundle} state: ${updateItem.state}`
                 )
             );
@@ -223,7 +233,7 @@ export class UpdateManager extends infra.Module {
 
         const errMsg = `${updateItem.bundle} is not ready to load. State: ${updateItem.state}`;
         cc.warn(errMsg);
-        return Promise.reject(new infra.InternalError(errMsg));
+        return Promise.reject(new InternalError(errMsg));
     }
 
     loadLocalManifest(): boolean {
@@ -264,7 +274,7 @@ export class UpdateManager extends infra.Module {
     private doLoadRemoteManifest(): Promise<BundleManifest> {
         return new Promise<any>((resolve, reject) => {
             if (this._localManifest.remoteManifestUrl.length <= 0) {
-                reject(new infra.InvalidURL('Remote manifest url is empty!!'));
+                reject(new InvalidURL('Remote manifest url is empty!!'));
             } else {
                 let url = this._localManifest.remoteManifestUrl;
                 if (this._localManifest.remoteManifestUrl.slice(-1) === '/') {
@@ -274,7 +284,7 @@ export class UpdateManager extends infra.Module {
 
                 cc.log('load remoteManifest ' + url);
 
-                infra.http.get(url)
+                http.get(url)
                     .then((resp) => {
                         const bundleManifest = new BundleManifest();
                         bundleManifest.fromJson(resp.data);
@@ -286,7 +296,7 @@ export class UpdateManager extends infra.Module {
                         const error = err as Error;
                         const msg = `loadRemoteManifest failed: ${error.message}`;
                         cc.warn(msg);
-                        reject(new infra.LoadRemoteManifestFailedError(msg));
+                        reject(new LoadRemoteManifestFailedError(msg));
                     });
             }
         });
@@ -300,14 +310,14 @@ export class UpdateManager extends infra.Module {
                 if (updateItem.state === UpdateState.READY_TO_UPDATE) {
                     await updateItem.download(onProgress);
                 } else if (updateItem.state === UpdateState.UPDATING && updateItem.canRetry) {
-                    await infra.sleep(300);
+                    await sleep(300);
                     await updateItem.download(onProgress);
                 } else if (updateItem.state === UpdateState.FAIL_TO_UPDATE && updateItem.canRetry) {
-                    await infra.sleep(300);
+                    await sleep(300);
                     await updateItem.retry();
                 } else {
                     return Promise.reject(
-                        new infra.UpdateBoundleFailedError(
+                        new UpdateBoundleFailedError(
                             `fail to update bundle: ${updateItem.bundle} state: ${updateItem.state}`
                         )
                     );
@@ -321,13 +331,13 @@ export class UpdateManager extends infra.Module {
                 this.saveLocalManifest();
                 return;
             } catch (err) {
-                if (err instanceof infra.InvalidOperationError) {
-                    return Promise.reject(new infra.UpdateBoundleFailedError(`fail to update bundle: ${err}`));
+                if (err instanceof InvalidOperationError) {
+                    return Promise.reject(new UpdateBoundleFailedError(`fail to update bundle: ${err}`));
                 }
 
                 if (!updateItem.canRetry && updateItem.state !== UpdateState.UPDATING) {
                     return Promise.reject(
-                        new infra.UpdateBoundleFailedError(
+                        new UpdateBoundleFailedError(
                             `fail to update bundle: ${updateItem.bundle} state: ${updateItem.state}`
                         )
                     );

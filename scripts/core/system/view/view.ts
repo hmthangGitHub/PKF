@@ -1,7 +1,7 @@
-import * as infra from 'poker-infra';
 import { App } from '../../app/app';
 import { AppClientType } from '../../app/app-enum';
 import { System } from '../system';
+import { ModuleManager } from '../../module/module-manager';
 import { NativeManager } from '../../native/native-manager';
 // NOTICE: 下面寫法會出錯
 // import {DeviceAPI} from "../../../natives/device-api/device-api";
@@ -129,10 +129,10 @@ export class View {
      * 设置横屏
      */
     setLandscape(): void {
-        const app = infra.ModuleManager.instance.get(App);
-        const nativeManager = infra.ModuleManager.instance.get(NativeManager);
+        const app = ModuleManager.instance.get(App);
+        const nativeManager = ModuleManager.instance.get(NativeManager);
         const deviceAPI = nativeManager.get(DeviceAPI);
-        const system = infra.ModuleManager.instance.get(System);
+        const system = ModuleManager.instance.get(System);
 
         /** NOTE: 如手機已是横屏，直接返回 */
         if (!(this._system.isMobile && this._system.isBrowser) && this.width > this.height) {
@@ -182,10 +182,10 @@ export class View {
      * 设置竖屏
      */
     setPortrait(noChange?: boolean): void {
-        const app = infra.ModuleManager.instance.get(App);
-        const nativeManager = infra.ModuleManager.instance.get(NativeManager);
+        const app = ModuleManager.instance.get(App);
+        const nativeManager = ModuleManager.instance.get(NativeManager);
         const deviceAPI = nativeManager.get(DeviceAPI);
-        const system = infra.ModuleManager.instance.get(System);
+        const system = ModuleManager.instance.get(System);
 
         if (
             system.view.height > system.view.width &&

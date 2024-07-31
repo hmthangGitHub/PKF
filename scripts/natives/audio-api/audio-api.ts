@@ -1,4 +1,4 @@
-import * as infra from 'poker-infra';
+import { ModuleManager } from '../../core/module/module-manager';
 import { NativeManager } from '../../core/native/native-manager';
 import { NativeSDK } from '../../core/native/native-sdk';
 
@@ -26,7 +26,7 @@ export class AudioAPI extends NativeSDK implements IAudioAPI {
     _audio: IAudioAPI;
 
     init() {
-        const nativeManager = infra.ModuleManager.instance.get(NativeManager);
+        const nativeManager = ModuleManager.instance.get(NativeManager);
         this._audio = nativeManager.get(AudioAPI);
     }
 

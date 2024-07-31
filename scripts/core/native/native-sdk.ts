@@ -1,4 +1,4 @@
-import * as infra from 'poker-infra';
+import { ModuleManager } from '../module/module-manager';
 import { System } from '../system/system';
 import { IOSNativeSDK } from './env/ios-native-sdk';
 import { AndroidNativeSDK } from './env/android-native-sdk';
@@ -29,20 +29,23 @@ export interface NativeInvokeAction {
 
 export class NativeSDK implements INativeSDK {
     nativeName = 'NativeSDK';
-    _system = infra.ModuleManager.instance.get<System>(System);
+    _system = ModuleManager.instance.get<System>(System);
     targetNativeSDK: SYNativeSDK | IOSNativeSDK | AndroidNativeSDK;
 
     init(): void {
         cc.log('[pf][NativeSDK] targetNativeSDK1: ', this.targetNativeSDK);
         if (this.targetNativeSDK) return;
+        cc.log('[pf][NativeSDK] targetNativeSDK2: ', this.targetNativeSDK);
+
         if (!this._system.isNative) {
             this.targetNativeSDK = new SYNativeSDK(this);
         } else if (this._system.isNative && this._system.isIOS) {
+            cc.log('[pf][NativeSDK] targetNativeSDK-ios');
             this.targetNativeSDK = new IOSNativeSDK(this);
+            cc.log('[pf][NativeSDK] targetNativeSDK3: ', this.targetNativeSDK);
         } else if (this._system.isNative && this._system.isAndroid) {
             this.targetNativeSDK = new AndroidNativeSDK(this);
         }
-        cc.log('[pf][NativeSDK] targetNativeSDK1: ', this.targetNativeSDK);
         // TODO: Simulator need to merge into each app os.
         // else {
         //     targetNativeSDK = this.callSimulatorEvent(nativeKey, action.respMsgKey);
@@ -108,7 +111,7 @@ export class NativeSDK implements INativeSDK {
     // NOTICE: 不知何時會使用
     // NOTE: web端 webview不支持ccjs回调，通过postMessage统一回调,e.data为返回的数据
     static webCcjsCallback(e: any) {
-        const system = infra.ModuleManager.instance.get(System);
+        const system = ModuleManager.instance.get(System);
         if (system?.isBrowser) {
             // if (cv.tools.isJSONString(e.data) && (JSON.parse(e.data)).url && (JSON.parse(e.data)).url.indexOf('h5StreamLive') != -1) {
             // cv.MessageCenter.send("on_h5StreamLiveCallback", e.data);

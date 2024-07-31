@@ -1,0 +1,5 @@
+export enum BUNDLE_TYPE {
+    BUNDLE_RESOURCE,
+    BUNDLE_GAME,
+    BUNDLE_LOBBY
+}

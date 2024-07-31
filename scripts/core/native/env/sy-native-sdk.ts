@@ -1,7 +1,7 @@
-import * as infra from 'poker-infra';
 import type { NativeSDK } from '../native-sdk';
 import type { NativeInvokeAction } from '../native-sdk';
-import {App} from "../../app/app";
+import { App } from '../../app/app';
+import { ModuleManager } from '../../module/module-manager';
 
 export class SYNativeSDK {
     nativeName = 'SYNativeSDK';
@@ -84,7 +84,7 @@ export class SYNativeSDK {
 
             case '1009': // 切换前后台通知
                 {
-                    const app = infra.ModuleManager.instance.get<App>(App);
+                    const app = ModuleManager.instance.get<App>(App);
                     if (!app) return;
 
                     if (op === 0) {

@@ -1,17 +1,18 @@
-import * as infra from 'poker-infra';
+import type { Nullable } from './../defines/types';
 import { LanguageGroup } from './language-group';
+import { EmittableModule } from '../module/module-index';
 import { LANGUAGE_GROUPS } from './language-types';
 
 export interface LanguageEvents {
     languageChange: () => void;
 }
 
-export class LanguageManager extends infra.EmittableModule<LanguageEvents> {
+export class LanguageManager extends EmittableModule<LanguageEvents> {
     static moduleName = 'LanguageManager';
 
     private _languageGroups = new Map<string, LanguageGroup>();
 
-    private _currentLanguageGroup: infra.Nullable<LanguageGroup> = null;
+    private _currentLanguageGroup: Nullable<LanguageGroup> = null;
 
     private _currentLanguage: string = LANGUAGE_GROUPS.zh_CN;
     get currentLanguage() {

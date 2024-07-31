@@ -1,9 +1,10 @@
-import * as infra from 'poker-infra';
+import { Module } from '../module/module';
 import { bundleEntryManager } from './bundle-entry-manager';
+import type { Nullable } from '../defines/defines-index';
 import type { IBundleOptions } from './bundle-entry';
 import { BundleEntry, BundleState } from './bundle-entry';
 
-export class BundleManager extends infra.Module {
+export class BundleManager extends Module {
     static moduleName = 'BundleManager';
 
     /** @description
@@ -129,7 +130,7 @@ export class BundleManager extends infra.Module {
         bundle?.releaseAll();
     }
 
-    getBundle(bundleOrName: cc.AssetManager.Bundle | string): infra.Nullable<cc.AssetManager.Bundle> {
+    getBundle(bundleOrName: cc.AssetManager.Bundle | string): Nullable<cc.AssetManager.Bundle> {
         return bundleOrName instanceof cc.AssetManager.Bundle ? bundleOrName : cc.assetManager.getBundle(bundleOrName);
     }
 

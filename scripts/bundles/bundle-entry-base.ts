@@ -1,4 +1,4 @@
-import * as infra from 'poker-infra';
+import type { Nullable } from '../core/core-index';
 import { BundleEntry, core } from '../core/core-index';
 
 const { languageManager, bundleManager, addressableAssetManager } = core;
@@ -7,11 +7,11 @@ const { languageManager, bundleManager, addressableAssetManager } = core;
 export class BundleEntryBase extends BundleEntry {
     protected _language = '';
 
-    protected getLanguageStringPath(): infra.Nullable<string> {
+    protected getLanguageStringPath(): Nullable<string> {
         return null;
     }
 
-    protected getAddressableConfigPath(): infra.Nullable<string> {
+    protected getAddressableConfigPath(): Nullable<string> {
         return null;
     }
 

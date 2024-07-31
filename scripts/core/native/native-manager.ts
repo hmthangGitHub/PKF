@@ -1,5 +1,6 @@
-import * as infra from 'poker-infra';
 import type { INativeSDK, NativeClass } from './native-sdk';
+import { Module } from '../module/module';
+import { ModuleManager } from '../module/module-manager';
 import { DeviceAPI } from '../../natives/device-api/device-api';
 import { System } from '../system/system';
 import { SYNativeSDK } from './env/sy-native-sdk';
@@ -12,7 +13,7 @@ import { AndroidNativeSDK } from './env/android-native-sdk';
 import { AndroidAudioApi } from '../../natives/audio-api/env/android-audio-api';
 import { AndroidVideoApi } from '../../natives/video-api/env/android-video-api';
 
-export class NativeManager extends infra.Module {
+export class NativeManager extends Module {
     static moduleName = 'native';
 
     private _natives: Map<string, INativeSDK> = new Map<string, INativeSDK>();
@@ -52,10 +53,10 @@ export class NativeManager extends infra.Module {
     }
 
     registerModules(): void {
-        const nativeManager = infra.ModuleManager.instance.get(NativeManager);
+        const nativeManager = ModuleManager.instance.get(NativeManager);
         nativeManager.register(DeviceAPI);
 
-        const system = infra.ModuleManager.instance.get(System);
+        const system = ModuleManager.instance.get(System);
 
         if (system.isBrowser) {
             window.clientToJs = SYNativeSDK.callback;

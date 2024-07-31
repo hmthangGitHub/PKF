@@ -1,4 +1,4 @@
-import * as infra from 'poker-infra';
+import { Module } from '../module/module-index';
 import { View } from './view/view';
 
 export interface IDeviceInfo {
@@ -15,7 +15,7 @@ export interface GeolocationCoordinates {
 }
 
 /** System variables */
-export class System extends infra.Module {
+export class System extends Module {
     static moduleName = 'System';
 
     init(): void {
