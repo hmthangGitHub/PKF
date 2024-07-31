@@ -1,14 +1,13 @@
-import type { Nullable } from './../defines/types';
-import { Module, ModuleManager } from '../module/module-index';
+import * as infra from 'poker-infra';
 import { AddressableAssetManager } from '../addressable/addressable-index';
 
 const DEFAULT_MUSIC_VOLUME = 0.5;
 const DEFAULT_SOUND_EFFECT_VOLUME = 0.5;
 
-export class AudioManager extends Module {
+export class AudioManager extends infra.Module {
     static moduleName = 'AudioManager';
 
-    private _addressableAssetManager: Nullable<AddressableAssetManager> = null;
+    private _addressableAssetManager: infra.Nullable<AddressableAssetManager> = null;
 
     // cache state of last played music
     private _latestMusic = '';
@@ -50,7 +49,7 @@ export class AudioManager extends Module {
 
     init(): void {
         super.init();
-        this._addressableAssetManager = ModuleManager.instance.get(AddressableAssetManager);
+        this._addressableAssetManager = infra.ModuleManager.instance.get(AddressableAssetManager);
     }
 
     playMusic(key: string, loop = true): void {

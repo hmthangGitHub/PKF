@@ -1,4 +1,4 @@
-import { ModuleManager } from '../../core/module/module-manager';
+import * as infra from 'poker-infra';
 import type { GeolocationCoordinates, IDeviceInfo } from '../../core/system/system';
 import { System } from '../../core/system/system';
 import { NativeSDK } from '../../core/native/native-sdk';
@@ -23,7 +23,7 @@ export class DeviceAPI extends NativeSDK implements IDeviceAPI {
 
     init() {
         super.init();
-        this._system = ModuleManager.instance.get(System);
+        this._system = infra.ModuleManager.instance.get(System);
     }
 
     destroy() {

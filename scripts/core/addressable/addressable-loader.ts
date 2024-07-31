@@ -1,7 +1,7 @@
+import * as infra from "poker-infra";
 import { AddressableAssetManager } from './addressable-asset-manager';
 import { LocationIndicator } from './asset-locator';
 import type { IAssetLocator } from './asset-locator';
-import { ModuleManager } from '../module/module-manager';
 import { BundleManager } from '../asset/bundle-manager';
 
 enum LoadState {
@@ -47,8 +47,8 @@ export class AddressalbeAssetLoader {
     _bundleManger: BundleManager = null;
 
     constructor() {
-        this._assetManger = ModuleManager.instance.get(AddressableAssetManager);
-        this._bundleManger = ModuleManager.instance.get(BundleManager);
+        this._assetManger = infra.ModuleManager.instance.get(AddressableAssetManager);
+        this._bundleManger = infra.ModuleManager.instance.get(BundleManager);
     }
 
     get totalCount(): number {

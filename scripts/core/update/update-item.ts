@@ -1,8 +1,5 @@
-import type { Nullable } from '../defines/types';
+import * as infra from 'poker-infra';
 import { System } from '../system/system';
-import { ModuleManager } from '../module/module-index';
-import { AsyncOperation } from '../async/async-operation';
-import { InternalError, InvalidOperationError } from '../defines/errors';
 
 export enum UpdateState {
     UNINITED,
@@ -38,7 +35,7 @@ export class UpdateItem {
 
     private _updating = false;
 
-    private _asyncOp: Nullable<AsyncOperation> = null;
+    private _asyncOp: infra.Nullable<infra.AsyncOperation> = null;
 
     private _storagePath = '';
 
@@ -50,7 +47,7 @@ export class UpdateItem {
 
     private _retryCount = 0;
 
-    private _progressCallback: Nullable<UpdateProgressCallback> = null;
+    private _progressCallback: infra.Nullable<UpdateProgressCallback> = null;
 
     constructor(
         bundle: string,
@@ -58,7 +55,7 @@ export class UpdateItem {
         packageUrl: string,
         versionCompareHandle?: (versionA: string, versionB: string) => number
     ) {
-        this._system = ModuleManager.instance.get(System);
+        this._system = infra.ModuleManager.instance.get(System);
         this._bundle = bundle;
         this._packageUrl = packageUrl;
 
@@ -114,7 +111,7 @@ export class UpdateItem {
 
         cc.log(`${this._bundle} assetManager state ${this._assetManager.getState()}`);
 
-        this._asyncOp = new AsyncOperation();
+        this._asyncOp = new infra.AsyncOperation();
 
         cc.log(`${this._bundle} load local manifest`);
         let content = this.loadLocalManifestContent();
@@ -140,7 +137,7 @@ export class UpdateItem {
 
         if (!this._assetManager.getLocalManifest() || !this._assetManager.getLocalManifest().isLoaded()) {
             cc.warn(`${this._bundle} load custom manifest failed.`);
-            return Promise.reject(new InternalError(`${this._bundle} load custom manifest failed.`));
+            return Promise.reject(new infra.InternalError(`${this._bundle} load custom manifest failed.`));
         }
 
         this._assetManager.setEventCallback(this.checkCb.bind(this));
@@ -153,7 +150,7 @@ export class UpdateItem {
 
     download(onProgress?: UpdateProgressCallback): Promise<void> {
         if (this._updating) {
-            return Promise.reject(new InvalidOperationError(`${this._bundle} is updating ...`));
+            return Promise.reject(new infra.InvalidOperationError(`${this._bundle} is updating ...`));
         }
 
         if (this._assetManager.getState() === jsb.AssetsManager.State.READY_TO_UPDATE) {
@@ -168,7 +165,7 @@ export class UpdateItem {
             return this.retry();
         } else {
             return Promise.reject(
-                new InvalidOperationError(
+                new infra.InvalidOperationError(
                     `[${
                         this._bundle
                     }] Invalid state: ${this._assetManager.getState()}. Call checkUpdate() before call this function`
@@ -177,7 +174,7 @@ export class UpdateItem {
         }
 
         this._updating = true;
-        this._asyncOp = new AsyncOperation();
+        this._asyncOp = new infra.AsyncOperation();
 
         this._assetManager.setEventCallback(this.updateCb.bind(this));
         this._progressCallback = onProgress;
@@ -190,14 +187,14 @@ export class UpdateItem {
         if (this._canRetry && !this._updating) {
             this._retryCount++;
             cc.log(`${this._bundle} download retry count: ${this._retryCount}`);
-            this._asyncOp = new AsyncOperation();
+            this._asyncOp = new infra.AsyncOperation();
             this._assetManager.setEventCallback(this.updateCb.bind(this));
             this._canRetry = false;
             this._assetManager.downloadFailedAssets();
             return this._asyncOp.promise;
         }
 
-        return Promise.reject(new InvalidOperationError(`${this._bundle} cannot re-download`));
+        return Promise.reject(new infra.InvalidOperationError(`${this._bundle} cannot re-download`));
     }
 
     resetRetryCount(): void {
