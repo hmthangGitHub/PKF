@@ -24,7 +24,9 @@ export enum GameId {
     World = 1,
     Texas = 2,
     StarSeat = 3,
+    TexasCriticism = 5,
     DataServer = 10101,
+    RebateServer = 10102,
     CowBoy = 10,
     Allin = 20,
     HumanBoy = 30,
@@ -36,15 +38,21 @@ export enum GameId {
     Jackfruit = 80,
     PLO = 90,
     BlMtt = 900,
+    BlSpin = 901,
     Sports = 1000,
     TopMatches = 1001,
     PocketGames = 1010,
+    PPGames = 1030,
     BlackJackDual = 1020,
     BlackJack = 1021,
     OBGames = 1100,
+    SquidGame = 5001,
+    SquidGameCriticism = 5002,
     CaribbeanStud = 6001,
     CaribbeanTexasHold = 6002,
     WealthTrio = 6003,
+    BitMasterGoldCoin = 6004,
+    BitMasterUSD = 6005,
     ISlot = 6100
 }
 
@@ -323,6 +331,7 @@ export interface IClientOptions extends ISystemInfoOptions {
     baseURL?: string;
     deviceType?: number | string;
     deviceId?: string;
+    isSnapShotV2?: boolean;
 }
 
 export interface ILinkOptions {
@@ -451,20 +460,6 @@ export enum CreateGameMode {
     CreateGame_Mode_Other //
 }
 
-export enum CurrencyType {
-    GOLD = 0,
-    USDT = 101,
-    SWEP = 105 // same as diamond value from server
-}
-
-export enum GameSizeType {
-    None = 0,
-    Micro = 1,
-    Small = 2,
-    Medium = 3,
-    High = 4
-}
-
 export enum DiscoverGameType {
     ALL = 0,
     DZPK,
@@ -482,4 +477,24 @@ export enum DiscoverGameType {
 export enum VerificationType {
     MOBLIE,
     EMAIL
+}
+
+export enum GameLevelEnum {
+    GameLevelEnumNone = 0,
+    GameLevelEnumMicro = 1,
+    GameLevelEnumSmall = 2,
+    GameLevelEnumMedium = 3,
+    GameLevelEnumHigh = 4
+}
+
+export enum CurrencyType {
+    CurrencyTypeGold = 0, // GoldCoin
+    CurrencyTypeUSD = 101,
+    CurrencyTypeDiamond = 105 // SwepCoin
+}
+
+export enum RoomMode {
+    RoomModeNone = 0, // 一般
+    RoomModeLoose = 1, // 松浪
+    RoomModeBomb = 2 // 暴击
 }

@@ -693,7 +693,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         const responseProto = response.payload;
 
-        // this.checkResponseCode(responseProto.error, 'getClubCurrentBoard');
+        this.checkResponseCode(responseProto.error, 'getClubCurrentBoard');
 
         return responseProto;
     }

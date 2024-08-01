@@ -18,6 +18,7 @@ import { SystemInfo } from '../poker-client-types';
 import type { ISocket } from '../poker-socket';
 import { PKWSession } from './pkw-session';
 import { PKWSocket } from './pkw-socket';
+import { PKWSocketV2 } from './pkw-socket-v2';
 import { PKWUtil } from './pkw-util';
 import {
     type IRequestParams,
@@ -47,6 +48,8 @@ export class PKWClient implements IPokerClient {
     _user: Nullable<IUser> = null;
 
     _domains: IDomainInfo[] = [];
+
+    private _isSnapShotV2 = false;
 
     constructor(host: string, options?: IClientOptions) {
         const opts: IClientOptions = {
@@ -78,6 +81,8 @@ export class PKWClient implements IPokerClient {
         this._deviceId = opts.deviceId;
 
         Util.override(this._systemInfo, opts);
+
+        this._isSnapShotV2 = options?.isSnapShotV2;
     }
 
     link(session: ISession, options?: ILinkOptions): void {
@@ -258,9 +263,13 @@ export class PKWClient implements IPokerClient {
         const opts = { ...this._systemInfo, options };
         const isMock = opts?.options?.isMock ?? false;
 
-        this._socket = isMock
-            ? new PKWMockSocket(new WebSocketAdapter(), this._session, opts)
-            : new PKWSocket(new WebSocketAdapter(), this._session, opts);
+        if (isMock) {
+            this._socket = new PKWMockSocket(new WebSocketAdapter(), this._session, opts);
+        } else {
+            this._socket = this._isSnapShotV2
+                ? new PKWSocketV2(new WebSocketAdapter(), this._session, opts)
+                : new PKWSocket(new WebSocketAdapter(), this._session, opts);
+        }
         return this._socket;
     }
 

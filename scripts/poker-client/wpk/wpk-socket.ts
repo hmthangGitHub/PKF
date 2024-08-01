@@ -63,6 +63,8 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     private _externalWebSocket: WebSocket = null;
 
     private _notification = new TypeSafeEventEmitter<SocketNotifications>();
+    private _heartBeatTimeout: Nullable<NodeJS.Timeout> = null;
+    protected _notification = new TypeSafeEventEmitter<SocketNotifications>();
 
     private _secretKeyHelper: SecretKeyHelper = null;
     get notification(): TypeSafeEventEmitter<SocketNotifications> {
@@ -598,7 +600,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
         const responseProto = response.payload;
 
-        // this.checkResponseCode(responseProto.error, 'getClubCurrentBoard');
+        this.checkResponseCode(responseProto.error, 'getClubCurrentBoard');
 
         return responseProto;
     }

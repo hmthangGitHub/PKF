@@ -1,7 +1,7 @@
 import type { ISocketOptions } from './poker-client-types';
 import type { GameSession, GameSessionClass } from './session/game-session';
 import type { TypeSafeEventEmitter } from '../core/event/event-emitter';
-import type { GameId, MsgType, MttNotifyType } from './poker-client-types';
+import type { GameId, MsgType, MttNotifyType, RoomMode, GameLevelEnum, CurrencyType } from './poker-client-types';
 import type { DataServerSession } from './session/data-session';
 
 export interface ILoginResponse {
@@ -300,6 +300,7 @@ export interface IServerExceptNotify {}
 
 export interface SocketNotifications {
     clubCurrentBoard: (notify: IClubCurrentBoardNotice) => void;
+    clubCurrentBoardV2: (notify: IClubCurrentBoardNoticeV2) => void;
     userGoldNum: (notify: INoticeNotifyUserGoldNum) => void;
     globalMessage: (notify: INoticeGlobalMessage) => void;
     timeout: () => void;
@@ -367,14 +368,6 @@ interface IStarData {
     status?: number | null;
 }
 
-export enum GameLevelEnum {
-    GameLevelEnumNone = 0,
-    GameLevelEnumMicro = 1,
-    GameLevelEnumSmall = 2,
-    GameLevelEnumMedium = 3,
-    GameLevelEnumHigh = 4
-}
-
 export interface ISnapshotClubGame {
     club_id?: number | null;
     game_mode?: number | null;
@@ -430,6 +423,43 @@ export interface ISnapshotClubGame {
     starseatStartTime?: number | null;
 }
 
+interface IClubGameSnapshotV2 {
+    game_id?: GameId | null;
+    room_id?: number | null;
+    iden_num?: number | null;
+    game_mode?: number | null;
+    room_mode?: RoomMode | null;
+    player_count?: number | null;
+    small_blind?: number | null;
+    big_blind?: number | null;
+    buyin_min?: number | null;
+    buyin_max?: number | null;
+    create_time?: number | null;
+    straddle?: boolean | null;
+    ante?: number | null;
+    player_count_max?: number | null;
+    rule_time_limit?: number | null;
+    start_time?: number | null;
+    extra_time?: number | null;
+    is_force_showcard?: boolean | null;
+    has_buyin?: number | null;
+    is_mirco?: number | null;
+    left_seatnum?: number | null;
+    anti_simulator?: boolean | null;
+    anti_simulator_ignore_cond?: number | null;
+    mvp_data?: IMvpData | null;
+    IscalcIncomePerhand?: boolean | null;
+    starData?: IStarData[] | null;
+    bystanderNum?: number | null;
+    currencyType?: CurrencyType | null;
+    red_envelope_switch?: boolean | null;
+    forceWithdrawMode?: boolean | null;
+    is_loose_mode_stick_on_top?: boolean | null;
+    starseatStartTime?: number | null;
+    stickOnLevelTab?: GameLevelEnum | null;
+    seat_status?: boolean[] | null;
+}
+
 export interface IFlagsFeature {
     shortdeck_visible_micro?: boolean | null;
     shortdeck_visible_small?: boolean | null;
@@ -443,6 +473,13 @@ export interface IFlagsFeature {
 
 export interface IClubCurrentBoardNotice {
     list?: ISnapshotClubGame[] | null;
+    total?: number | null;
+    page?: number | null;
+    flags?: IFlagsFeature | null;
+}
+
+export interface IClubCurrentBoardNoticeV2 {
+    list?: IClubGameSnapshotV2[] | null;
     total?: number | null;
     page?: number | null;
     flags?: IFlagsFeature | null;

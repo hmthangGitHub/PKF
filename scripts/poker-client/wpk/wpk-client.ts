@@ -18,6 +18,7 @@ import type { LoginData, PostParams, LoginParams } from './wpk-api';
 import * as http from '../../core/network/http/http-index';
 import { WPKSession } from './wpk-session';
 import { WPKSocket } from './wpk-socket';
+import { WPKSocketV2 } from './wpk-socket-v2';
 import { WPKUtil } from './wpk-util';
 import { Util } from '../../core/utils/util';
 import { WebSocketAdapter } from '../websocket-adapter';
@@ -37,6 +38,8 @@ export class WPKClient implements IPokerClient {
     _user: Nullable<IUser> = null;
 
     _domains: IDomainInfo[] = [];
+
+    private _isSnapShotV2 = false;
 
     constructor(host: string, options?: IClientOptions) {
         const opts: IClientOptions = {
@@ -65,6 +68,8 @@ export class WPKClient implements IPokerClient {
         this._deviceId = opts.deviceId;
 
         Util.override(this._systemInfo, opts);
+
+        this._isSnapShotV2 = options?.isSnapShotV2;
     }
 
     link(session: ISession, options?: ILinkOptions): void {
@@ -239,7 +244,10 @@ export class WPKClient implements IPokerClient {
 
     createSocket(options?: ISocketOptions): ISocket {
         const opts = { ...this._systemInfo, options };
-        this._socket = new WPKSocket(new WebSocketAdapter(), this._session, opts);
+
+        this._socket = this._isSnapShotV2
+            ? new WPKSocketV2(new WebSocketAdapter(), this._session, opts)
+            : new WPKSocket(new WebSocketAdapter(), this._session, opts);
         return this._socket;
     }
 
