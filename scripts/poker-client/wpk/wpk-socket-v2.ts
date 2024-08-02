@@ -30,6 +30,6 @@ export class WPKSocketV2 extends WPKSocket {
     }
 
     protected handleClubCurrentBoardNotify(protobuf: pb.INoticeClubCurrentBoardV2) {
-        this._notification.emit('clubCurrentBoardV2', protobuf);
+        this._notification.emit('clubCurrentBoard', protobuf);
     }
 }

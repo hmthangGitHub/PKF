@@ -299,8 +299,7 @@ interface IServerCloseNotify {
 export interface IServerExceptNotify {}
 
 export interface SocketNotifications {
-    clubCurrentBoard: (notify: IClubCurrentBoardNotice) => void;
-    clubCurrentBoardV2: (notify: IClubCurrentBoardNoticeV2) => void;
+    clubCurrentBoard: (notify: IClubCurrentBoardNotice | IClubCurrentBoardNoticeV2) => void;
     userGoldNum: (notify: INoticeNotifyUserGoldNum) => void;
     globalMessage: (notify: INoticeGlobalMessage) => void;
     timeout: () => void;
