@@ -331,7 +331,6 @@ export interface IClientOptions extends ISystemInfoOptions {
     baseURL?: string;
     deviceType?: number | string;
     deviceId?: string;
-    isSnapShotV2?: boolean;
 }
 
 export interface ILinkOptions {
@@ -339,8 +338,11 @@ export interface ILinkOptions {
     domains?: IDomainInfo[];
 }
 
+type SocketApiVersion = 'v1' | 'v2';
+
 export interface ISocketOptions extends ISystemInfoOptions {
     cert?: string;
+    socketApiVersion?: SocketApiVersion;
 }
 
 export interface RequestOtpions {

@@ -39,8 +39,6 @@ export class WPKClient implements IPokerClient {
 
     _domains: IDomainInfo[] = [];
 
-    private _isSnapShotV2 = false;
-
     constructor(host: string, options?: IClientOptions) {
         const opts: IClientOptions = {
             langauage: 'zh_CN',
@@ -68,8 +66,6 @@ export class WPKClient implements IPokerClient {
         this._deviceId = opts.deviceId;
 
         Util.override(this._systemInfo, opts);
-
-        this._isSnapShotV2 = options?.isSnapShotV2;
     }
 
     link(session: ISession, options?: ILinkOptions): void {
@@ -245,9 +241,10 @@ export class WPKClient implements IPokerClient {
     createSocket(options?: ISocketOptions): ISocket {
         const opts = { ...this._systemInfo, options };
 
-        this._socket = this._isSnapShotV2
-            ? new WPKSocketV2(new WebSocketAdapter(), this._session, opts)
-            : new WPKSocket(new WebSocketAdapter(), this._session, opts);
+        this._socket =
+            options?.socketApiVersion === 'v1'
+                ? new WPKSocket(new WebSocketAdapter(), this._session, opts)
+                : new WPKSocketV2(new WebSocketAdapter(), this._session, opts);
         return this._socket;
     }
 

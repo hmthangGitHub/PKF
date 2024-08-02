@@ -49,8 +49,6 @@ export class PKWClient implements IPokerClient {
 
     _domains: IDomainInfo[] = [];
 
-    private _isSnapShotV2 = false;
-
     constructor(host: string, options?: IClientOptions) {
         const opts: IClientOptions = {
             langauage: 'zh_CN',
@@ -81,8 +79,6 @@ export class PKWClient implements IPokerClient {
         this._deviceId = opts.deviceId;
 
         Util.override(this._systemInfo, opts);
-
-        this._isSnapShotV2 = options?.isSnapShotV2;
     }
 
     link(session: ISession, options?: ILinkOptions): void {
@@ -266,9 +262,10 @@ export class PKWClient implements IPokerClient {
         if (isMock) {
             this._socket = new PKWMockSocket(new WebSocketAdapter(), this._session, opts);
         } else {
-            this._socket = this._isSnapShotV2
-                ? new PKWSocketV2(new WebSocketAdapter(), this._session, opts)
-                : new PKWSocket(new WebSocketAdapter(), this._session, opts);
+            this._socket =
+                options?.socketApiVersion === 'v1'
+                    ? new PKWSocket(new WebSocketAdapter(), this._session, opts)
+                    : new PKWSocketV2(new WebSocketAdapter(), this._session, opts);
         }
         return this._socket;
     }
