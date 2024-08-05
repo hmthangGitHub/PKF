@@ -77,7 +77,6 @@ export class AddressableAssetManager extends Module {
 
     async loadAssetByLocation<T extends cc.Asset>(
         bundleOrName: cc.AssetManager.Bundle | string,
-        group: string,
         location: IAssetLocator
     ): Promise<T> {
         const asset = await this._bundleManager.loadAsset<T>(
@@ -87,6 +86,13 @@ export class AddressableAssetManager extends Module {
         );
 
         return asset;
+    }
+
+    async preloadAssetByLocation<T extends cc.Asset>(
+        bundleOrName: cc.AssetManager.Bundle | string,
+        location: IAssetLocator
+    ): Promise<void> {
+        await this._bundleManager.preloadAsset<T>(bundleOrName, location.path, AssetTypeMapper.toCCType(location.type));
     }
 
     getAsset<T extends cc.Asset>(key: string): T | undefined {

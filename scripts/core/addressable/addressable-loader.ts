@@ -62,19 +62,19 @@ export class AddressalbeAssetLoader {
 
         const indicator = LocationIndicator.fromKey(key);
         if (indicator.groupName.length === 0) {
-            cc.warn('Invalid key format. Please use "Group.AssetName" as a key.');
+            cc.warn('[AddressalbeAsset] invalid key format. Please use "Group.AssetName" as a key.');
             return;
         }
 
         const group = this._assetManger.getAddressableAssetGroup(indicator.groupName);
         if (!group) {
-            cc.warn(`Group ${indicator.groupName} does not exist!`);
+            cc.warn(`[AddressalbeAsset] group ${indicator.groupName} does not exist!`);
             return;
         }
 
         const location = group.getAssetLocator(indicator.assetName);
         if (!location) {
-            cc.warn(`Asset ${indicator.assetName} does not exist!`);
+            cc.warn(`[AddressalbeAsset] asset ${indicator.assetName} does not exist!`);
             return;
         }
 
@@ -90,7 +90,7 @@ export class AddressalbeAssetLoader {
     addLoadAddressableGroupTask(group: string): void {
         const addressableGroup = this._assetManger.getAddressableAssetGroup(group);
         if (!addressableGroup) {
-            cc.warn(`Group ${group} does not exist!`);
+            cc.warn(`[AddressalbeAsset] group ${group} does not exist!`);
             return;
         }
 
@@ -114,7 +114,7 @@ export class AddressalbeAssetLoader {
             this._totalCount += taskGroup.tasks.length;
         });
 
-        cc.log('adderessable assets loading start ...');
+        cc.log('[AddressalbeAsset] loading task starts ...');
 
         return new Promise<void>((resolve, reject) => {
             this._loadTaskGroups.forEach((taskGroup, bundleName) => {
@@ -125,14 +125,16 @@ export class AddressalbeAssetLoader {
                         task.state = LoadState.InProgress;
 
                         this._assetManger
-                            .loadAssetByLocation(bundle, taskGroup.group, task.assetLocation)
+                            .loadAssetByLocation(bundle, task.assetLocation)
                             .then(() => {
                                 task.state = LoadState.Complete;
-                                cc.log(`Load ${task.assetLocation.name} complete`);
+                                cc.log(`[AddressalbeAsset] load asset ${task.assetLocation.name} complete`);
                             })
                             .catch((err) => {
                                 task.state = LoadState.Error;
-                                cc.warn(`Load ${task.assetLocation.name} failed: ${err}`);
+                                cc.warn(
+                                    `[AddressalbeAsset] load addressable asset ${task.assetLocation.name} failed: ${err}`
+                                );
                             })
                             .finally(() => {
                                 this._finishCount += 1;
@@ -143,7 +145,50 @@ export class AddressalbeAssetLoader {
                                 // if (this._totalAssets <= 0) {
                                 if (this._finishCount >= this._totalCount) {
                                     this._state = LoadState.Complete;
-                                    cc.log('adderessable assets loading complete.');
+                                    cc.log('[AddressalbeAsset] loading task completed.');
+                                    resolve();
+                                }
+                            });
+                    });
+                }
+            });
+        });
+    }
+
+    startPreload(): Promise<void> {
+        this._state = LoadState.InProgress;
+        this._totalCount = 0;
+        this._finishCount = 0;
+
+        this._loadTaskGroups.forEach((taskGroup, bundleName) => {
+            this._totalCount += taskGroup.tasks.length;
+        });
+
+        cc.log('[AddressalbeAsset] preload task starts ...');
+
+        return new Promise<void>((resolve, reject) => {
+            this._loadTaskGroups.forEach((taskGroup, bundleName) => {
+                const bundle = this._bundleManger.getBundle(bundleName);
+                if (taskGroup.tasks.length === 0) resolve();
+                else {
+                    taskGroup.tasks.forEach((task: AddressalbeAssetLoadTask) => {
+                        task.state = LoadState.InProgress;
+
+                        this._assetManger
+                            .preloadAssetByLocation(bundle, task.assetLocation)
+                            .then(() => {
+                                task.state = LoadState.Complete;
+                                cc.log(`[AddressalbeAsset] preload asset ${task.assetLocation.name} complete`);
+                            })
+                            .catch((err) => {
+                                task.state = LoadState.Error;
+                                cc.warn(`[AddressalbeAsset] preload asset ${task.assetLocation.name} failed: ${err}`);
+                            })
+                            .finally(() => {
+                                this._finishCount += 1;
+                                if (this._finishCount >= this._totalCount) {
+                                    this._state = LoadState.Complete;
+                                    cc.log('[AddressalbeAsset] preload task complete.');
                                     resolve();
                                 }
                             });
