@@ -96,20 +96,20 @@ export class BundleManager extends Module {
         path: string,
         type: typeof cc.Asset = cc.Asset
     ): Promise<void> {
-        return new Promise<void>((resolve, reject) => { 
-        let bundle = this.getBundle(bundleOrName);
-        if (!bundle) {
-            reject(new InvalidParameterError(`bundle ${bundleOrName} does not exist`));
-        } else {
-            bundle.preload(path, type, (err, items)=> {
-                if (err) {
-                    Promise.reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        }}
-
+        return new Promise<void>((resolve, reject) => {
+            let bundle = this.getBundle(bundleOrName);
+            if (!bundle) {
+                reject(new InvalidParameterError(`bundle ${bundleOrName} does not exist`));
+            } else {
+                bundle.preload(path, type, (err, items) => {
+                    if (err) {
+                        Promise.reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            }
+        });
     }
 
     loadDir<T extends cc.Asset>(
