@@ -279,11 +279,18 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
                     pb.HumanBoyGameListResponse
                 );
                 break;
+            case GameId.PokerMaster:
+                requestProto = new pb.PokerMasterGameListRequest();
+                response = await this.sendRequest(
+                    requestProto,
+                    pb.MSGID.MsgID_PokerMaster_List_Request,
+                    pb.PokerMasterGameListRequest,
+                    pb.MSGID.MsgID_PokerMaster_List_Response,
+                    pb.PokerMasterGameListResponse
+                );
+                break;
             // TODO: send other game list request
             // case GameId.VideoCowboy:
-            //     break;
-
-            // case GameId.PokerMaster:
             //     break;
             default:
                 return Promise.reject<IGameRoomListResponse>(
