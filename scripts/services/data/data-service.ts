@@ -1,6 +1,5 @@
 /* eslint-disable max-params */
 import { Service } from '../../core/core-index';
-import type { IPokerClient } from '../../poker-client/poker-client';
 import type { DataServerSession } from '../../poker-client/session/data-session';
 import { PokerHandData } from './hand-data';
 import { OpponentPublicData } from './data-opponent-public';
@@ -11,16 +10,21 @@ import type {
     IRequestGetPublicData,
     IRequestSelfStatisticalData
 } from '../../poker-client/session/data-session-types';
+import type { ISocket } from '../../poker-client/poker-socket';
 
 export class DataService extends Service {
     static readonly serviceName = 'DataService';
-    _client: IPokerClient;
+    _userId: number;
+    _userToken: string;
+    _socket: ISocket;
     _session: DataServerSession = null;
 
-    constructor(client: IPokerClient) {
+    constructor(socket: ISocket, userId: number, userToken: string) {
         super(DataService.serviceName);
-        this._client = client;
-        this._session = this._client.getSocket().createDataSession();
+        this._userId = userId;
+        this._userToken = userToken;
+        this._socket = socket;
+        this._session = this._socket.createDataSession();
     }
 
     async getSelfPublicData(
@@ -32,8 +36,8 @@ export class DataService extends Service {
         currencyType: number
     ): Promise<SelfPublicData> {
         const obj: IRequestSelfStatisticalData = {
-            uid: this._client.getCurrentUser().userId,
-            token: this._client.getCurrentUser().userToken,
+            uid: this._userId,
+            token: this._userToken,
             mode: umode,
             gameid: uGameid,
             blind,
@@ -74,8 +78,8 @@ export class DataService extends Service {
 
     async getGameHand(uuidJs: string, gameId: number): Promise<PokerHandData> {
         const obj: IRequestGameHand = {
-            uid: this._client.getCurrentUser().userId,
-            token: this._client.getCurrentUser().userToken,
+            uid: this._userId,
+            token: this._userToken,
             gameid: gameId,
             // eslint-disable-next-line camelcase
             game_uuid_js: uuidJs

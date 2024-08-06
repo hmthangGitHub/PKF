@@ -1,18 +1,17 @@
 import { Service } from '../core/core-index';
-import type { IPokerClient } from '../poker-client/poker-client';
-import type { IResponseQuerySendFairReport } from '../poker-client/poker-socket';
+import type { IResponseQuerySendFairReport, ISocket } from '../poker-client/poker-socket';
 
 export class AuditService extends Service {
     static readonly serviceName = 'AuditService';
-    _client: IPokerClient;
+    _socket: ISocket;
 
-    constructor(client: IPokerClient) {
+    constructor(socket: ISocket) {
         super(AuditService.serviceName);
-        this._client = client;
+        this._socket = socket;
     }
 
     async requestInitAudit(clubId: number, gameUuid: string, roomUuid: string): Promise<IResponseQuerySendFairReport> {
-        const response = await this._client.getSocket().requestQuerySendFairReport(clubId, gameUuid, roomUuid);
+        const response = await this._socket.requestQuerySendFairReport(clubId, gameUuid, roomUuid);
         return response;
     }
 
@@ -24,9 +23,14 @@ export class AuditService extends Service {
         suspectUids: number[],
         contact: string
     ): Promise<IResponseQuerySendFairReport> {
-        const response = await this._client
-            .getSocket()
-            .requestAuditPlayers(roomid, clubId, roomUuid, gameUuid, suspectUids, contact);
+        const response = await this._socket.requestAuditPlayers(
+            roomid,
+            clubId,
+            roomUuid,
+            gameUuid,
+            suspectUids,
+            contact
+        );
         return response;
     }
 }
