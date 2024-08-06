@@ -1,5 +1,5 @@
 /* eslint-disable max-params */
-import { Service } from 'protobufjs';
+import { Service } from '../../core/core-index';
 import type { IPokerClient } from '../../poker-client/poker-client';
 import type { DataServerSession } from '../../poker-client/session/data-session';
 import { PokerHandData } from './hand-data';

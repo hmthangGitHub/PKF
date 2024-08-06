@@ -1,4 +1,4 @@
-import { Service } from 'protobufjs';
+import { Service } from '../core/core-index';
 import type { IPokerClient } from '../poker-client/poker-client';
 import type { IResponseQuerySendFairReport } from '../poker-client/poker-socket';
 
