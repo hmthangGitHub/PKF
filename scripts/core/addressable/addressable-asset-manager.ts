@@ -41,6 +41,7 @@ export class AddressableAssetManager extends Module {
     }
 
     async loadAsset<T extends cc.Asset>(key: string): Promise<T> {
+        cc.log(`[AddressalbeAsset] load asset ${key}`);
         if (key.length === 0) {
             return Promise.reject(new InvalidParameterError('Invalid empty key.'));
         }
@@ -70,6 +71,8 @@ export class AddressableAssetManager extends Module {
     }
 
     async preloadAsset(key: string): Promise<void> {
+        cc.log(`[AddressalbeAsset] preload asset ${key}`);
+
         if (key.length === 0) {
             return Promise.reject(new InvalidParameterError('Invalid empty key.'));
         }
