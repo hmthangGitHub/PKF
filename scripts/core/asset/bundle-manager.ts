@@ -91,7 +91,7 @@ export class BundleManager extends Module {
         });
     }
 
-    preloadAsset<T extends cc.Asset>(
+    preloadAsset(
         bundleOrName: cc.AssetManager.Bundle | string,
         path: string,
         type: typeof cc.Asset = cc.Asset

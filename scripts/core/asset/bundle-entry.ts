@@ -1,4 +1,4 @@
-import { BUNDLE_TYPE } from '../defines/enums';
+import { InvalidOperationError, BUNDLE_TYPE } from '../defines/defines-index';
 
 export enum BundleState {
     Unload,
@@ -71,6 +71,15 @@ export class BundleEntry {
         }
     }
 
+    async preload(): Promise<void> {
+        if (this._state !== BundleState.Entered && this._state !== BundleState.Loaded) {
+            return Promise.reject(
+                new InvalidOperationError(`cannot preload bundle ${this._bundle.name} in state ${this._state}`)
+            );
+        }
+        await this.onPreload();
+    }
+
     async exit(): Promise<void> {
         if (this.onBeforeExit) {
             this.onBeforeExit();
@@ -97,6 +106,10 @@ export class BundleEntry {
         return new Promise((resolve) => {
             resolve();
         });
+    }
+
+    protected onPreload(): Promise<void> {
+        return Promise.resolve();
     }
 
     /** @description
