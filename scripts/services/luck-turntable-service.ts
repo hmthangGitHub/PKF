@@ -27,6 +27,7 @@ export interface LuckTurntableEvents {
     luckTurntableUpdateButton: () => void;
     luckTurntableSnaplist: () => void;
     luckTurntableResult: (userId: number) => void;
+    luckTurntableIsView: (isView: boolean) => void;
 }
 
 export class LuckTurntableService extends EmittableService<LuckTurntableEvents> {
@@ -95,6 +96,10 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
 
     get recordList(): any[] {
         return this._recordList;
+    }
+
+    notifyLuckTurntablesIsView(isView: boolean) {
+        this.emit('luckTurntableIsView', isView);
     }
 
     removeLuckTurntableRecord(recordId: number) {
