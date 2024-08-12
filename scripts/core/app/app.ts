@@ -1,14 +1,12 @@
-import { EmittableModule, ModuleManager } from '../module/module-index';
+import { Module, ModuleManager } from '../module/module-index';
 import { NativeManager } from '../native/native-index';
 import type { Nullable } from '../defines/types';
 import { DeviceAPI } from '../../natives/natives-index';
+import { TypeSafeEventEmitter } from '../event/event-emitter';
 
 export interface IAppEvents {
     appEnterBackground: () => void;
     appEnterForeground: () => void;
-
-    showRedEnvelopeTooltip: (param: any) => void;
-
     hideWebview: () => void;
 }
 
@@ -21,7 +19,7 @@ class GameContext implements IGameContext {
 }
 
 /** Application state and events */
-export class App extends EmittableModule<IAppEvents> {
+export class App extends Module {
     static moduleName = 'App';
 
     private _gameContext: Nullable<IGameContext> = null;
@@ -38,6 +36,8 @@ export class App extends EmittableModule<IAppEvents> {
 
     /** 當前場景 */
     private _currentScene: string = '';
+
+    private _events: Nullable<TypeSafeEventEmitter<IAppEvents>> = null;
 
     setCurrentScene(name: string) {
         this._currentScene = name;
@@ -59,26 +59,27 @@ export class App extends EmittableModule<IAppEvents> {
             cc.game.on(cc.game.EVENT_SHOW, this._onAppEnterForeground, this);
         }
 
-        // TODO: just for testing
-        // const audioAPI = this._nativeManager.get(AudioAPI);
-        // cc.log('app.audioAPI', audioAPI);
-        // cc.log('app.audioAPI.playRecord', audioAPI.playRecord());
-        // cc.log('app.audioAPI.nativeName', audioAPI.nativeName);
+        if (!this._events) {
+            this._events = new TypeSafeEventEmitter<IAppEvents>();
+        }
+    }
 
-        // const videoAPI = this._nativeManager.get(VideoAPI);
-        // cc.log('app.videoAPI.nativeName', videoAPI.nativeName);
+    registerEvents<T extends IAppEvents>(events: TypeSafeEventEmitter<IAppEvents>): void {
+        this._events = events;
+    }
 
-        // cc.log('app.deviceAPI', deviceAPI);
-        // cc.log('app.deviceAPI.getDeviceInfo', deviceAPI.getDeviceInfo());
-        // cc.log('app.deviceAPI.getDeviceUUID', deviceAPI.getDeviceUUID());
+    events<T extends IAppEvents>(): TypeSafeEventEmitter<T> {
+        return this._events;
     }
 
     private _onAppEnterBackground() {
-        this.emit('appEnterBackground');
+        this._events.emit('appEnterBackground');
+        // this.emit('appEnterBackground');
     }
 
     private _onAppEnterForeground() {
-        this.emit('appEnterForeground');
+        this._events.emit('appEnterForeground');
+        // this.emit('appEnterForeground');
     }
 
     /** */
@@ -93,9 +94,5 @@ export class App extends EmittableModule<IAppEvents> {
 
     destroy() {
         super.destroy();
-    }
-
-    redEnvelopeTooltipClicked(param: any) {
-        this.emit('showRedEnvelopeTooltip', param);
     }
 }
