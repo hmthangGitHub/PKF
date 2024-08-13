@@ -500,3 +500,13 @@ export enum RoomMode {
     RoomModeLoose = 1, // 松浪
     RoomModeBomb = 2 // 暴击
 }
+
+export interface MertricsParamsData {
+    id?: number | string;
+    page?: string;
+}
+
+export interface IMertricsReportParams {
+    name?: string;
+    data?: MertricsParamsData;
+}

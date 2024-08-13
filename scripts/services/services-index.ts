@@ -13,3 +13,4 @@ export * from './rebate-service';
 export * from './captcha-service';
 export * from './data/data-service';
 export * from './audit-service';
+export * from './metrics-service';
