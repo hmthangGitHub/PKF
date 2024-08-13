@@ -98,7 +98,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         return this._recordList;
     }
 
-    notifyLuckTurntablesIsView(isView: boolean) {
+    sendLuckTurntablesIsView(isView: boolean) {
         this.emit('luckTurntableIsView', isView);
     }
 
