@@ -11,8 +11,7 @@ import type {
     IModifyPlayerParams,
     INotificationSetParams,
     INotificationSetData,
-    VerificationType,
-    IMertricsReportParams
+    VerificationType
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
 import { PKWClient } from './pkw/pkw-client';
@@ -52,7 +51,8 @@ export interface IPokerClient {
 
     verifyVerificationCode?: (type: VerificationType, content: string, code: string) => Promise<void>;
 
-    metricsReport?: (trackingKey: string, params: IMertricsReportParams) => Promise<void>;
+    reportPageView?: (trackingKey: string, page: string) => Promise<void>;
+
     getTrackingKey?: () => Promise<string>;
 }
 

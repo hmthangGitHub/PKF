@@ -1,23 +1,13 @@
+import type { macros } from 'assets/bundles/lobby/scripts/common/lobby-macros';
 import type { Nullable } from '../core/core-index';
-import { AsyncOperation, EmittableService, NotImplementError } from '../core/core-index';
+import { AsyncOperation, NotImplementError, Service } from '../core/core-index';
 
-import type {
-    IPokerClient,
-    IUser,
-    IMertricsReportParams,
-    MertricsParamsData
-} from '../poker-client/poker-client-index';
+import type { IPokerClient, IUser } from '../poker-client/poker-client-index';
 
-export interface MetricsEvents {
-    userData: () => void;
-    modifyUserInfoSucc: () => void;
-    duplicatedLogin: () => void;
-}
-
-export class MetricsService extends EmittableService<MetricsEvents> {
+export class MetricsService extends Service {
     static readonly serviceName = 'MetricsService';
 
-    _client: IPokerClient;
+    private _client: IPokerClient;
 
     private _trackingKey = '';
 
@@ -34,13 +24,13 @@ export class MetricsService extends EmittableService<MetricsEvents> {
         const asyncOp = new AsyncOperation<string>();
 
         if (!this._client.getTrackingKey) {
-            return Promise.reject(new NotImplementError('metricsReport is not implement'));
+            return Promise.reject(new NotImplementError('reportPageView is not implement'));
         } else {
             await this._client
                 .getTrackingKey()
                 .then((trackingKey) => {
-                    asyncOp.resolve(trackingKey);
                     this._trackingKey = trackingKey;
+                    asyncOp.resolve(trackingKey);
                 })
                 .catch((err) => {
                     asyncOp.reject(err);
@@ -50,20 +40,13 @@ export class MetricsService extends EmittableService<MetricsEvents> {
         return asyncOp.promise;
     }
 
-    async metricsReport(page: string): Promise<void> {
+    async reportPageView(page: macros.PAGE_VIEW_METRICS): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
-        const params: IMertricsReportParams = {};
-        params.name = 'page_view';
-        const paramsData: MertricsParamsData = {
-            id: this.currentUser.userId.toString(),
-            page: page
-        };
-        params.data = paramsData;
-        if (!this._client.metricsReport) {
-            return Promise.reject(new NotImplementError('metricsReport is not implement'));
+        if (!this._client.reportPageView) {
+            return Promise.reject(new NotImplementError('reportPageView is not implement'));
         } else {
             await this._client
-                .metricsReport(this._trackingKey, params)
+                .reportPageView(this._trackingKey, page)
                 .then(() => {
                     asyncOp.resolve();
                 })
