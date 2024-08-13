@@ -1,8 +1,7 @@
 import type { macros } from 'assets/bundles/lobby/scripts/common/lobby-macros';
-import type { Nullable } from '../core/core-index';
 import { AsyncOperation, NotImplementError, Service } from '../core/core-index';
 
-import type { IPokerClient, IUser } from '../poker-client/poker-client-index';
+import type { IPokerClient } from '../poker-client/poker-client-index';
 
 export class MetricsService extends Service {
     static readonly serviceName = 'MetricsService';
@@ -10,10 +9,6 @@ export class MetricsService extends Service {
     private _client: IPokerClient;
 
     private _trackingKey = '';
-
-    get currentUser(): Nullable<IUser> {
-        return this._client.getCurrentUser();
-    }
 
     constructor(client: IPokerClient) {
         super(MetricsService.serviceName);
