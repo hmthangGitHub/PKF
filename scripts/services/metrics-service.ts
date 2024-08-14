@@ -1,4 +1,3 @@
-import type { macros } from 'assets/bundles/lobby/scripts/common/lobby-macros';
 import { AsyncOperation, NotImplementError, Service } from '../core/core-index';
 
 import type { IPokerClient } from '../poker-client/poker-client-index';
@@ -35,7 +34,7 @@ export class MetricsService extends Service {
         return asyncOp.promise;
     }
 
-    async reportPageView(page: macros.PAGE_VIEW_METRICS): Promise<void> {
+    async reportPageView(page: string): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
         if (!this._client.reportPageView) {
             return Promise.reject(new NotImplementError('reportPageView is not implement'));
