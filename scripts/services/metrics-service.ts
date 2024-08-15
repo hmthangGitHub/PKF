@@ -14,13 +14,13 @@ export class MetricsService extends Service {
         this._client = client;
     }
 
-    async getTrackingToken() {
+    getTrackingToken(): Promise<string> {
         const asyncOp = new AsyncOperation<string>();
 
         if (!this._client.getTrackingKey) {
-            return Promise.reject(new NotImplementError('reportPageView is not implement'));
+            return Promise.reject(new NotImplementError('getTrackingKey is not implement'));
         } else {
-            await this._client
+            this._client
                 .getTrackingKey()
                 .then((trackingKey) => {
                     this._trackingKey = trackingKey;
@@ -34,12 +34,12 @@ export class MetricsService extends Service {
         return asyncOp.promise;
     }
 
-    async reportPageView(page: string): Promise<void> {
+    reportPageView(page: string): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
         if (!this._client.reportPageView) {
             return Promise.reject(new NotImplementError('reportPageView is not implement'));
         } else {
-            await this._client
+            this._client
                 .reportPageView(this._trackingKey, page)
                 .then(() => {
                     asyncOp.resolve();
