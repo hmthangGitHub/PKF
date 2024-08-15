@@ -37,7 +37,7 @@ export class App extends Module {
     /** 當前場景 */
     private _currentScene: string = '';
 
-    private _events: Nullable<TypeSafeEventEmitter<IAppEvents>> = null;
+    private _eventEmitter: Nullable<TypeSafeEventEmitter<IAppEvents>> = null;
 
     setCurrentScene(name: string) {
         this._currentScene = name;
@@ -59,27 +59,19 @@ export class App extends Module {
             cc.game.on(cc.game.EVENT_SHOW, this._onAppEnterForeground, this);
         }
 
-        if (!this._events) {
-            this._events = new TypeSafeEventEmitter<IAppEvents>();
-        }
-    }
-
-    registerEvents<T extends IAppEvents>(events: TypeSafeEventEmitter<IAppEvents>): void {
-        this._events = events;
+        this._eventEmitter = new TypeSafeEventEmitter<IAppEvents>();
     }
 
     events<T extends IAppEvents>(): TypeSafeEventEmitter<T> {
-        return this._events;
+        return this._eventEmitter;
     }
 
     private _onAppEnterBackground() {
-        this._events.emit('appEnterBackground');
-        // this.emit('appEnterBackground');
+        this._eventEmitter.emit('appEnterBackground');
     }
 
     private _onAppEnterForeground() {
-        this._events.emit('appEnterForeground');
-        // this.emit('appEnterForeground');
+        this._eventEmitter.emit('appEnterForeground');
     }
 
     /** */
