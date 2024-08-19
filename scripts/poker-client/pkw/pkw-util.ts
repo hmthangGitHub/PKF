@@ -3,7 +3,7 @@
 /* eslint-disable camelcase */
 
 import { TokenCrypto } from '../encrypt/encrypt-index';
-import * as md5 from 'md5';
+import md5 from 'md5';
 // import * as CryptoJS from './pf-crypto';
 import * as CryptoJS from 'crypto-js';
 import * as pako from 'pako';
