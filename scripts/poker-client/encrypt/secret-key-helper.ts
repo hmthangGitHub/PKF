@@ -1,6 +1,6 @@
 /* eslint-disable new-cap */
 /* eslint-disable autofix/quotes */
-import * as pf from '../../pf';
+import { Crypto } from '../../core/core-index';
 import ecdhJs from './ecdh';
 
 enum SecretType {
@@ -187,6 +187,6 @@ export class SecretKeyHelper {
                 console.log('onEcdhSecretResponse secretType error.');
                 return;
         }
-        return pf.Crypto.md5(secretKey);
+        return Crypto.md5(secretKey);
     }
 }
