@@ -737,6 +737,48 @@ export interface ISetSecretKeyResponse {
     error?: number | null;
 }
 
+export interface IRewardCheckRequest {
+    time?: number | null;
+}
+
+export interface IRewardCheckResponse {
+    daliy?: IDailyRewardInfo | null;
+    register?: IRegisterRewardInfo | null;
+}
+
+export interface IDailyRewardInfo {
+    status?: number | null;
+    uuid?: string | null;
+    items?: IDailyRewardItem[] | null;
+}
+
+export interface IDailyRewardItem {
+    Day?: number | null;
+    draw_status?: number | null;
+    reward_descs?: IRewardDesc[] | null;
+}
+
+export interface IRewardDesc {
+    amount?: number | null;
+    currency?: number | null;
+}
+
+export interface IRegisterRewardInfo {
+    status?: number | null;
+    uuid?: string | null;
+    reward_descs?: IRewardDesc[] | null;
+}
+
+export interface IRewardDrawRequest {
+    daily?: string | null;
+    register?: string | null;
+}
+
+export interface IRewardDrawResponse {
+    daliy?: IDailyRewardInfo | null;
+    register?: IRegisterRewardInfo | null;
+}
+
 /* Rebate apis 
    Rebate apis are optional because some platform like wpt does not support rebate 
 */
@@ -826,4 +868,8 @@ export interface ISocket extends IRebateable {
     requestSecretKey(): Promise<void>;
 
     getSecretKey(): string;
+
+    requestRewardStates(): Promise<IRewardCheckResponse>;
+
+    requestCaimlReward(dailyUuid?: string, registerUuid?: string): Promise<IRewardDrawResponse>;
 }

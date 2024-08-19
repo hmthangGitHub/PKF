@@ -27,7 +27,9 @@ import type {
     IResponseFairPlayReport,
     IResponseCurrentRoomJackpot,
     IResponseGetJackpotData,
-    IResponseJackpotAwardRecord
+    IResponseJackpotAwardRecord,
+    IRewardCheckResponse,
+    IRewardDrawResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
@@ -763,6 +765,14 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         this.checkResponseCode(responseProto.error, 'requestJackpotAwardRecord');
 
         return responseProto;
+    }
+
+    async requestRewardStates(): Promise<IRewardCheckResponse> {
+        return {};
+    }
+
+    async requestCaimlReward(dailyUuid?: string, registerUuid?: string): Promise<IRewardDrawResponse> {
+        return {};
     }
 
     startHeartBeat(): void {
