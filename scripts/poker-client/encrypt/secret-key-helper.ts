@@ -1,5 +1,7 @@
+/* eslint-disable new-cap */
 /* eslint-disable autofix/quotes */
 import * as pf from '../../pf';
+import ecdhJs from './ecdh';
 
 enum SecretType {
     UseX = 0,
@@ -40,8 +42,7 @@ export class SecretKeyHelper {
     private bNeedGenKey: boolean = true;
 
     // TODO: refactor ecdh implement
-    // eslint-disable-next-line new-cap
-    private _ecdhJs: any = new window.ecdhJs();
+    private _ecdhJs: ecdhJs = new ecdhJs();
 
     private setInit() {
         if (this.q.length === 0) this.setSecp160r1();

@@ -2148,16 +2148,14 @@ function getSECCurveByName(name) {
     return null;
 }
 
-var ecdhJs = /** @class */ (function () {
-    function ecdhJs() {}
-    ecdhJs.prototype.getSECCurveByName = getSECCurveByName;
-    ecdhJs.prototype.BigInteger = BigInteger;
-    ecdhJs.prototype.ECCurveFp = ECCurveFp;
-    ecdhJs.prototype.SecureRandom = SecureRandom;
-    ecdhJs.prototype.ECPointFp = ECPointFp;
-    return ecdhJs;
-})();
+class ecdhJs {
+    constructor() {
+    }
+    getSECCurveByName = getSECCurveByName;
+    BigInteger = BigInteger;
+    ECCurveFp = ECCurveFp;
+    SecureRandom = SecureRandom;
+    ECPointFp = ECPointFp;
+}
 
-window.ecdhJs = ecdhJs;
-exports.ecdhJs = ecdhJs;
-exports.default = ecdhJs;
+export default ecdhJs;

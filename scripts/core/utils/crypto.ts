@@ -1,4 +1,4 @@
-import * as md5 from 'md5';
+import md5 from 'md5';
 import * as cryptojs from 'crypto-js';
 import * as pako from 'pako';
 
