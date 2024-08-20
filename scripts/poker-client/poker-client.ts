@@ -47,6 +47,8 @@ export interface IPokerClient {
 
     getLoginTime?: () => Promise<number>;
 
+    getKycStatus?: () => Promise<string>;
+
     sendVerificationCode?: (type: VerificationType, content: string) => Promise<void>;
 
     verifyVerificationCode?: (type: VerificationType, content: string, code: string) => Promise<void>;
