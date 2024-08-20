@@ -869,7 +869,7 @@ export interface ISocket extends IRebateable {
 
     getSecretKey(): string;
 
-    requestRewardStates(): Promise<IRewardCheckResponse>;
+    checkRewards(): Promise<IRewardCheckResponse>;
 
-    requestCaimlReward(dailyUuid?: string, registerUuid?: string): Promise<IRewardDrawResponse>;
+    claimRewards(dailyUuid?: string, registerUuid?: string): Promise<IRewardDrawResponse>;
 }

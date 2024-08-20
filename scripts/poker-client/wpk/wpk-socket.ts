@@ -736,11 +736,11 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         return responseProto;
     }
 
-    async requestRewardStates(): Promise<IRewardCheckResponse> {
+    async checkRewards(): Promise<IRewardCheckResponse> {
         return {};
     }
 
-    async requestCaimlReward(dailyUuid?: string, registerUuid?: string): Promise<IRewardDrawResponse> {
+    async claimRewards(dailyUuid?: string, registerUuid?: string): Promise<IRewardDrawResponse> {
         return {};
     }
 
