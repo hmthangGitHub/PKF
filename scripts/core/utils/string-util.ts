@@ -377,7 +377,9 @@ export class StringUtil {
 
     /**
      * 获取目标日期距离当前日期的天数差(暂只添加天数差)
-     * @param millisecond
+     * @param millisecond 时间戳（毫秒）
+     * @param intl 国家形式
+     * @param timeZone 时区
      */
     static getDateDifference(millisecond: number, intl?: Intl.LocalesArgument, timeZone?: string): number {
         let value = 0;
