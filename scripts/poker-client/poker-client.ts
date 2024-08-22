@@ -11,7 +11,8 @@ import type {
     IModifyPlayerParams,
     INotificationSetParams,
     INotificationSetData,
-    VerificationType
+    VerificationType,
+    IKycInfoData
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
 import { PKWClient } from './pkw/pkw-client';
@@ -47,7 +48,7 @@ export interface IPokerClient {
 
     getLoginTime?: () => Promise<number>;
 
-    getKycStatus?: () => Promise<string>;
+    getKycStatus?: () => Promise<IKycInfoData>;
 
     sendVerificationCode?: (type: VerificationType, content: string) => Promise<void>;
 

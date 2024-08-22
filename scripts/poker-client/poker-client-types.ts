@@ -451,6 +451,21 @@ export interface INotificationSetData {
     sendLoginNotification?: boolean;
 }
 
+export interface IKycPerson {
+    addresses?: {
+        fullAddress: string;
+    };
+    dateOfBirth?: string;
+    firstName?: string;
+    lastName?: string;
+}
+
+export interface IKycInfoData {
+    person?: IKycPerson;
+    user_id: number;
+    status: string;
+}
+
 /**
  * 创建牌局模式
  */
