@@ -393,6 +393,9 @@ export interface IUser {
 
     allowUpdateName?: boolean;
     email?: string;
+    // sgvz
+    unplayedSc?: number;
+    redeemableSc?: number;
 }
 
 /** A session authenticated for a user with poke server. */

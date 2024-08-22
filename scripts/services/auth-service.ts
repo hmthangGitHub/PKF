@@ -17,6 +17,12 @@ export interface AuthEvents {
     modifyUserInfoSucc: () => void;
     duplicatedLogin: () => void;
 }
+// sgvz
+export interface ToolTipData {
+    TotalBalance: number | null;
+    Unplayed: number | null;
+    Redeemable: number | null;
+}
 
 export class AuthService extends EmittableService<AuthEvents> {
     static readonly serviceName = 'AuthService';
@@ -93,7 +99,8 @@ export class AuthService extends EmittableService<AuthEvents> {
         this.currentUser.sportsBettingBalance = notify.sports_betting_balance ?? 0;
         this.currentUser.systemTime = notify.system_time ?? 0;
         this.currentUser.calmDownDeadlineTime = notify.calm_down_deadline_time ?? 0;
-
+        this.currentUser.unplayedSc = notify.unplayed_sc;
+        this.currentUser.redeemableSc = notify.redeemable_sc;
         this.emit('userData');
     }
 
@@ -224,5 +231,15 @@ export class AuthService extends EmittableService<AuthEvents> {
         } else {
             return await this._client.verifyVerificationCode(type, content, code);
         }
+    }
+
+    // sgvz
+    getToolTipData(): ToolTipData {
+        const data: ToolTipData = {
+            TotalBalance: this.currentUser.diamond,
+            Unplayed: this.currentUser.unplayedSc,
+            Redeemable: this.currentUser.redeemableSc
+        };
+        return data;
     }
 }

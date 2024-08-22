@@ -94,7 +94,7 @@ export interface ISportsTrialCoin {
     coins?: number | null;
     expired_at?: number | null;
 }
-
+// sgvz
 export interface INoticeGetUserData {
     mobile?: string | null;
     nick_name?: string | null;
@@ -120,6 +120,8 @@ export interface INoticeGetUserData {
     diamond?: number | null;
     sports_trial_coin?: ISportsTrialCoin | null;
     sports_betting_balance?: number | null;
+    unplayed_sc?: number | null;
+    redeemable_sc?: number | null;
 }
 
 export interface INoticeNotifyUserGoldNum {
