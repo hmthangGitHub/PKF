@@ -18,7 +18,7 @@ export interface AuthEvents {
     duplicatedLogin: () => void;
 }
 
-export interface ToolTipData {
+export interface ISweepCoinData {
     TotalBalance: number | null;
     Unplayed: number | null;
     Redeemable: number | null;
@@ -233,8 +233,8 @@ export class AuthService extends EmittableService<AuthEvents> {
         }
     }
 
-    getToolTipData(): ToolTipData {
-        const data: ToolTipData = {
+    getSweepCoin(): ISweepCoinData {
+        const data: ISweepCoinData = {
             TotalBalance: this.currentUser.diamond,
             Unplayed: this.currentUser.unplayedSc,
             Redeemable: this.currentUser.redeemableSc
