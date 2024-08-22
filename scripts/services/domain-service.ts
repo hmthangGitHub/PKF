@@ -51,4 +51,29 @@ export class DomainService extends Service {
     getShopUrl(): string {
         return this._client.getCurrentUser().shopURL;
     }
+
+    getWebServer() {
+        const webServer = this.getDomainInfo().webServer;
+        // const webServer = 'https://web.clubwpt.liuxinyi1.cn/';
+        if (webServer.endsWith('/')) return webServer.substring(0, webServer.length - 1);
+        else return webServer;
+    }
+
+    getCoinStoreUrl(): string {
+        const userInfo = this._client.getCurrentUser();
+        const webServer = this.getWebServer();
+        return `${webServer}/index?token=${userInfo.userToken}&user_id=${userInfo.userId}`;
+    }
+
+    getHelpUrl(subPage: string = undefined): string {
+        const webServer = this.getWebServer();
+        if (subPage) return `${webServer}/help#${subPage}`;
+        else return `${webServer}/help`;
+    }
+
+    getKycVerifyUrl(): string {
+        const userInfo = this._client.getCurrentUser();
+        const webServer = this.getWebServer();
+        return `${webServer}/index?token=${userInfo.userToken}&user_id=${userInfo.userId}#KYC`;
+    }
 }
