@@ -390,10 +390,8 @@ export interface IUser {
     sportsTrialCoin: number; // 体育体验金
     sportsTrialCoinExpiration: number; // 体育体验金期限
     sportsBettingBalance: number; // 牌桌內體育可用餘額 金幣+體驗金
-
     allowUpdateName?: boolean;
     email?: string;
-    // sgvz
     unplayedSc?: number;
     redeemableSc?: number;
 }

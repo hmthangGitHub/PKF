@@ -17,7 +17,7 @@ export interface AuthEvents {
     modifyUserInfoSucc: () => void;
     duplicatedLogin: () => void;
 }
-// sgvz
+
 export interface ToolTipData {
     TotalBalance: number | null;
     Unplayed: number | null;
@@ -233,7 +233,6 @@ export class AuthService extends EmittableService<AuthEvents> {
         }
     }
 
-    // sgvz
     getToolTipData(): ToolTipData {
         const data: ToolTipData = {
             TotalBalance: this.currentUser.diamond,
