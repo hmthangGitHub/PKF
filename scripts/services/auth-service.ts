@@ -241,4 +241,23 @@ export class AuthService extends EmittableService<AuthEvents> {
         };
         return data;
     }
+
+    async logout(): Promise<void> {
+        const asyncOp = new AsyncOperation<void>();
+
+        if (!this._client.logout) {
+            return Promise.reject(new NotImplementError('logout is not implement'));
+        } else {
+            await this._client
+                .logout()
+                .then(() => {
+                    asyncOp.resolve();
+                })
+                .catch((err) => {
+                    asyncOp.reject(err);
+                });
+        }
+
+        return asyncOp.promise;
+    }
 }

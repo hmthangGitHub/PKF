@@ -57,6 +57,8 @@ export interface IPokerClient {
     reportPageView?: (trackingKey: string, page: string) => Promise<void>;
 
     getTrackingKey?: () => Promise<string>;
+
+    logout?: () => Promise<void>;
 }
 
 export class PokerClient {
