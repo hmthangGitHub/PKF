@@ -24,12 +24,6 @@ export interface IPokerClient {
 
     login(username: string, password: string, options?: RequestOtpions): Promise<ISession>;
 
-    signInWithOneTimeToken(token: string): Promise<ISession>;
-
-    signInWithSession(session: ISession): Promise<ISession>;
-
-    signInWithUserNameAndPassword(username: string, password: string): Promise<ISession>;
-
     getCurrentUser(): Nullable<IUser>;
 
     getDomains(): IDomainInfo[];
@@ -41,6 +35,15 @@ export interface IPokerClient {
     uploadAvatar(imgUploadUrl: string, avatar: string): Promise<string>;
 
     modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void>;
+
+    // v3 api
+    signInWithOneTimeToken(token: string): Promise<ISession>;
+
+    signInWithSession(session: ISession): Promise<ISession>;
+
+    signInWithUserNameAndPassword(username: string, password: string): Promise<ISession>;
+
+    signOut?: () => Promise<void>;
 
     getNotificationSettings?: (webUrl: string) => Promise<INotificationSetData>;
 
@@ -57,8 +60,6 @@ export interface IPokerClient {
     reportPageView?: (trackingKey: string, page: string) => Promise<void>;
 
     getTrackingKey?: () => Promise<string>;
-
-    logout?: () => Promise<void>;
 }
 
 export class PokerClient {

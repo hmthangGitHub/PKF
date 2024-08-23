@@ -62,6 +62,14 @@ export class AuthService extends EmittableService<AuthEvents> {
         return this._client.signInWithUserNameAndPassword(username, password);
     }
 
+    async signOut(): Promise<void> {
+        cc.log('[AuthService] logout');
+        // NOTE:
+        // PokerClient support logout after v3.
+        // In order to be compatible with older versions of the API, only call logout when PokerClient implement logout
+        if (this._client.signOut) await this._client.signOut();
+    }
+
     registerNotificationHandlers() {
         this._client.getSocket().notification.on('userData', this.onUserDataNotify.bind(this));
         this._client.getSocket().notification.on('duplicatedLogIn', this.onDuplicatedLogin.bind(this));
@@ -240,24 +248,5 @@ export class AuthService extends EmittableService<AuthEvents> {
             Redeemable: this.currentUser.redeemableSc
         };
         return data;
-    }
-
-    async logout(): Promise<void> {
-        const asyncOp = new AsyncOperation<void>();
-
-        if (!this._client.logout) {
-            return Promise.reject(new NotImplementError('logout is not implement'));
-        } else {
-            await this._client
-                .logout()
-                .then(() => {
-                    asyncOp.resolve();
-                })
-                .catch((err) => {
-                    asyncOp.reject(err);
-                });
-        }
-
-        return asyncOp.promise;
     }
 }
