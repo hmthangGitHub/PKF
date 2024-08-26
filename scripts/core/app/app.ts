@@ -10,6 +10,12 @@ export interface IAppEvents {
     hideWebview: () => void;
 }
 
+export type Enviroment = 'dev' | 'stg' | 'prod';
+
+export interface IAppConfig {
+    enviroment: Enviroment;
+}
+
 export interface IGameContext {
     gameId: number;
 }
@@ -23,6 +29,14 @@ export class App extends Module {
     static moduleName = 'App';
 
     private _gameContext: Nullable<IGameContext> = null;
+
+    /** 當前場景 */
+    private _currentScene: string = '';
+
+    private _eventEmitter: Nullable<TypeSafeEventEmitter<IAppEvents>> = null;
+
+    private _appConfig: Nullable<IAppConfig> = null;
+
     set gameContext(context: IGameContext) {
         this._gameContext = context;
     }
@@ -34,10 +48,17 @@ export class App extends Module {
         return this._gameContext as T;
     }
 
-    /** 當前場景 */
-    private _currentScene: string = '';
+    get appConfig(): Nullable<IAppConfig> {
+        return this._appConfig;
+    }
 
-    private _eventEmitter: Nullable<TypeSafeEventEmitter<IAppEvents>> = null;
+    set appConfig(value: Nullable<IAppConfig>) {
+        this._appConfig = value;
+    }
+
+    getAppConfig<T>(): Nullable<T> {
+        return this._appConfig as T;
+    }
 
     setCurrentScene(name: string) {
         this._currentScene = name;
