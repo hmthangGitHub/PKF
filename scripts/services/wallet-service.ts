@@ -14,7 +14,7 @@ export class Wallet {
     totalPoints: number = 0;
     usdt: number = 0;
     sweepCoin: number = 0;
-    unplayed: number = 0; // sgvz
+    unplayed: number = 0;
     redeemable: number = 0;
 
     from(data: INoticeNotifyUserGoldNum) {
@@ -25,14 +25,14 @@ export class Wallet {
         this.totalPoints = data.total_points ?? 0;
         this.usdt = data.usdt ?? 0;
         this.sweepCoin = data.diamond ?? 0;
-        this.unplayed = data.unplayed_sc ?? 0; // sgvz
+        this.unplayed = data.unplayed_sc ?? 0;
         this.redeemable = data.redeemable_sc ?? 0;
     }
 }
 
 export interface WalletEvents {
     userGoldNum: (wallet: Wallet) => void;
-    userData: (wallet: Wallet) => void; // sgvz
+    userData: (wallet: Wallet) => void;
 }
 
 export class WalletService extends EmittableService<WalletEvents> {
@@ -49,7 +49,7 @@ export class WalletService extends EmittableService<WalletEvents> {
 
         this._socket.notification.on('userGoldNum', this.onUserGoldNumNotify.bind(this));
 
-        this._socket.notification.on('userData', this.onUserDataNotify.bind(this)); // sgvz
+        this._socket.notification.on('userData', this.onUserDataNotify.bind(this));
     }
 
     getWallet(): Wallet {
@@ -63,7 +63,6 @@ export class WalletService extends EmittableService<WalletEvents> {
         }
     }
 
-    // sgvz
     onUserDataNotify(notify: INoticeGetUserData) {
         this._wallet.sweepCoin = notify.diamond;
         this._wallet.unplayed = notify.unplayed_sc;
@@ -72,7 +71,6 @@ export class WalletService extends EmittableService<WalletEvents> {
         this.emit('userData', this._wallet);
     }
 
-    // sgvz
     getSweepCoin(): ISweepCoinData {
         const data: ISweepCoinData = {
             TotalBalance: this._wallet.sweepCoin,

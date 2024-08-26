@@ -124,7 +124,6 @@ export interface INoticeGetUserData {
     redeemable_sc?: number | null;
 }
 
-// sgvz
 export interface INoticeNotifyUserGoldNum {
     uid?: number | null;
     changeNum?: number | null;

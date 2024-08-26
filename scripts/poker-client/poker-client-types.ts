@@ -527,7 +527,6 @@ export interface IMertricsReportParams {
     data?: MertricsParamsData;
 }
 
-// sgvz
 export interface ISweepCoinData {
     TotalBalance: number | null;
     Unplayed: number | null;
