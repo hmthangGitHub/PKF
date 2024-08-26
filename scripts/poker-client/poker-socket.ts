@@ -124,6 +124,7 @@ export interface INoticeGetUserData {
     redeemable_sc?: number | null;
 }
 
+// sgvz
 export interface INoticeNotifyUserGoldNum {
     uid?: number | null;
     changeNum?: number | null;
@@ -133,6 +134,8 @@ export interface INoticeNotifyUserGoldNum {
     total_points?: number | null;
     usdt?: number | null;
     diamond?: number | null;
+    unplayed_sc?: number | null;
+    redeemable_sc?: number | null;
 }
 
 export interface INoticeGlobalMessage {

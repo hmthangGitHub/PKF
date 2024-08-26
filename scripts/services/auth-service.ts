@@ -18,12 +18,6 @@ export interface AuthEvents {
     duplicatedLogin: () => void;
 }
 
-export interface ISweepCoinData {
-    TotalBalance: number | null;
-    Unplayed: number | null;
-    Redeemable: number | null;
-}
-
 export class AuthService extends EmittableService<AuthEvents> {
     static readonly serviceName = 'AuthService';
 
@@ -239,14 +233,5 @@ export class AuthService extends EmittableService<AuthEvents> {
         } else {
             return await this._client.verifyVerificationCode(type, content, code);
         }
-    }
-
-    getSweepCoin(): ISweepCoinData {
-        const data: ISweepCoinData = {
-            TotalBalance: this.currentUser.diamond,
-            Unplayed: this.currentUser.unplayedSc,
-            Redeemable: this.currentUser.redeemableSc
-        };
-        return data;
     }
 }
