@@ -202,6 +202,7 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
         const task = async () => {
             this.emit(BUNDLE_EVENT.UPDATE_NEXT_BUNDLE, updateItem);
             await this.handleDownload(updateItem);
+            updateItem.progressInfo = null;
             asyncOperation.resolve();
             this.handleNextDownload();
         };
