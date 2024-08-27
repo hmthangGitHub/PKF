@@ -234,4 +234,12 @@ export class AuthService extends EmittableService<AuthEvents> {
             return await this._client.verifyVerificationCode(type, content, code);
         }
     }
+
+    async deleteUser(): Promise<void> {
+        if (!this._client.deleteUser) {
+            return Promise.reject(new NotImplementError('getLoginTime is not implement'));
+        } else {
+            return await this._client.deleteUser();
+        }
+    }
 }
