@@ -65,10 +65,11 @@ export class DomainService extends Service {
         return `${webServer}/index?token=${userInfo.userToken}&user_id=${userInfo.userId}`;
     }
 
-    getHelpUrl(subPage: string = undefined): string {
+    getHelpUrl(subPage: string = undefined, moneyInfoHide: boolean = false): string {
         const webServer = this.getWebServer();
-        if (subPage) return `${webServer}/help#${subPage}`;
-        else return `${webServer}/help`;
+        let url = `${webServer}/help?coinHide=${moneyInfoHide ? 1 : 0}`;
+        if (subPage) return `${url}#${subPage}`;
+        else return url;
     }
 
     getKycVerifyUrl(): string {
