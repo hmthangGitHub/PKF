@@ -7,7 +7,7 @@ import { TypeSafeEventEmitter } from '../event/event-emitter';
 export interface IAppEvents {
     appEnterBackground: () => void;
     appEnterForeground: () => void;
-    hideWebview: () => void;
+    hideWebview: (show: boolean) => void;
 }
 
 export type Enviroment = 'dev' | 'stg' | 'prod';
