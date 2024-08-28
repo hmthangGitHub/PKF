@@ -14,8 +14,8 @@ export class Wallet {
     totalPoints: number = 0;
     usdt: number = 0;
     sweepCoin: number = 0;
-    unplayed: number = 0;
-    redeemable: number = 0;
+    unplayedSweepCoin: number = 0;
+    redeemableSweepCoin: number = 0;
 
     from(data: INoticeNotifyUserGoldNum) {
         this.uid = data.uid ?? 0;
@@ -25,14 +25,14 @@ export class Wallet {
         this.totalPoints = data.total_points ?? 0;
         this.usdt = data.usdt ?? 0;
         this.sweepCoin = data.diamond ?? 0;
-        this.unplayed = data.unplayed_sc ?? 0;
-        this.redeemable = data.redeemable_sc ?? 0;
+        this.unplayedSweepCoin = data.unplayed_sc ?? 0;
+        this.redeemableSweepCoin = data.redeemable_sc ?? 0;
     }
 }
 
 export interface WalletEvents {
     userGoldNum: (wallet: Wallet) => void;
-    userData: (wallet: Wallet) => void;
+    coinData: (wallet: Wallet) => void; // 获取coin的初始值
 }
 
 export class WalletService extends EmittableService<WalletEvents> {
@@ -49,7 +49,7 @@ export class WalletService extends EmittableService<WalletEvents> {
 
         this._socket.notification.on('userGoldNum', this.onUserGoldNumNotify.bind(this));
 
-        this._socket.notification.on('userData', this.onUserDataNotify.bind(this));
+        this._socket.notification.on('userData', this.onCoinDataNotify.bind(this));
     }
 
     getWallet(): Wallet {
@@ -63,19 +63,19 @@ export class WalletService extends EmittableService<WalletEvents> {
         }
     }
 
-    onUserDataNotify(notify: INoticeGetUserData) {
+    onCoinDataNotify(notify: INoticeGetUserData) {
         this._wallet.sweepCoin = notify.diamond;
-        this._wallet.unplayed = notify.unplayed_sc;
-        this._wallet.redeemable = notify.redeemable_sc;
+        this._wallet.unplayedSweepCoin = notify.unplayed_sc;
+        this._wallet.redeemableSweepCoin = notify.redeemable_sc;
 
-        this.emit('userData', this._wallet);
+        this.emit('coinData', this._wallet);
     }
 
     getSweepCoin(): ISweepCoinData {
         const data: ISweepCoinData = {
             TotalBalance: this._wallet.sweepCoin,
-            Unplayed: this._wallet.unplayed,
-            Redeemable: this._wallet.redeemable
+            Unplayed: this._wallet.unplayedSweepCoin,
+            Redeemable: this._wallet.redeemableSweepCoin
         };
         return data;
     }
