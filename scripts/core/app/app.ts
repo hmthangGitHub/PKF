@@ -8,6 +8,8 @@ export interface IAppEvents {
     appEnterBackground: () => void;
     appEnterForeground: () => void;
     hideWebview: (show: boolean) => void;
+    /// a modal UI showes or hides
+    modalShow: (show: boolean) => void;
 }
 
 export type Enviroment = 'dev' | 'stg' | 'prod';
