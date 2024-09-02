@@ -1,6 +1,5 @@
 import type { Nullable } from '../core/core-index';
 import { AsyncOperation, EmittableService, NotImplementError } from '../core/core-index';
-
 import type {
     IPokerClient,
     RequestOtpions,
@@ -8,9 +7,9 @@ import type {
     IUser,
     INoticeGetUserData,
     IResponseGetUserData,
-    IModifyPlayerParams,
-    VerificationType
+    IModifyPlayerParams
 } from '../poker-client/poker-client-index';
+import { VerificationType } from '../poker-client/poker-client-index';
 
 export interface AuthEvents {
     userData: () => void;
@@ -103,6 +102,8 @@ export class AuthService extends EmittableService<AuthEvents> {
         this.currentUser.calmDownDeadlineTime = notify.calm_down_deadline_time ?? 0;
         this.currentUser.unplayedSc = notify.unplayed_sc;
         this.currentUser.redeemableSc = notify.redeemable_sc;
+        this.currentUser.email = notify.email;
+
         this.emit('userData');
     }
 
@@ -130,24 +131,6 @@ export class AuthService extends EmittableService<AuthEvents> {
         return await this.sendModifyPlayerInfo(webUrl, params);
     }
 
-    /** 修改手机号 */
-    async sendModifyMobile(mobile: string): Promise<void> {
-        console.log('sendModifyMobile:' + mobile);
-        const params: IModifyPlayerParams = {
-            mobile
-        };
-        return await this.sendModifyPlayerInfo('', params);
-    }
-
-    /** 修改邮箱 */
-    async sendModifyEmail(email: string): Promise<void> {
-        console.log('sendModifyEmail:' + email);
-        const params: IModifyPlayerParams = {
-            email
-        };
-        return await this.sendModifyPlayerInfo('', params);
-    }
-
     /** 发送修改用户信息请求 */
     async sendModifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
@@ -165,19 +148,13 @@ export class AuthService extends EmittableService<AuthEvents> {
                 if (params.avatar) {
                     userData.avatarURL = params.avatar;
                 }
-                if (params.mobile) {
-                    userData.mobile = params.mobile;
-                }
-                if (params.email) {
-                    userData.email = params.email;
-                }
 
                 if (modifyName) {
                     userData.allowUpdateName = false;
                 }
 
-                asyncOp.resolve();
                 this.emit('modifyUserInfoSucc');
+                asyncOp.resolve();
             })
             .catch((err) => {
                 asyncOp.reject(err);
@@ -226,13 +203,26 @@ export class AuthService extends EmittableService<AuthEvents> {
         }
     }
 
-    /** 校验验证码 */
-    async verifyVerificationCode(type: VerificationType, content: string, code: string): Promise<void> {
-        if (!this._client.sendVerificationCode) {
-            return Promise.reject(new NotImplementError('verifyVerificationCode is not implement'));
+    /** 校验验证码并更换验证途径 */
+    async verifyAndChangeRecoveryInfo(type: VerificationType, content: string, code: string): Promise<void> {
+        const asyncOp = new AsyncOperation<void>();
+        if (!this._client.verifyAndChangeRecoveryInfo) {
+            return Promise.reject(new NotImplementError('verifyAndChangeRecoveryInfo is not implement'));
         } else {
-            return await this._client.verifyVerificationCode(type, content, code);
+            await this._client
+                .verifyAndChangeRecoveryInfo(type, content, code)
+                .then(() => {
+                    const userData = this.currentUser;
+                    if (type === VerificationType.MOBLIE) userData.mobile = content;
+                    else if (type === VerificationType.EMAIL) userData.email = content;
+                    this.emit('modifyUserInfoSucc');
+                    asyncOp.resolve();
+                })
+                .catch((err) => {
+                    asyncOp.reject(err);
+                });
         }
+        return asyncOp.promise;
     }
 
     async deleteUser(): Promise<void> {

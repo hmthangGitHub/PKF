@@ -55,7 +55,7 @@ export interface IPokerClient {
 
     sendVerificationCode?: (type: VerificationType, content: string) => Promise<void>;
 
-    verifyVerificationCode?: (type: VerificationType, content: string, code: string) => Promise<void>;
+    verifyAndChangeRecoveryInfo?: (type: VerificationType, content: string, code: string) => Promise<void>;
 
     reportPageView?: (trackingKey: string, page: string) => Promise<void>;
 

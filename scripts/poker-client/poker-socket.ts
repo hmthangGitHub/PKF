@@ -122,6 +122,7 @@ export interface INoticeGetUserData {
     sports_betting_balance?: number | null;
     unplayed_sc?: number | null;
     redeemable_sc?: number | null;
+    email?: string | null;
 }
 
 export interface INoticeNotifyUserGoldNum {
