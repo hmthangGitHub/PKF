@@ -56,7 +56,7 @@ export class Http {
             xhr.onload = function () {
                 clearTimeout(timeoutId); // Clear the timeout timer
 
-                if (xhr.status >= 200 && xhr.status < 300) {
+                if ((xhr.status >= 200 && xhr.status < 300) || (xhr.status >= 400 && xhr.status <= 500)) {
                     const response: Response = {
                         url: requestUrl,
                         data: null,
