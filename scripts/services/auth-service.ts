@@ -237,7 +237,9 @@ export class AuthService extends EmittableService<AuthEvents> {
     getValidPhone(): string {
         const mobile = this.currentUser.mobile;
         if (mobile.startsWith('system')) return '';
-        const phone = pf.StringUtil.earseNoNumber(mobile);
+        let phone = '';
+        if (mobile.startsWith('+1')) phone = mobile.substring(2);
+        phone = pf.StringUtil.earseNoNumber(phone);
         if (phone.length === 10) return phone;
         else return '';
     }
