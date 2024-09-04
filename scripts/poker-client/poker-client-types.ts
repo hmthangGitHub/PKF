@@ -394,6 +394,8 @@ export interface IUser {
     email?: string;
     unplayedSc?: number;
     redeemableSc?: number;
+    registerEmail?: string;
+    loginType?: string;
 }
 
 /** A session authenticated for a user with poke server. */
