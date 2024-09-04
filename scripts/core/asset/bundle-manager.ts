@@ -24,17 +24,17 @@ export class BundleManager extends Module {
                 const entry = bundleEntryManager.getEntry(bundle.name);
                 resolve(entry);
             } else {
-                let entry = bundleEntryManager.getEntry(name);
-                if (!entry) {
-                    // no entry registered, add default entry
-                    entry = new BundleEntry();
-                    bundleEntryManager.addEntry(name, entry);
-                }
-                await entry.beforeLoad();
-                cc.assetManager.loadBundle(nameOrUrl, options, (err, bundle) => {
+                cc.assetManager.loadBundle(nameOrUrl, options, async (err, bundle) => {
                     if (err) {
                         reject(err);
                     } else {
+                        let entry = bundleEntryManager.getEntry(name);
+                        if (!entry) {
+                            // no entry registered, add default entry
+                            entry = new BundleEntry();
+                            bundleEntryManager.addEntry(name, entry);
+                            await entry.beforeLoad();
+                        }
                         entry.bundle = bundle;
                         entry.state = BundleState.Loading;
                         entry
