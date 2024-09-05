@@ -494,11 +494,6 @@ export enum DiscoverGameType {
     JSNG
 }
 
-export enum VerificationType {
-    MOBLIE,
-    EMAIL
-}
-
 export enum GameLevelEnum {
     GameLevelEnumNone = 0,
     GameLevelEnumMicro = 1,

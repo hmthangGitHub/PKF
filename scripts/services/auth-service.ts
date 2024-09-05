@@ -10,7 +10,6 @@ import type {
     IResponseGetUserData,
     IModifyPlayerParams
 } from '../poker-client/poker-client-index';
-import { VerificationType } from '../poker-client/poker-client-index';
 
 export interface AuthEvents {
     userData: () => void;
@@ -195,27 +194,74 @@ export class AuthService extends EmittableService<AuthEvents> {
         this.emit('duplicatedLogin');
     }
 
-    /** 发送验证码 */
-    async sendVerificationCode(type: VerificationType, content: string): Promise<void> {
-        if (!this._client.sendVerificationCode) {
-            return Promise.reject(new NotImplementError('sendVerificationCode is not implement'));
+    /**
+     * 发送验证码给手机
+     * @param phoneNumber 手机号
+     * @returns Promise<void>
+     */
+    async sendPhoneVerificaitonCode(phoneNumber: string): Promise<void> {
+        if (!this._client.sendPhoneVerificaitonCode) {
+            return Promise.reject(new NotImplementError('sendPhoneVerificaitonCode is not implement'));
         } else {
-            return await this._client.sendVerificationCode(type, content);
+            return await this._client.sendPhoneVerificaitonCode(phoneNumber);
         }
     }
 
-    /** 校验验证码并更换验证途径 */
-    async verifyAndChangeRecoveryInfo(type: VerificationType, content: string, code: string): Promise<void> {
+    /**
+     * 修改手机
+     * @param newPhoneNumber 新的手机号
+     * @param verificationCode 收到的验证码
+     * @returns Promise<void>
+     */
+    async modifyPhone(newPhoneNumber: string, verificationCode: string): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
-        if (!this._client.verifyAndChangeRecoveryInfo) {
-            return Promise.reject(new NotImplementError('verifyAndChangeRecoveryInfo is not implement'));
+        if (!this._client.modifyPhone) {
+            return Promise.reject(new NotImplementError('modifyPhone is not implement'));
         } else {
             await this._client
-                .verifyAndChangeRecoveryInfo(type, content, code)
+                .modifyPhone(newPhoneNumber, verificationCode)
                 .then(() => {
                     const userData = this.currentUser;
-                    if (type === VerificationType.MOBLIE) userData.mobile = content;
-                    else if (type === VerificationType.EMAIL) userData.email = content;
+                    userData.mobile = newPhoneNumber;
+                    this.emit('modifyUserInfoSucc');
+                    asyncOp.resolve();
+                })
+                .catch((err) => {
+                    asyncOp.reject(err);
+                });
+        }
+        return asyncOp.promise;
+    }
+
+    /**
+     * 发送验证码给邮箱
+     * @param mail 邮箱地址
+     * @returns Promise<void>
+     */
+    async sendMailVerificationCode(mail: string): Promise<void> {
+        if (!this._client.sendMailVerificationCode) {
+            return Promise.reject(new NotImplementError('sendMailVerificationCode is not implement'));
+        } else {
+            return await this._client.sendMailVerificationCode(mail);
+        }
+    }
+
+    /**
+     * 修改邮箱
+     * @param newMail 新的邮箱地址
+     * @param verificationCode 收到的验证码
+     * @returns Promise<void>
+     */
+    async modifyMail(newMail: string, verificationCode: string): Promise<void> {
+        const asyncOp = new AsyncOperation<void>();
+        if (!this._client.modifyMail) {
+            return Promise.reject(new NotImplementError('modifyMail is not implement'));
+        } else {
+            await this._client
+                .modifyMail(newMail, verificationCode)
+                .then(() => {
+                    const userData = this.currentUser;
+                    userData.email = newMail;
                     this.emit('modifyUserInfoSucc');
                     asyncOp.resolve();
                 })

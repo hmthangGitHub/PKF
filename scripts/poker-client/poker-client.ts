@@ -11,7 +11,6 @@ import type {
     IModifyPlayerParams,
     INotificationSetParams,
     INotificationSetData,
-    VerificationType,
     IKycInfoData
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
@@ -53,9 +52,13 @@ export interface IPokerClient {
 
     getKycStatus?: () => Promise<IKycInfoData>;
 
-    sendVerificationCode?: (type: VerificationType, content: string) => Promise<void>;
+    sendPhoneVerificaitonCode?: (phoneNumber: string) => Promise<void>;
 
-    verifyAndChangeRecoveryInfo?: (type: VerificationType, content: string, code: string) => Promise<void>;
+    modifyPhone?: (newPhoneNumber: string, verificationCode: string) => Promise<void>;
+
+    sendMailVerificationCode?: (mail: string) => Promise<void>;
+
+    modifyMail?: (newMail: string, verificationCode: string) => Promise<void>;
 
     reportPageView?: (trackingKey: string, page: string) => Promise<void>;
 
