@@ -1,4 +1,3 @@
-import * as pf from 'pf';
 import type { Nullable } from '../core/core-index';
 import { AsyncOperation, EmittableService, NotImplementError } from '../core/core-index';
 import type {
@@ -278,21 +277,5 @@ export class AuthService extends EmittableService<AuthEvents> {
         } else {
             return await this._client.deleteUser();
         }
-    }
-
-    getValidPhone(): string {
-        const mobile = this.currentUser.mobile;
-        if (mobile.startsWith('system')) return '';
-        let phone = '';
-        if (mobile.startsWith('+1')) phone = mobile.substring(2);
-        phone = pf.StringUtil.earseNoNumber(phone);
-        if (phone.length === 10) return phone;
-        else return '';
-    }
-
-    getValidEmail(): string {
-        const email = this.currentUser.email;
-        if (pf.StringUtil.isEmailFormat(email)) return email;
-        else return '';
     }
 }
