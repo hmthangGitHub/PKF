@@ -217,7 +217,7 @@ export class AuthService extends EmittableService<AuthEvents> {
         if (!this._client.modifyPhone) {
             return Promise.reject(new NotImplementError('modifyPhone is not implement'));
         } else {
-            await this._client
+            this._client
                 .modifyPhone(newPhoneNumber, verificationCode)
                 .then(() => {
                     const userData = this.currentUser;
@@ -256,7 +256,7 @@ export class AuthService extends EmittableService<AuthEvents> {
         if (!this._client.modifyMail) {
             return Promise.reject(new NotImplementError('modifyMail is not implement'));
         } else {
-            await this._client
+            this._client
                 .modifyMail(newMail, verificationCode)
                 .then(() => {
                     const userData = this.currentUser;
