@@ -131,10 +131,10 @@ export class AuthService extends EmittableService<AuthEvents> {
     }
 
     /** 发送修改用户信息请求 */
-    async sendModifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void> {
+    sendModifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
         const modifyName: boolean = params.nickname ? true : false;
-        await this._client
+        this._client
             .modifyPlayerInfo(webUrl, params)
             .then(() => {
                 const userData = this.currentUser;
@@ -166,7 +166,7 @@ export class AuthService extends EmittableService<AuthEvents> {
         return this._lastLoginTime;
     }
 
-    async getLastLogin(): Promise<number> {
+    getLastLogin(): Promise<number> {
         const asyncOp = new AsyncOperation<number>();
         if (this._lastLoginTime !== -1) {
             asyncOp.resolve(this._lastLoginTime);
@@ -175,7 +175,7 @@ export class AuthService extends EmittableService<AuthEvents> {
         if (!this._client.getLoginTime) {
             return Promise.reject<number>(new NotImplementError('getLoginTime is not implement'));
         } else {
-            await this._client
+            this._client
                 .getLoginTime()
                 .then((time) => {
                     this._lastLoginTime = time;
@@ -212,7 +212,7 @@ export class AuthService extends EmittableService<AuthEvents> {
      * @param verificationCode 收到的验证码
      * @returns Promise<void>
      */
-    async modifyPhone(newPhoneNumber: string, verificationCode: string): Promise<void> {
+    modifyPhone(newPhoneNumber: string, verificationCode: string): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
         if (!this._client.modifyPhone) {
             return Promise.reject(new NotImplementError('modifyPhone is not implement'));
@@ -251,7 +251,7 @@ export class AuthService extends EmittableService<AuthEvents> {
      * @param verificationCode 收到的验证码
      * @returns Promise<void>
      */
-    async modifyMail(newMail: string, verificationCode: string): Promise<void> {
+    modifyMail(newMail: string, verificationCode: string): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
         if (!this._client.modifyMail) {
             return Promise.reject(new NotImplementError('modifyMail is not implement'));
