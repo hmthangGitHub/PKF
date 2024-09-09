@@ -23,7 +23,7 @@ export interface IResponse<T> {
     payload: T;
 }
 
-const WRITE_BUFFER_LENGTH = 1024;
+const WRITE_BUFFER_LENGTH = 1024 * 4;
 
 /** This class turn websocket request/response message to promise function call */
 export class SocketMessageProcessor {

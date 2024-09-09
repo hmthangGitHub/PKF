@@ -835,7 +835,7 @@ export interface ISocket extends IRebateable {
         mode?: number
     ): Promise<ILuckTurntableSnaplistResponse>;
 
-    requestAuthVerify(result: number): Promise<IAuthVerifyResponse>;
+    requestAuthVerify(result: number | string): Promise<IAuthVerifyResponse>;
 
     requestQuerySendFairReport(
         clubId: number,

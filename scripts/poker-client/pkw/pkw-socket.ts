@@ -597,8 +597,9 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         }
     }
 
-    async requestAuthVerify(result: number): Promise<IAuthVerifyResponse> {
+    async requestAuthVerify(result: number | string): Promise<IAuthVerifyResponse> {
         const requestProto = new pb.AuthVerifyRequest();
+        // @ts-ignore  The names and types of the pb fields are different in different platforms
         requestProto.result = result;
         const response = await this.sendRequest(
             requestProto,
