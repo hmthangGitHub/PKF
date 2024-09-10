@@ -52,11 +52,6 @@ export class BundleEntry {
     // get isRunning(): boolean {
     //     return this._isRunning;
     // }
-    beforeLoad(options?: IBundleOptions): Promise<void> {
-        return new Promise((resolve) => {
-            resolve();
-        });
-    }
 
     /** @description Called when bundle is loaded */
     onLoad(options?: IBundleOptions): Promise<void> {

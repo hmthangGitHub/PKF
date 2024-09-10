@@ -14,8 +14,7 @@ export class BundleManager extends Module {
 		@param options Some optional paramters
      */
     loadBundle(nameOrUrl: string, options?: IBundleOptions): Promise<BundleEntry> {
-        // eslint-disable-next-line no-async-promise-executor
-        return new Promise<BundleEntry>(async (resolve, reject) => {
+        return new Promise<BundleEntry>((resolve, reject) => {
             const name = cc.path.basename(nameOrUrl);
             const bundle = cc.assetManager.getBundle(name);
 
@@ -24,17 +23,17 @@ export class BundleManager extends Module {
                 const entry = bundleEntryManager.getEntry(bundle.name);
                 resolve(entry);
             } else {
-                cc.assetManager.loadBundle(nameOrUrl, options, async (err, bundle) => {
+                cc.assetManager.loadBundle(nameOrUrl, options, (err, bundle) => {
                     if (err) {
                         reject(err);
                     } else {
-                        let entry = bundleEntryManager.getEntry(name);
+                        let entry = bundleEntryManager.getEntry(bundle.name);
                         if (!entry) {
                             // no entry registered, add default entry
                             entry = new BundleEntry();
-                            bundleEntryManager.addEntry(name, entry);
-                            await entry.beforeLoad();
+                            bundleEntryManager.addEntry(bundle.name, entry);
                         }
+
                         entry.bundle = bundle;
                         entry.state = BundleState.Loading;
                         entry
