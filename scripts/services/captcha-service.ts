@@ -10,15 +10,13 @@ export enum CAPTCHA_ACTION {
 }
 
 export interface RecaptchaData {
-    errorCode?: number;
-    isSuccess?: boolean;
     action?: CAPTCHA_ACTION;
     bundleName?: string;
     roomId?: number;
 }
 
 export interface RecaptchaEvents {
-    verifyResult: () => void;
+    verifyResult: (errCode: number) => void;
 }
 
 export class CaptchaService extends EmittableService<RecaptchaEvents> {
@@ -41,9 +39,7 @@ export class CaptchaService extends EmittableService<RecaptchaEvents> {
 
     async verify(result: number | string): Promise<IAuthVerifyResponse> {
         const rs = await this._socket.requestAuthVerify(result);
-        this._dataRaw.errorCode = rs.error;
-        this._dataRaw.isSuccess = rs.error === 1;
-        this.emit('verifyResult');
+        this.emit('verifyResult', rs.error);
         return rs;
     }
 }
