@@ -8,8 +8,7 @@ export class BundleManager extends Module {
     static moduleName = 'BundleManager';
 
     /** @description
-  		load bundle
-		
+  		load bundle		
 		@param nameOrUrl The name or root path of bundle
 		@param options Some optional paramters
      */
