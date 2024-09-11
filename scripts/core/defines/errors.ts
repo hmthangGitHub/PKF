@@ -26,10 +26,12 @@ export class WebSocketError extends Error {
 }
 
 export class ServerError extends Error {
+    cd: number;
     errorCode: number;
-    constructor(message: string, errorCode: number) {
+    constructor(message: string, errorCode: number, cd?: number) {
         super(message);
         this.name = 'ServerError';
+        this.cd = cd;
         this.errorCode = errorCode;
     }
 }
