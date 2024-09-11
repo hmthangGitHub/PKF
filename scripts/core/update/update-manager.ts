@@ -149,14 +149,17 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
         }
 
         this._localManifest.bundles.forEach((bundleInfo, name) => {
-            let updateItem = this._updateItems.get(name);
-            if (!updateItem) {
-                updateItem = new UpdateItem(name, this.storagePath, this._localManifest.bundleServerAddress, () => {
+            const updateItem = new UpdateItem(
+                name,
+                this.storagePath,
+                this._localManifest.bundleServerAddress,
+                bundleInfo.dependencies,
+                () => {
                     // Note:
                     // force update item download
                     return -1;
-                });
-            }
+                }
+            );
 
             if (this._system.isBrowser || this._skipHotUpdate) {
                 updateItem.state = UpdateState.UP_TO_DATE;
@@ -276,7 +279,17 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
                 ? this._localManifest.bundleServerAddress + updateItem.bundle
                 : updateItem.getBundleUrl();
 
-            cc.log(`load bundle ${url} ${newOptions.version}`);
+            // cc.log(`${UpdateManager.moduleName} load bundle ${url} ${newOptions.version}`);
+            cc.log(`${UpdateManager.moduleName} load bundle ${url} ${newOptions.version}`, updateItem.dependencies);
+
+            // recursive load depend bundles
+            if (updateItem.dependencies) {
+                // eslint-disable-next-line @typescript-eslint/prefer-for-of
+                for (let i = 0; i < updateItem.dependencies.length; i++) {
+                    const dependItem = this._updateItems.get(updateItem.dependencies[i]);
+                    await this.loadBundle(dependItem, newOptions);
+                }
+            }
 
             return this._bundleManager.loadBundle(url, newOptions);
         }

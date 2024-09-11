@@ -64,11 +64,35 @@ export class UpdateItem {
 
     private _retryCount = 0;
 
+    private _dependencies: Nullable<string[]> = null;
+
     private _progressCallback: Nullable<UpdateProgressCallback> = null;
 
     private _dependency: UpdateItem = null;
 
     private _progressInfo: IProgressInfo;
+    constructor(
+        bundle: string,
+        storagePath: string,
+        packageUrl: string,
+        dependencies?: string[],
+        versionCompareHandle?: (versionA: string, versionB: string) => number
+    ) {
+        this._system = ModuleManager.instance.get(System);
+        this._bundle = bundle;
+        this._packageUrl = packageUrl;
+
+        if (this._system.isBrowser) {
+            this._state = UpdateState.UP_TO_DATE;
+        } else {
+            this._state = UpdateState.UNINITED;
+            this._storagePath = storagePath;
+            this._remoteManifestUrl = packageUrl + this.getManifestName();
+            this._assetManager = new jsb.AssetsManager('', this._storagePath, versionCompareHandle);
+        }
+
+        this._dependencies = dependencies;
+    }
 
     get bundle(): string {
         return this._bundle;
@@ -90,8 +114,12 @@ export class UpdateItem {
         this._storagePath = value;
     }
 
-    get isUpToDate(): boolean {
-        return this._state === UpdateState.UP_TO_DATE;
+    get dependencies(): Nullable<string[]> {
+        return this._dependencies;
+    }
+
+    isNeedUpdate(): boolean {
+        return this._state === UpdateState.NEED_UPDATE;
     }
 
     get isQueuing(): boolean {
