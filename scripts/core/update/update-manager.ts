@@ -292,6 +292,8 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
         let depth = recursiveDepth ?? 1;
 
         if (updateItem.state === UpdateState.READY_TO_UPDATE) {
+            // TODO:
+            // handle recursively download
             await this.download(updateItem);
         }
 
