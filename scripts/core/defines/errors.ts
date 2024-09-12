@@ -26,6 +26,7 @@ export class WebSocketError extends Error {
 }
 
 export class ServerError extends Error {
+    /** cd时间，表示操作频繁，cd时间过后才可再次操作 */
     cd: number;
     errorCode: number;
     constructor(message: string, errorCode: number, cd?: number) {
