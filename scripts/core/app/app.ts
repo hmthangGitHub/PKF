@@ -11,7 +11,7 @@ export interface IAppEvents {
     modalShow: (show: boolean) => void;
 }
 
-export type Enviroment = 'dev' | 'stg' | 'prod';
+export type Enviroment = 'local' | 'dev' | 'stg' | 'prod';
 
 export interface IAppConfig {
     enviroment: Enviroment;
