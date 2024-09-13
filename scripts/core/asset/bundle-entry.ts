@@ -1,3 +1,4 @@
+import type { AddressalbeAssetLoader } from '../addressable/addressable-index';
 import { InvalidOperationError, BUNDLE_TYPE } from '../defines/defines-index';
 
 export enum BundleState {
@@ -19,6 +20,7 @@ export interface IBundleOptions {
     version?: string;
     roomId?: number;
     onProgress?: (finish: number, total: number) => void;
+    assetLoader?: AddressalbeAssetLoader;
 }
 
 export class BundleEntry {
