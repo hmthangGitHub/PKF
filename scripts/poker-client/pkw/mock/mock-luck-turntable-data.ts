@@ -8,9 +8,13 @@ export class MockLuckTurntableData {
         share_image_url: 'ca69dca21d770358.jpeg#ca69dca21d770358.jpeg#ca69dca21d770358.jpeg#ca69dca21d770358.jpeg#'
     };
 
+    static duration = 135;
+
     static mockNoError = { error: 1 };
 
-    static mockDuration = { left_interval_time: 135 };
+    static mockDuration = { left_interval_time: MockLuckTurntableData.duration };
+
+    static mockReady = { left_interval_time: MockLuckTurntableData.duration, amount_list_gametype: 2 };
 
     static mockDrawList = {
         draw_list: [
