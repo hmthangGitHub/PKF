@@ -268,6 +268,11 @@ export enum MttNotifyType {
 
 export type PlatformType = 'wpk' | 'pkw';
 
+export enum RedPacketTurntableType {
+    Regular = 1,
+    Squid = 2
+}
+
 export interface GeolocationCoord {
     readonly latitude: number;
     readonly longitude: number;

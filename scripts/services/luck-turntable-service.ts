@@ -13,6 +13,7 @@ import type {
     ILuckTurntableResultResponse,
     ILuckTurntableSnaplistResponse
 } from '../poker-client/poker-client-index';
+import { RedPacketTurntableType } from '../poker-client/poker-client-index';
 import { Util } from '../core/utils/util';
 import * as pf from '../pf';
 import { MockLuckTurntableData } from '../poker-client/pkw/mock/mock-luck-turntable-data';
@@ -50,6 +51,8 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
     private _recordList: any[] = [];
 
     private _errorMessageService: pf.services.ErrorMessageService = null;
+
+    private _turntableType: RedPacketTurntableType = RedPacketTurntableType.Regular;
 
     onLuckTurntableRecordRemoved: (recordId: number) => void = null;
 
@@ -96,6 +99,10 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
 
     get recordList(): any[] {
         return this._recordList;
+    }
+
+    get turntableType(): RedPacketTurntableType {
+        return this._turntableType;
     }
 
     sendLuckTurntablesIsView(isView: boolean) {
@@ -161,6 +168,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         this._startTime = 0;
         const curTime = Util.getCurTimeInSec();
         this._endTime = curTime + notify.left_interval_time;
+        this._turntableType = notify.amount_list_gametype;
         this.emit('luckTurntableReady');
     }
 
@@ -299,7 +307,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
     }
 
     testReady() {
-        this.onLuckTurntableReadyNotify(MockLuckTurntableData.mockDuration);
+        this.onLuckTurntableReadyNotify(MockLuckTurntableData.mockReady);
     }
 
     testCountdown() {

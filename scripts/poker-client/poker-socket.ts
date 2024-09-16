@@ -149,6 +149,7 @@ export interface ILuckTurntableEndTimeNotice {
 
 export interface ILuckTurntableReadyNotice {
     left_interval_time?: number | null;
+    amount_list_gametype?: number | null;
 }
 
 export interface ILuckTurntableCountdownNotice {
