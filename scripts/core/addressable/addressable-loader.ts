@@ -119,8 +119,13 @@ export class AddressalbeAssetLoader {
         return new Promise<void>((resolve, reject) => {
             this._loadTaskGroups.forEach((taskGroup, bundleName) => {
                 const bundle = this._bundleManger.getBundle(bundleName);
-                if (taskGroup.tasks.length === 0) resolve();
-                else {
+                if (taskGroup.tasks.length === 0) {
+                    if (this._finishCount >= this._totalCount) {
+                        this._state = LoadState.Complete;
+                        cc.log('[AddressalbeAsset] loading task completed.');
+                        resolve();
+                    }
+                } else {
                     taskGroup.tasks.forEach((task: AddressalbeAssetLoadTask) => {
                         task.state = LoadState.InProgress;
 
