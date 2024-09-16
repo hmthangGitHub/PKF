@@ -37,7 +37,7 @@ export enum GameId {
     PokerMaster = 70,
     Jackfruit = 80,
     PLO = 90,
-    BlMtt = 900,
+    Mtt = 900,
     BlSpin = 901,
     Sports = 1000,
     TopMatches = 1001,
