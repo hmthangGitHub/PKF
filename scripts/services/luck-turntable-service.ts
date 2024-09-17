@@ -111,7 +111,8 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
 
     removeLuckTurntableRecord(recordId: number) {
         for (let i = 0; i < this._luckTurntables.length; i++) {
-            if (this._luckTurntables[i].record_id === recordId) {
+            const id = Number(this._luckTurntables[i].record_id);// record_id recieved from wpk server is of type Long
+            if (id === recordId) {
                 this._luckTurntables.splice(i, 1);
                 if (this.onLuckTurntableRecordRemoved) {
                     this.onLuckTurntableRecordRemoved(recordId);
