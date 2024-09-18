@@ -270,12 +270,4 @@ export class AuthService extends EmittableService<AuthEvents> {
         }
         return asyncOp.promise;
     }
-
-    async deleteUser(): Promise<void> {
-        if (!this._client.deleteUser) {
-            return Promise.reject(new NotImplementError('getLoginTime is not implement'));
-        } else {
-            return await this._client.deleteUser();
-        }
-    }
 }
