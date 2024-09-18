@@ -3,6 +3,7 @@ import type { GameSession, GameSessionClass } from './session/game-session';
 import type { TypeSafeEventEmitter } from '../core/event/event-emitter';
 import type { GameId, MsgType, MttNotifyType, RoomMode, GameLevelEnum, CurrencyType } from './poker-client-types';
 import type { DataServerSession } from './session/data-session';
+import type { IMttApi, MttNotifications } from './socket/mtt-socket-api';
 
 export interface ILoginResponse {
     error?: number | null;
@@ -303,7 +304,7 @@ interface IServerCloseNotify {
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IServerExceptNotify {}
 
-export interface SocketNotifications {
+export interface SocketNotifications extends MttNotifications {
     clubCurrentBoard: (notify: IClubCurrentBoardNotice | IClubCurrentBoardNoticeV2) => void;
     userGoldNum: (notify: INoticeNotifyUserGoldNum) => void;
     globalMessage: (notify: INoticeGlobalMessage) => void;
@@ -793,7 +794,7 @@ export interface IRebateable {
     getRebateReward?(eventId: number, betTimeIdx: number, rewardProgressIndex: number): Promise<IClaimRewardResponse>;
 }
 
-export interface ISocket extends IRebateable {
+export interface ISocket extends IRebateable, IMttApi {
     verbose: boolean;
 
     notification: TypeSafeEventEmitter<SocketNotifications>;

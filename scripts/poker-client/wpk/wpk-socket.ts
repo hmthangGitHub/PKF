@@ -37,7 +37,7 @@ import { ServerType, GameId, SocketServerErrorCode, SystemInfo } from '../poker-
 import type { WebSocketAdapter, SocketOpenHandler } from '../websocket-adapter';
 import { Util } from '../../core/utils/util';
 import { SocketMessage } from '../socket-message';
-import { InvalidOperationError, ServerError } from '../../core/defines/errors';
+import { InvalidOperationError, NotImplementError, ServerError } from '../../core/defines/errors';
 import { SocketMessageProcessor } from '../socket-message-processor';
 import type { IRequest } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../session/game-session';
@@ -46,6 +46,7 @@ import { SecretKeyHelper } from '../encrypt/secret-key-helper';
 import { AsyncOperation } from '../../core/async/async-operation';
 import { macros } from '../poker-client-macros';
 import { DataServerSession } from '../session/data-session';
+import type { IResponseMttAuth } from '../socket/socket-index';
 
 export class WPKSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<ISession> = null;
@@ -743,6 +744,12 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
     async claimRewards(dailyUuid?: string, registerUuid?: string): Promise<IRewardDrawResponse> {
         return {};
+    }
+
+    // TODO:
+    // implement mtt relavite functions
+    async requestMttAuth(): Promise<IResponseMttAuth> {
+        throw new NotImplementError('requestMttAuth not implement yet');
     }
 
     startHeartBeat(): void {

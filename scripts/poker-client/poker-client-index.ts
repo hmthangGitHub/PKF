@@ -8,4 +8,5 @@ export * from './websocket-adapter';
 export * from './socket-message-processor';
 export * from './socket-message';
 export * from './encrypt/encrypt-index';
+export * from './socket/socket-index';
 export * as session from './session/game-session-index';

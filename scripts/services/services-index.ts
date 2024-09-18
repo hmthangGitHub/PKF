@@ -14,3 +14,4 @@ export * from './captcha-service';
 export * from './data/data-service';
 export * from './audit-service';
 export * from './metrics-service';
+export * from './mtt-service';
