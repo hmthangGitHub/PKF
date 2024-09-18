@@ -17,8 +17,6 @@ import type {
     IResponseCalmDownConfirm,
     IGetScalerQuoteResponse,
     IExchangeCurrencyResponse,
-    IGetEventStatusResponse,
-    IClaimRewardResponse,
     INoticeGlobalMessage,
     IResponseClubCurrentBoard,
     IAuthVerifyResponse,
@@ -46,7 +44,7 @@ import { SecretKeyHelper } from '../encrypt/secret-key-helper';
 import { AsyncOperation } from '../../core/async/async-operation';
 import { macros } from '../poker-client-macros';
 import { DataServerSession } from '../session/data-session';
-import type { IResponseMttAuth } from '../socket/socket-index';
+import type { IResponseMttAuth, IGetEventStatusResponse, IClaimRewardResponse } from '../socket/socket-index';
 
 export class WPKSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<ISession> = null;
