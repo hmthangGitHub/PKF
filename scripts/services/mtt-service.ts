@@ -30,7 +30,6 @@ export class MttService extends EmittableService<MttEvents> {
         this._url = '';
         this._token = '';
         const resp = await this._socket.requestMttAuth();
-        cc.log('[MttService]', resp);
         return resp.error;
     }
 
@@ -39,7 +38,6 @@ export class MttService extends EmittableService<MttEvents> {
     }
 
     protected onMttAuth(notice: INoticeMttAuth): void {
-        cc.log('[MttService]', notice);
         this._url = notice.url ?? '';
         this._token = notice.bl_token ?? '';
         this.emit('auth');
