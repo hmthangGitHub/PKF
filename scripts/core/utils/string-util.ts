@@ -143,7 +143,7 @@ export class StringUtil {
         let callback = function (exp: string, sign: any, min: any, precision: any, attach: any, type: any) {
             if (i < 0 || i >= arr.length) return;
 
-            let preLen = !precision ? precision : parseInt(precision.substr(1));
+            let preLen = !precision ? precision : parseInt(precision.substring(1));
             let val = exp;
             let matchTypeOk = true;
 
@@ -1146,7 +1146,7 @@ export class StringUtil {
                 if (ellipsis) {
                     let strEllipsis = '...';
                     do {
-                        strOut = strOut.substr(0, strOut.length - 1);
+                        strOut = strOut.substring(0, strOut.length - 1);
                         tmpLab.string = strOut + strEllipsis;
                     } while (UIUtil.getLabelStringSize(tmpLab).width > limit_w);
                     strOut += strEllipsis;
@@ -1342,7 +1342,7 @@ export class StringUtil {
     static generateUUID(lenth?: number): string {
         lenth = Util.Number(lenth);
         if (lenth <= 0) lenth = 32;
-        return Util.Number(Math.random().toString().substr(3, lenth) + Date.now()).toString(36);
+        return Util.Number(Math.random().toString().substring(3, lenth) + Date.now()).toString(36);
     }
 
     /**
@@ -1380,7 +1380,7 @@ export class StringUtil {
                 // 搜索分隔符
                 let serachStr: Function = (searchString: string, position: number): number => {
                     let nRet: number = position;
-                    let subStr: string = searchString.substr(position, searchString.length - position);
+                    let subStr: string = searchString.substring(position, searchString.length - position);
                     let index: number = subStr.search(regex);
                     if (index < 0) index = subStr.length;
                     return nRet + index;
@@ -1405,7 +1405,7 @@ export class StringUtil {
                             pos = strIn.length;
                         }
                         let sunLen: number = pos - indexOfPos;
-                        subStr = strIn.substr(indexOfPos, sunLen);
+                        subStr = strIn.substring(indexOfPos, sunLen);
 
                         indexOfPos = pos;
                         i = indexOfPos - 1;
@@ -1466,7 +1466,7 @@ export class StringUtil {
                 } else {
                     let subStr = '';
                     for (let i = 1; i < strIn.length; ++i) {
-                        subStr = strIn.substr(0, i);
+                        subStr = strIn.substring(0, i);
                         if (UIUtil.getLabelStringSize(lab, subStr).width > labWidth) {
                             return i - 1;
                         }
@@ -1481,7 +1481,7 @@ export class StringUtil {
             } else {
                 let subStr = '';
                 for (let i = 1; i < strIn.length; ++i) {
-                    subStr = strIn.substr(0, i);
+                    subStr = strIn.substring(0, i);
                     if (UIUtil.getRichTextStringSize(lab, subStr).width > labWidth) {
                         return i - 1;
                     }
@@ -1537,7 +1537,7 @@ export class StringUtil {
                 // 循环小数部分
                 if (newstr.indexOf('.') > -1) {
                     // 如果newstr末尾有0
-                    if (newstr.indexOf('0') && newstr.substr(-1, 1) === '0') {
+                    if (newstr.indexOf('0') && newstr.substring(-1, 1) === '0') {
                         let k = newstr.lastIndexOf('0');
                         // 如果小数点后只有一个0 去掉小数点
                         if (newstr.charAt(k - 1) === '.') {
@@ -1679,6 +1679,6 @@ export class StringUtil {
             else break;
         }
 
-        return strValue.substr(0, strValue.length - count);
+        return strValue.substring(0, strValue.length - count);
     }
 }
