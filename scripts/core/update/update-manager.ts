@@ -1,26 +1,32 @@
 import type { Nullable } from '../defines/types';
 import { BundleManifest } from './bundle-manifest';
-import { Module, ModuleManager } from '../module/module-index';
+import { EmittableModule, ModuleManager } from '../module/module-index';
 import { System } from '../system/system';
 import { http } from '../network/network-index';
-import type { UpdateProgressCallback } from './update-item';
-import { UpdateState, UpdateItem } from './update-item';
+import { UpdateItem, UpdateState } from './update-item';
 import type { BundleEntry, IBundleOptions } from '../asset/asset-index';
 import { BundleManager } from '../asset/asset-index';
-import {
-    InvalidOperationError,
-    InternalError,
-    UpdateBoundleFailedError,
-    LoadRemoteManifestFailedError,
-    InvalidURL,
-    NoBoundleFoundError
-} from '../defines/errors';
-import { sleep } from '../async/async-index';
+import { InternalError, LoadRemoteManifestFailedError, InvalidURL, NoBundleFoundError } from '../defines/errors';
+import { AsyncOperation, sleep } from '../async/async-index';
 
 const MANIFEST_FILENAME = 'bundle.json';
 const MAX_LOAD_REMOTE_MANIFEST_RETRY_COUNT = 5;
 
-export class UpdateManager extends Module {
+export enum BUNDLE_EVENT {
+    START_UPDATE_BUNDLE = 'START_UPDATE_BUNDLE',
+    BUNDLE_LOADED = 'BUNDLE_LOADED',
+    UPDATE_NEXT_BUNDLE = 'UPDATE_NEXT_BUNDLE',
+    UPDATE_TASK_COMPLETED = 'UPDATE_TASK_COMPLETED'
+}
+
+interface IUpdateEventEmitter {
+    [BUNDLE_EVENT.START_UPDATE_BUNDLE]: () => void;
+    [BUNDLE_EVENT.BUNDLE_LOADED]: (loadedUpdateItem: UpdateItem) => void;
+    [BUNDLE_EVENT.UPDATE_NEXT_BUNDLE]: (nextUpdateItem: UpdateItem) => void;
+    [BUNDLE_EVENT.UPDATE_TASK_COMPLETED]: () => void;
+}
+
+export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
     static moduleName = '[UpdateManager]';
 
     private _system: System = null;
@@ -36,6 +42,10 @@ export class UpdateManager extends Module {
     private _storagePath = '';
 
     private _skipHotUpdate = false;
+
+    private _updateTaskQueue: (() => Promise<void>)[] = [];
+
+    private _isUpdating: boolean = false;
 
     init(): void {
         super.init();
@@ -74,11 +84,19 @@ export class UpdateManager extends Module {
         this._localManifest.fromJson(jsonObj);
     }
 
+    get updateItems() {
+        return this._updateItems;
+    }
+
+    get isUpdating(): boolean {
+        return this._isUpdating;
+    }
+
     /** load local and remote bundle manifest */
     async loadRemoteBundleManifest(): Promise<void> {
         if (this._localManifest.remoteManifestUrl.length < 0) {
             if (this._localManifest.bundleServerAddress.length < 0) {
-                throw new NoBoundleFoundError('No bundle info found');
+                throw new NoBundleFoundError('No bundle info found');
             }
             throw new InvalidURL('Remote manifest url is empty!!');
         }
@@ -107,8 +125,6 @@ export class UpdateManager extends Module {
     checkUpdate(): void {
         cc.log(`${UpdateManager.moduleName} checkUpdate`);
 
-        this._updateItems.clear();
-
         let update = false;
 
         if (this._remoteManifest.version.length > 0 && this._localManifest.version !== this._remoteManifest.version) {
@@ -133,11 +149,14 @@ export class UpdateManager extends Module {
         }
 
         this._localManifest.bundles.forEach((bundleInfo, name) => {
-            const updateItem = new UpdateItem(name, this.storagePath, this._localManifest.bundleServerAddress, () => {
-                // Note:
-                // force update item downlad
-                return -1;
-            });
+            let updateItem = this._updateItems.get(name);
+            if (!updateItem) {
+                updateItem = new UpdateItem(name, this.storagePath, this._localManifest.bundleServerAddress, () => {
+                    // Note:
+                    // force update item download
+                    return -1;
+                });
+            }
 
             if (this._system.isBrowser || this._skipHotUpdate) {
                 updateItem.state = UpdateState.UP_TO_DATE;
@@ -177,30 +196,65 @@ export class UpdateManager extends Module {
         return this._updateItems.get(bundle);
     }
 
-    async download(updateItem: UpdateItem, onProgress?: UpdateProgressCallback): Promise<void> {
+    async download(updateItem: UpdateItem): Promise<void> {
+        const asyncOperation = new AsyncOperation();
+
+        const task = async () => {
+            this.emit(BUNDLE_EVENT.UPDATE_NEXT_BUNDLE, updateItem);
+            await this.handleDownload(updateItem);
+            updateItem.progressInfo = null;
+            asyncOperation.resolve();
+            this.handleNextDownload();
+        };
+        this._updateTaskQueue.push(task);
+
+        if (!this._isUpdating) {
+            this.emit(BUNDLE_EVENT.START_UPDATE_BUNDLE);
+            this.handleNextDownload();
+        }
+
+        return asyncOperation.promise;
+    }
+
+    private async handleNextDownload(): Promise<void> {
+        if (this._updateTaskQueue.length) {
+            cc.log('[UpdateManager] Perform the next task.');
+            this._isUpdating = true;
+            const nextTask = this._updateTaskQueue.shift();
+            nextTask && nextTask();
+        } else {
+            cc.log('[UpdateManager] Execution completed.');
+            this.emit(BUNDLE_EVENT.UPDATE_TASK_COMPLETED);
+            this._isUpdating = false;
+        }
+    }
+
+    private async handleDownload(updateItem: UpdateItem): Promise<void> {
         if (this._system.isBrowser) {
             return Promise.resolve();
         }
 
-        if (
-            updateItem.state === UpdateState.NEED_UPDATE ||
-            updateItem.state === UpdateState.UNCHECKED ||
-            updateItem.state === UpdateState.UNINITED
-        ) {
-            await updateItem.checkUpdate();
+        if (!updateItem.isDependencyLoaded) {
+            cc.warn('[UpdateManager] Skip the update, common-resource must be updated first.');
+            this.emit(BUNDLE_EVENT.BUNDLE_LOADED, updateItem);
+            updateItem.isQueuing = false;
+            return Promise.resolve();
         }
 
-        if (updateItem.state !== UpdateState.UP_TO_DATE) {
-            return this.doDownload(updateItem, onProgress);
+        if (!updateItem.isUpToDate) {
+            cc.log('[UpdateManager] Start to download:', updateItem.bundle);
+            try {
+                updateItem.isQueuing = false;
+                await updateItem.download();
+                this.updateLocalBundleInfo(updateItem);
+            } catch (error) {
+                cc.error('[UpdateManager]', JSON.stringify(error));
+            }
+            cc.log('[UpdateManager] Update completed.');
         }
 
-        if (updateItem.state !== UpdateState.UP_TO_DATE) {
-            return Promise.reject(
-                new InvalidOperationError(
-                    `invalid update state of bundle: ${updateItem.bundle} state: ${updateItem.state}`
-                )
-            );
-        }
+        this.emit(BUNDLE_EVENT.BUNDLE_LOADED, updateItem);
+        return Promise.resolve();
     }
 
     async loadBundle(updateItem: UpdateItem, options?: IBundleOptions): Promise<BundleEntry> {
@@ -298,47 +352,11 @@ export class UpdateManager extends Module {
         });
     }
 
-    private async doDownload(updateItem: UpdateItem, onProgress?: UpdateProgressCallback): Promise<void> {
-        updateItem.resetRetryCount();
-
-        while (updateItem.state !== UpdateState.UP_TO_DATE) {
-            try {
-                if (updateItem.state === UpdateState.READY_TO_UPDATE) {
-                    await updateItem.download(onProgress);
-                } else if (updateItem.state === UpdateState.UPDATING && updateItem.canRetry) {
-                    await sleep(300);
-                    await updateItem.download(onProgress);
-                } else if (updateItem.state === UpdateState.FAIL_TO_UPDATE && updateItem.canRetry) {
-                    await sleep(300);
-                    await updateItem.retry();
-                } else {
-                    return Promise.reject(
-                        new UpdateBoundleFailedError(
-                            `fail to update bundle: ${updateItem.bundle} state: ${updateItem.state}`
-                        )
-                    );
-                }
-
-                // download finished, update bundle info
-                const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
-                const remoteBundleInfo = this._remoteManifest.bundles.get(updateItem.bundle);
-                bundleInfo.md5 = remoteBundleInfo.md5;
-                bundleInfo.version = remoteBundleInfo.version;
-                this.saveLocalManifest();
-                return;
-            } catch (err) {
-                if (err instanceof InvalidOperationError) {
-                    return Promise.reject(new UpdateBoundleFailedError(`fail to update bundle: ${err}`));
-                }
-
-                if (!updateItem.canRetry && updateItem.state !== UpdateState.UPDATING) {
-                    return Promise.reject(
-                        new UpdateBoundleFailedError(
-                            `fail to update bundle: ${updateItem.bundle} state: ${updateItem.state}`
-                        )
-                    );
-                }
-            }
-        }
+    private updateLocalBundleInfo(updateItem: UpdateItem): void {
+        const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
+        const remoteBundleInfo = this._remoteManifest.bundles.get(updateItem.bundle);
+        bundleInfo.md5 = remoteBundleInfo.md5;
+        bundleInfo.version = remoteBundleInfo.version;
+        this.saveLocalManifest();
     }
 }

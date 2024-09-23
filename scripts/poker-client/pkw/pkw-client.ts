@@ -50,7 +50,11 @@ export class PKWClient implements IPokerClient {
         if (opts.baseURL) {
             this._baseUrl = opts.baseURL;
         } else {
-            this._baseUrl = `${this._scheme}${host}`;
+            if (opts.scheme) {
+                this._baseUrl = `${opts.scheme}${host}`;
+            } else {
+                this._baseUrl = `${this._scheme}${host}`;
+            }
             if (opts.port) {
                 this._baseUrl += `:${opts.port}`;
             }

@@ -13,6 +13,7 @@ import type {
     ILuckTurntableResultResponse,
     ILuckTurntableSnaplistResponse
 } from '../poker-client/poker-client-index';
+import { RedPacketTurntableType } from '../poker-client/poker-client-index';
 import { Util } from '../core/utils/util';
 import * as pf from '../pf';
 import { MockLuckTurntableData } from '../poker-client/pkw/mock/mock-luck-turntable-data';
@@ -27,6 +28,7 @@ export interface LuckTurntableEvents {
     luckTurntableUpdateButton: () => void;
     luckTurntableSnaplist: () => void;
     luckTurntableResult: (userId: number) => void;
+    luckTurntableIsView: (isView: boolean) => void;
 }
 
 export class LuckTurntableService extends EmittableService<LuckTurntableEvents> {
@@ -49,6 +51,8 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
     private _recordList: any[] = [];
 
     private _errorMessageService: pf.services.ErrorMessageService = null;
+
+    private _turntableType: RedPacketTurntableType = RedPacketTurntableType.Regular;
 
     onLuckTurntableRecordRemoved: (recordId: number) => void = null;
 
@@ -97,9 +101,17 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         return this._recordList;
     }
 
+    get turntableType(): RedPacketTurntableType {
+        return this._turntableType;
+    }
+
+    sendLuckTurntablesIsView(isView: boolean) {
+        this.emit('luckTurntableIsView', isView);
+    }
+
     removeLuckTurntableRecord(recordId: number) {
         for (let i = 0; i < this._luckTurntables.length; i++) {
-            if (this._luckTurntables[i].record_id === recordId) {
+            if (this._luckTurntables[i].record_id == recordId) {
                 this._luckTurntables.splice(i, 1);
                 if (this.onLuckTurntableRecordRemoved) {
                     this.onLuckTurntableRecordRemoved(recordId);
@@ -156,6 +168,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         this._startTime = 0;
         const curTime = Util.getCurTimeInSec();
         this._endTime = curTime + notify.left_interval_time;
+        this._turntableType = notify.amount_list_gametype;
         this.emit('luckTurntableReady');
     }
 
@@ -294,7 +307,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
     }
 
     testReady() {
-        this.onLuckTurntableReadyNotify(MockLuckTurntableData.mockDuration);
+        this.onLuckTurntableReadyNotify(MockLuckTurntableData.mockReady);
     }
 
     testCountdown() {

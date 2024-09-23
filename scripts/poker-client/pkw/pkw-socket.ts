@@ -16,7 +16,9 @@ import type {
     IResponseGetUserData,
     IResponseCalmDownConfirm,
     IGetScalerQuoteResponse,
-    IExchangeCurrencyResponse
+    IExchangeCurrencyResponse,
+    IGetEventStatusResponse,
+    IClaimRewardResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
@@ -277,11 +279,18 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
                     pb.HumanBoyGameListResponse
                 );
                 break;
+            case GameId.PokerMaster:
+                requestProto = new pb.PokerMasterGameListRequest();
+                response = await this.sendRequest(
+                    requestProto,
+                    pb.MSGID.MsgID_PokerMaster_List_Request,
+                    pb.PokerMasterGameListRequest,
+                    pb.MSGID.MsgID_PokerMaster_List_Response,
+                    pb.PokerMasterGameListResponse
+                );
+                break;
             // TODO: send other game list request
             // case GameId.VideoCowboy:
-            //     break;
-
-            // case GameId.PokerMaster:
             //     break;
             default:
                 return Promise.reject<IGameRoomListResponse>(
@@ -463,6 +472,52 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         const responseProto = response.payload;
 
         this.checkResponseCode(responseProto.error, 'exchangeCurrency');
+
+        return responseProto;
+    }
+
+    async getEventStatus(): Promise<IGetEventStatusResponse> {
+        const requestProto = new pb.GetEventStatusRequest();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgId_Rebate_GetEventStatus_Request,
+            pb.GetEventStatusRequest,
+            pb.MSGID.MsgId_Rebate_GetEventStatus_Response,
+            pb.GetEventStatusResponse
+        );
+
+        const responseProto = response.payload;
+
+        // skip checking error code here because error code 3 means event stopped
+        // and it will be handled in RebateService
+        // this.checkResponseCode(responseProto.error, 'getEventStatus');
+
+        return responseProto;
+    }
+
+    async getRebateReward(
+        eventId: number,
+        betTimeIdx: number,
+        rewardProgressIndex: number
+    ): Promise<IClaimRewardResponse> {
+        const requestProto = new pb.ClaimRewardRequest();
+
+        requestProto.event_id = eventId;
+        requestProto.bet_time_index = betTimeIdx;
+        requestProto.reward_progress_index = rewardProgressIndex;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgId_Rebate_ReceiveReward_Request,
+            pb.ClaimRewardRequest,
+            pb.MSGID.MsgId_Rebate_ReceiveReward_Response,
+            pb.ClaimRewardResponse
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getRebateReward');
 
         return responseProto;
     }
@@ -650,6 +705,11 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             pb.NoticeCalmDownConfirmResult,
             this.handleCalmDownNotify.bind(this)
         );
+
+        // no protobuf class needed for MsgId_Rebate_GetEventStatus_Notice
+        this._messageHandlers.set(pb.MSGID.MsgId_Rebate_GetEventStatus_Notice, (msg) => {
+            this.handleRebateEventStatusNotify();
+        });
     }
 
     protected handleUserGoldNumNotify(protobuf: pb.NoticeNotifyUserGoldNum) {
@@ -711,5 +771,9 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleCalmDownNotify(protobuf: pb.NoticeCalmDownConfirmResult) {
         this._notification.emit('calmDownConfirm', protobuf);
+    }
+
+    protected handleRebateEventStatusNotify() {
+        this._notification.emit('rebateEventStatus');
     }
 }
