@@ -39,6 +39,8 @@ export type UpdateProgressCallback = (
     progressInfo: IProgressInfo
 ) => void;
 
+export type VersionCompareHandler = (versionA: string, versionB: string) => number;
+
 export class UpdateItem {
     private _bundle: string = '';
 
@@ -58,7 +60,7 @@ export class UpdateItem {
 
     private _packageUrl = '';
 
-    private _versionCompareHandle = null;
+    private _versionCompareHandle: VersionCompareHandler = null;
 
     private _remoteManifestUrl = '';
 
@@ -71,28 +73,6 @@ export class UpdateItem {
     private _dependency: UpdateItem = null;
 
     private _progressInfo: IProgressInfo;
-    constructor(
-        bundle: string,
-        storagePath: string,
-        packageUrl: string,
-        dependencies?: string[],
-        versionCompareHandle?: (versionA: string, versionB: string) => number
-    ) {
-        this._system = ModuleManager.instance.get(System);
-        this._bundle = bundle;
-        this._packageUrl = packageUrl;
-
-        if (this._system.isBrowser) {
-            this._state = UpdateState.UP_TO_DATE;
-        } else {
-            this._state = UpdateState.UNINITED;
-            this._storagePath = storagePath;
-            this._remoteManifestUrl = packageUrl + this.getManifestName();
-            this._assetManager = new jsb.AssetsManager('', this._storagePath, versionCompareHandle);
-        }
-
-        this._dependencies = dependencies;
-    }
 
     get bundle(): string {
         return this._bundle;
@@ -120,6 +100,10 @@ export class UpdateItem {
 
     isNeedUpdate(): boolean {
         return this._state === UpdateState.NEED_UPDATE;
+    }
+
+    get isUpToDate(): boolean {
+        return this._state === UpdateState.UP_TO_DATE;
     }
 
     get isQueuing(): boolean {
@@ -154,7 +138,8 @@ export class UpdateItem {
         bundle: string,
         storagePath: string,
         packageUrl: string,
-        versionCompareHandle?: (versionA: string, versionB: string) => number
+        dependencies?: string[],
+        versionCompareHandler?: VersionCompareHandler
     ) {
         this._system = ModuleManager.instance.get(System);
         this._bundle = bundle;
@@ -168,7 +153,9 @@ export class UpdateItem {
         this._state = UpdateState.UNINITED;
         this._storagePath = storagePath;
         this._remoteManifestUrl = this.getManifestPath(packageUrl);
-        this._versionCompareHandle = versionCompareHandle;
+        this._versionCompareHandle = versionCompareHandler;
+
+        this._dependencies = dependencies;
     }
 
     private getManifestPath(storagePath: string): string {

@@ -63,8 +63,6 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     private _origonOnError: Nullable<SocketOpenHandler> = null;
     private _externalWebSocket: WebSocket = null;
 
-    private _notification = new TypeSafeEventEmitter<SocketNotifications>();
-    private _heartBeatTimeout: Nullable<NodeJS.Timeout> = null;
     protected _notification = new TypeSafeEventEmitter<SocketNotifications>();
 
     private _secretKeyHelper: SecretKeyHelper = null;

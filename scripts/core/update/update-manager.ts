@@ -9,12 +9,11 @@ import { BundleManager, BundleState } from '../asset/asset-index';
 import {
     InvalidOperationError,
     InternalError,
-    UpdateBoundleFailedError,
     LoadRemoteManifestFailedError,
     InvalidURL,
-    NoBoundleFoundError
+    NoBundleFoundError
 } from '../defines/errors';
-import { sleep } from '../async/async-index';
+import { sleep, AsyncOperation } from '../async/async-index';
 
 const MANIFEST_FILENAME = 'bundle.json';
 const MAX_LOAD_REMOTE_MANIFEST_RETRY_COUNT = 5;
