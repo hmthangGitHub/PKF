@@ -289,9 +289,17 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
                     pb.PokerMasterGameListResponse
                 );
                 break;
+            case GameId.VideoCowboy:
+                requestProto = new pb.VideoCowboyGameListRequest();
+                response = await this.sendRequest(
+                    requestProto,
+                    pb.MSGID.MsgID_VideoCowboy_List_Request,
+                    pb.VideoCowboyGameListRequest,
+                    pb.MSGID.MsgID_VideoCowboy_List_Response,
+                    pb.VideoCowboyGameListResponse
+                );
+                break;
             // TODO: send other game list request
-            // case GameId.VideoCowboy:
-            //     break;
             default:
                 return Promise.reject<IGameRoomListResponse>(
                     new InvalidOperationError(`GameId ${gameId} is not supported!`)
