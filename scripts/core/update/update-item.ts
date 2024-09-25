@@ -144,18 +144,16 @@ export class UpdateItem {
         this._system = ModuleManager.instance.get(System);
         this._bundle = bundle;
         this._packageUrl = packageUrl;
+        this._dependencies = dependencies ? [...dependencies] : [];
 
         if (this._system.isBrowser) {
             this._state = UpdateState.UP_TO_DATE;
-            return;
+        } else {
+            this._state = UpdateState.UNINITED;
+            this._storagePath = storagePath;
+            this._remoteManifestUrl = this.getManifestPath(packageUrl);
+            this._versionCompareHandle = versionCompareHandler;
         }
-
-        this._state = UpdateState.UNINITED;
-        this._storagePath = storagePath;
-        this._remoteManifestUrl = this.getManifestPath(packageUrl);
-        this._versionCompareHandle = versionCompareHandler;
-
-        this._dependencies = dependencies;
     }
 
     private getManifestPath(storagePath: string): string {
