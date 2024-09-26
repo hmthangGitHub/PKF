@@ -383,11 +383,13 @@ export class StringUtil {
      */
     static getDateDifference(millisecond: number, intl?: Intl.LocalesArgument, timeZone?: string): number {
         let value = 0;
-        let tarDate: any = intl ? new Date(millisecond).toLocaleString(intl, { timeZone }) : new Date(millisecond);
-        let nowDate: any = intl ? new Date().toLocaleString(intl, { timeZone }) : new Date();
+        let tarDate: any = intl
+            ? new Date(new Date(millisecond).toLocaleString(intl, { timeZone }))
+            : new Date(millisecond);
+        let nowDate: any = intl ? new Date(new Date().toLocaleString(intl, { timeZone })) : new Date();
 
-        tarDate = intl ? new Date(tarDate) : new Date(tarDate.getFullYear(), tarDate.getMonth(), tarDate.getDay());
-        nowDate = intl ? new Date(nowDate) : new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDay());
+        tarDate = new Date(tarDate.getFullYear(), tarDate.getMonth(), tarDate.getDay());
+        nowDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDay());
 
         value = (tarDate - nowDate) / (1000 * 60 * 60 * 24);
         return value;
