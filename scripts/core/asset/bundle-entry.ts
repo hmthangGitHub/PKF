@@ -19,6 +19,8 @@ export interface IBundleOptions {
     version?: string;
     roomId?: number;
     onProgress?: (finish: number, total: number) => void;
+    // root nodes for bundle
+    nodes?: cc.Node[];
 }
 
 export class BundleEntry {
