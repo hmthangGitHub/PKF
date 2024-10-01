@@ -4,6 +4,7 @@ import { EmittableModule } from '../module/module-index';
 import { LANGUAGE_GROUPS } from './language-types';
 
 export interface LanguageEvents {
+    beforeLanguageChange: (newLanguage: string) => void;
     languageChange: () => void;
 }
 
@@ -20,6 +21,8 @@ export class LanguageManager extends EmittableModule<LanguageEvents> {
     }
     set currentLanguage(value: string) {
         if (this._currentLanguage !== value) {
+            this.emit('beforeLanguageChange', value);
+
             this._currentLanguage = value;
             this._currentLanguageGroup = this._languageGroups.get(value);
             this.emit('languageChange');
@@ -62,11 +65,13 @@ export class LanguageManager extends EmittableModule<LanguageEvents> {
         if (this._currentLanguageGroup) {
             const str = this._currentLanguageGroup.getString(key);
             if (str === undefined) {
-                cc.warn(`String ${key} does not defined!`);
+                cc.warn(`[${LanguageManager.moduleName}] String ${key} is not defined!`);
             }
             return str;
         } else {
-            cc.warn('current language is null! please the current language before use it.');
+            cc.warn(
+                `[${LanguageManager.moduleName}] Current language is undefined! Please register language before use it.`
+            );
             return undefined;
         }
     }
