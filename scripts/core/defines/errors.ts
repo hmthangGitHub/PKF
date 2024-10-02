@@ -93,6 +93,13 @@ export class NoBundleFoundError extends Error {
     }
 }
 
+export class NoConfigFoundError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'NoConfigFoundError';
+    }
+}
+
 export class UpdateBundleManifestFailedError extends Error {
     constructor(message: string) {
         super(message);
