@@ -16,7 +16,10 @@ import type {
 } from '../poker-client/poker-client-index';
 import { RedPacketTurntableType, RedPacketLotteryMode } from '../poker-client/poker-client-index';
 import { Util } from '../core/utils/util';
-import * as pf from '../pf';
+// import * as pf from '../pf';
+import { ErrorMessageService } from './error-message-service';
+import * as core from '../core/core';
+import type { ServerError } from '../core/defines/defines-index';
 import { MockLuckTurntableData } from '../poker-client/pkw/mock/mock-luck-turntable-data';
 
 export interface IRedPacket {
@@ -60,7 +63,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
 
     private _recordList: any[] = [];
 
-    private _errorMessageService: pf.services.ErrorMessageService = null;
+    private _errorMessageService: ErrorMessageService = null;
 
     // private _turntableType: RedPacketTurntableType = RedPacketTurntableType.Regular;
 
@@ -82,7 +85,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         this._socket.notification.on('luckTurntableSnaplist', this.onLuckTurntableSnaplistNotify.bind(this));
         this._socket.notification.on('luckTurntableResult', this.onLuckTurntableResultNotify.bind(this));
 
-        this._errorMessageService = pf.serviceManager.get(pf.services.ErrorMessageService);
+        this._errorMessageService = core.serviceManager.get(ErrorMessageService);
 
         this._redPacketInfo.set(RedPacketLotteryMode.Classical, {
             luckTurntableEndTime: 0,
@@ -179,6 +182,8 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         const redPacket = this._redPacketInfo.get(lotteryMode);
         if (redPacket) {
             for (let i = 0; i < redPacket.luckTurntables.length; i++) {
+                // because record id from different platforms could be number or Long
+                // eslint-disable-next-line
                 if (redPacket.luckTurntables[i].record_id == recordId) {
                     redPacket.luckTurntables.splice(i, 1);
                     if (this.onLuckTurntableRecordRemoved) {
@@ -339,7 +344,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
                 .then((resp) => {
                     resolve(resp);
                 })
-                .catch((err: pf.ServerError) => {
+                .catch((err: ServerError) => {
                     reject(err);
                 });
         });
@@ -360,7 +365,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
                 .then((resp) => {
                     resolve(resp);
                 })
-                .catch((err: pf.ServerError) => {
+                .catch((err: ServerError) => {
                     this._errorMessageService.handleError(err.errorCode);
                     reject(err);
                 });

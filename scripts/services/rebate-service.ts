@@ -1,6 +1,8 @@
 import { EmittableService } from '../core/core-index';
 import type { IClaimRewardResponse, IGetEventStatusResponse, ISocket } from '../poker-client/poker-client-index';
-import * as pf from '../pf';
+// import * as pf from '../pf';
+import { ErrorMessageService } from './error-message-service';
+import * as core from '../core/core';
 
 export interface RebateEvents {
     eventStatusResult: (result: IGetEventStatusResponse) => void;
@@ -19,14 +21,14 @@ export class RebateService extends EmittableService<RebateEvents> {
         return this._rebateEventStatus;
     }
 
-    private _errorMessageService: pf.services.ErrorMessageService = null;
+    private _errorMessageService: ErrorMessageService = null;
 
     constructor(socket: ISocket) {
         super(RebateService.serviceName);
         this._socket = socket;
         this._socket.notification.on('rebateEventStatus', this.onEventStatusNotify.bind(this));
 
-        this._errorMessageService = pf.serviceManager.get(pf.services.ErrorMessageService);
+        this._errorMessageService = core.serviceManager.get(ErrorMessageService);
     }
 
     async getEventStatus(): Promise<IGetEventStatusResponse> {
