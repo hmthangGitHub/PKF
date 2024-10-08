@@ -80,6 +80,43 @@ export class System extends Module {
         return this.isAndroid || this.isIOS;
     }
 
+    get isiPad(): boolean {
+        if (this.isNative) {
+            // TODO: implement natvie detect ipad
+            return false;
+        }
+
+        if (/iPad/i.test(navigator.userAgent)) {
+            return true;
+        }
+
+        if (/Macintosh/i.test(navigator.userAgent)) {
+            try {
+                document.createEvent('TouchEvent');
+                return true;
+            } catch (e) {}
+        }
+
+        return false;
+    }
+
+    get isAndroidTablet(): boolean {
+        if (this.isNative) {
+            // TODO: implement natvie detect ipad
+            return false;
+        }
+
+        if (/android(?!.*mobile)/i.test(navigator.userAgent)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    get isTablet(): boolean {
+        return this.isAndroidTablet || this.isiPad;
+    }
+
     /** TODO: pkw代碼沒有使用, 那 wpk?? */
     /**
      * 是当IPHONE是否大于11代
