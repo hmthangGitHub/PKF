@@ -27,7 +27,7 @@ interface IUpdateEventEmitter {
 }
 
 export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
-    static moduleName = '[UpdateManager]';
+    static moduleName = 'UpdateManager';
 
     private _system: System = null;
 
