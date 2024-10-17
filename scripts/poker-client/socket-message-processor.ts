@@ -5,10 +5,11 @@ import { SocketMessage, SocketMessageHeader } from './socket-message';
 import type { IAsyncOperation } from '../core/async/async-operation';
 import { AsyncOperation } from '../core/async/async-operation';
 import * as CryptoJS from 'crypto-js';
+import { InvalidOperationError } from 'pf';
 
 export type MessageHandler = (msg: SocketMessage) => void;
 
-export type ResponseHandler = (buf: Uint8Array) => void;
+export type ResponseHandler = (request: IRequest, buf: Uint8Array) => void;
 export type NotificationHandler<T> = (protobuf: T) => void;
 
 export interface IRequest {
@@ -76,6 +77,12 @@ export class SocketMessageProcessor {
         responseProtoClass: ProtobutClass<ResponseProtoType>,
         roomId = 0
     ): Promise<IResponse<ResponseProtoType>> {
+        // cancel duplicate request
+        const request = this._requests.get(responseId);
+        if (request) {
+            return Promise.reject(new InvalidOperationError(`duplicate request ${request.requestId}`));
+        }
+
         // create message header
         const header = new SocketMessageHeader(
             this._serverType,
@@ -95,16 +102,6 @@ export class SocketMessageProcessor {
         // pack message
         const data = SocketMessage.encode(message, this._writeArrayBuffer);
 
-        // cancel previous request
-        const request = this._requests.get(responseId);
-        if (request) {
-            request.asyncOp.reject(
-                new Error(`Request ${request.requestId} is replaced. Previous request is cancelled!`)
-            );
-
-            this._requests.delete(responseId);
-        }
-
         // create response handler
         const asyncOp = new AsyncOperation<IResponse<ResponseProtoType>>();
 
@@ -112,14 +109,14 @@ export class SocketMessageProcessor {
             requestId,
             responseId,
             asyncOp,
-            handler: (buf: Uint8Array) => {
+            handler: (request: IRequest, buf: Uint8Array) => {
                 const protobuf = this.decodeProtobuf<ResponseProtoType>(buf, responseProtoClass);
 
                 if (this._verbose) {
                     console.log(protobuf);
                 }
 
-                asyncOp.resolve({ payload: protobuf });
+                request.asyncOp.resolve({ payload: protobuf });
             },
             timestamp: Date.now()
         });
@@ -201,7 +198,7 @@ export class SocketMessageProcessor {
         if (request) {
             // handel request
             this._requests.delete(msg.header.messageId);
-            request.handler(msg.payload as Uint8Array);
+            request.handler(request, msg.payload as Uint8Array);
         } else {
             // handle notice
             this.handleNotification(msg);
