@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 require('url-search-params-polyfill');
 import type { Nullable } from '../../core/core-index';
-import { ServerError, Util } from '../../core/core-index';
+import { ServerError, DataUtil } from '../../core/core-index';
 import * as http from '../../core/network/http/http-index';
 import type { IPokerClient } from '../poker-client';
 import type {
@@ -66,7 +66,7 @@ export class PKWClient implements IPokerClient {
         this._deviceType = opts.deviceType as string;
         this._deviceId = opts.deviceId;
 
-        Util.override(this._systemInfo, opts);
+        DataUtil.override(this._systemInfo, opts);
     }
 
     link(session: ISession, options?: ILinkOptions): void {

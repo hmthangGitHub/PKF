@@ -123,7 +123,6 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
 
     /** check update state of bundles */
     checkUpdate(): void {
-        cc.log(`${UpdateManager.moduleName} checkUpdate`);
 
         let update = false;
 
@@ -187,7 +186,6 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
                 }
             }
 
-            cc.log(`${UpdateManager.moduleName} add UpdateItem ${name} state: ${updateItem.state}`);
             this._updateItems.set(name, updateItem);
         });
     }

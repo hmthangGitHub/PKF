@@ -25,7 +25,7 @@ import type { WPKSession } from './wpk-session';
 import type { ISession, ISocketOptions } from '../poker-client-types';
 import { ServerType, GameId, SocketServerErrorCode, SystemInfo } from '../poker-client-types';
 import type { WebSocketAdapter, SocketOpenHandler } from '../websocket-adapter';
-import { Util } from '../../core/utils/util';
+import { DataUtil } from '../../core/utils/data-util';
 import { SocketMessage } from '../socket-message';
 import { InvalidOperationError, ServerError } from '../../core/defines/errors';
 import { SocketMessageProcessor } from '../socket-message-processor';
@@ -60,7 +60,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
     constructor(websocketAdatper: WebSocketAdapter, session: ISession, options?: ISocketOptions) {
         super(ServerType.SeverType_World, GameId.World, session.userId, websocketAdatper);
         this._session = session;
-        Util.override(this._systemInfo, options);
+        DataUtil.override(this._systemInfo, options);
     }
 
     createGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T {

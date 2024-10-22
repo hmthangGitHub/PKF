@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { EmittableService } from '../core/core-index';
+import { EmittableService, TimeUtil } from '../core/core-index';
 import type {
     ILuckTurntableReadyNotice,
     ILuckTurntableStartTimeNotice,

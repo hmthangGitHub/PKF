@@ -18,7 +18,7 @@ import * as http from '../../core/network/http/http-index';
 import { WPKSession } from './wpk-session';
 import { WPKSocket } from './wpk-socket';
 import { WPKUtil } from './wpk-util';
-import { Util } from '../../core/utils/util';
+import { DataUtil } from '../../core/utils/data-util';
 import { WebSocketAdapter } from '../websocket-adapter';
 
 export class WPKClient implements IPokerClient {
@@ -62,7 +62,7 @@ export class WPKClient implements IPokerClient {
         this._deviceType = opts.deviceType as number;
         this._deviceId = opts.deviceId;
 
-        Util.override(this._systemInfo, opts);
+        DataUtil.override(this._systemInfo, opts);
     }
 
     link(session: ISession, options?: ILinkOptions): void {
