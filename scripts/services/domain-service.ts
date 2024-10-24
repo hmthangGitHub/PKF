@@ -59,10 +59,12 @@ export class DomainService extends Service {
         else return webServer;
     }
 
-    getCoinStoreUrl(): string {
+    getCoinStoreUrl(subPage?: string): string {
         const userInfo = this._client.getCurrentUser();
         const webServer = this.getWebServer();
-        return `${webServer}/index?token=${userInfo.userToken}&user_id=${userInfo.userId}`;
+        let url = `${webServer}/index?token=${userInfo.userToken}&user_id=${userInfo.userId}`;
+        if (subPage) return `${url}#${subPage}`;
+        else return url;
     }
 
     getHelpUrl(subPage: string = undefined, moneyInfoHide: boolean = false): string {
