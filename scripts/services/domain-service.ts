@@ -67,9 +67,9 @@ export class DomainService extends Service {
         else return url;
     }
 
-    getHelpUrl(subPage: string = undefined, moneyInfoHide: boolean = false): string {
+    getHelpUrl(subPage?: string): string {
         const webServer = this.getWebServer();
-        let url = `${webServer}/help?coinHide=${moneyInfoHide ? 1 : 0}`;
+        let url = `${webServer}/help`;
         if (subPage) return `${url}#${subPage}`;
         else return url;
     }
