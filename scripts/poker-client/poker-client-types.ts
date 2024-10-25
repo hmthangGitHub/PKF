@@ -425,6 +425,7 @@ export interface IDomainInfo {
     webServer: string;
     imageServerWpk: string;
     imageServerWpto: string;
+    dataServer: string;
 }
 
 export interface IModifyPlayerParams {

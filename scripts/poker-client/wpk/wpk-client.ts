@@ -162,7 +162,8 @@ export class WPKClient implements IPokerClient {
                 imageUploadServer: session.pkwAuthData.pkw_file_addr,
                 webServer: session.pkwAuthData.api_addr,
                 imageServerWpk: session.pkwAuthData.avatar_addr,
-                imageServerWpto: ''
+                imageServerWpto: '',
+                dataServer: ''
             };
 
             this._domains.push(domainInfo);

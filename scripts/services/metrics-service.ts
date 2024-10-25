@@ -1,6 +1,6 @@
 import { AsyncOperation, NotImplementError, Service } from '../core/core-index';
-
 import type { IPokerClient } from '../poker-client/poker-client-index';
+import * as pf from 'pf';
 
 export class MetricsService extends Service {
     static readonly serviceName = 'MetricsService';
@@ -14,6 +14,10 @@ export class MetricsService extends Service {
         this._client = client;
     }
 
+    get metricsUrl(): string {
+        return pf.serviceManager.get(pf.services.DomainService).getDomainInfo().dataServer;
+    }
+
     getTrackingToken(): Promise<string> {
         const asyncOp = new AsyncOperation<string>();
 
@@ -21,7 +25,7 @@ export class MetricsService extends Service {
             return Promise.reject(new NotImplementError('getTrackingKey is not implement'));
         } else {
             this._client
-                .getTrackingKey()
+                .getTrackingKey(this.metricsUrl)
                 .then((trackingKey) => {
                     this._trackingKey = trackingKey;
                     asyncOp.resolve(trackingKey);
@@ -40,7 +44,7 @@ export class MetricsService extends Service {
             return Promise.reject(new NotImplementError('reportPageView is not implement'));
         } else {
             this._client
-                .reportPageView(this._trackingKey, page)
+                .reportPageView(this.metricsUrl, this._trackingKey, page)
                 .then(() => {
                     asyncOp.resolve();
                 })

@@ -60,9 +60,9 @@ export interface IPokerClient {
 
     modifyMail?: (newMail: string, verificationCode: string) => Promise<void>;
 
-    reportPageView?: (trackingKey: string, page: string) => Promise<void>;
+    reportPageView?: (metricsUrl: string, trackingKey: string, page: string) => Promise<void>;
 
-    getTrackingKey?: () => Promise<string>;
+    getTrackingKey?: (metricsUrl: string) => Promise<string>;
 }
 
 export class PokerClient {
