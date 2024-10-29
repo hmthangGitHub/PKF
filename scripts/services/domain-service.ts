@@ -63,15 +63,13 @@ export class DomainService extends Service {
         const userInfo = this._client.getCurrentUser();
         const webServer = this.getWebServer();
         let url = `${webServer}/index?token=${userInfo.userToken}&user_id=${userInfo.userId}`;
-        if (subPage) return `${url}#${subPage}`;
-        else return url;
+        return subPage ? `${url}#${subPage}` : url;
     }
 
     getHelpUrl(subPage?: string): string {
         const webServer = this.getWebServer();
         let url = `${webServer}/help`;
-        if (subPage) return `${url}#${subPage}`;
-        else return url;
+        return subPage ? `${url}#${subPage}` : url;
     }
 
     getKycVerifyUrl(): string {
