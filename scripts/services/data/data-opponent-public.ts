@@ -49,9 +49,9 @@ export class OpponentPublicData {
     uid?: number | null = 0;
 
     fromProto(data?: IOpponentPublicData) {
-        const data1 = new OpponentStatisticalData();
-        data1.fromString(data.data);
-        this.data = data1;
+        const advData = new OpponentStatisticalData();
+        advData.fromString(data.data);
+        this.data = advData;
         this.identity = data?.identity ?? 0;
         this.levelHands = data?.level_hands ?? 0;
         this.starDuration = data?.star_duration ?? 0;
