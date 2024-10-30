@@ -1,4 +1,4 @@
-import type { IValueObject } from '../../pf';
+import type { IValueObject } from '../../core/core-index';
 import type { IOpponentPublicData, IOpponentStatisticalData } from '../../poker-client/session/data-session-types';
 
 export class OpponentStatisticalData implements IValueObject {
