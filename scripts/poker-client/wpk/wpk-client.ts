@@ -22,7 +22,7 @@ import { WPKSocketV2 } from './wpk-socket-v2';
 import { WPKUtil } from './wpk-util';
 import { Util } from '../../core/utils/util';
 import { WebSocketAdapter } from '../websocket-adapter';
-import { AsyncOperation } from '../../pf';
+import { AsyncOperation } from '../../core/core-index';
 
 export class WPKClient implements IPokerClient {
     _deviceType: number;

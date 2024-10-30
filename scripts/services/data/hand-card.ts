@@ -1,4 +1,4 @@
-import type { IValueObject } from '../../pf';
+import type { IValueObject } from '../../core/core-index';
 import { CardNum, CardSuit } from '../../poker-client/poker-data-types';
 import type { IHandCardType } from '../../poker-client/session/data-session-types';
 

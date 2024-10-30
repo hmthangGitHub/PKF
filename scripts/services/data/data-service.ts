@@ -4,7 +4,7 @@ import type { DataServerSession } from '../../poker-client/session/data-session'
 import { PokerHandData } from './hand-data';
 import { OpponentPublicData } from './data-opponent-public';
 import { SelfPublicData } from './data-self-public';
-import { ValueObject } from '../../pf';
+import { ValueObject } from '../../core/core-index';
 import type {
     IRequestGameHand,
     IRequestGetPublicData,

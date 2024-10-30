@@ -1,5 +1,5 @@
-import type { IValueObject } from '../../pf';
-import { ValueObject, ValueObjectArray } from '../../pf';
+import type { IValueObject } from '../../core/core-index';
+import { ValueObject, ValueObjectArray } from '../../core/core-index';
 import type { IBbData, ISelfPublicData, ISelfStatisticalData } from '../../poker-client/session/data-session-types';
 
 export class SelfStatisticalData implements IValueObject {

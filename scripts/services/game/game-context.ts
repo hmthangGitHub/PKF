@@ -1,4 +1,5 @@
-import type { IGameContext, Nullable, client } from '../../pf';
+import type { IGameContext, Nullable } from '../../core/core-index';
+import type * as client from '../../poker-client/poker-client-index';
 import type { IGameRoom } from './game-room';
 import type { IGameService } from './game-service';
 

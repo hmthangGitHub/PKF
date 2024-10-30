@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 /* eslint-disable camelcase */
-import type { IValueObject } from '../../pf';
-import { ValueObject, ValueObjectArray } from '../../pf';
+import type { IValueObject } from '../../core/core-index';
+import { ValueObject, ValueObjectArray } from '../../core/core-index';
 import type { IGameRecord, IPlayerRecord, IPokerHandData } from '../../poker-client/session/data-session-types';
 import { HandCardType } from './hand-card';
 import { ReplayData, ReplayInsuranceData } from './replay-data';
