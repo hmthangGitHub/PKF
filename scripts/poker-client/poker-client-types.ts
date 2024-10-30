@@ -234,6 +234,7 @@ export enum SocketServerErrorCode {
     Helper_NO_Recharge = 293,
     UserMarksModifyTimesLimit = 301,
     IN_CALM_DOWN = 302,
+    Geo_Check_Failed = 303,
     UnmarshalFail = 400,
     MemePayOrderNotFound = 598,
     MemePayOrderCompleted = 599,
