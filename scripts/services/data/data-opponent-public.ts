@@ -1,5 +1,4 @@
 import type { IValueObject } from '../../pf';
-import { ValueObject } from '../../pf';
 import type { IOpponentPublicData, IOpponentStatisticalData } from '../../poker-client/session/data-session-types';
 
 export class OpponentStatisticalData implements IValueObject {
@@ -26,6 +25,20 @@ export class OpponentStatisticalData implements IValueObject {
         this.likedCount = data?.liked_count ?? 0;
         this.friendNum = data?.intimacy ?? 0;
     }
+
+    fromString(str: string): void {
+        const obj = JSON.parse(str);
+        this.enterRate = obj?.Enter_rate ?? 0;
+        this.PfrRate = obj?.Pfr_rate ?? 0;
+        this.totalEndRoomCount = obj?.Total_end_room_count ?? 0;
+        this.totalHandCardCount = obj?.Total_hand_card_count ?? 0;
+        this.VpipRate = obj?.Vpip_rate ?? 0;
+        this.WinRate = obj?.Win_rate ?? 0;
+        this.hasLiked = obj?.has_liked ?? 0;
+        this.levelHands = obj?.level_hands ?? 0;
+        this.likedCount = obj?.liked_count ?? 0;
+        this.friendNum = obj?.intimacy ?? 0;
+    }
 }
 
 export class OpponentPublicData {
@@ -36,7 +49,9 @@ export class OpponentPublicData {
     uid?: number | null = 0;
 
     fromProto(data?: IOpponentPublicData) {
-        this.data = ValueObject.fromProto(OpponentStatisticalData, data.data);
+        const data1 = new OpponentStatisticalData();
+        data1.fromString(data.data);
+        this.data = data1;
         this.identity = data?.identity ?? 0;
         this.levelHands = data?.level_hands ?? 0;
         this.starDuration = data?.star_duration ?? 0;

@@ -43,7 +43,7 @@ export interface IOpponentStatisticalData {
 }
 
 export interface IOpponentPublicData {
-    data: IOpponentStatisticalData;
+    data: string;
     identity: number;
     level_hands: number;
     star_duration: number;
