@@ -200,8 +200,8 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
 
     onLuckTurntableStartNotify(notify: ILuckTurntableStartTimeNotice) {
         cc.log(notify);
-
-        const redPacketInfo = this._redPacketInfo.get(notify.player_lottery_mode);
+        const mode = notify.player_lottery_mode ?? 0;
+        const redPacketInfo = this._redPacketInfo.get(mode);
         if (redPacketInfo) {
             redPacketInfo.isShowLuckTurntable = true;
             redPacketInfo.luckTurntableInfo = notify;
@@ -215,17 +215,17 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
             //     }
             // }
             // cv.MessageCenter.send("showLuckButton");
-            this.emit('luckTurntableStart', notify.player_lottery_mode);
+            this.emit('luckTurntableStart', mode);
         }
     }
 
     onLuckTurntableEndNotify(notify: ILuckTurntableEndTimeNotice) {
         cc.log(notify);
-
-        const redPacketInfo = this._redPacketInfo.get(notify.player_lottery_mode);
+        const mode = notify.player_lottery_mode ?? 0;
+        const redPacketInfo = this._redPacketInfo.get(mode);
         if (redPacketInfo) {
             redPacketInfo.isShowLuckTurntable = false;
-            this.emit('luckTurntableEnd', notify.player_lottery_mode);
+            this.emit('luckTurntableEnd', mode);
         }
 
         if (notify.error !== 1) {
@@ -235,37 +235,39 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
 
     onLuckTurntableReadyNotify(notify: ILuckTurntableReadyNotice) {
         cc.log(notify);
-
-        const redPacketInfo = this._redPacketInfo.get(notify.player_lottery_mode);
+        const mode = notify.player_lottery_mode ?? 0;
+        const redPacketInfo = this._redPacketInfo.get(mode);
         if (redPacketInfo) {
             redPacketInfo.luckTurntableStartTime = 0;
             const curTime = Util.getCurTimeInSec();
-            redPacketInfo.luckTurntableEndTime = curTime + notify.left_interval_time;
-            redPacketInfo.currentTurnTableType = notify.amount_list_gametype;
-            this.emit('luckTurntableReady', notify.player_lottery_mode);
+            const interval = notify.left_interval_time ?? 0;
+            redPacketInfo.luckTurntableEndTime = curTime + interval;
+            redPacketInfo.currentTurnTableType = notify.amount_list_gametype ?? RedPacketTurntableType.Regular;
+            this.emit('luckTurntableReady', mode);
         }
     }
 
     onLuckTurntableCountdownNotify(notify: ILuckTurntableCountdownNotice) {
         cc.log(notify);
-
-        const redPacketInfo = this._redPacketInfo.get(notify.player_lottery_mode);
+        const mode = notify.player_lottery_mode ?? 0;
+        const redPacketInfo = this._redPacketInfo.get(mode);
         if (redPacketInfo) {
             const curTime = Util.getCurTimeInSec();
-            redPacketInfo.luckTurntableStartTime = curTime + notify.left_interval_time;
-            this.emit('luckTurntableCountdown', notify.player_lottery_mode);
+            const interval = notify.left_interval_time ?? 0;
+            redPacketInfo.luckTurntableStartTime = curTime + interval;
+            this.emit('luckTurntableCountdown', mode);
         }
     }
 
     onLuckTurntableOverNotify(notify: ILuckTurntableOverNotice) {
         cc.log(notify);
-
-        const redPacketInfo = this._redPacketInfo.get(notify.player_lottery_mode);
+        const mode = notify.player_lottery_mode ?? 0;
+        const redPacketInfo = this._redPacketInfo.get(mode);
         if (redPacketInfo) {
             redPacketInfo.luckTurntableStartTime = 0;
             redPacketInfo.luckTurntableEndTime = 0;
             redPacketInfo.luckTurntables = [];
-            this.emit('luckTurntableOver', notify.player_lottery_mode);
+            this.emit('luckTurntableOver', mode);
         }
 
         if (notify.error !== 1) {
@@ -277,7 +279,8 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         cc.log(notify);
 
         if (notify && notify.draw_list) {
-            const redPacketInfo = this._redPacketInfo.get(notify.draw_list[0].player_lottery_mode);
+            const mode = notify.draw_list[0].player_lottery_mode ?? 0;
+            const redPacketInfo = this._redPacketInfo.get(mode);
             if (redPacketInfo) {
                 redPacketInfo.luckTurntables = [];
                 const curTime = Util.getCurTimeInSec();
@@ -292,7 +295,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
                 }
 
                 if (redPacketInfo.luckTurntables.length > 0) {
-                    this.emit('luckTurntableDraw', notify.draw_list[0].player_lottery_mode);
+                    this.emit('luckTurntableDraw', mode);
                 } else {
                     this.emit('luckTurntableUpdateButton');
                 }
