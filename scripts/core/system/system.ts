@@ -1,5 +1,6 @@
 import { Module } from '../module/module-index';
 import { View } from './view/view';
+import { NativeHelper } from './view/native-helper';
 
 export interface IDeviceInfo {
     dmodel: string;
@@ -36,6 +37,7 @@ export class System extends Module {
     }
 
     _IS_WEBVIEW: boolean = false;
+
     get isWebview(): boolean {
         return this._IS_WEBVIEW;
     }
@@ -52,9 +54,10 @@ export class System extends Module {
     //     return cc.sys.MOBILE_BROWSER;
     // }
 
-    /** Is native ? This is set to be true in jsb auto.
-        true: simulator、android、ios、windows、Mac
-        false: web h5
+    /**
+     * Is native ? This is set to be true in jsb auto.
+     * true: simulator、android、ios、windows、Mac
+     * false: web h5
      */
     get isNative(): boolean {
         return cc.sys.isNative;
@@ -205,5 +208,25 @@ export class System extends Module {
         //     return '';
         // }
         return 'd41d8cd98f00b204e9800998ecf8427e';
+    }
+
+    getDeviceName(): string {
+        if (this.isIOS) {
+            return NativeHelper.getIOSDeviceName();
+        } else if (this.isAndroid) {
+            return ''; // TODO
+        } else {
+            return '';
+        }
+    }
+
+    getDeviceModel(): string {
+        if (this.isIOS) {
+            return NativeHelper.getIOSDeviceModel();
+        } else if (this.isAndroid) {
+            return ''; // TODO
+        } else {
+            return '';
+        }
     }
 }
