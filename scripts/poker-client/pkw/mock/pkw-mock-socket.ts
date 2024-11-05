@@ -48,37 +48,37 @@ export class PKWMockSocket extends PKWSocket {
         this._notification.emit('luckTurntableSnaplist', MockLuckTurntableData.mockSnaplist);
     }
 
-    sendluckTurntableResultNotification() {
-        this._notification.emit('luckTurntableResult', MockLuckTurntableData.mockResultNotify);
-    }
+    // sendluckTurntableResultNotification() {
+    //     this._notification.emit('luckTurntableResult', MockLuckTurntableData.mockResultNotify);
+    // }
 
-    sendLuckTurntableStartNotification() {
-        this._notification.emit('luckTurntableStart', MockLuckTurntableData.mockStart);
-    }
+    // sendLuckTurntableStartNotification() {
+    //     this._notification.emit('luckTurntableStart', MockLuckTurntableData.mockStart);
+    // }
 
-    sendLuckTurntableEndNotification() {
-        this._notification.emit('luckTurntableEnd', MockLuckTurntableData.mockNoError);
-    }
+    // sendLuckTurntableEndNotification() {
+    //     this._notification.emit('luckTurntableEnd', MockLuckTurntableData.mockNoError);
+    // }
 
-    sendLuckTurntableCountdownNotification() {
-        this._notification.emit('luckTurntableCountdown', MockLuckTurntableData.mockDuration);
-    }
+    // sendLuckTurntableCountdownNotification() {
+    //     this._notification.emit('luckTurntableCountdown', MockLuckTurntableData.mockDuration);
+    // }
 
-    sendLuckTurntableReadyNotification() {
-        this._notification.emit('luckTurntableReady', MockLuckTurntableData.mockDuration);
-    }
+    // sendLuckTurntableReadyNotification() {
+    //     this._notification.emit('luckTurntableReady', MockLuckTurntableData.mockDuration);
+    // }
 
-    sendLuckTurntableOverNotification() {
-        this._notification.emit('luckTurntableOver', MockLuckTurntableData.mockNoError);
-    }
+    // sendLuckTurntableOverNotification() {
+    //     this._notification.emit('luckTurntableOver', MockLuckTurntableData.mockNoError);
+    // }
 
-    sendLuckTurntableDrawNotification(awardType?: number, currencyType?: number, amountIndex?: number) {
-        const msg = MockLuckTurntableData.mockDrawList;
-        msg.draw_list[0].award_type = awardType ?? msg.draw_list[0].award_type;
-        msg.draw_list[0].currency_type = currencyType ?? msg.draw_list[0].currency_type;
-        msg.draw_list[0].amount_index = amountIndex ?? msg.draw_list[0].amount_index;
-        this._notification.emit('luckTurntableDraw', msg);
-    }
+    // sendLuckTurntableDrawNotification(awardType?: number, currencyType?: number, amountIndex?: number) {
+    //     const msg = MockLuckTurntableData.mockDrawList;
+    //     msg.draw_list[0].award_type = awardType ?? msg.draw_list[0].award_type;
+    //     msg.draw_list[0].currency_type = currencyType ?? msg.draw_list[0].currency_type;
+    //     msg.draw_list[0].amount_index = amountIndex ?? msg.draw_list[0].amount_index;
+    //     this._notification.emit('luckTurntableDraw', msg);
+    // }
 
     async getCalmDownConfirm(confirm: boolean): Promise<IResponseCalmDownConfirm> {
         setTimeout(() => this._resolveFunc(), 100);
