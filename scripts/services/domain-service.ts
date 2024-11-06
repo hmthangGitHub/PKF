@@ -77,4 +77,9 @@ export class DomainService extends Service {
         const webServer = this.getWebServer();
         return `${webServer}/index?token=${userInfo.userToken}&user_id=${userInfo.userId}#KYC`;
     }
+
+    getGeolocationUrl(state: string): string {
+        const webServer = this.getWebServer();
+        return `${webServer}/geoblock/?state=${state ? state : 'verification'}`;
+    }
 }
