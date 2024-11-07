@@ -11,7 +11,9 @@ import type {
     IModifyPlayerParams,
     INotificationSetParams,
     INotificationSetData,
-    IKycInfoData
+    IKycInfoData,
+    DataServerParameters,
+    WCParamsData
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
 import { PKWClient } from './pkw/pkw-client';
@@ -60,9 +62,11 @@ export interface IPokerClient {
 
     modifyMail?: (newMail: string, verificationCode: string) => Promise<void>;
 
-    reportPageView?: (metricsUrl: string, trackingKey: string, page: string) => Promise<void>;
+    reportPageView?: (dataServerParams: DataServerParameters, page: string) => Promise<void>;
 
-    getTrackingKey?: (metricsUrl: string) => Promise<string>;
+    getTrackingKey?: (dataServerUrl: string) => Promise<string>;
+
+    reportWC?: (dataServerParams: DataServerParameters, name: string, paramsData: WCParamsData) => Promise<void>;
 }
 
 export class PokerClient {

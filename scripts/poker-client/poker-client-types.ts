@@ -517,7 +517,8 @@ export enum RoomMode {
 }
 
 export interface MertricsParamsData {
-    id?: number | string;
+    $user_id: string | number;
+    $device_id: string | number;
     page?: string;
 }
 
@@ -530,4 +531,23 @@ export interface ISweepCoinData {
     TotalBalance: number | null;
     Unplayed: number | null;
     Redeemable: number | null;
+}
+
+export interface DataServerParameters {
+    trackingKey: string;
+    dataServerUrl: string;
+}
+
+export interface IWCReportParams {
+    name?: string;
+    data?: WCParamsData;
+}
+
+export interface WCParamsData {
+    $user_id?: string | number;
+    $device_id?: string | number;
+    type?: string;
+    game_id?: string | number;
+    lobby_id?: string | number;
+    table_position?: string | number;
 }
