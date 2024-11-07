@@ -141,23 +141,28 @@ export interface ILuckTurntableStartTimeNotice {
     content?: string | null;
     text?: string | null;
     share_image_url?: string | null;
+    player_lottery_mode?: number | null;
 }
 
 export interface ILuckTurntableEndTimeNotice {
     error?: number | null;
+    player_lottery_mode?: number | null;
 }
 
 export interface ILuckTurntableReadyNotice {
     left_interval_time?: number | null;
     amount_list_gametype?: number | null;
+    player_lottery_mode?: number | null;
 }
 
 export interface ILuckTurntableCountdownNotice {
     left_interval_time?: number | null;
+    player_lottery_mode?: number | null;
 }
 
 export interface ILuckTurntableOverNotice {
     error?: number | null;
+    player_lottery_mode?: number | null;
 }
 
 export interface ITurntableItem {
@@ -173,6 +178,7 @@ export interface ILuckTurntableDraw {
     award_type?: number | null;
     currency_type?: number | null;
     goods_desc?: string | null;
+    player_lottery_mode?: number | null;
 }
 
 export interface ILuckTurntableDrawNotice {
@@ -187,6 +193,8 @@ export interface ILuckTurntableLamp {
     currency_type?: number | null;
     goods_id?: number | null;
     goods_desc?: string | null;
+    time?: number | null;
+    player_lottery_mode?: number | null;
 }
 
 export interface ILuckTurntableData {
@@ -198,6 +206,7 @@ export interface ILuckTurntableData {
     goods_id?: number | null;
     goods_desc?: string | null;
     winner_type?: number | null;
+    player_lottery_mode?: number | null;
 }
 
 export interface ILuckTurntableSnaplistNotice {
@@ -209,6 +218,7 @@ export interface ILuckTurntableResultNotice {
     uid?: number | null;
     currency_type?: number | null;
     amount?: number | null;
+    player_lottery_mode?: number | null;
 }
 
 export interface SocketNotifications {
@@ -246,6 +256,7 @@ export interface ILuckTurntableResultResponse {
     error?: number | null;
     currency_type?: number | null;
     amount?: number | null;
+    player_lottery_mode?: number | null;
 }
 
 export interface ILuckTurntableSnaplistResponse {
@@ -432,9 +443,13 @@ export interface ISocket {
 
     addCoinOrder(payType: number): Promise<IAddCoinOrderResponse>;
 
-    getLuckTurntableResult(recordId: number): Promise<ILuckTurntableResultResponse>;
+    getLuckTurntableResult(recordId: number, mode?: number): Promise<ILuckTurntableResultResponse>;
 
-    getLuckTurntableSnaplist(lampCount: number, recordCount: number): Promise<ILuckTurntableSnaplistResponse>;
+    getLuckTurntableSnaplist(
+        lampCount: number,
+        recordCount: number,
+        mode?: number
+    ): Promise<ILuckTurntableSnaplistResponse>;
 
     getUserData(userId: number): Promise<IResponseGetUserData>;
 

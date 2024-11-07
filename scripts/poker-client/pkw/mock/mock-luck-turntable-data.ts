@@ -1,20 +1,32 @@
 /* eslint-disable camelcase */
 export class MockLuckTurntableData {
+    static lotteryMode = 0;
+
+    static luckTurntableType = 2;
+
     static mockStart = {
         title: 'WPT 200万助力红包周 2/7~2/13',
         content:
             'WPT 200万助力红包周活动进行中！2月7日~2月9日 19：30 德州之夜！最高奖励18,888！ 88以上红包需好友助力 ，助力好友可获得WPT门票!!!   请前往“我的红包”查询助力码，分享好友，满足助力人数即可领奖！',
         text: 'WPT 200万助力红包周活动进行中！2月7日~2月9日 19：30 德州之夜！最高奖励18,888！ 88以上红包需好友助力 ，助力好友可获得WPT门票!!!   请前往“我的红包”查询助力码，分享好友，满足助力人数即可领奖！',
-        share_image_url: 'ca69dca21d770358.jpeg#ca69dca21d770358.jpeg#ca69dca21d770358.jpeg#ca69dca21d770358.jpeg#'
+        share_image_url: 'ca69dca21d770358.jpeg#ca69dca21d770358.jpeg#ca69dca21d770358.jpeg#ca69dca21d770358.jpeg#',
+        player_lottery_mode: MockLuckTurntableData.lotteryMode
     };
 
     static duration = 135;
 
-    static mockNoError = { error: 1 };
+    static mockNoError = { error: 1, player_lottery_mode: MockLuckTurntableData.lotteryMode };
 
-    static mockDuration = { left_interval_time: MockLuckTurntableData.duration };
+    static mockCountdown = {
+        left_interval_time: MockLuckTurntableData.duration,
+        player_lottery_mode: MockLuckTurntableData.lotteryMode
+    };
 
-    static mockReady = { left_interval_time: MockLuckTurntableData.duration, amount_list_gametype: 2 };
+    static mockReady = {
+        left_interval_time: MockLuckTurntableData.duration,
+        amount_list_gametype: MockLuckTurntableData.luckTurntableType,
+        player_lottery_mode: MockLuckTurntableData.lotteryMode
+    };
 
     static mockDrawList = {
         draw_list: [
@@ -88,12 +100,18 @@ export class MockLuckTurntableData {
                 // 2: 助力獎，會跳出到背包領取的對話框
                 award_type: 1,
                 currency_type: 3, // 0: 金幣、1: 小遊戲幣、2: USDT、3: 實物、5: 體育幣
-                goods_desc: ''
+                goods_desc: '',
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             }
         ]
     };
 
-    static mockDrawResult = { error: 1, currency_type: 0, amount: 1000 };
+    static mockDrawResult = {
+        error: 1,
+        currency_type: 0,
+        amount: 1000,
+        player_lottery_mode: MockLuckTurntableData.lotteryMode
+    };
 
     static mockSnaplist = {
         lamp_list: [
@@ -104,7 +122,9 @@ export class MockLuckTurntableData {
                 room_name: '牛仔初级场',
                 currency_type: 2,
                 goods_id: 0,
-                goods_desc: ''
+                goods_desc: '',
+                time: 1709192963,
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             },
             {
                 game_type: 10,
@@ -113,7 +133,9 @@ export class MockLuckTurntableData {
                 room_name: '牛仔初级场',
                 currency_type: 2,
                 goods_id: 0,
-                goods_desc: ''
+                goods_desc: '',
+                time: 1709192337,
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             },
             {
                 game_type: 40,
@@ -122,7 +144,9 @@ export class MockLuckTurntableData {
                 room_name: '极速扑克-2932',
                 currency_type: 2,
                 goods_id: 0,
-                goods_desc: ''
+                goods_desc: '',
+                time: 1709192172,
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             },
             {
                 game_type: 40,
@@ -131,7 +155,9 @@ export class MockLuckTurntableData {
                 room_name: '极速短牌-2946',
                 currency_type: 2,
                 goods_id: 0,
-                goods_desc: ''
+                goods_desc: '',
+                time: 1709192105,
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             },
             {
                 game_type: 40,
@@ -140,7 +166,9 @@ export class MockLuckTurntableData {
                 room_name: '极速扑克-2933',
                 currency_type: 2,
                 goods_id: 0,
-                goods_desc: ''
+                goods_desc: '',
+                time: 1709192100,
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             },
             {
                 game_type: 40,
@@ -149,7 +177,9 @@ export class MockLuckTurntableData {
                 room_name: '极速扑克-2929',
                 currency_type: 2,
                 goods_id: 0,
-                goods_desc: ''
+                goods_desc: '',
+                time: 1709192064,
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             }
         ],
         record_list: [
@@ -161,7 +191,8 @@ export class MockLuckTurntableData {
                 currency_type: 2,
                 goods_id: 0,
                 goods_desc: '',
-                winner_type: 1
+                winner_type: 1,
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             },
             {
                 seq_num: 2,
@@ -171,7 +202,8 @@ export class MockLuckTurntableData {
                 currency_type: 2,
                 goods_id: 0,
                 goods_desc: '',
-                winner_type: 1
+                winner_type: 1,
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             },
             {
                 seq_num: 3,
@@ -181,7 +213,8 @@ export class MockLuckTurntableData {
                 currency_type: 2,
                 goods_id: 0,
                 goods_desc: '',
-                winner_type: 1
+                winner_type: 1,
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             },
             {
                 seq_num: 4,
@@ -191,7 +224,8 @@ export class MockLuckTurntableData {
                 currency_type: 2,
                 goods_id: 0,
                 goods_desc: '',
-                winner_type: 1
+                winner_type: 1,
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             },
             {
                 seq_num: 5,
@@ -201,7 +235,8 @@ export class MockLuckTurntableData {
                 currency_type: 2,
                 goods_id: 0,
                 goods_desc: '',
-                winner_type: 1
+                winner_type: 1,
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             },
             {
                 seq_num: 6,
@@ -211,10 +246,16 @@ export class MockLuckTurntableData {
                 currency_type: 2,
                 goods_id: 0,
                 goods_desc: '',
-                winner_type: 1
+                winner_type: 1,
+                player_lottery_mode: MockLuckTurntableData.lotteryMode
             }
         ]
     };
 
-    static mockResultNotify = { uid: 45606, currency_type: 1, amount: 1000 };
+    static mockResultNotify = {
+        uid: 45606,
+        currency_type: 1,
+        amount: 1000,
+        player_lottery_mode: MockLuckTurntableData.lotteryMode
+    };
 }

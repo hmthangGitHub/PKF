@@ -349,10 +349,11 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         return responseProto;
     }
 
-    async getLuckTurntableResult(recordId: number): Promise<ILuckTurntableResultResponse> {
+    async getLuckTurntableResult(recordId: number, mode?: number): Promise<ILuckTurntableResultResponse> {
         const requestProto = new pb.LuckTurntableResultRequest();
 
         requestProto.record_id = recordId;
+        requestProto.player_lottery_mode = mode ?? 0;
 
         const response = await this.sendRequest(
             requestProto,
@@ -369,11 +370,16 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         return responseProto;
     }
 
-    async getLuckTurntableSnaplist(lampCount: number, recordCount: number): Promise<ILuckTurntableSnaplistResponse> {
+    async getLuckTurntableSnaplist(
+        lampCount: number,
+        recordCount: number,
+        mode?: number
+    ): Promise<ILuckTurntableSnaplistResponse> {
         const requestProto = new pb.LuckTurntableSnaplistRequest();
 
         requestProto.lamp_cnt = lampCount;
         requestProto.record_cnt = recordCount;
+        requestProto.player_lottery_mode = mode ?? 0;
 
         const response = await this.sendRequest(
             requestProto,

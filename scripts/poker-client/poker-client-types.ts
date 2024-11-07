@@ -273,6 +273,11 @@ export enum RedPacketTurntableType {
     Squid = 2
 }
 
+export enum RedPacketLotteryMode {
+    Classical = 0,
+    Diamond = 1
+}
+
 export interface GeolocationCoord {
     readonly latitude: number;
     readonly longitude: number;
