@@ -546,7 +546,7 @@ export interface IWCReportParams {
 export interface WCParamsData {
     $user_id?: string | number;
     $device_id?: string | number;
-    type?: string;
+    type?: string | number;
     game_id?: string | number;
     lobby_id?: string | number;
     table_position?: string | number;
