@@ -9,4 +9,5 @@ export * from './socket-message-processor';
 export * from './socket-message';
 export * from './encrypt/encrypt-index';
 export * from './socket/socket-index';
+export * from './client/client-index';
 export * as session from './session/game-session-index';

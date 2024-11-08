@@ -532,22 +532,3 @@ export interface ISweepCoinData {
     Unplayed: number | null;
     Redeemable: number | null;
 }
-
-export interface DataServerParameters {
-    trackingKey: string;
-    dataServerUrl: string;
-}
-
-export interface IWCReportParams {
-    name?: string;
-    data?: WCParamsData;
-}
-
-export interface WCParamsData {
-    $user_id?: string | number;
-    $device_id?: string | number;
-    type?: string | number;
-    game_id?: string | number;
-    lobby_id?: string | number;
-    table_position?: string | number;
-}

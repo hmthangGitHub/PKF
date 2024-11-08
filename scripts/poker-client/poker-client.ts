@@ -11,15 +11,14 @@ import type {
     IModifyPlayerParams,
     INotificationSetParams,
     INotificationSetData,
-    IKycInfoData,
-    DataServerParameters,
-    WCParamsData
+    IKycInfoData
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
 import { PKWClient } from './pkw/pkw-client';
 import { WPKClient } from './wpk/wpk-client';
+import type { IMertricsApi } from './client/client-index';
 
-export interface IPokerClient {
+export interface IPokerClient extends IMertricsApi {
     /** link PokerClient to exist login session */
     link(session: ISession, options?: ILinkOptions): void;
 
@@ -61,12 +60,6 @@ export interface IPokerClient {
     sendMailVerificationCode?: (mail: string) => Promise<void>;
 
     modifyMail?: (newMail: string, verificationCode: string) => Promise<void>;
-
-    reportPageView?: (dataServerParams: DataServerParameters, page: string) => Promise<void>;
-
-    getTrackingKey?: (dataServerUrl: string) => Promise<string>;
-
-    reportWC?: (dataServerParams: DataServerParameters, name: string, paramsData: WCParamsData) => Promise<void>;
 }
 
 export class PokerClient {
