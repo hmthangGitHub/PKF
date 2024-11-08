@@ -1,5 +1,5 @@
 import type { IValueObject } from '../../core/core-index';
-import { ValueObject, ValueObjectArray } from '../../core/core-index';
+import { ValueObjectArray } from '../../core/core-index';
 import type { IBbData, ISelfPublicData, ISelfStatisticalData } from '../../poker-client/session/data-session-types';
 
 export class SelfStatisticalData implements IValueObject {
@@ -96,19 +96,71 @@ export class SelfStatisticalData implements IValueObject {
         this.levelHands = data?.level_hands ?? 0;
         this.likedCount = data?.liked_count ?? 0;
     }
+
+    // eslint-disable-next-line complexity
+    fromString(str: string): void {
+        const obj = JSON.parse(str);
+        this.UID = obj?.UID ?? 0;
+        this.totalHandCardCount = obj?.Total_hand_card_count ?? 0;
+        this.totalEnterGameCount = obj?.Total_enter_game_count ?? 0;
+        this.totalShowdownWinCount = obj?.Total_showdown_win_count ?? 0;
+        this.totalShowdownCount = obj?.Total_showdown_count ?? 0;
+        this.totalWinCount = obj?.Total_win_count ?? 0;
+        this.winRate = obj?.Win_rate ?? 0;
+        this.enterRate = obj?.Enter_rate ?? 0;
+        this.preFlopAddBetCount = obj?.Preflop_add_bet_count ?? 0;
+        this.vpipRate = obj?.Vpip_rate ?? 0;
+        this.preFlopActiveRaiseCount = obj?.Preflop_active_raise_count ?? 0;
+        this.pfrRate = obj?.Pfr_rate ?? 0;
+        this.totalEnterFlopCount = obj?.Total_enter_flop_count ?? 0;
+        this.etfRate = obj?.Etf_rate ?? 0;
+        this.total3betCount = obj?.Total_3bet_count ?? 0;
+        this.total3betChanceCount = obj?.Total_3bet_chance_count ?? 0;
+        this.rate3Bet = obj?.Rate_3bet ?? 0;
+        this.totalBe3betFoldCount = obj?.Total_be_3bet_fold_count ?? 0;
+        this.totalBe3betCount = obj?.Total_be_3bet_count ?? 0;
+        this.rateFoldTo3bet = obj?.Rate_fold_to_3bet ?? 0;
+        this.totalBetCount = obj?.Total_bet_count ?? 0;
+        this.totalRaiseCount = obj?.Total_raise_count ?? 0;
+        this.totalCallCount = obj?.Total_call_count ?? 0;
+        this.afRate = obj?.Af_rate ?? 0;
+        this.TotalStealBlindCount = obj?.Total_steal_blind_count ?? 0;
+        this.totalStealBlindChanceCount = obj?.Total_steal_blind_chance_count ?? 0;
+        this.sbRate = obj?.Sb_rate ?? 0;
+        this.totalAfterFlopWinCount = obj?.Total_after_flop_win_count ?? 0;
+        this.wsfRate = obj?.Wsf_rate ?? 0;
+        this.totalRiverCount = obj?.Total_river_count ?? 0;
+        this.totalFlopCount = obj?.Total_flop_count ?? 0;
+        this.wtsdRate = obj?.Wtsd_rate ?? 0;
+        this.totalRiverWinCount = obj?.Total_river_win_count ?? 0;
+        this.wsdRate = obj?.Wsd_rate ?? 0;
+        this.totalCbetCount = obj?.Total_cbet_count ?? 0;
+        this.totalPreflopLastBetCount = obj?.Total_preflop_last_bet_count ?? 0;
+        this.cbetRate = obj?.Cbet_rate ?? 0;
+        this.totalWinMoney = obj?.Total_win_money ?? 0;
+        this.totalBuyin = obj?.Total_buyin ?? 0;
+        this.totalEndRoomCount = obj?.Total_end_room_count ?? 0;
+        this.levelHands = obj?.level_hands ?? 0;
+        this.likedCount = obj?.liked_count ?? 0;
+        this.hasLiked = obj?.has_liked ?? 0;
+        this.intimacy = obj?.intimacy ?? 0;
+        this.bb100s = obj?.bb_100_s ?? [];
+    }
 }
 
 export class SelfPublicData implements IValueObject {
     data?: SelfStatisticalData | null = null;
     identity?: number | null = 0;
-    levelHands?: number | null = 0;
+    jfData?: string | null = '';
     starDuration?: number | null = 0;
     uid?: number | null = 0;
 
     fromProto(data?: ISelfPublicData) {
-        this.data = ValueObject.fromProto(SelfStatisticalData, data.data);
+        const advData = new SelfStatisticalData();
+        advData.fromString(data.data);
+        this.data = advData;
         this.identity = data?.identity ?? 0;
-        this.levelHands = data?.level_hands ?? 0;
+        this.jfData = data?.jfdata ?? '';
         this.starDuration = data?.star_duration ?? 0;
         this.uid = data?.uid ?? 0;
     }

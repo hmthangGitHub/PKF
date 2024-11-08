@@ -98,9 +98,9 @@ export interface ISelfStatisticalData {
 }
 
 export interface ISelfPublicData {
-    data: ISelfStatisticalData;
+    data: string;
     identity: number;
-    level_hands: number;
+    jfdata: string;
     star_duration: number;
     uid: number;
 }
