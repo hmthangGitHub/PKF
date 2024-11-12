@@ -6,6 +6,7 @@ import { NativeManager } from '../../native/native-manager';
 // NOTICE: 下面寫法會出錯
 // import {DeviceAPI} from "../../../natives/device-api/device-api";
 import { DeviceAPI } from '../../../natives/natives-index';
+import { SafeAreaHelper } from './safe-area-helper';
 
 export class View {
     _system: System;
@@ -347,4 +348,8 @@ export class View {
     // getSafeArea() {
     //     return  cv.SafeAreaWithDifferentDevices.getSafeArea();
     // }
+
+    getSafeArea(): cc.Rect {
+        return SafeAreaHelper.getSafeAreaRect();
+    }
 }
