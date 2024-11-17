@@ -123,6 +123,8 @@ export interface INoticeNotifyUserGoldNum {
     total_points?: number | null;
     usdt?: number | null;
     diamond?: number | null;
+    sports_betting_balance?: number | null;
+    sports_trial_coin?: ISportsTrialCoin | null;
 }
 
 export interface INoticeGlobalMessage {
