@@ -114,7 +114,6 @@ export class AuthService extends EmittableService<AuthEvents> {
 
     /** 修改头像 */
     async sendModifyAvatar(webUrl: string, avatar: string | number): Promise<void> {
-        console.log('sendModifyAvatar:' + avatar);
         const params: IModifyPlayerParams = {
             avatar: avatar.toString()
         };
@@ -123,7 +122,6 @@ export class AuthService extends EmittableService<AuthEvents> {
 
     /** 修改昵称 */
     async sendModifyNickName(webUrl: string, nickname: string): Promise<void> {
-        console.log('sendModifyNickName:' + nickname);
         const params: IModifyPlayerParams = {
             nickname: nickname
         };

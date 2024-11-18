@@ -37,11 +37,8 @@ export class WPKUtil {
         string = string.replace(/[^\w]/g, '');
 
         // 前后加上 110
-        // console.log('------_sign用1:------' + JSON.stringify(parameters));
         string = '110' + string + '110';
-        // console.log('------_sign用2:------' + string);
         let sign = md5(string).toUpperCase();
-        // console.log('------_sign后:------' + sign);
         return sign;
     }
 
