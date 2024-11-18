@@ -1,6 +1,5 @@
 import { EmittableService } from '../core/core-index';
-import type { Nullable } from '../core/core-index';
-import type { ISocket, INoticeNotifyUserGoldNum, IUser } from '../poker-client/poker-client-index';
+import type { ISocket, INoticeNotifyUserGoldNum, INoticeGetUserData } from '../poker-client/poker-client-index';
 
 export class Wallet {
     uid: number = 0;
@@ -37,8 +36,6 @@ export class WalletService extends EmittableService<WalletEvents> {
 
     _socket: ISocket;
 
-    _user: Nullable<IUser> = null;
-
     _wallet: Wallet;
 
     constructor(socket: ISocket) {
@@ -47,12 +44,7 @@ export class WalletService extends EmittableService<WalletEvents> {
         this._wallet = new Wallet();
 
         this._socket.notification.on('userGoldNum', this.onUserGoldNumNotify.bind(this));
-    }
-
-    setUser(user: IUser) {
-        if (this._user === null && user) {
-            this._user = user;
-        }
+        this._socket.notification.on('userData', this.onUserDataNotify.bind(this));
     }
 
     getWallet(): Wallet {
@@ -63,23 +55,20 @@ export class WalletService extends EmittableService<WalletEvents> {
         if (notify.uid === this._socket.userId) {
             console.log('[3in1] user gold notify', notify);
             this._wallet.from(notify);
-            this.updateUserData();
             this.emit('userGoldNum', this._wallet);
         }
     }
 
-    updateUserData() {
-        if (this._user === null) {
-            return;
-        }
-
-        this._user.userGold = this._wallet.goldNum;
-        this._user.gameCoin = this._wallet.gameCoin;
-        this._user.totalAmount = this._wallet.totalAmount;
-        this._user.userPoints = this._wallet.totalPoints;
-        this._user.usdt = this._wallet.usdt;
-        this._user.sportsBettingBalance = this._wallet.sportsBettingBalance;
-        this._user.sportsTrialCoin = this._wallet.sportsTrialCoin;
-        this._user.sportsTrialCoinExpiration = this._wallet.sportsTrialCoinExpiration;
+    onUserDataNotify(notify: INoticeGetUserData) {
+        console.log('[3in1] user data notify got in wallet service', notify);
+        this._wallet.goldNum = notify.user_gold ?? 0;
+        this._wallet.gameCoin = notify.game_coin ?? 0;
+        this._wallet.totalAmount = notify.total_amount ?? 0;
+        this._wallet.totalPoints = notify.user_points ?? 0;
+        this._wallet.usdt = notify.usdt ?? 0;
+        this._wallet.diamond = notify.diamond ?? 0;
+        this._wallet.sportsBettingBalance = notify.sports_betting_balance ?? 0;
+        this._wallet.sportsTrialCoin = notify?.sports_trial_coin?.coins ?? 0;
+        this._wallet.sportsTrialCoinExpiration = notify?.sports_trial_coin?.expired_at ?? 0;
     }
 }
