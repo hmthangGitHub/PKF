@@ -23,8 +23,8 @@ export class Wallet {
         this.usdt = data.usdt ?? 0;
         this.diamond = data.diamond ?? 0;
         this.sportsBettingBalance = data.sports_betting_balance ?? 0;
-        this.sportsTrialCoin = data.sports_trial_coin.coins ?? 0;
-        this.sportsTrialCoinExpiration = data.sports_trial_coin.expired_at ?? 0;
+        this.sportsTrialCoin = data?.sports_trial_coin?.coins ?? 0;
+        this.sportsTrialCoinExpiration = data?.sports_trial_coin?.expired_at ?? 0;
     }
 }
 
