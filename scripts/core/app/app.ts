@@ -11,10 +11,10 @@ export interface IAppEvents {
     modalShow: (show: boolean) => void;
 }
 
-export type Enviroment = 'local' | 'dev' | 'stg' | 'prod';
+export type Environment = 'local' | 'dev' | 'stg' | 'prod';
 
 export interface IAppConfig {
-    enviroment: Enviroment;
+    environment: Environment;
 }
 
 export interface IGameContext {
