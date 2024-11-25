@@ -635,6 +635,11 @@ export interface IDailyRewardItem {
 export interface IRewardDesc {
     amount?: number | null;
     currency?: number | null;
+    tool_id?: number | null;
+    users?: string[] | null;
+    images?: { [k: string]: string } | null;
+    expire_time?: number | null;
+    tool_name?: string | null;
 }
 
 export interface IRegisterRewardInfo {
