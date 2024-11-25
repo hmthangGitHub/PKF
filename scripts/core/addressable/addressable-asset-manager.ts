@@ -4,7 +4,8 @@ import { LocationIndicator } from './asset-locator';
 import { AddressableAssetGroup } from './addressable-group';
 import { AssetTypeMapper } from './asset-type-mapper';
 import { ModuleManager, Module } from '../module/module-index';
-import type { Nullable } from '../defines/types';
+import type { Nullable } from '../defines/defines-index';
+import { InvalidParameterError } from '../defines/defines-index';
 
 export class AddressableAssetManager extends Module {
     static moduleName = 'AddressableAssetManager';
@@ -39,45 +40,69 @@ export class AddressableAssetManager extends Module {
         this._addressableGroups.delete(groupName);
     }
 
-    loadAsset<T extends cc.Asset>(key: string): Promise<T> {
-        return new Promise<T>((resolve, reject) => {
-            if (key.length === 0) {
-                reject(new Error('Invalid empty key.'));
-                return;
-            }
+    async loadAsset<T extends cc.Asset>(key: string): Promise<T> {
+        cc.log(`[AddressalbeAsset] load asset ${key}`);
+        if (key.length === 0) {
+            return Promise.reject(new InvalidParameterError('Invalid empty key.'));
+        }
 
-            const indicator = LocationIndicator.fromKey(key);
-            if (indicator.groupName.length === 0) {
-                reject(new Error(`key ${key} is invalid. Please use "Group.AssetName" as a key.`));
-                return;
-            }
+        const indicator = LocationIndicator.fromKey(key);
+        if (indicator.groupName.length === 0) {
+            return Promise.reject(
+                new InvalidParameterError(`key ${key} is invalid. Please use "Group.AssetName" as a key.`)
+            );
+        }
 
-            const group = this._addressableGroups.get(indicator.groupName);
-            if (!group) {
-                reject(new Error(`Group ${indicator.groupName} does not exist!`));
-                return;
-            }
+        const group = this._addressableGroups.get(indicator.groupName);
+        if (!group) {
+            return Promise.reject(new InvalidParameterError(`Group ${indicator.groupName} does not exist!`));
+        }
 
-            const location = group.getAssetLocator(indicator.assetName);
-            if (!location) {
-                reject(new Error(`AssetLocator of ${indicator.assetName} does not exist!`));
-                return;
-            }
+        const location = group.getAssetLocator(indicator.assetName);
+        if (!location) {
+            return Promise.reject(new InvalidParameterError(`AssetLocator of ${indicator.assetName} does not exist!`));
+        }
 
-            this._bundleManager
-                .loadAsset<T>(group.bundle, location.path, AssetTypeMapper.toCCType(location.type))
-                .then((asset: T) => {
-                    resolve(asset);
-                })
-                .catch((err) => {
-                    reject(err);
-                });
-        });
+        return await this._bundleManager.loadAsset<T>(
+            group.bundle,
+            location.path,
+            AssetTypeMapper.toCCType(location.type)
+        );
+    }
+
+    async preloadAsset(key: string): Promise<void> {
+        cc.log(`[AddressalbeAsset] preload asset ${key}`);
+
+        if (key.length === 0) {
+            return Promise.reject(new InvalidParameterError('Invalid empty key.'));
+        }
+
+        const indicator = LocationIndicator.fromKey(key);
+        if (indicator.groupName.length === 0) {
+            return Promise.reject(
+                new InvalidParameterError(`key ${key} is invalid. Please use "Group.AssetName" as a key.`)
+            );
+        }
+
+        const group = this._addressableGroups.get(indicator.groupName);
+        if (!group) {
+            return Promise.reject(new InvalidParameterError(`Group ${indicator.groupName} does not exist!`));
+        }
+
+        const location = group.getAssetLocator(indicator.assetName);
+        if (!location) {
+            return Promise.reject(new InvalidParameterError(`AssetLocator of ${indicator.assetName} does not exist!`));
+        }
+
+        return await this._bundleManager.preloadAsset(
+            group.bundle,
+            location.path,
+            AssetTypeMapper.toCCType(location.type)
+        );
     }
 
     async loadAssetByLocation<T extends cc.Asset>(
         bundleOrName: cc.AssetManager.Bundle | string,
-        group: string,
         location: IAssetLocator
     ): Promise<T> {
         const asset = await this._bundleManager.loadAsset<T>(
@@ -87,6 +112,13 @@ export class AddressableAssetManager extends Module {
         );
 
         return asset;
+    }
+
+    async preloadAssetByLocation(
+        bundleOrName: cc.AssetManager.Bundle | string,
+        location: IAssetLocator
+    ): Promise<void> {
+        await this._bundleManager.preloadAsset(bundleOrName, location.path, AssetTypeMapper.toCCType(location.type));
     }
 
     getAsset<T extends cc.Asset>(key: string): T | undefined {
