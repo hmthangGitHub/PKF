@@ -1,9 +1,21 @@
 import { EmittableService } from '../core/core-index';
-import type { ISocket, INoticeMttAuth, INoticeGlobalMessage } from '../poker-client/poker-client-index';
+import {
+    type ISocket,
+    type INoticeMttAuth,
+    type INoticeGlobalMessage,
+    MsgType
+} from '../poker-client/poker-client-index';
 
 export interface MttEvents {
     auth: () => void;
-    onGlobalMessage: (notify: INoticeGlobalMessage) => void;
+    onMttNotify: (notify: IMttNotifyParam) => void;
+}
+
+export interface IMttNotifyParam {
+    notifyType: number;
+    gameId: number;
+    gameName: string;
+    remainTime: number;
 }
 
 export class MttService extends EmittableService<MttEvents> {
@@ -46,6 +58,13 @@ export class MttService extends EmittableService<MttEvents> {
     }
 
     onGlobalMessage(notify: INoticeGlobalMessage) {
-        this.emit('onGlobalMessage', notify);
+        if (notify.msg_type !== MsgType.mtt_game_notify) return;
+        const param: IMttNotifyParam = {
+            notifyType: notify.mttNotifyType,
+            gameName: notify.mttGameName,
+            gameId: notify.mtt_id,
+            remainTime: notify.mttRemainTime
+        };
+        this.emit('onMttNotify', param);
     }
 }
