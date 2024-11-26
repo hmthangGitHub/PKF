@@ -1,5 +1,5 @@
 import { EmittableService, StringUtil } from '../core/core-index';
-import { GameId } from '../poker-client/poker-client-types';
+import { GameId, MsgType } from '../poker-client/poker-client-types';
 import type { ISocket, INoticeGlobalMessage } from '../poker-client/poker-socket';
 
 export enum PushNoticeType {
@@ -43,8 +43,7 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
 
     onGlobalMessage(notify: INoticeGlobalMessage) {
         // TODO: handle MTT notification
-        const mttGameStart = 2; // mtt比赛开始通知
-        if (notify.msg_type === mttGameStart) {
+        if (notify.msg_type === MsgType.mtt_game_notify) {
             return;
         }
 
