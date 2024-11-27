@@ -730,7 +730,17 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleGlobalMessageNotify(protobuf: pb.NoticeGlobalMessage) {
         console.log('global message', protobuf);
-        this._notification.emit('globalMessage', protobuf);
+        let sourceType = [];
+        if (protobuf.source_type) {
+            sourceType = protobuf.source_type.map((gameId) => {
+                return gameId;
+            });
+        }
+
+        this._notification.emit('globalMessage', {
+            ...protobuf,
+            source_type: sourceType
+        });
     }
 
     protected registerObservers() {
