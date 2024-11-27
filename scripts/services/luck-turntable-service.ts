@@ -179,6 +179,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         const redPacket = this._redPacketInfo.get(lotteryMode);
         if (redPacket) {
             for (let i = 0; i < redPacket.luckTurntables.length; i++) {
+                /* eslint-disable eqeqeq-fix/eqeqeq */
                 if (redPacket.luckTurntables[i].record_id == recordId) {
                     redPacket.luckTurntables.splice(i, 1);
                     if (this.onLuckTurntableRecordRemoved) {
