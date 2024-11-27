@@ -380,6 +380,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         const requestProto = new pb.LuckTurntableResultRequest();
 
         requestProto.record_id = recordId;
+        // @ts-ignore
         requestProto.player_lottery_mode = mode ?? 0;
 
         const response = await this.sendRequest(
@@ -406,6 +407,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
         requestProto.lamp_cnt = lampCount;
         requestProto.record_cnt = recordCount;
+        // @ts-ignore
         requestProto.player_lottery_mode = mode ?? 0;
 
         const response = await this.sendRequest(
