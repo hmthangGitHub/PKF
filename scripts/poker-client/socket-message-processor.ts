@@ -102,32 +102,38 @@ export class SocketMessageProcessor {
         // pack message
         const data = SocketMessage.encode(message, this._writeArrayBuffer);
 
-        // create response handler
-        const asyncOp = new AsyncOperation<IResponse<ResponseProtoType>>();
-
-        this._requests.set(responseId, {
-            requestId,
-            responseId,
-            asyncOp,
-            handler: (request: IRequest, buf: Uint8Array) => {
-                const protobuf = this.decodeProtobuf<ResponseProtoType>(buf, responseProtoClass);
-
-                if (this._verbose) {
-                    console.log(protobuf);
-                }
-
-                request.asyncOp.resolve({ payload: protobuf });
-            },
-            timestamp: Date.now()
-        });
-
         if (this._verbose) {
             console.log(`send request ${message.header.messageId}`, message.header, requestProto);
         }
 
-        this.send(data);
+        try {
+            const asyncOp = new AsyncOperation<IResponse<ResponseProtoType>>();
 
-        return asyncOp.promise;
+            // create response handler
+            this._requests.set(responseId, {
+                requestId,
+                responseId,
+                asyncOp,
+                handler: (request: IRequest, buf: Uint8Array) => {
+                    const protobuf = this.decodeProtobuf<ResponseProtoType>(buf, responseProtoClass);
+
+                    if (this._verbose) {
+                        console.log(protobuf);
+                    }
+
+                    request.asyncOp.resolve({ payload: protobuf });
+                },
+                timestamp: Date.now()
+            });
+
+            this.send(data);
+
+            return asyncOp.promise;
+        } catch (err) {
+            // remove if send it failed
+            this._requests.delete(responseId);
+            return Promise.reject(err);
+        }
     }
 
     protected sendMessage<RequestProtoType>(
