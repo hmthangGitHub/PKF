@@ -308,7 +308,6 @@ export interface SocketNotifications extends RebateNotifications, MttNotificatio
     clubCurrentBoard: (notify: IClubCurrentBoardNotice | IClubCurrentBoardNoticeV2) => void;
     userGoldNum: (notify: INoticeNotifyUserGoldNum) => void;
     globalMessage: (notify: INoticeGlobalMessage) => void;
-    timeout: () => void;
     luckTurntableStart: (notify: ILuckTurntableStartTimeNotice) => void;
     luckTurntableEnd: (notify: ILuckTurntableEndTimeNotice) => void;
     luckTurntableReady: (notify: ILuckTurntableReadyNotice) => void;
@@ -333,6 +332,10 @@ export interface SocketNotifications extends RebateNotifications, MttNotificatio
     connectServerFailed: (notify: IConnectServerFailedNotify) => void;
     serverClose: (notify: IServerCloseNotify) => void;
     serverExcept: () => void;
+
+    // socket errors
+    timeout: () => void;
+    abnormalClose: (code: number) => void;
 }
 
 export interface INoticeCalmDownConfirmResult {
