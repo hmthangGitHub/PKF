@@ -63,8 +63,10 @@ export class App extends Module {
     }
 
     setCurrentScene(name: string) {
-        this._currentScene = name;
-        this.events<IAppEvents>().emit('sceneChanged');
+        if (this._currentScene !== name) {
+            this._currentScene = name;
+            this.events<IAppEvents>().emit('sceneChanged');
+        }
     }
 
     getCurrentScene(): string {
