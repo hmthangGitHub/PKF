@@ -716,7 +716,24 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleGlobalMessageNotify(protobuf: pb.NoticeGlobalMessage) {
         console.log('global message', protobuf);
-        this._notification.emit('globalMessage', protobuf);
+        let sourceType = [];
+        if (protobuf.source_type) {
+            sourceType = protobuf.source_type.map((gameId) => {
+                let mappedGameId;
+                if (gameId === pb.GameId.BlackJack) {
+                    mappedGameId = GameId.BlackJack;
+                } else {
+                    mappedGameId = gameId;
+                }
+
+                return mappedGameId;
+            });
+        }
+
+        this._notification.emit('globalMessage', {
+            ...protobuf,
+            source_type: sourceType
+        });
     }
 
     protected handleLuckTurntableStartTimeNotify(protobuf: pb.LuckTurntableStartTimeNotice) {
