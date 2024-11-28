@@ -68,6 +68,18 @@ export class SocketMessageProcessor {
         return this._webSocket.isOpen();
     }
 
+    isConnecting(): boolean {
+        return this._webSocket.isConnecting();
+    }
+
+    isClosing(): boolean {
+        return this._webSocket.isClosing();
+    }
+
+    isClosed(): boolean {
+        return this._webSocket.isClosed();
+    }
+
     /** Send a request and return response protobuf with Promise */
     protected sendRequest<RequestProtoType, ResponseProtoType>(
         requestProto: RequestProtoType,

@@ -147,6 +147,14 @@ export class WebSocketAdapter {
         return this._webSocket?.readyState === WebSocket.CONNECTING;
     }
 
+    isClosing(): boolean {
+        return this._webSocket?.readyState === WebSocket.CLOSING;
+    }
+
+    isClosed(): boolean {
+        return this._webSocket ? this._webSocket.readyState === WebSocket.CLOSED : true;
+    }
+
     getNextSequence(): number {
         const sequence = this._sequence;
         this._sequence += 1;

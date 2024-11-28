@@ -668,6 +668,11 @@ export interface ISocket extends IRebateApi, IMttApi {
 
     userId: number;
 
+    isOpen(): boolean;
+    isConnecting(): boolean;
+    isClosing(): boolean;
+    isClosed(): boolean;
+
     /** link to exist WebSocket */
     link(webSocket: WebSocket): void;
     unlink(): void;
