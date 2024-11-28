@@ -7,6 +7,7 @@ import { TypeSafeEventEmitter } from '../event/event-emitter';
 export interface IAppEvents {
     appEnterBackground: () => void;
     appEnterForeground: () => void;
+    sceneChanged: () => void;
     /// a modal UI showes or hides
     modalShow: (show: boolean) => void;
 }
@@ -63,6 +64,7 @@ export class App extends Module {
 
     setCurrentScene(name: string) {
         this._currentScene = name;
+        this.events<IAppEvents>().emit('sceneChanged');
     }
 
     getCurrentScene(): string {
