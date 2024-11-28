@@ -6,11 +6,19 @@ export class DomainService extends Service {
 
     private _client: IPokerClient;
 
+    private _domains: IDomainInfo[];
+
     private _domainIndex = 0;
 
-    constructor(client: IPokerClient) {
+    constructor(clientOrDomains: IPokerClient | IDomainInfo[]) {
         super(DomainService.serviceName);
-        this._client = client;
+        if (Array.isArray(clientOrDomains)) {
+            this._domains = clientOrDomains;
+            this._client = null;
+        } else {
+            this._domains = null;
+            this._client = clientOrDomains;
+        }
     }
 
     get domainIndex() {
