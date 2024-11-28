@@ -29,11 +29,11 @@ export class DomainService extends Service {
     }
 
     getDomainInfo(): IDomainInfo {
-        return this._client.getDomains()[this._domainIndex];
+        return this._domains ? this._domains[this._domainIndex] : this._client.getDomains()[this._domainIndex];
     }
 
     getDomains(): IDomainInfo[] {
-        return this._client.getDomains();
+        return this._domains ? this._domains : this._client.getDomains();
     }
 
     getAvatarUrl(avatarPath: string, plat: number): string {
