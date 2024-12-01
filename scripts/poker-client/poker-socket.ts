@@ -649,6 +649,7 @@ export interface IRegisterRewardInfo {
     status?: number | null;
     uuid?: string | null;
     reward_descs?: IRewardDesc[] | null;
+    desc?: string | null;
 }
 
 export interface IRewardDrawRequest {
