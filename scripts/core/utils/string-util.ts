@@ -444,8 +444,7 @@ export class StringUtil {
     // 验证邮件格式是否合法
     static isEmailFormat(email_address: string): boolean {
         let retValue = true;
-        let pattern =
-            /^[a-zA-Z0-9]+([._\\-]*[a-zA-Z0-9])*@([a-zA-Z0-9]+[-a-zA-Z0-9]*[a-zA-Z0-9]+.){1,63}[a-zA-Z0-9]+$/g;
+        let pattern = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/g;
         let vMatch: string[] = email_address.match(pattern);
         retValue = StringUtil.getArrayLength(vMatch) > 0;
         return retValue;
