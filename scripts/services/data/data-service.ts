@@ -1,6 +1,5 @@
 /* eslint-disable max-params */
 import { Service } from '../../core/core-index';
-import type { DataServerSession } from '../../poker-client/session/data-session';
 import { PokerHandData } from './hand-data';
 import { OpponentPublicData } from './data-opponent-public';
 import { SelfPublicData } from './data-self-public';
@@ -11,13 +10,14 @@ import type {
     IRequestSelfStatisticalData
 } from '../../poker-client/session/data-session-types';
 import type { ISocket } from '../../poker-client/poker-socket';
+import type { IDataSession } from '../../poker-client/session/data-session';
 
 export class DataService extends Service {
     static readonly serviceName = 'DataService';
     _userId: number;
     _userToken: string;
     _socket: ISocket;
-    _session: DataServerSession = null;
+    _session: IDataSession = null;
 
     constructor(socket: ISocket, userId: number, userToken: string) {
         super(DataService.serviceName);
