@@ -457,12 +457,10 @@ export interface INotificationSetData {
 }
 
 export interface IKycPerson {
-    addresses?: {
-        fullAddress: string;
-    };
     dateOfBirth?: string;
     firstName?: string;
     lastName?: string;
+    address?: string;
 }
 
 export interface IKycInfoData {
