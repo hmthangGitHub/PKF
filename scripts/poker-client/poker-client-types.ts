@@ -460,13 +460,13 @@ export interface IKycPerson {
     dateOfBirth?: string;
     firstName?: string;
     lastName?: string;
-    address?: string;
 }
 
 export interface IKycInfoData {
-    person?: IKycPerson;
     user_id: number;
     status: string;
+    person?: IKycPerson;
+    address?: string;
 }
 
 /**
