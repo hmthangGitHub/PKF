@@ -2,7 +2,7 @@ import type { ISocketOptions } from './poker-client-types';
 import type { GameSession, GameSessionClass } from './session/game-session';
 import type { TypeSafeEventEmitter } from '../core/event/event-emitter';
 import type { GameId, MsgType, MttNotifyType, RoomMode, GameLevelEnum, CurrencyType } from './poker-client-types';
-import type { DataServerSession } from './session/data-session';
+import type { IDataSession } from './session/data-session';
 import type { IRebateApi, RebateNotifications, IMttApi, MttNotifications } from './socket/socket-index';
 
 export interface ILoginResponse {
@@ -681,7 +681,7 @@ export interface ISocket extends IRebateApi, IMttApi {
     connect(url: string, options?: ISocketOptions): Promise<void>;
     disconnect(): Promise<void>;
 
-    createDataSession(): DataServerSession;
+    createDataSession(): IDataSession;
 
     createGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T;
 

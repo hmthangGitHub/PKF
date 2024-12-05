@@ -43,7 +43,7 @@ import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 import { AsyncOperation } from '../../core/async/async-operation';
 import { macros } from '../poker-client-macros';
 import { SecretKeyHelper } from '../encrypt/secret-key-helper';
-import { DataServerSession } from '../session/data-session';
+import type { IDataSession } from '../session/data-session';
 import type { IResponseMttAuth, IGetEventStatusResponse, IClaimRewardResponse } from '../socket/socket-index';
 
 export class PKWSocket extends SocketMessageProcessor implements ISocket {
@@ -113,17 +113,8 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         }
     }
 
-    createDataSession(): DataServerSession {
-        if (this._messageProcessors.has(GameId.DataServer)) {
-            throw new InvalidOperationError(`DataSession already exists!`);
-        }
-
-        const dataSession = new DataServerSession(this._webSocket, this._session);
-        dataSession.verbose = this._verbose;
-
-        this._messageProcessors.set(dataSession.serverId, dataSession);
-
-        return dataSession;
+    createDataSession(): IDataSession {
+        throw new InvalidOperationError(`Not implemented`);
     }
 
     link(webSocket: WebSocket) {

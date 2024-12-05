@@ -43,8 +43,8 @@ import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 import { SecretKeyHelper } from '../encrypt/secret-key-helper';
 import { AsyncOperation } from '../../core/async/async-operation';
 import { macros } from '../poker-client-macros';
-import { DataServerSession } from '../session/data-session';
 import type { IResponseMttAuth, IGetEventStatusResponse, IClaimRewardResponse } from '../socket/socket-index';
+import type { IDataSession } from '../session/data-session';
 
 export class WPKSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<ISession> = null;
@@ -77,17 +77,8 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         this._secretKeyHelper = new SecretKeyHelper();
         this._secretKeyHelper.ecdhInit();
     }
-    createDataSession(): DataServerSession {
-        if (this._messageProcessors.has(GameId.DataServer)) {
-            throw new InvalidOperationError(`DataSession already exists!`);
-        }
-
-        const dataSession = new DataServerSession(this._webSocket, this._session);
-        dataSession.verbose = this._verbose;
-
-        this._messageProcessors.set(dataSession.serverId, dataSession);
-
-        return dataSession;
+    createDataSession(): IDataSession {
+        throw new InvalidOperationError(`Not implemented`);
     }
 
     createGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T {
