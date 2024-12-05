@@ -114,7 +114,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     }
 
     createDataSession(): IDataSession {
-        throw new InvalidOperationError(`Not implemented`);
+        throw new NotImplementError(`DataSession does not implement yet!`);
     }
 
     link(webSocket: WebSocket) {

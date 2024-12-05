@@ -78,7 +78,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         this._secretKeyHelper.ecdhInit();
     }
     createDataSession(): IDataSession {
-        throw new InvalidOperationError(`Not implemented`);
+        throw new NotImplementError(`DataSession does not implement yet!`);
     }
 
     createGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T {
