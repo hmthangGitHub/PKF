@@ -1,6 +1,6 @@
 import { Module } from '../module/module';
 import { bundleEntryManager } from './bundle-entry-manager';
-import type { Nullable } from '../defines/defines-index';
+import { InvalidParameterError, type Nullable } from '../defines/defines-index';
 import type { IBundleOptions } from './bundle-entry';
 import { BundleEntry, BundleState } from './bundle-entry';
 
@@ -8,8 +8,7 @@ export class BundleManager extends Module {
     static moduleName = 'BundleManager';
 
     /** @description
-  		load bundle
-		
+  		load bundle		
 		@param nameOrUrl The name or root path of bundle
 		@param options Some optional paramters
      */
@@ -65,10 +64,9 @@ export class BundleManager extends Module {
 
     exitBundle(name: string): void {
         const entry = bundleEntryManager.getEntry(name);
-        if (entry) {
+        if (entry && entry.state === BundleState.Entered) {
             entry.exit();
         }
-        // bundleEntryManager.exitBundle(name);
     }
 
     loadAsset<T extends cc.Asset>(
@@ -79,13 +77,34 @@ export class BundleManager extends Module {
         return new Promise<T>((resolve, reject) => {
             let bundle = this.getBundle(bundleOrName);
             if (!bundle) {
-                reject(new Error(`bundle ${bundleOrName} does not exist`));
+                reject(new InvalidParameterError(`bundle ${bundleOrName} does not exist`));
             } else {
                 bundle.load(path, type, (err, asset: T) => {
                     if (err) {
                         reject(err);
                     } else {
                         resolve(asset);
+                    }
+                });
+            }
+        });
+    }
+
+    preloadAsset(
+        bundleOrName: cc.AssetManager.Bundle | string,
+        path: string,
+        type: typeof cc.Asset = cc.Asset
+    ): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            let bundle = this.getBundle(bundleOrName);
+            if (!bundle) {
+                reject(new InvalidParameterError(`bundle ${bundleOrName} does not exist`));
+            } else {
+                bundle.preload(path, type, (err, items) => {
+                    if (err) {
+                        Promise.reject(err);
+                    } else {
+                        resolve();
                     }
                 });
             }

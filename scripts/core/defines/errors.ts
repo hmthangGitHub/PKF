@@ -27,6 +27,7 @@ export class WebSocketError extends Error {
 
 export class ServerError extends Error {
     errorCode: number;
+    explanation: string;
     constructor(message: string, errorCode: number) {
         super(message);
         this.name = 'ServerError';

@@ -4,17 +4,11 @@ import { ModuleManager } from '../module/module-manager';
 import { DeviceAPI } from '../../natives/device-api/device-api';
 import { System } from '../system/system';
 import { SYNativeSDK } from './env/sy-native-sdk';
-import { H5AudioApi } from '../../natives/audio-api/env/h5-audio-api';
-import { H5VideoApi } from '../../natives/video-api/env/h5-video-api';
 import { IOSNativeSDK } from './env/ios-native-sdk';
-import { IOSAudioAPI } from '../../natives/audio-api/env/ios-audio-api';
-import { IOSVideoApi } from '../../natives/video-api/env/ios-video-api';
 import { AndroidNativeSDK } from './env/android-native-sdk';
-import { AndroidAudioApi } from '../../natives/audio-api/env/android-audio-api';
-import { AndroidVideoApi } from '../../natives/video-api/env/android-video-api';
 
 export class NativeManager extends Module {
-    static moduleName = 'native';
+    static moduleName = 'NativeManager';
 
     private _natives: Map<string, INativeSDK> = new Map<string, INativeSDK>();
 
@@ -29,7 +23,7 @@ export class NativeManager extends Module {
     }
 
     register<T extends INativeSDK>(moduleClass: NativeClass<T>): void {
-        cc.log(`[native-manager] register native: ${moduleClass.nativeName}`);
+        cc.log(`[NativeManager] register native: ${moduleClass.nativeName}`);
         // eslint-disable-next-line new-cap
         const newModule = new moduleClass();
         newModule.nativeName = moduleClass.nativeName;
@@ -45,7 +39,7 @@ export class NativeManager extends Module {
     }
 
     destroy(): void {
-        cc.log(`[native-manager] ${this.moduleName} destroy`);
+        cc.log(`[NativeManager] ${this.moduleName} destroy`);
         this._natives.forEach((module: INativeSDK) => {
             module.destroy();
         });
@@ -53,26 +47,15 @@ export class NativeManager extends Module {
     }
 
     registerModules(): void {
-        const nativeManager = ModuleManager.instance.get(NativeManager);
-        nativeManager.register(DeviceAPI);
+        this.register(DeviceAPI);
 
         const system = ModuleManager.instance.get(System);
-
         if (system.isBrowser) {
             window.clientToJs = SYNativeSDK.callback;
-
-            this.register(H5AudioApi);
-            this.register(H5VideoApi);
         } else if (system.isIOS) {
             window.OnNativeEventCallback = IOSNativeSDK.callback;
-
-            this.register(IOSAudioAPI);
-            this.register(IOSVideoApi);
         } else if (system.isAndroid) {
             window.onNativeMessage = AndroidNativeSDK.callback;
-
-            this.register(AndroidAudioApi);
-            this.register(AndroidVideoApi);
         }
     }
 }

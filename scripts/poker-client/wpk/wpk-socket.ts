@@ -290,9 +290,17 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
                     pb.PokerMasterGameListResponse
                 );
                 break;
+            case GameId.VideoCowboy:
+                requestProto = new pb.VideoCowboyGameListRequest();
+                response = await this.sendRequest(
+                    requestProto,
+                    pb.MSGID.MsgID_VideoCowboy_List_Request,
+                    pb.VideoCowboyGameListRequest,
+                    pb.MSGID.MsgID_VideoCowboy_List_Response,
+                    pb.VideoCowboyGameListResponse
+                );
+                break;
             // TODO: send other game list request
-            // case GameId.VideoCowboy:
-            //     break;
             default:
                 return Promise.reject<IGameRoomListResponse>(
                     new InvalidOperationError(`GameId ${gameId} is not supported!`)
@@ -353,6 +361,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
         const requestProto = new pb.LuckTurntableResultRequest();
 
         requestProto.record_id = recordId;
+        // @ts-ignore
         requestProto.player_lottery_mode = mode ?? 0;
 
         const response = await this.sendRequest(
@@ -379,6 +388,7 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
         requestProto.lamp_cnt = lampCount;
         requestProto.record_cnt = recordCount;
+        // @ts-ignore
         requestProto.player_lottery_mode = mode ?? 0;
 
         const response = await this.sendRequest(
@@ -706,7 +716,24 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleGlobalMessageNotify(protobuf: pb.NoticeGlobalMessage) {
         console.log('global message', protobuf);
-        this._notification.emit('globalMessage', protobuf);
+        let sourceType = [];
+        if (protobuf.source_type) {
+            sourceType = protobuf.source_type.map((gameId) => {
+                let mappedGameId;
+                if (gameId === pb.GameId.BlackJack) {
+                    mappedGameId = GameId.BlackJack;
+                } else {
+                    mappedGameId = gameId;
+                }
+
+                return mappedGameId;
+            });
+        }
+
+        this._notification.emit('globalMessage', {
+            ...protobuf,
+            source_type: sourceType
+        });
     }
 
     protected handleLuckTurntableStartTimeNotify(protobuf: pb.LuckTurntableStartTimeNotice) {

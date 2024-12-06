@@ -12,11 +12,11 @@ export abstract class Module implements IModule {
     moduleName: string;
 
     init(): void {
-        cc.log(`${this.moduleName} init`);
+        cc.log(`[${this.moduleName}] init`);
     }
 
     destroy(): void {
-        cc.log(`${this.moduleName} destroy`);
+        cc.log(`[${this.moduleName}] destroy`);
     }
 }
 
@@ -24,11 +24,11 @@ export abstract class EmittableModule<EventType> extends TypeSafeEventEmitter<Ev
     moduleName: string;
 
     init(): void {
-        cc.log(`${this.moduleName} init`);
+        cc.log(`[${this.moduleName}] init`);
     }
 
     destroy(): void {
-        cc.log(`${this.moduleName} destroy`);
+        cc.log(`[${this.moduleName}] destroy`);
     }
 }
 

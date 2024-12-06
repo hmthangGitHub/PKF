@@ -33,16 +33,11 @@ export class NativeSDK implements INativeSDK {
     targetNativeSDK: SYNativeSDK | IOSNativeSDK | AndroidNativeSDK;
 
     init(): void {
-        cc.log('[pf][NativeSDK] targetNativeSDK1: ', this.targetNativeSDK);
         if (this.targetNativeSDK) return;
-        cc.log('[pf][NativeSDK] targetNativeSDK2: ', this.targetNativeSDK);
-
         if (!this._system.isNative) {
             this.targetNativeSDK = new SYNativeSDK(this);
         } else if (this._system.isNative && this._system.isIOS) {
-            cc.log('[pf][NativeSDK] targetNativeSDK-ios');
             this.targetNativeSDK = new IOSNativeSDK(this);
-            cc.log('[pf][NativeSDK] targetNativeSDK3: ', this.targetNativeSDK);
         } else if (this._system.isNative && this._system.isAndroid) {
             this.targetNativeSDK = new AndroidNativeSDK(this);
         }
@@ -58,7 +53,6 @@ export class NativeSDK implements INativeSDK {
         if (!this.targetNativeSDK) {
             throw new Error('[pf][NativeSDK] targetNativeSDK is undefined');
         } else {
-            cc.log('[pf][NativeSDK] targetNativeSDK exists');
             return this.targetNativeSDK?.invoke(action);
         }
     }

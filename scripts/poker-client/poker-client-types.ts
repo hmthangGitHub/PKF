@@ -41,10 +41,14 @@ export enum GameId {
     PocketGames = 1010,
     BlackJackDual = 1020,
     BlackJack = 1021,
+    PPGames = 1030,
     OBGames = 1100,
+    Squid = 5001,
     CaribbeanStud = 6001,
     CaribbeanTexasHold = 6002,
     WealthTrio = 6003,
+    BitMasterGoldCoin = 6004,
+    BitMasterUSD = 6005,
     ISlot = 6100
 }
 
