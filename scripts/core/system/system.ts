@@ -91,10 +91,12 @@ export class System extends Module {
         }
 
         if (/Macintosh/i.test(navigator.userAgent)) {
-            try {
-                document.createEvent('TouchEvent');
+            const isSupportTouch = 'ontouchend' in document;
+            // @ts-ignore
+            const maxTouchPoints = navigator.msMaxTouchPoints || navigator.maxTouchPoints;
+            if (isSupportTouch && maxTouchPoints && maxTouchPoints > 0) {
                 return true;
-            } catch (e) {}
+            }
         }
 
         return false;
@@ -107,6 +109,10 @@ export class System extends Module {
         }
 
         if (/android(?!.*mobile)/i.test(navigator.userAgent)) {
+            return true;
+        }
+
+        if (/SM-F9[0-9]/i.test(navigator.userAgent)) {
             return true;
         }
 
