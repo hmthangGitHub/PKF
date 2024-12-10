@@ -11,7 +11,8 @@ import type {
     IModifyPlayerParams,
     INotificationSetParams,
     INotificationSetData,
-    IKycInfoData
+    IKycInfoData,
+    IPurchaseLimit
 } from './poker-client-types';
 import type { ISocket } from './poker-socket';
 import { PKWClient } from './pkw/pkw-client';
@@ -60,6 +61,8 @@ export interface IPokerClient extends IMertricsApi {
     sendMailVerificationCode?: (mail: string) => Promise<void>;
 
     modifyMail?: (newMail: string, verificationCode: string) => Promise<void>;
+
+    getPurchaseLimit?: () => Promise<IPurchaseLimit>;
 }
 
 export class PokerClient {

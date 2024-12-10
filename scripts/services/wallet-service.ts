@@ -1,9 +1,10 @@
-import { EmittableService } from '../core/core-index';
+import { EmittableService, NotImplementError } from '../core/core-index';
 import type {
-    ISocket,
     INoticeNotifyUserGoldNum,
     ISweepCoinData,
-    INoticeGetUserData
+    INoticeGetUserData,
+    IPokerClient,
+    IPurchaseLimit
 } from '../poker-client/poker-client-index';
 
 export class Wallet {
@@ -38,18 +39,18 @@ export interface WalletEvents {
 export class WalletService extends EmittableService<WalletEvents> {
     static readonly serviceName = 'WalletService';
 
-    _socket: ISocket;
+    _client: IPokerClient;
 
     _wallet: Wallet;
 
-    constructor(socket: ISocket) {
+    constructor(client: IPokerClient) {
         super(WalletService.serviceName);
-        this._socket = socket;
+        this._client = client;
         this._wallet = new Wallet();
 
-        this._socket.notification.on('userGoldNum', this.onUserGoldNumNotify.bind(this));
-
-        this._socket.notification.on('userData', this.onCoinDataNotify.bind(this));
+        const _socket = client.getSocket();
+        _socket.notification.on('userGoldNum', this.onUserGoldNumNotify.bind(this));
+        _socket.notification.on('userData', this.onCoinDataNotify.bind(this));
     }
 
     getWallet(): Wallet {
@@ -57,7 +58,7 @@ export class WalletService extends EmittableService<WalletEvents> {
     }
 
     onUserGoldNumNotify(notify: INoticeNotifyUserGoldNum) {
-        if (notify.uid === this._socket.userId) {
+        if (notify.uid === this._client.getCurrentUser().userId) {
             this._wallet.from(notify);
             this.emit('userGoldNum', this._wallet);
         }
@@ -78,5 +79,14 @@ export class WalletService extends EmittableService<WalletEvents> {
             Redeemable: this._wallet.redeemableSweepCoin
         };
         return data;
+    }
+
+    async getPurchaseLimit(): Promise<IPurchaseLimit> {
+        if (!this._client.getPurchaseLimit) {
+            return Promise.reject<IPurchaseLimit>(new NotImplementError('getPurchaseLimit is not implement'));
+        } else {
+            const result = await this._client.getPurchaseLimit();
+            return result;
+        }
     }
 }
