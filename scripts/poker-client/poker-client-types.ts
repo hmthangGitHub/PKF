@@ -469,6 +469,16 @@ export interface IKycInfoData {
     address?: string;
 }
 
+export interface IPurchaseLimit {
+    pay24h: number;
+    pay1week: number;
+    pay4weeks: number;
+    pay24h_purchase: number;
+    pay1week_purchase: number;
+    pay4weeks_purchase: number;
+    purchase_level: number;
+}
+
 /**
  * 创建牌局模式
  */
