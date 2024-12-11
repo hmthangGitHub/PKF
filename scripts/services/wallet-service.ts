@@ -48,9 +48,9 @@ export class WalletService extends EmittableService<WalletEvents> {
         this._client = client;
         this._wallet = new Wallet();
 
-        const _socket = client.getSocket();
-        _socket.notification.on('userGoldNum', this.onUserGoldNumNotify.bind(this));
-        _socket.notification.on('userData', this.onCoinDataNotify.bind(this));
+        const socket = client.getSocket();
+        socket.notification.on('userGoldNum', this.onUserGoldNumNotify.bind(this));
+        socket.notification.on('userData', this.onCoinDataNotify.bind(this));
     }
 
     getWallet(): Wallet {
