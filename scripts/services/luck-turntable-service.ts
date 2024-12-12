@@ -15,7 +15,6 @@ import type {
     ILuckTurntableDraw
 } from '../poker-client/poker-client-index';
 import { RedPacketTurntableType, RedPacketLotteryMode } from '../poker-client/poker-client-index';
-import { Util } from '../core/utils/util';
 // import * as pf from '../pf';
 import { ErrorMessageService } from './error-message-service';
 import * as core from '../core/core';
@@ -244,7 +243,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         const redPacketInfo = this._redPacketInfo.get(mode);
         if (redPacketInfo) {
             redPacketInfo.luckTurntableStartTime = 0;
-            const curTime = Util.getCurTimeInSec();
+            const curTime = TimeUtil.getCurTimeInSec();
             const interval = notify.left_interval_time ?? 0;
             redPacketInfo.luckTurntableEndTime = curTime + interval;
             redPacketInfo.currentTurnTableType = notify.amount_list_gametype ?? RedPacketTurntableType.Regular;
@@ -257,7 +256,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
         const mode = notify.player_lottery_mode ?? 0;
         const redPacketInfo = this._redPacketInfo.get(mode);
         if (redPacketInfo) {
-            const curTime = Util.getCurTimeInSec();
+            const curTime = TimeUtil.getCurTimeInSec();
             const interval = notify.left_interval_time ?? 0;
             redPacketInfo.luckTurntableStartTime = curTime + interval;
             this.emit('luckTurntableCountdown', mode);
@@ -288,7 +287,7 @@ export class LuckTurntableService extends EmittableService<LuckTurntableEvents> 
             const redPacketInfo = this._redPacketInfo.get(mode);
             if (redPacketInfo) {
                 redPacketInfo.luckTurntables = [];
-                const curTime = Util.getCurTimeInSec();
+                const curTime = TimeUtil.getCurTimeInSec();
                 // 判断当前时间是否已经过期（切后台卡消息bug）
                 if (curTime > redPacketInfo.luckTurntableEndTime) {
                     this.emit('luckTurntableUpdateButton');
