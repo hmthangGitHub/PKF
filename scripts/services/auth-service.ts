@@ -7,7 +7,7 @@ import type {
     IUser,
     INoticeGetUserData,
     IResponseGetUserData,
-    IModifyPlayerParams
+    IUserProfileData
 } from '../poker-client/poker-client-index';
 
 export interface AuthEvents {
@@ -107,33 +107,33 @@ export class AuthService extends EmittableService<AuthEvents> {
     }
 
     /** 上传自定义头像并进行鉴黄 */
-    async uploadAvatar(imageServer: string, avatar: string): Promise<string> {
-        const result = await this._client.uploadAvatar(imageServer, avatar);
+    async uploadAvatar(avatar: string, imageServer?: string): Promise<string> {
+        const result = await this._client.uploadAvatar(avatar, imageServer);
         return result;
     }
 
     /** 修改头像 */
-    async sendModifyAvatar(webUrl: string, avatar: string | number): Promise<void> {
-        const params: IModifyPlayerParams = {
+    async modifyAvatar(avatar: string | number): Promise<void> {
+        const params: IUserProfileData = {
             avatar: avatar.toString()
         };
-        return await this.sendModifyPlayerInfo(webUrl, params);
+        return await this.modifyPlayerInfo(params);
     }
 
     /** 修改昵称 */
-    async sendModifyNickName(webUrl: string, nickname: string): Promise<void> {
-        const params: IModifyPlayerParams = {
+    async modifyNickName(nickname: string): Promise<void> {
+        const params: IUserProfileData = {
             nickname: nickname
         };
-        return await this.sendModifyPlayerInfo(webUrl, params);
+        return await this.modifyPlayerInfo(params);
     }
 
     /** 发送修改用户信息请求 */
-    sendModifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void> {
+    modifyPlayerInfo(params: IUserProfileData): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
         const modifyName: boolean = params.nickname ? true : false;
         this._client
-            .modifyPlayerInfo(webUrl, params)
+            .modifyPlayerInfo(params)
             .then(() => {
                 const userData = this.currentUser;
                 if (params.nickname) {

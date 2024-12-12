@@ -429,21 +429,6 @@ export interface IDomainInfo {
     dataServer: string;
 }
 
-export interface IModifyPlayerParams {
-    /** 在外部赋值 */
-    nickname?: string;
-    gender?: number | string;
-    avatar?: string;
-    mobile?: string;
-    email?: string;
-
-    /** 在底层赋值 */
-    id?: number | string;
-    avatar_thumb?: string;
-    nick_name?: string;
-    img_ext?: string;
-}
-
 export interface INotificationSetParams {
     useEmail: boolean;
     useSms: boolean;

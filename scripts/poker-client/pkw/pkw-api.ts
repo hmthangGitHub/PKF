@@ -30,6 +30,13 @@ export interface ILoginParams extends IRequestParams {
     passwd: string;
 }
 
+export interface IUserProfileParams extends IRequestParams {
+    gender: string;
+    nick_name: string;
+    avatar_thumb: string;
+    img_ext: string;
+}
+
 export interface IDomainData {
     data: string;
     qiniu: string;
@@ -65,11 +72,6 @@ export interface ILoginData {
 
 export interface ILoginResponseData extends IResponseData {
     data: ILoginData;
-}
-
-export enum WebApi {
-    WEB_API_MODIFY_INFO = 'index.php/User/Ucenter/modifyUserInfo',
-    WEB_API_MODIFY_UPLOADVAR = 'uploadavar'
 }
 
 export interface IUploadAvatarParams extends IRequestParams {

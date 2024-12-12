@@ -11,8 +11,7 @@ import type {
     RequestOtpions,
     ISession,
     IUser,
-    IDomainInfo,
-    IModifyPlayerParams
+    IDomainInfo
 } from '../poker-client-types';
 import { SystemInfo } from '../poker-client-types';
 import type { ISocket } from '../poker-socket';
@@ -20,19 +19,25 @@ import { PKWSession } from './pkw-session';
 import { PKWSocket } from './pkw-socket';
 import { PKWSocketV2 } from './pkw-socket-v2';
 import { PKWUtil } from './pkw-util';
-import {
-    type IRequestParams,
-    type ILoginParams,
-    type ILoginResponseData,
-    type ILoginData,
-    WebApi,
-    type IUploadAvatarParams,
-    type IResponseData
+import type {
+    IRequestParams,
+    ILoginParams,
+    ILoginResponseData,
+    ILoginData,
+    IUploadAvatarParams,
+    IResponseData,
+    IUserProfileParams
 } from './pkw-api';
 import { WebSocketAdapter } from '../websocket-adapter';
 import { PKWMockSocket } from './mock/pkw-mock-socket';
 import { HttpMethod } from '../../core/network/http/http-constants';
 import { macros } from '../poker-client-macros';
+import type { IUserProfileData } from '../client/client-index';
+
+enum WebApi {
+    WEB_API_MODIFY_INFO = 'index.php/User/Ucenter/modifyUserInfo',
+    WEB_API_MODIFY_UPLOADVAR = 'uploadavar'
+}
 
 export class PKWClient implements IPokerClient {
     _deviceType: string;
@@ -275,7 +280,7 @@ export class PKWClient implements IPokerClient {
         return this._socket;
     }
 
-    async uploadAvatar(imgUploadUrl: string, avatar: string): Promise<string> {
+    async uploadAvatar(avatar: string, imgUploadUrl?: string): Promise<string> {
         let newPic = '';
         if (cc.sys.isBrowser) {
             const base64url = avatar.split('base64,'); // web版本下base64字符串会带有前缀data:image/jpeg;base64，后端解析时要去掉才能成功；
@@ -309,19 +314,18 @@ export class PKWClient implements IPokerClient {
         return asyncOp.promise;
     }
 
-    async modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void> {
+    async modifyPlayerInfo(params: IUserProfileData): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
 
         const userData = this.getCurrentUser();
-        params.nick_name = params.nickname || userData.nickname;
-        params.gender = (params.gender || userData.sex).toString();
-        params.avatar_thumb = params.avatar = params.avatar || userData.avatarURL;
-        params.img_ext = 'jpg';
-        params.gender = Number(params.gender) === 0 ? '1' : params.gender.toString();
+        const data: IUserProfileParams = {
+            nick_name: params.nickname || userData.nickname,
+            gender: (params.gender || userData.sex).toString(),
+            avatar_thumb: (params.avatar = params.avatar || userData.avatarURL),
+            img_ext: 'jpg'
+        };
 
-        const data = params as IRequestParams;
-
-        let url = webUrl + WebApi.WEB_API_MODIFY_INFO;
+        let url = this._baseUrl + WebApi.WEB_API_MODIFY_INFO;
         let response = await this.request(url, data, { method: HttpMethod.Post });
         let respMsg = response.data as IResponseData;
 

@@ -8,7 +8,6 @@ import type {
     PlatformType,
     IUser,
     IDomainInfo,
-    IModifyPlayerParams,
     INotificationSetParams,
     INotificationSetData,
     IKycInfoData,
@@ -17,9 +16,9 @@ import type {
 import type { ISocket } from './poker-socket';
 import { PKWClient } from './pkw/pkw-client';
 import { WPKClient } from './wpk/wpk-client';
-import type { IMertricsApi } from './client/client-index';
+import type { IMertricsApi, IUserProfileApi } from './client/client-index';
 
-export interface IPokerClient extends IMertricsApi {
+export interface IPokerClient extends IMertricsApi, IUserProfileApi {
     /** link PokerClient to exist login session */
     link(session: ISession, options?: ILinkOptions): void;
 
@@ -32,10 +31,6 @@ export interface IPokerClient extends IMertricsApi {
     createSocket(options?: ISocketOptions): ISocket;
 
     getSocket(): ISocket;
-
-    uploadAvatar(imgUploadUrl: string, avatar: string): Promise<string>;
-
-    modifyPlayerInfo(webUrl: string, params: IModifyPlayerParams): Promise<void>;
 
     // v3 api
     signInWithOneTimeToken(token: string): Promise<ISession>;
@@ -53,14 +48,6 @@ export interface IPokerClient extends IMertricsApi {
     getLoginTime?: () => Promise<number>;
 
     getKycStatus?: () => Promise<IKycInfoData>;
-
-    sendPhoneVerificaitonCode?: (phoneNumber: string) => Promise<void>;
-
-    modifyPhone?: (newPhoneNumber: string, verificationCode: string) => Promise<void>;
-
-    sendMailVerificationCode?: (mail: string) => Promise<void>;
-
-    modifyMail?: (newMail: string, verificationCode: string) => Promise<void>;
 
     getPurchaseLimit?: () => Promise<IPurchaseLimit>;
 }
