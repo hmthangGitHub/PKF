@@ -314,7 +314,7 @@ export class PKWClient implements IPokerClient {
         return asyncOp.promise;
     }
 
-    async modifyPlayerInfo(params: IUserProfileData, webUrl?: string): Promise<void> {
+    async modifyPlayerInfo(params: IUserProfileData): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
 
         const userData = this.getCurrentUser();
@@ -325,7 +325,7 @@ export class PKWClient implements IPokerClient {
             img_ext: 'jpg'
         };
 
-        let url = webUrl + WebApi.WEB_API_MODIFY_INFO;
+        let url = this._baseUrl + WebApi.WEB_API_MODIFY_INFO;
         let response = await this.request(url, data, { method: HttpMethod.Post });
         let respMsg = response.data as IResponseData;
 

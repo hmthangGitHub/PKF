@@ -257,7 +257,7 @@ export class WPKClient implements IPokerClient {
         return Promise.reject<string>(new NotImplementError('uploadAvatar is not implement'));
     }
 
-    async modifyPlayerInfo(params: IUserProfileData, webUrl?: string): Promise<void> {
+    async modifyPlayerInfo(params: IUserProfileData): Promise<void> {
         return Promise.reject(new NotImplementError('modifyPlayerInfo is not implement'));
     }
 }

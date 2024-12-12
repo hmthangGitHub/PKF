@@ -7,7 +7,7 @@ export interface IUserProfileData {
 export interface IUserProfileApi {
     uploadAvatar(avatar: string, imgUploadUrl?: string): Promise<string>;
 
-    modifyPlayerInfo(params: IUserProfileData, webUrl?: string): Promise<void>;
+    modifyPlayerInfo(params: IUserProfileData): Promise<void>;
 
     modifyPhone?: (newPhoneNumber: string, verificationCode: string) => Promise<void>;
 

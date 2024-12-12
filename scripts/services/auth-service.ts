@@ -113,27 +113,27 @@ export class AuthService extends EmittableService<AuthEvents> {
     }
 
     /** 修改头像 */
-    async modifyAvatar(avatar: string | number, webUrl?: string): Promise<void> {
+    async modifyAvatar(avatar: string | number): Promise<void> {
         const params: IUserProfileData = {
             avatar: avatar.toString()
         };
-        return await this.modifyPlayerInfo(params, webUrl);
+        return await this.modifyPlayerInfo(params);
     }
 
     /** 修改昵称 */
-    async modifyNickName(nickname: string, webUrl?: string): Promise<void> {
+    async modifyNickName(nickname: string): Promise<void> {
         const params: IUserProfileData = {
             nickname: nickname
         };
-        return await this.modifyPlayerInfo(params, webUrl);
+        return await this.modifyPlayerInfo(params);
     }
 
     /** 发送修改用户信息请求 */
-    modifyPlayerInfo(params: IUserProfileData, webUrl?: string): Promise<void> {
+    modifyPlayerInfo(params: IUserProfileData): Promise<void> {
         const asyncOp = new AsyncOperation<void>();
         const modifyName: boolean = params.nickname ? true : false;
         this._client
-            .modifyPlayerInfo(params, webUrl)
+            .modifyPlayerInfo(params)
             .then(() => {
                 const userData = this.currentUser;
                 if (params.nickname) {
