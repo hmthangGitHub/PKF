@@ -2,10 +2,9 @@
 import type { ProtobutClass } from './poker-client-types';
 import type { WebSocketAdapter } from './websocket-adapter';
 import { SocketMessage, SocketMessageHeader } from './socket-message';
-import type { IAsyncOperation } from '../core/async/async-operation';
-import { AsyncOperation } from '../core/async/async-operation';
+import type { IAsyncOperation } from '../core/core-index';
+import { InvalidOperationError, AsyncOperation } from '../core/core-index';
 import * as CryptoJS from 'crypto-js';
-import { InvalidOperationError } from 'pf';
 
 export type MessageHandler = (msg: SocketMessage) => void;
 
