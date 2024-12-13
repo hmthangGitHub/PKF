@@ -397,6 +397,7 @@ export interface IUser {
     redeemableSc?: number;
     registerEmail?: string;
     loginType?: string;
+    allowRingGame?: boolean;
 }
 
 /** A session authenticated for a user with poke server. */
