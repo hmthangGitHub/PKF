@@ -80,6 +80,17 @@ export class System extends Module {
         return this.isAndroid || this.isIOS;
     }
 
+    get isTouchDevice(): boolean {
+        if (this.isNative) {
+            // TODO: implement natvie ...
+            return false;
+        }
+        const isSupportTouch = 'ontouchend' in document;
+        // @ts-ignore
+        const maxTouchPoints = navigator.msMaxTouchPoints || navigator.maxTouchPoints;
+        return isSupportTouch && maxTouchPoints && maxTouchPoints > 0;
+    }
+
     get isiPad(): boolean {
         if (this.isNative) {
             // TODO: implement natvie detect ipad
@@ -90,11 +101,8 @@ export class System extends Module {
             return true;
         }
 
-        if (/Macintosh/i.test(navigator.userAgent)) {
-            try {
-                document.createEvent('TouchEvent');
-                return true;
-            } catch (e) {}
+        if (/Macintosh/i.test(navigator.userAgent) && this.isTouchDevice) {
+            return true;
         }
 
         return false;
@@ -107,6 +115,16 @@ export class System extends Module {
         }
 
         if (/android(?!.*mobile)/i.test(navigator.userAgent)) {
+            return true;
+        }
+
+        /** 三星折叠设备 */
+        if (/SM-F9[0-9]/i.test(navigator.userAgent)) {
+            return true;
+        }
+
+        /** 部分宽屏设备切换到桌面模式 */
+        if (/Linux/i.test(navigator.userAgent) && /x86_64/i.test(navigator.userAgent) && this.isTouchDevice) {
             return true;
         }
 
