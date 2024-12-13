@@ -1,5 +1,6 @@
 import { type Options, type Response, defaultOptions } from './http-types';
 import { HttpError } from '../../defines/errors';
+import { HttpMethod } from './http-constants';
 
 export class Http {
     protected _input: string;
@@ -22,15 +23,29 @@ export class Http {
     async request(): Promise<Response> {
         return new Promise<Response>((resolve, reject) => {
             const xhr = new XMLHttpRequest();
-            const method = this._options.method || 'GET';
+            const method = this._options.method || HttpMethod.Get;
 
             // Build the request URL with optional query string
-            const requestUrl = this.buildRequestUrl();
+            const requestUrl = this._input;
 
             const timeout = this._options.timeout || 5000;
+            const responseType = this._options.responseType || '';
+            const body = this._options.body || '';
 
             xhr.open(method, requestUrl, true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
+            xhr.responseType = responseType;
+
+            if (this._options.headers) {
+                const headers = this._options.headers as Record<string, string>;
+                for (let key in headers) {
+                    xhr.setRequestHeader(key, headers[key]);
+                }
+                if (!headers['Content-Type']) {
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
+                }
+            } else {
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
+            }
 
             // Set up a timeout timer
             const timeoutId = setTimeout(() => {
@@ -41,13 +56,24 @@ export class Http {
             xhr.onload = function () {
                 clearTimeout(timeoutId); // Clear the timeout timer
 
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    // Parse the response and resolve the promise
+                if ((xhr.status >= 200 && xhr.status < 300) || (xhr.status >= 400 && xhr.status <= 500)) {
                     const response: Response = {
                         url: requestUrl,
-                        data: JSON.parse(xhr.responseText),
+                        data: null,
                         status: xhr.status
                     };
+                    if (!responseType || responseType === 'text') {
+                        try {
+                            response.data = JSON.parse(xhr.responseText);
+                        } catch (err) {
+                            response.data = {};
+                            console.warn('fail to parse data:', err);
+                        }
+                    } else if (responseType === 'document') {
+                        response.data = xhr.responseXML;
+                    } else {
+                        response.data = xhr.response;
+                    }
 
                     resolve(response);
                 } else {
@@ -62,17 +88,8 @@ export class Http {
                 reject(new HttpError('Network error', xhr.status || 500));
             };
 
-            xhr.send();
+            xhr.send(body.toString());
         });
-    }
-
-    // Helper method to build the request URL
-    private buildRequestUrl(): string {
-        if (this._options.body) {
-            // Assuming this._options.body is a URL-encoded string
-            return `${this._input}?${this._options.body}`;
-        }
-        return this._input;
     }
 
     static create(input: string, options?: Options): Http {

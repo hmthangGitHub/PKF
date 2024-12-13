@@ -1,8 +1,13 @@
 export * from './poker-client-types';
+export * from './poker-data-types';
 export * from './poker-socket-types';
 export * from './poker-client';
 export * from './poker-socket';
 export * from './poker-client-macros';
 export * from './websocket-adapter';
 export * from './socket-message-processor';
+export * from './socket-message';
+export * from './encrypt/encrypt-index';
+export * from './socket/socket-index';
+export * from './client/client-index';
 export * as session from './session/game-session-index';

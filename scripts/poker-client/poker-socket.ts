@@ -1,7 +1,9 @@
 import type { ISocketOptions } from './poker-client-types';
 import type { GameSession, GameSessionClass } from './session/game-session';
 import type { TypeSafeEventEmitter } from '../core/event/event-emitter';
-import type { GameId, MsgType, MttNotifyType } from './poker-client-types';
+import type { GameId, MsgType, MttNotifyType, RoomMode, GameLevelEnum, CurrencyType } from './poker-client-types';
+import type { IDataSession } from './session/data-session';
+import type { IRebateApi, RebateNotifications, IMttApi, MttNotifications } from './socket/socket-index';
 
 export interface ILoginResponse {
     error?: number | null;
@@ -16,6 +18,13 @@ export interface ILoginResponse {
     is_c2c_block?: boolean | null;
     blackJackDualStatus?: number | null;
     blSpinStatus?: number | null;
+}
+
+export interface INoticeLogin {
+    playerid?: number | null;
+    gameid?: number | null;
+    roomid?: number | null;
+    // gameStates?: (pb.IPlayerGameState[]|null);
 }
 
 enum MiniLabel {
@@ -112,6 +121,9 @@ export interface INoticeGetUserData {
     diamond?: number | null;
     sports_trial_coin?: ISportsTrialCoin | null;
     sports_betting_balance?: number | null;
+    unplayed_sc?: number | null;
+    redeemable_sc?: number | null;
+    email?: string | null;
 }
 
 export interface INoticeNotifyUserGoldNum {
@@ -123,6 +135,8 @@ export interface INoticeNotifyUserGoldNum {
     total_points?: number | null;
     usdt?: number | null;
     diamond?: number | null;
+    unplayed_sc?: number | null;
+    redeemable_sc?: number | null;
     sports_betting_balance?: number | null;
     sports_trial_coin?: ISportsTrialCoin | null;
 }
@@ -223,10 +237,79 @@ export interface ILuckTurntableResultNotice {
     player_lottery_mode?: number | null;
 }
 
-export interface SocketNotifications {
+export enum SecretType {
+    UseX = 0,
+    UseY = 1,
+    UseXY = 2
+}
+
+export interface ISetSecretKeyExResponse {
+    error?: number | null;
+    secret_type?: SecretType | null;
+    svr_public_key_x?: string | null;
+    svr_public_key_y?: string | null;
+}
+
+export interface IAuthVerifyResponse {
+    error?: number | null;
+}
+
+export interface IResponseQuerySendFairReport {
+    error?: number | null;
+    isfirst?: number | null;
+    isgoldenough?: number | null;
+    chargefee?: number | null;
+    freecounts?: number | null;
+    room_uuid_js?: string | null;
+    game_uuid_js?: string | null;
+}
+
+export interface IResponseFairPlayReport {
+    error?: number | null;
+}
+
+export interface IDataMessage {
+    message?: string | null;
+}
+
+/// gate proto
+enum CMD {
+    CMD_DUMMY = 0,
+    CONNECT_SERVER_FAILED_NOTIFY = 1003,
+    SERVER_CLOSE_NOTIFY = 1006,
+    SERVER_EXCEPT_NOTIFY = 1007
+}
+
+enum ConnectServerFailedReason {
+    Null = 0,
+    NotFound = 1,
+    DialFailed = 2
+}
+
+enum ErrorCode {
+    ErrorCode_DUMMY = 0,
+    OK = 1
+}
+
+interface IConnectServerFailedNotify {
+    ServerType?: number | null;
+    ServerId?: number | null;
+    Reason?: ConnectServerFailedReason | null;
+}
+
+interface IServerCloseNotify {
+    ServerType?: number | null;
+    ServerId?: number | null;
+    CreateTime?: number | null;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IServerExceptNotify {}
+
+export interface SocketNotifications extends RebateNotifications, MttNotifications {
+    clubCurrentBoard: (notify: IClubCurrentBoardNotice | IClubCurrentBoardNoticeV2) => void;
     userGoldNum: (notify: INoticeNotifyUserGoldNum) => void;
     globalMessage: (notify: INoticeGlobalMessage) => void;
-    timeout: () => void;
     luckTurntableStart: (notify: ILuckTurntableStartTimeNotice) => void;
     luckTurntableEnd: (notify: ILuckTurntableEndTimeNotice) => void;
     luckTurntableReady: (notify: ILuckTurntableReadyNotice) => void;
@@ -237,7 +320,24 @@ export interface SocketNotifications {
     luckTurntableResult: (notify: ILuckTurntableResultNotice) => void;
     userData: (notify: INoticeGetUserData) => void;
     calmDownConfirm: (notify: INoticeCalmDownConfirmResult) => void;
-    rebateEventStatus: () => void;
+    noticeLogIn: (notify: INoticeLogin) => void;
+    duplicatedLogIn: () => void;
+
+    /// jackpot
+    noticeCurrentRoomJackpot: (notify: INoticeCurrentRoomJackpot) => void;
+    noticeGetJackpotData: (notify: INoticeGetJackpotData) => void;
+    noticeJackpotAmount: (notify: INoticeJackpotAmout) => void;
+    noticeJackpotAwardInfo: (notify: INoticeJackPotAwardInfo) => void;
+    noticeJackpotAwardRecord: (notify: INoticeJackpotAwardRecord) => void;
+
+    /// server errors
+    connectServerFailed: (notify: IConnectServerFailedNotify) => void;
+    serverClose: (notify: IServerCloseNotify) => void;
+    serverExcept: () => void;
+
+    // socket errors
+    timeout: () => void;
+    abnormalClose: (code: number) => void;
 }
 
 export interface INoticeCalmDownConfirmResult {
@@ -252,6 +352,146 @@ export interface IAddCoinOrderResponse {
     cb_url?: string | null;
     token?: string | null;
     failedReasons?: string | null;
+}
+
+export interface IResponseClubCurrentBoard {
+    error?: number | null;
+}
+
+interface IMvpData {
+    uid?: number | null;
+    nickname?: string | null;
+    thumb?: string | null;
+    plat?: number | null;
+}
+
+interface IProDatas {
+    levelLimit?: number | null;
+    nowNum?: number | null;
+    tableLevel?: number | null;
+}
+interface IStarData {
+    uid?: number | null;
+    nickname?: string | null;
+    thumb?: string | null;
+    status?: number | null;
+}
+
+export interface ISnapshotClubGame {
+    club_id?: number | null;
+    game_mode?: number | null;
+    room_name?: string | null;
+    player_count?: number | null;
+    small_blind?: number | null;
+    big_blind?: number | null;
+    buyin_min?: number | null;
+    buyin_max?: number | null;
+    create_time?: number | null;
+    insurance?: boolean | null;
+    anti_cheating?: boolean | null;
+    straddle?: boolean | null;
+    ante?: number | null;
+    player_count_max?: number | null;
+    club_name?: string | null;
+    rule_time_limit?: number | null;
+    room_id?: number | null;
+    game_status?: number | null;
+    start_time?: number | null;
+    jackpot_isopen?: boolean | null;
+    is_allin_allfold?: boolean | null;
+    extra_time?: number | null;
+    is_opened_drawback?: boolean | null;
+    short_fullhouse_flush_straight_three?: boolean | null;
+    has_buyin?: number | null;
+    join_password?: string | null;
+    buyin_password?: string | null;
+    is_mirco?: number | null;
+    left_seatnum?: number | null;
+    anti_simulator?: boolean | null;
+    game_id?: number | null;
+    isCriticismField?: boolean | null;
+    minCritProb?: number | null;
+    maxCritProb?: number | null;
+    critNeedMoney?: number | null;
+    anti_simulator_ignore_cond?: number | null;
+    manual_created?: number | null;
+    mvp_data?: IMvpData | null;
+    IscalcIncomePerhand?: boolean | null;
+    starData?: IStarData[] | null;
+    bystanderNum?: number | null;
+    notifyTime?: number | null;
+    proDatas?: IProDatas[] | null;
+    proLevel?: number | null;
+    currencyType?: number | null;
+    red_envelope_switch?: boolean | null;
+    stick_on_top?: boolean | null;
+    forceWithdrawMode?: boolean | null;
+    looseMode?: boolean | null;
+    stickOnLevelTab?: GameLevelEnum | null;
+    is_loose_mode_stick_on_top?: boolean | null;
+    starseatStartTime?: number | null;
+}
+
+interface IClubGameSnapshotV2 {
+    game_id?: GameId | null;
+    room_id?: number | null;
+    iden_num?: number | null;
+    game_mode?: number | null;
+    room_mode?: RoomMode | null;
+    player_count?: number | null;
+    small_blind?: number | null;
+    big_blind?: number | null;
+    buyin_min?: number | null;
+    buyin_max?: number | null;
+    create_time?: number | null;
+    straddle?: boolean | null;
+    ante?: number | null;
+    player_count_max?: number | null;
+    rule_time_limit?: number | null;
+    start_time?: number | null;
+    extra_time?: number | null;
+    is_force_showcard?: boolean | null;
+    has_buyin?: number | null;
+    is_mirco?: number | null;
+    left_seatnum?: number | null;
+    anti_simulator?: boolean | null;
+    anti_simulator_ignore_cond?: number | null;
+    mvp_data?: IMvpData | null;
+    IscalcIncomePerhand?: boolean | null;
+    starData?: IStarData[] | null;
+    bystanderNum?: number | null;
+    currencyType?: CurrencyType | null;
+    red_envelope_switch?: boolean | null;
+    forceWithdrawMode?: boolean | null;
+    is_loose_mode_stick_on_top?: boolean | null;
+    starseatStartTime?: number | null;
+    stickOnLevelTab?: GameLevelEnum | null;
+    seat_status?: boolean[] | null;
+}
+
+export interface IFlagsFeature {
+    shortdeck_visible_micro?: boolean | null;
+    shortdeck_visible_small?: boolean | null;
+    shortdeck_visible_medium?: boolean | null;
+    shortdeck_visible_big?: boolean | null;
+    splash_visble_micro?: boolean | null;
+    splash_visble_small?: boolean | null;
+    splash_visble_medium?: boolean | null;
+    splash_visble_big?: boolean | null;
+}
+
+export interface IClubCurrentBoardNotice {
+    list?: ISnapshotClubGame[] | null;
+    total?: number | null;
+    page?: number | null;
+    flags?: IFlagsFeature | null;
+}
+
+export interface IClubCurrentBoardNoticeV2 {
+    list?: IClubGameSnapshotV2[] | null;
+    total?: number | null;
+    page?: number | null;
+    flags?: IFlagsFeature | null;
 }
 
 export interface ILuckTurntableResultResponse {
@@ -275,6 +515,94 @@ export interface IGetScalerQuoteResponse {
     rate?: string | null;
 }
 
+export interface IResponseCurrentRoomJackpot {
+    error?: number | null;
+}
+
+export interface IAwardType {
+    hand_level?: number | null;
+    award_percent?: number | null;
+}
+
+export interface INoticeCurrentRoomJackpot {
+    profit_scale?: number | null;
+    drawin_amount?: number | null;
+    awardTypes?: IAwardType[] | null;
+}
+
+export interface IJackpot {
+    amount?: number | null;
+    blind_level?: number | null;
+}
+
+export interface INoticeGetJackpotData {
+    club_id?: number | null;
+    club_name?: string | null;
+    club_avatar?: string | null;
+    club_area?: string | null;
+    jackpots?: IJackpot[] | null;
+}
+
+export interface IResponseGetJackpotData {
+    error?: number | null;
+}
+
+export interface IResponseJackpotAwardRecord {
+    error?: number | null;
+}
+
+export interface INoticeJackpotAmout {
+    club_id?: number | null;
+    blind_level?: number | null;
+    prev_amount?: number | null;
+    current_amout?: number | null;
+}
+
+enum AwardInfoType {
+    None = 0,
+    JP_Normal = 1,
+    JP_Earth = 2,
+    JP_Mars = 3
+}
+
+interface IAwardInfos {
+    award_playid?: number | null;
+    award_amount?: number | null;
+    hand_level?: number | null;
+    award_player_name?: string | null;
+    type?: AwardInfoType | null;
+}
+
+export interface INoticeJackPotAwardInfo {
+    awardInfo?: IAwardInfos[] | null;
+    cur_time?: number | null;
+    msg_type?: number | null;
+    blind_level?: number | null;
+    sys_msg_type?: number | null;
+    gameId?: number | null;
+    mode?: number | null;
+    playGameIds?: number[] | null;
+}
+
+interface IAwardInfo {
+    player_id?: number | null;
+    hand_level?: number | null;
+    award_amount?: number | null;
+    award_time?: number | null;
+    player_name?: string | null;
+    avatar?: string | null;
+    game_uuid?: number | null;
+    type?: AwardInfoType | null;
+    platform?: number | null;
+    award_ratio?: number | null;
+}
+
+export interface INoticeJackpotAwardRecord {
+    club_id?: number | null;
+    luckDog?: IAwardInfo | null;
+    awardInfos?: IAwardInfo[] | null;
+}
+
 export interface IExchangeCurrencyResponse {
     error?: number | null;
     op_type?: number | null;
@@ -284,143 +612,69 @@ export interface IExchangeCurrencyResponse {
     remaining_time?: number | null;
 }
 
-export enum RebateEventType {
-    NONE = 0,
-    TYPE_1 = 1,
-    TYPE_2 = 2,
-    TYPE_3 = 3,
-    TYPE_4 = 4
-}
-
-namespace RebateSetting {
-    export interface IEventType1 {
-        reward_progress?: EventData.BetTime.IRewardProgress[] | null;
-    }
-
-    export interface IEventType2 {
-        reward_progress?: EventData.BetTime.IRewardProgress[] | null;
-    }
-
-    export interface IEventType3 {
-        reward_progress?: EventData.BetTime.IRewardProgress[] | null;
-        day_of_week?: number[] | null;
-    }
-
-    export interface IEventType4 {
-        is_daily?: boolean | null;
-        surpassed_reward?: EventDataWithType4.BetTime.ISurpassedReward | null;
-        reward_progress?: EventDataWithType4.BetTime.IRewardProgress[] | null;
-    }
-}
-
-export interface IRebateSetting {
-    stop?: boolean | null;
-    event_start_time?: number | null;
-    event_end_time?: number | null;
-    event_type?: RebateEventType | null;
-    player_bet_start_time?: number | null;
-    player_bet_end_time?: number | null;
-    type1?: RebateSetting.IEventType1 | null;
-    type2?: RebateSetting.IEventType2 | null;
-    type3?: RebateSetting.IEventType3 | null;
-    type4?: RebateSetting.IEventType4 | null;
-    trigger_marquee_reward_threshold?: number | null;
-}
-
-export namespace EventData {
-    export interface IBetTime {
-        start_time?: number | null;
-        end_time?: number | null;
-        betting_amount?: number | null;
-        reward_progress?: EventData.BetTime.IRewardProgress[] | null;
-    }
-
-    export namespace BetTime {
-        export interface IRewardProgress {
-            amount_gte?: number | null;
-            reward?: number | null;
-            can_get?: boolean | null;
-            got?: boolean | null;
-            currency_type?: number | null;
-        }
-    }
-}
-
-export interface IEventData {
-    bet_time?: EventData.IBetTime[] | null;
-}
-
-export namespace EventDataWithType4 {
-    export interface IBetTime {
-        start_time?: number | null;
-        end_time?: number | null;
-        betting_amount?: number | null;
-        reward_progress?: EventDataWithType4.BetTime.IRewardProgress[] | null;
-        player_status?: EventDataWithType4.BetTime.IPlayerStatus | null;
-        global_player_rank?: EventDataWithType4.BetTime.IGlobalPlayerRank[] | null;
-        surpassed_reward?: EventDataWithType4.BetTime.ISurpassedReward | null;
-    }
-
-    export namespace BetTime {
-        export interface IRewardProgress {
-            reward?: number | null;
-            can_get?: boolean | null;
-            got?: boolean | null;
-            currency_type?: number | null;
-        }
-
-        export interface IPlayerStatus {
-            surpassed?: number | null;
-            rank?: number | null;
-        }
-
-        export interface IGlobalPlayerRank {
-            player_id?: number | null;
-            avatar?: string | null;
-            nickname?: string | null;
-            betting_amount?: number | null;
-            plat?: number | null;
-        }
-
-        export interface ISurpassedReward {
-            surpassed_gte?: number | null;
-            is_enabled?: boolean | null;
-            reward?: number | null;
-            can_get?: boolean | null;
-            got?: boolean | null;
-            top_n_can_get?: number | null;
-            currency_type?: number | null;
-        }
-    }
-}
-
-export interface IEventDataWithType4 {
-    bet_time?: EventDataWithType4.IBetTime[] | null;
-}
-
-export interface IGetEventStatusResponse {
+export interface ISetSecretKeyResponse {
     error?: number | null;
-    id?: number | null;
-    setting?: IRebateSetting | null;
-    system_time?: number | null;
-    event_data_type1?: IEventData | null;
-    event_data_type2?: IEventData | null;
-    event_data_type3?: IEventData | null;
-    event_data_type4?: IEventDataWithType4 | null;
 }
 
-export interface IClaimRewardResponse {
-    error?: number | null;
-    event_id?: number | null;
-    reward_amount?: { [k: string]: number } | null;
+export interface IRewardCheckRequest {
+    time?: number | null;
 }
 
-export interface ISocket {
+export interface IRewardCheckResponse {
+    daliy?: IDailyRewardInfo | null;
+    register?: IRegisterRewardInfo | null;
+}
+
+export interface IDailyRewardInfo {
+    status?: number | null;
+    uuid?: string | null;
+    items?: IDailyRewardItem[] | null;
+}
+
+export interface IDailyRewardItem {
+    Day?: number | null;
+    draw_status?: number | null;
+    reward_descs?: IRewardDesc[] | null;
+}
+
+export interface IRewardDesc {
+    amount?: number | null;
+    currency?: number | null;
+    tool_id?: number | null;
+    users?: string[] | null;
+    images?: { [k: string]: string } | null;
+    expire_time?: number | null;
+    tool_name?: string | null;
+}
+
+export interface IRegisterRewardInfo {
+    status?: number | null;
+    uuid?: string | null;
+    reward_descs?: IRewardDesc[] | null;
+    desc?: string | null;
+}
+
+export interface IRewardDrawRequest {
+    daily?: string | null;
+    register?: string | null;
+}
+
+export interface IRewardDrawResponse {
+    daliy?: IDailyRewardInfo | null;
+    register?: IRegisterRewardInfo | null;
+}
+
+export interface ISocket extends IRebateApi, IMttApi {
     verbose: boolean;
 
     notification: TypeSafeEventEmitter<SocketNotifications>;
 
     userId: number;
+
+    isOpen(): boolean;
+    isConnecting(): boolean;
+    isClosing(): boolean;
+    isClosed(): boolean;
 
     /** link to exist WebSocket */
     link(webSocket: WebSocket): void;
@@ -428,6 +682,8 @@ export interface ISocket {
 
     connect(url: string, options?: ISocketOptions): Promise<void>;
     disconnect(): Promise<void>;
+
+    createDataSession(): IDataSession;
 
     createGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T;
 
@@ -445,6 +701,8 @@ export interface ISocket {
 
     addCoinOrder(payType: number): Promise<IAddCoinOrderResponse>;
 
+    getClubCurrentBoard(): Promise<IResponseClubCurrentBoard>;
+
     getLuckTurntableResult(recordId: number, mode?: number): Promise<ILuckTurntableResultResponse>;
 
     getLuckTurntableSnaplist(
@@ -452,6 +710,23 @@ export interface ISocket {
         recordCount: number,
         mode?: number
     ): Promise<ILuckTurntableSnaplistResponse>;
+
+    requestAuthVerify(result: number | string): Promise<IAuthVerifyResponse>;
+
+    requestQuerySendFairReport(
+        clubId: number,
+        roomUuidJs: string,
+        gameUuidJs: string
+    ): Promise<IResponseQuerySendFairReport>;
+
+    requestAuditPlayers(
+        roomid: number,
+        clubId: number,
+        room_uuid: number,
+        game_uuid: number,
+        suspect_uids: number[],
+        contact: string
+    ): Promise<IResponseFairPlayReport>;
 
     getUserData(userId: number): Promise<IResponseGetUserData>;
 
@@ -465,7 +740,17 @@ export interface ISocket {
         usePointDeduction: boolean
     ): Promise<IExchangeCurrencyResponse>;
 
-    getEventStatus(): Promise<IGetEventStatusResponse>;
+    requestCurrentRoomJackpot(club: number, roomID: number, blindLevel: number): Promise<IResponseCurrentRoomJackpot>;
 
-    getRebateReward(eventId: number, betTimeIdx: number, rewardProgressIndex: number): Promise<IClaimRewardResponse>;
+    requestGetJackpotData(clubID: number, roomID: number): Promise<IResponseGetJackpotData>;
+
+    requestJackpotAwardRecord(club: number, roomID: number, blindLevel: number): Promise<IResponseJackpotAwardRecord>;
+
+    requestSecretKey(): Promise<void>;
+
+    getSecretKey(): string;
+
+    checkRewards(): Promise<IRewardCheckResponse>;
+
+    claimRewards(dailyUuid?: string, registerUuid?: string): Promise<IRewardDrawResponse>;
 }

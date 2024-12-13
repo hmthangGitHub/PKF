@@ -39,6 +39,8 @@ export type UpdateProgressCallback = (
     progressInfo: IProgressInfo
 ) => void;
 
+export type VersionCompareHandler = (versionA: string, versionB: string) => number;
+
 export class UpdateItem {
     private _bundle: string = '';
 
@@ -58,11 +60,13 @@ export class UpdateItem {
 
     private _packageUrl = '';
 
-    private _versionCompareHandle = null;
+    private _versionCompareHandle: VersionCompareHandler = null;
 
     private _remoteManifestUrl = '';
 
     private _retryCount = 0;
+
+    private _dependencies: Nullable<string[]> = null;
 
     private _progressCallback: Nullable<UpdateProgressCallback> = null;
 
@@ -88,6 +92,14 @@ export class UpdateItem {
 
     set storagePath(value) {
         this._storagePath = value;
+    }
+
+    get dependencies(): Nullable<string[]> {
+        return this._dependencies;
+    }
+
+    isNeedUpdate(): boolean {
+        return this._state === UpdateState.NEED_UPDATE;
     }
 
     get isUpToDate(): boolean {
@@ -126,21 +138,22 @@ export class UpdateItem {
         bundle: string,
         storagePath: string,
         packageUrl: string,
-        versionCompareHandle?: (versionA: string, versionB: string) => number
+        dependencies?: string[],
+        versionCompareHandler?: VersionCompareHandler
     ) {
         this._system = ModuleManager.instance.get(System);
         this._bundle = bundle;
         this._packageUrl = packageUrl;
+        this._dependencies = dependencies ? [...dependencies] : [];
 
         if (this._system.isBrowser) {
             this._state = UpdateState.UP_TO_DATE;
-            return;
+        } else {
+            this._state = UpdateState.UNINITED;
+            this._storagePath = storagePath;
+            this._remoteManifestUrl = this.getManifestPath(packageUrl);
+            this._versionCompareHandle = versionCompareHandler;
         }
-
-        this._state = UpdateState.UNINITED;
-        this._storagePath = storagePath;
-        this._remoteManifestUrl = this.getManifestPath(packageUrl);
-        this._versionCompareHandle = versionCompareHandle;
     }
 
     private getManifestPath(storagePath: string): string {

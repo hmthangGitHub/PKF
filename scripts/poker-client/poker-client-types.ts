@@ -24,7 +24,9 @@ export enum GameId {
     World = 1,
     Texas = 2,
     StarSeat = 3,
+    TexasCriticism = 5,
     DataServer = 10101,
+    RebateServer = 10102,
     CowBoy = 10,
     Allin = 20,
     HumanBoy = 30,
@@ -36,6 +38,7 @@ export enum GameId {
     Jackfruit = 80,
     PLO = 90,
     BlMtt = 900,
+    BlSpin = 901,
     Sports = 1000,
     TopMatches = 1001,
     PocketGames = 1010,
@@ -230,6 +233,7 @@ export enum SocketServerErrorCode {
     Helper_NO_Recharge = 293,
     UserMarksModifyTimesLimit = 301,
     IN_CALM_DOWN = 302,
+    Geo_Check_Failed = 303,
     UnmarshalFail = 400,
     MemePayOrderNotFound = 598,
     MemePayOrderCompleted = 599,
@@ -334,8 +338,11 @@ export interface ILinkOptions {
     domains?: IDomainInfo[];
 }
 
+type SocketApiVersion = 'v1' | 'v2';
+
 export interface ISocketOptions extends ISystemInfoOptions {
     cert?: string;
+    socketApiVersion?: SocketApiVersion;
 }
 
 export interface RequestOtpions {
@@ -346,6 +353,7 @@ export interface RequestOtpions {
 export interface IUser {
     userId: number;
     username: string;
+    userToken: string;
     nickname: string;
     avatarURL: string;
     sex: number;
@@ -374,6 +382,7 @@ export interface IUser {
     totalAmount: number; // 用户总金额
     usdt: number; // 用户usdt数量
     depositUsdt: number; // 存储usdt
+    diamond: number;
     priorityAreaCode: string; // 手机区号，优先绑定的
     priorityMobile: string; // 手机号，优先绑定的
     systemTime: number; // 当前系统时间戳 秒级
@@ -381,6 +390,13 @@ export interface IUser {
     sportsTrialCoin: number; // 体育体验金
     sportsTrialCoinExpiration: number; // 体育体验金期限
     sportsBettingBalance: number; // 牌桌內體育可用餘額 金幣+體驗金
+    allowUpdateName?: boolean;
+    email?: string;
+    unplayedSc?: number;
+    redeemableSc?: number;
+    registerEmail?: string;
+    loginType?: string;
+    allowRingGame?: boolean;
 }
 
 /** A session authenticated for a user with poke server. */
@@ -410,4 +426,102 @@ export interface IDomainInfo {
     webServer: string;
     imageServerWpk: string;
     imageServerWpto: string;
+    dataServer: string;
+}
+
+export interface INotificationSetParams {
+    useEmail: boolean;
+    useSms: boolean;
+    sendLoginNotification: boolean;
+}
+
+export interface INotificationSetData {
+    useEmail?: boolean;
+    useSms?: boolean;
+    sendLoginNotification?: boolean;
+}
+
+export interface IKycPerson {
+    dateOfBirth?: string;
+    firstName?: string;
+    lastName?: string;
+}
+
+export interface IKycInfoData {
+    user_id: number;
+    status: string;
+    person?: IKycPerson;
+    address?: string;
+}
+
+export interface IPurchaseLimit {
+    pay24h: number;
+    pay1week: number;
+    pay4weeks: number;
+    pay24h_purchase: number;
+    pay1week_purchase: number;
+    pay4weeks_purchase: number;
+    purchase_level: number;
+}
+
+/**
+ * 创建牌局模式
+ */
+export enum CreateGameMode {
+    CreateGame_Mode_None = 0, // 无
+    CreateGame_Mode_Normal, // 普通牌局
+    CreateGame_Mode_MATCH, //
+    CreateGame_Mode_Short, // 短牌局
+    CreateGame_Mode_Other //
+}
+
+export enum DiscoverGameType {
+    ALL = 0,
+    DZPK,
+    DZPK_SHORT,
+    AOF,
+    BET,
+    ZOOM_TEXAS,
+    MTT,
+    JACKFRUIT,
+    PLO,
+    BLACKJACKPVP,
+    JSNG
+}
+
+export enum GameLevelEnum {
+    GameLevelEnumNone = 0,
+    GameLevelEnumMicro = 1,
+    GameLevelEnumSmall = 2,
+    GameLevelEnumMedium = 3,
+    GameLevelEnumHigh = 4
+}
+
+export enum CurrencyType {
+    CurrencyTypeGold = 0, // GoldCoin
+    CurrencyTypeUSD = 101,
+    CurrencyTypeDiamond = 105 // SwepCoin
+}
+
+export enum RoomMode {
+    RoomModeNone = 0, // 一般
+    RoomModeLoose = 1, // 松浪
+    RoomModeBomb = 2 // 暴击
+}
+
+export interface MertricsParamsData {
+    $user_id: string | number;
+    $device_id: string | number;
+    page?: string;
+}
+
+export interface IMertricsReportParams {
+    name?: string;
+    data?: MertricsParamsData;
+}
+
+export interface ISweepCoinData {
+    TotalBalance: number | null;
+    Unplayed: number | null;
+    Redeemable: number | null;
 }

@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 require('url-search-params-polyfill');
 import type { Nullable } from '../../core/core-index';
-import { ServerError, DataUtil } from '../../core/core-index';
+import { AsyncOperation, InvalidOperationError, ServerError, DataUtil } from '../../core/core-index';
 import * as http from '../../core/network/http/http-index';
 import type { IPokerClient } from '../poker-client';
 import type {
@@ -17,10 +17,27 @@ import { SystemInfo } from '../poker-client-types';
 import type { ISocket } from '../poker-socket';
 import { PKWSession } from './pkw-session';
 import { PKWSocket } from './pkw-socket';
+import { PKWSocketV2 } from './pkw-socket-v2';
 import { PKWUtil } from './pkw-util';
-import type { IRequestParams, ILoginParams, ILoginResponseData, ILoginData } from './pkw-api';
+import type {
+    IRequestParams,
+    ILoginParams,
+    ILoginResponseData,
+    ILoginData,
+    IUploadAvatarParams,
+    IResponseData,
+    IUserProfileParams
+} from './pkw-api';
 import { WebSocketAdapter } from '../websocket-adapter';
 import { PKWMockSocket } from './mock/pkw-mock-socket';
+import { HttpMethod } from '../../core/network/http/http-constants';
+import { macros } from '../poker-client-macros';
+import type { IUserProfileData } from '../client/client-index';
+
+enum WebApi {
+    WEB_API_MODIFY_INFO = 'index.php/User/Ucenter/modifyUserInfo',
+    WEB_API_MODIFY_UPLOADVAR = 'uploadavar'
+}
 
 export class PKWClient implements IPokerClient {
     _deviceType: string;
@@ -105,6 +122,7 @@ export class PKWClient implements IPokerClient {
         this._user = {
             userId: loginData.user_id,
             username: loginData.nick_name,
+            userToken: token,
             nickname: loginData.nick_name,
             sex: 0,
             avatarURL: '',
@@ -131,13 +149,16 @@ export class PKWClient implements IPokerClient {
             totalAmount: 0,
             usdt: 0,
             depositUsdt: 0,
+            diamond: 0,
             priorityAreaCode: '',
             priorityMobile: '',
             systemTime: 0,
             calmDownDeadlineTime: 0,
             sportsTrialCoin: 0,
             sportsTrialCoinExpiration: 0,
-            sportsBettingBalance: 0
+            sportsBettingBalance: 0,
+
+            allowUpdateName: loginData.is_allow_update_name
         };
 
         // create domain info
@@ -149,13 +170,30 @@ export class PKWClient implements IPokerClient {
                 imageUploadServer: item.qiniu2,
                 webServer: item.api,
                 imageServerWpk: item.wpk,
-                imageServerWpto: ''
+                imageServerWpto: '',
+                dataServer: item.data
             };
 
             this._domains.push(domainInfo);
         });
 
         return this._session;
+    }
+
+    signInWithOneTimeToken(token: string): Promise<ISession> {
+        const asyncOp = new AsyncOperation<ISession>();
+        asyncOp.reject(new InvalidOperationError('pkw-client not implement signInWithOneTimeToken'));
+        return asyncOp.promise;
+    }
+
+    signInWithSession(session: ISession): Promise<ISession> {
+        const asyncOp = new AsyncOperation<ISession>();
+        asyncOp.reject(new InvalidOperationError('pkw-client not implement signInWithSession'));
+        return asyncOp.promise;
+    }
+
+    signInWithUserNameAndPassword(username: string, password: string): Promise<ISession> {
+        return this.login(username, password);
     }
 
     getCurrentUser(): Nullable<IUser> {
@@ -166,12 +204,26 @@ export class PKWClient implements IPokerClient {
         return this._domains;
     }
 
-    protected async request(url: string, params: IRequestParams): Promise<http.Response> {
-        // if (this._session) {
-        //     data.userId = this._session.userId;
-        //     data.sessionToken = this._session.token;
-        // }
-
+    /**
+     *
+     * @param url 请求地址
+     * @param params 请求参数
+     * @param options 请求选项
+     * @param isSign 是否加密
+     * @param isBody 数据是否放在body中
+     * @returns
+     */
+    protected async request(
+        url: string,
+        params: IRequestParams = {},
+        options: http.Options = { method: HttpMethod.Get },
+        signType: macros.HttpEcdType = macros.HttpEcdType.COIN5,
+        isBody: boolean = false
+    ): Promise<http.Response> {
+        if (this._session) {
+            params.user_id = this._session.userId.toString();
+            params.token = this._session.token;
+        }
         params.version = '1.0.0'; // just hard code
         params.hot_update_version = this._systemInfo.appVersion;
         params.device_uuid = this._deviceId;
@@ -186,29 +238,105 @@ export class PKWClient implements IPokerClient {
         params.clientType = this._systemInfo.clientType;
         params.language = this._systemInfo.langauage;
 
-        const data = JSON.stringify(params);
-
+        let data = JSON.stringify(params);
         // sign params
-        const sign = PKWUtil.createSign(data);
+        if (signType === macros.HttpEcdType.COIN5) {
+            const sign = PKWUtil.createSign(data);
+            const searchParams = new URLSearchParams({ data: data, sign: sign });
+            data = searchParams.toString();
+        } else if (signType === macros.HttpEcdType.V3) {
+            const signV3Token = PKWUtil.createClientOneTimeV3Token(this._session.token, isBody ? data : '');
+            options.headers = (options.headers as Record<string, string>) || {};
+            options.headers['Authorization'] = signV3Token;
+            options.headers['uid'] = this._session.userId?.toString();
+        } else if (signType === macros.HttpEcdType.Test) {
+            console.log('HttpEcdType.Test');
+        }
 
-        const searchParams = new URLSearchParams({ data: data, sign: sign });
+        if (isBody) {
+            options.body = data;
+        }
+        const requestURL = isBody ? url : url + '?' + data;
 
-        const fullUrl = url + '?' + searchParams;
-
-        return await http.get(fullUrl);
+        return await http.request(requestURL, options);
     }
 
     createSocket(options?: ISocketOptions): ISocket {
         const opts = { ...this._systemInfo, options };
         const isMock = opts?.options?.isMock ?? false;
 
-        this._socket = isMock
-            ? new PKWMockSocket(new WebSocketAdapter(), this._session, opts)
-            : new PKWSocket(new WebSocketAdapter(), this._session, opts);
+        if (isMock) {
+            this._socket = new PKWMockSocket(new WebSocketAdapter(), this._session, opts);
+        } else {
+            this._socket =
+                options?.socketApiVersion === 'v1'
+                    ? new PKWSocket(new WebSocketAdapter(), this._session, opts)
+                    : new PKWSocketV2(new WebSocketAdapter(), this._session, opts);
+        }
         return this._socket;
     }
 
     getSocket(): ISocket {
         return this._socket;
+    }
+
+    async uploadAvatar(avatar: string, imgUploadUrl?: string): Promise<string> {
+        let newPic = '';
+        if (cc.sys.isBrowser) {
+            const base64url = avatar.split('base64,'); // web版本下base64字符串会带有前缀data:image/jpeg;base64，后端解析时要去掉才能成功；
+            if (base64url[1]) {
+                newPic = base64url[1];
+            } else {
+                newPic = avatar;
+            }
+        } else {
+            newPic = avatar;
+        }
+
+        const data: IUploadAvatarParams = {
+            avatar: newPic,
+            ext: 'jpg'
+        };
+
+        let url = imgUploadUrl + WebApi.WEB_API_MODIFY_UPLOADVAR;
+        let response = await this.request(url, data, { method: HttpMethod.Post });
+        let respMsg = response.data;
+
+        const asyncOp = new AsyncOperation<string>();
+        if (respMsg.code === 0) {
+            const data: any = respMsg.data;
+            console.log(`new avatar url = ${data.filename}`);
+            asyncOp.resolve(data.filename);
+        } else {
+            asyncOp.reject(new ServerError(respMsg.message, Number(respMsg.msg_code)));
+        }
+
+        return asyncOp.promise;
+    }
+
+    async modifyPlayerInfo(params: IUserProfileData): Promise<void> {
+        const asyncOp = new AsyncOperation<void>();
+
+        const userData = this.getCurrentUser();
+        const data: IUserProfileParams = {
+            nick_name: params.nickname || userData.nickname,
+            gender: (params.gender || userData.sex).toString(),
+            avatar_thumb: (params.avatar = params.avatar || userData.avatarURL),
+            img_ext: 'jpg'
+        };
+
+        let url = this._baseUrl + WebApi.WEB_API_MODIFY_INFO;
+        let response = await this.request(url, data, { method: HttpMethod.Post });
+        let respMsg = response.data as IResponseData;
+
+        console.log('modifyPlayerInfo response:' + JSON.stringify(respMsg));
+
+        if (respMsg.msg_code === '0') {
+            asyncOp.resolve();
+        } else {
+            asyncOp.reject(new ServerError(respMsg.message, Number(respMsg.msg_code)));
+        }
+
+        return asyncOp.promise;
     }
 }

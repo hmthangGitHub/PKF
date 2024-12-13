@@ -1,15 +1,21 @@
-import { EmittableModule, ModuleManager } from '../module/module-index';
+import { Module, ModuleManager } from '../module/module-index';
 import { NativeManager } from '../native/native-index';
 import type { Nullable } from '../defines/types';
 import { DeviceAPI } from '../../natives/natives-index';
+import { TypeSafeEventEmitter } from '../event/event-emitter';
 
 export interface IAppEvents {
     appEnterBackground: () => void;
     appEnterForeground: () => void;
+    sceneChanged: () => void;
+    /// a modal UI showes or hides
+    modalShow: (show: boolean) => void;
+}
 
-    showRedEnvelopeTooltip: (param: any) => void;
+export type Environment = 'local' | 'dev' | 'stg' | 'prod';
 
-    hideWebview: () => void;
+export interface IAppConfig {
+    environment: Environment;
 }
 
 export interface IGameContext {
@@ -21,10 +27,18 @@ class GameContext implements IGameContext {
 }
 
 /** Application state and events */
-export class App extends EmittableModule<IAppEvents> {
+export class App extends Module {
     static moduleName = 'App';
 
     private _gameContext: Nullable<IGameContext> = null;
+
+    /** 當前場景 */
+    private _currentScene: string = '';
+
+    private _eventEmitter: Nullable<TypeSafeEventEmitter<IAppEvents>> = null;
+
+    private _appConfig: Nullable<IAppConfig> = null;
+
     set gameContext(context: IGameContext) {
         this._gameContext = context;
     }
@@ -36,11 +50,23 @@ export class App extends EmittableModule<IAppEvents> {
         return this._gameContext as T;
     }
 
-    /** 當前場景 */
-    private _currentScene: string = '';
+    get appConfig(): Nullable<IAppConfig> {
+        return this._appConfig;
+    }
+
+    set appConfig(value: Nullable<IAppConfig>) {
+        this._appConfig = value;
+    }
+
+    getAppConfig<T>(): Nullable<T> {
+        return this._appConfig as T;
+    }
 
     setCurrentScene(name: string) {
-        this._currentScene = name;
+        if (this._currentScene !== name) {
+            this._currentScene = name;
+            this.events<IAppEvents>().emit('sceneChanged');
+        }
     }
 
     getCurrentScene(): string {
@@ -59,26 +85,19 @@ export class App extends EmittableModule<IAppEvents> {
             cc.game.on(cc.game.EVENT_SHOW, this._onAppEnterForeground, this);
         }
 
-        // TODO: just for testing
-        // const audioAPI = this._nativeManager.get(AudioAPI);
-        // cc.log('app.audioAPI', audioAPI);
-        // cc.log('app.audioAPI.playRecord', audioAPI.playRecord());
-        // cc.log('app.audioAPI.nativeName', audioAPI.nativeName);
+        this._eventEmitter = new TypeSafeEventEmitter<IAppEvents>();
+    }
 
-        // const videoAPI = this._nativeManager.get(VideoAPI);
-        // cc.log('app.videoAPI.nativeName', videoAPI.nativeName);
-
-        // cc.log('app.deviceAPI', deviceAPI);
-        // cc.log('app.deviceAPI.getDeviceInfo', deviceAPI.getDeviceInfo());
-        // cc.log('app.deviceAPI.getDeviceUUID', deviceAPI.getDeviceUUID());
+    events<T extends IAppEvents>(): TypeSafeEventEmitter<T> {
+        return this._eventEmitter;
     }
 
     private _onAppEnterBackground() {
-        this.emit('appEnterBackground');
+        this._eventEmitter.emit('appEnterBackground');
     }
 
     private _onAppEnterForeground() {
-        this.emit('appEnterForeground');
+        this._eventEmitter.emit('appEnterForeground');
     }
 
     /** */
@@ -93,9 +112,5 @@ export class App extends EmittableModule<IAppEvents> {
 
     destroy() {
         super.destroy();
-    }
-
-    redEnvelopeTooltipClicked(param: any) {
-        this.emit('showRedEnvelopeTooltip', param);
     }
 }

@@ -6,14 +6,14 @@ import type { WebSocketAdapter } from '../../websocket-adapter';
 import type {
     ILuckTurntableResultResponse,
     ILuckTurntableSnaplistResponse,
-    IResponseCalmDownConfirm,
-    IGetEventStatusResponse
+    IResponseCalmDownConfirm
 } from '../../poker-socket';
 import { MockLuckTurntableData } from './mock-luck-turntable-data';
 import { MockRebateData } from './mock-rebate-data';
+import type { IGetEventStatusResponse } from '../../socket/socket-index';
 
 export class PKWMockSocket extends PKWSocket {
-    private _resolveFunc = null;
+    private _resolveFunc: Function = null;
 
     constructor(websocketAdatper: WebSocketAdapter, session: ISession, options?: ISocketOptions) {
         super(websocketAdatper, session, options);
