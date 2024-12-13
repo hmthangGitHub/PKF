@@ -92,9 +92,7 @@ export class WalletService extends EmittableService<WalletEvents> {
 
     onUserDataNotify(notify: INoticeGetUserData) {
         this._wallet.fromUserDataNotify(notify);
-    }
 
-    onCoinDataNotify(notify: INoticeGetUserData) {
         this._wallet.sweepCoin = notify.diamond;
         this._wallet.unplayedSweepCoin = notify.unplayed_sc;
         this._wallet.redeemableSweepCoin = notify.redeemable_sc;
