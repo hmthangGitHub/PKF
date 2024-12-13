@@ -17,7 +17,6 @@ import type {
     IResponseCalmDownConfirm,
     IGetScalerQuoteResponse,
     IExchangeCurrencyResponse,
-    INoticeGlobalMessage,
     IResponseClubCurrentBoard,
     IAuthVerifyResponse,
     IResponseFairPlayReport,
@@ -939,14 +938,14 @@ export class WPKSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleGlobalMessageNotify(protobuf: pb.NoticeGlobalMessage) {
         console.log('global message', protobuf);
-        let sourceType = [];
+        let sourceType: GameId[] = [];
         if (protobuf.source_type) {
             sourceType = protobuf.source_type.map((gameId) => {
-                let mappedGameId;
+                let mappedGameId: GameId;
                 if (gameId === pb.GameId.BlackJack) {
                     mappedGameId = GameId.BlackJack;
                 } else {
-                    mappedGameId = gameId;
+                    mappedGameId = gameId as number;
                 }
 
                 return mappedGameId;

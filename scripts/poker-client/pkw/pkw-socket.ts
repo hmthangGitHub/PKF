@@ -26,8 +26,7 @@ import type {
     IResponseGetJackpotData,
     IResponseJackpotAwardRecord,
     IRewardCheckResponse,
-    IRewardDrawResponse,
-    INoticeGlobalMessage
+    IRewardDrawResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
@@ -982,10 +981,10 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleGlobalMessageNotify(protobuf: pb.NoticeGlobalMessage) {
         console.log('global message', protobuf);
-        let sourceType = [];
+        let sourceType: GameId[] = [];
         if (protobuf.source_type) {
             sourceType = protobuf.source_type.map((gameId) => {
-                return gameId;
+                return gameId as number;
             });
         }
 

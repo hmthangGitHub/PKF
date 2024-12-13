@@ -6,5 +6,5 @@ export * from './time-util';
 export * from './random-util';
 export * from './validation-util';
 export * from './math-util';
-export * from './crytpo';
+export * from './crypto';
 export * from './compare-versions/compare-versions';
