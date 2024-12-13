@@ -48,17 +48,16 @@ export class LanguageManager extends EmittableModule<LanguageEvents> {
     }
 
     registerfromJosn(json: any, warnOverwrite = false) {
-        const self = this;
         Object.entries(json.groups).forEach(([key, value]) => {
             cc.log(`register language group ${key}`);
 
             const newGroup = LanguageGroup.createFromJson(key, value);
 
-            const group = self._languageGroups.get(key);
+            const group = this._languageGroups.get(key);
             if (group) {
                 group.merge(newGroup, warnOverwrite);
             } else {
-                self.register(key, newGroup);
+                this.register(key, newGroup);
             }
         });
     }
