@@ -1,4 +1,3 @@
-import * as cr from 'common-resource';
 import { EmittableService } from '../core/core-index';
 import { GameId, MsgType } from '../poker-client/poker-client-types';
 import type { ISocket, INoticeGlobalMessage } from '../poker-client/poker-socket';
@@ -51,7 +50,7 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
         if (notify.repeat_count && notify.msg) {
             if (notify.repeat_count && notify.msg) {
                 let data: PushNoticeData = new PushNoticeData();
-                data.content = cr.CommonUtil.getServerStrByLanguage(notify.msg);
+                data.content = notify.msg;
                 data.count = notify.repeat_count || 1;
 
                 if (!notify.source_type || notify.source_type.length === 0) {
