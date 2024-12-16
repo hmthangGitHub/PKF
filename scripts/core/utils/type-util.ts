@@ -1,5 +1,4 @@
 export class TypeUtil {
-
     /**
      * This method was originally named `Util.Number`.
      * 包装 Number, 防止返回 NaN, Infinity 等情况, 默认返回 0
