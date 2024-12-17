@@ -1,3 +1,3 @@
 export namespace macros {
-    export const FRAMEWORK_VERSION = '0.2.0';
+    export const FRAMEWORK_VERSION = '0.4.0';
 }
