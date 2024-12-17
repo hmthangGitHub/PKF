@@ -1,4 +1,4 @@
-import { EmittableService } from '../core/core-index';
+import { EmittableService, MathUtil } from '../core/core-index';
 import type { ISocket, INoticeNotifyUserGoldNum, INoticeGetUserData } from '../poker-client/poker-client-index';
 
 export class Wallet {
@@ -74,5 +74,14 @@ export class WalletService extends EmittableService<WalletEvents> {
     onUserDataNotify(notify: INoticeGetUserData) {
         console.log('[3in1] user data notify got in wallet service', notify);
         this._wallet.fromUserDataNotify(notify);
+    }
+
+    /**
+     * This method was originally named `serverGoldByClient`.
+     * *客户端转服务器
+     * @param number       客户端比例金币
+     */
+    static convertToServerAmount(clientAmount: number): number {
+        return MathUtil.times(clientAmount, 100);
     }
 }
