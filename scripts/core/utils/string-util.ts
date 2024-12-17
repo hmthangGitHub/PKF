@@ -295,11 +295,4 @@ export class StringUtil {
                 return text;
         }
     }
-
-    /**
-     * 包装 String, 防止为空时返回 undefined, 默认返回 ""
-     */
-    static String(value: any): string {
-        return value === null || typeof value === 'undefined' ? '' : String(value);
-    }
 }
