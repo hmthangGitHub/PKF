@@ -1,4 +1,4 @@
-import { EmittableService, NotImplementError } from '../core/core-index';
+import { EmittableService, NotImplementError, MathUtil } from '../core/core-index';
 import type {
     INoticeNotifyUserGoldNum,
     ISweepCoinData,
@@ -116,5 +116,14 @@ export class WalletService extends EmittableService<WalletEvents> {
             const result = await this._client.getPurchaseLimit();
             return result;
         }
+    }
+
+    /**
+     * This method was originally named `serverGoldByClient`.
+     * *客户端转服务器
+     * @param number       客户端比例金币
+     */
+    static convertToServerAmount(clientAmount: number): number {
+        return MathUtil.times(clientAmount, 100);
     }
 }
