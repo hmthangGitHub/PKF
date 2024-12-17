@@ -5,7 +5,6 @@ import { ValidationUtil } from './validation-util';
  * 字符串工具类
  */
 export class StringUtil {
-
     /**
      * 字符串格式化, 支持变长参数(更高级的用法请参照下面的 formatC 接口)
      * @param str       格式
@@ -261,8 +260,8 @@ export class StringUtil {
     }
 
     /**
-     * @param title 
-     * @returns 
+     * @param title
+     * @returns
      */
     static capitalizeTheFirstLetterOfEachWord(title: string): string {
         return title
@@ -274,9 +273,9 @@ export class StringUtil {
 
     /**
      * This method was originally named `convertText`.
-     * @param text 
-     * @param textType 
-     * @returns 
+     * @param text
+     * @param textType
+     * @returns
      */
     static convertTextCase(text: string, textType: number): string {
         if (!text || ValidationUtil.isNumber(text)) {

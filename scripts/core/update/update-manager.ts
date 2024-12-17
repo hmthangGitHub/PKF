@@ -129,7 +129,6 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
 
     /** check update state of bundles */
     checkUpdate(): void {
-
         let update = false;
 
         if (this._remoteManifest.version.length > 0 && this._localManifest.version !== this._remoteManifest.version) {

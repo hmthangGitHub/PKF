@@ -1,7 +1,6 @@
 import { TypeUtil } from './type-util';
 
 export class DataUtil {
-
     /** Override source properties to dest with the same key */
     static override(dest: any, source: any) {
         Object.keys(dest).forEach((key) => {
@@ -10,7 +9,7 @@ export class DataUtil {
             }
         });
     }
-    
+
     /**
      * 获取数组或者string的长度，添加了为null的情况
      * @param arr 要处理的数组
