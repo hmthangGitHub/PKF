@@ -8,8 +8,9 @@ export class ValidationUtil {
      * @returns
      */
     static isValidEmail(emailAddress: string): boolean {
+        // RFC 2822 标准
         const pattern =
-            /^[a-zA-Z0-9]+([._\\-]*[a-zA-Z0-9])*@([a-zA-Z0-9]+[-a-zA-Z0-9]*[a-zA-Z0-9]+.){1,63}[a-zA-Z0-9]+$/g;
+            /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/g;
         const vMatch: string[] = emailAddress.match(pattern);
         return DataUtil.getArrayLength(vMatch) > 0;
     }
