@@ -15,6 +15,7 @@ export interface WCParamsData {
     game_id?: string | number;
     lobby_id?: string | number;
     table_position?: string | number;
+    kyc_started?: string;
 }
 
 export interface IMertricsApi {
