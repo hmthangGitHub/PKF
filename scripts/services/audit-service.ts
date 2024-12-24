@@ -11,7 +11,7 @@ export class AuditService extends Service {
     }
 
     async requestInitAudit(clubId: number, gameUuid: string, roomUuid: string): Promise<IResponseQuerySendFairReport> {
-        const response = await this._socket.requestQuerySendFairReport(clubId, gameUuid, roomUuid);
+        const response = await this._socket.requestQuerySendFairReport(clubId, roomUuid, gameUuid);
         return response;
     }
 
