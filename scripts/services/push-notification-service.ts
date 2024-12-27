@@ -6,14 +6,14 @@ export enum PushNoticeType {
     PUSH_ERROR = 0,
     PUSH_LOBBY, // 大厅
     PUSH_WORLD, // 全局
-    PUSH_TEXAS // 德州扑克
-    // PUSH_COWBOY,		// 德州牛仔
-    // PUSH_HUMANBOY,		// 百人德州
+    PUSH_TEXAS, // 德州扑克
+    PUSH_COWBOY, // 德州牛仔
+    PUSH_HUMANBOY, // 百人德州
     // PUSH_ALLIN,			// allin or fold
-    // PUSH_VIDEOCOWBOY,	// 视频牛仔
+    PUSH_VIDEOCOWBOY, // 视频牛仔
     // PUSH_ZOOM_TEXAS,	// 极速德州
     // PUSH_BET,			// 必下
-    // PUSH_POKERMASTER,   // 扑克大师
+    PUSH_POKERMASTER // 扑克大师
     // PUSH_JACKFRUIT,     // 菠萝蜜
     // PUSH_PLO,           // 奥马哈
     // PUSH_STAR_SEAT,     // 明星桌
@@ -64,6 +64,18 @@ export class PushNotificationService extends EmittableService<PushNotificationEv
                                 break;
                             case GameId.Texas:
                                 data.msgType.push(PushNoticeType.PUSH_TEXAS);
+                                break;
+                            case GameId.HumanBoy:
+                                data.msgType.push(PushNoticeType.PUSH_HUMANBOY);
+                                break;
+                            case GameId.CowBoy:
+                                data.msgType.push(PushNoticeType.PUSH_COWBOY);
+                                break;
+                            case GameId.PokerMaster:
+                                data.msgType.push(PushNoticeType.PUSH_POKERMASTER);
+                                break;
+                            case GameId.VideoCowboy:
+                                data.msgType.push(PushNoticeType.PUSH_VIDEOCOWBOY);
                                 break;
                             default:
                                 break;
