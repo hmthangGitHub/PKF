@@ -1,7 +1,7 @@
 /* eslint-disable new-cap */
 /* eslint-disable autofix/quotes */
 import { Crypto } from '../../core/core-index';
-import ecdhJs from './ecdh.js';
+import ecdhJs from './ecdh';
 
 enum SecretType {
     UseX = 0,
