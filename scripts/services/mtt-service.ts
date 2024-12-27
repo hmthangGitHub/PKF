@@ -3,7 +3,8 @@ import {
     type ISocket,
     type INoticeMttAuth,
     type INoticeGlobalMessage,
-    MsgType
+    MsgType,
+    MTTStatus
 } from '../poker-client/poker-client-index';
 
 export interface MttEvents {
@@ -22,6 +23,7 @@ export class MttService extends EmittableService<MttEvents> {
     static readonly serviceName = 'MttService';
     private _socket: ISocket;
     private _url: string = '';
+    private _mttStatus: MTTStatus = MTTStatus.None;
 
     private _token: string = '';
 
@@ -38,6 +40,9 @@ export class MttService extends EmittableService<MttEvents> {
     get token(): string {
         return this._token;
     }
+    get mttStatus(): number {
+        return this._mttStatus;
+    }
 
     async requestAuth(): Promise<number> {
         this._url = '';
@@ -47,8 +52,13 @@ export class MttService extends EmittableService<MttEvents> {
     }
 
     protected registerNotificationHandlers() {
+        this._socket.notification.on('mttStatus', this.onMttStatus.bind(this));
         this._socket.notification.on('mttAuth', this.onMttAuth.bind(this));
         this._socket.notification.on('globalMessage', this.onGlobalMessage.bind(this));
+    }
+
+    protected onMttStatus(status: MTTStatus): void {
+        this._mttStatus = status;
     }
 
     protected onMttAuth(notice: INoticeMttAuth): void {
