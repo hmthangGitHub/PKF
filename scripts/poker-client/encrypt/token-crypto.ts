@@ -1,4 +1,4 @@
-const rs = require('./jsrsasign');
+const rs = require('./jsrsasign-util');
 import { Base64Util } from './base64-util';
 
 interface LoginKeys {
