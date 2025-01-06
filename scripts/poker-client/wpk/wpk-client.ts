@@ -243,7 +243,7 @@ export class WPKClient implements IPokerClient {
         const opts = { ...this._systemInfo, options };
 
         this._socket =
-            options?.socketApiVersion === 'v1'
+            !options?.socketApiVersion || options?.socketApiVersion === 'v1'
                 ? new WPKSocket(new WebSocketAdapter(), this._session, opts)
                 : new WPKSocketV2(new WebSocketAdapter(), this._session, opts);
         return this._socket;
