@@ -269,7 +269,7 @@ export class PKWClient implements IPokerClient {
             this._socket = new PKWMockSocket(new WebSocketAdapter(), this._session, opts);
         } else {
             this._socket =
-                options?.socketApiVersion === 'v1'
+                !options?.socketApiVersion || options?.socketApiVersion === 'v1'
                     ? new PKWSocket(new WebSocketAdapter(), this._session, opts)
                     : new PKWSocketV2(new WebSocketAdapter(), this._session, opts);
         }
