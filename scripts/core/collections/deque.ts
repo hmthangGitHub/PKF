@@ -10,12 +10,12 @@ export interface DequeGenericityType<T> {
  * Deque 双向队列泛型实现(实现部分主要的接口)
  */
 export class Deque<T> {
-    private _items: object = null;
+    private _items: any[] = [];
     private _count: number = 0;
     private _lowestCount: number = 0;
 
     constructor() {
-        this._items = {};
+        this._items = [];
         this._count = 0;
         this._lowestCount = 0;
     }
@@ -122,7 +122,7 @@ export class Deque<T> {
      * 清除队列中所有元素
      */
     clear(): void {
-        this._items = {};
+        this._items = [];
         this._count = 0;
         this._lowestCount = 0;
     }

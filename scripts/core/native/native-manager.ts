@@ -43,7 +43,9 @@ export class NativeManager extends Module {
         this._natives.forEach((module: INativeSDK) => {
             module.destroy();
         });
-        Object.keys(this._natives).map((native) => this.unregister(this._natives[native]));
+        Object.keys(this._natives).map((native) =>
+            this.unregister(this._natives.get(native) as unknown as NativeClass<any>)
+        );
     }
 
     registerModules(): void {

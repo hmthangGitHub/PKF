@@ -1,6 +1,6 @@
 require('url-search-params-polyfill');
 import type { Nullable } from '../../core/defines/types';
-import { ServerError } from '../../core/defines/errors';
+import { InvalidOperationError, NotImplementError, ServerError } from '../../core/defines/errors';
 import type { IPokerClient } from '../poker-client';
 import type {
     IClientOptions,
@@ -17,9 +17,12 @@ import type { LoginData, PostParams, LoginParams } from './wpk-api';
 import * as http from '../../core/network/http/http-index';
 import { WPKSession } from './wpk-session';
 import { WPKSocket } from './wpk-socket';
+import { WPKSocketV2 } from './wpk-socket-v2';
 import { WPKUtil } from './wpk-util';
-import { Util } from '../../core/utils/util';
+import { DataUtil } from '../../core/utils/data-util';
 import { WebSocketAdapter } from '../websocket-adapter';
+import { AsyncOperation } from '../../core/core-index';
+import type { IUserProfileData } from '../client/client-index';
 
 export class WPKClient implements IPokerClient {
     _deviceType: number;
@@ -62,7 +65,7 @@ export class WPKClient implements IPokerClient {
         this._deviceType = opts.deviceType as number;
         this._deviceId = opts.deviceId;
 
-        Util.override(this._systemInfo, opts);
+        DataUtil.override(this._systemInfo, opts);
     }
 
     link(session: ISession, options?: ILinkOptions): void {
@@ -111,6 +114,7 @@ export class WPKClient implements IPokerClient {
             // because the player data contains pkw user id
             // userId: session.userInfo.userId,
             userId: session.pkwAuthData.uid,
+            userToken: '',
             username: session.userInfo.account,
             nickname: session.userInfo.nickname,
             sex: session.userInfo.sex,
@@ -138,13 +142,15 @@ export class WPKClient implements IPokerClient {
             totalAmount: 0,
             usdt: 0,
             depositUsdt: 0,
+            diamond: 0,
             priorityAreaCode: '',
             priorityMobile: '',
             systemTime: 0,
             calmDownDeadlineTime: 0,
             sportsTrialCoin: 0,
             sportsTrialCoinExpiration: 0,
-            sportsBettingBalance: 0
+            sportsBettingBalance: 0,
+            allowUpdateName: loginData.is_allow_update_name
         };
 
         // create domain info
@@ -156,13 +162,32 @@ export class WPKClient implements IPokerClient {
                 imageUploadServer: session.pkwAuthData.pkw_file_addr,
                 webServer: session.pkwAuthData.api_addr,
                 imageServerWpk: session.pkwAuthData.avatar_addr,
-                imageServerWpto: ''
+                imageServerWpto: '',
+                dataServer: ''
             };
 
             this._domains.push(domainInfo);
         });
 
         return session;
+    }
+
+    signInWithOneTimeToken(token: string): Promise<ISession> {
+        const asyncOp = new AsyncOperation<ISession>();
+        asyncOp.reject(new InvalidOperationError('wpk-client not implement signInWithOneTimeToken'));
+        return asyncOp.promise;
+    }
+
+    signInWithSession(session: ISession): Promise<ISession> {
+        const asyncOp = new AsyncOperation<ISession>();
+        asyncOp.reject(new InvalidOperationError('wpk-client not implement signInWithSession'));
+        return asyncOp.promise;
+    }
+
+    signInWithUserNameAndPassword(username: string, password: string): Promise<ISession> {
+        const asyncOp = new AsyncOperation<ISession>();
+        asyncOp.reject(new InvalidOperationError('wpk-client not implement signInWithUserNameAndPassword'));
+        return asyncOp.promise;
     }
 
     getCurrentUser(): Nullable<IUser> {
@@ -185,7 +210,7 @@ export class WPKClient implements IPokerClient {
         return this._domains;
     }
 
-    protected async request(url: string, data: PostParams): Promise<http.Response> {
+    async request(url: string, data: PostParams = {}): Promise<http.Response> {
         if (this._session) {
             data.userId = this._session.userId;
             data.sessionToken = this._session.token;
@@ -201,21 +226,38 @@ export class WPKClient implements IPokerClient {
         data['sign'] = WPKUtil.sign(data);
         const searchParams = new URLSearchParams(data as any);
 
-        return await http.post(url, {
+        const requestURL = url + '?' + searchParams.toString();
+
+        return await http.post(requestURL, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-            },
-            body: searchParams.toString()
+            }
         });
+    }
+
+    async post(url: string, data: PostParams): Promise<http.Response> {
+        return await this.request(url, data);
     }
 
     createSocket(options?: ISocketOptions): ISocket {
         const opts = { ...this._systemInfo, options };
-        this._socket = new WPKSocket(new WebSocketAdapter(), this._session, opts);
+
+        this._socket =
+            !options?.socketApiVersion || options?.socketApiVersion === 'v1'
+                ? new WPKSocket(new WebSocketAdapter(), this._session, opts)
+                : new WPKSocketV2(new WebSocketAdapter(), this._session, opts);
         return this._socket;
     }
 
     getSocket(): ISocket {
         return this._socket;
+    }
+
+    async uploadAvatar(avatar: string, imgUploadUrl?: string): Promise<string> {
+        return Promise.reject<string>(new NotImplementError('uploadAvatar is not implement'));
+    }
+
+    async modifyPlayerInfo(params: IUserProfileData): Promise<void> {
+        return Promise.reject(new NotImplementError('modifyPlayerInfo is not implement'));
     }
 }

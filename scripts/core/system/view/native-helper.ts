@@ -1,7 +1,7 @@
 import { NativeMethodMap, NATIVE_KEY } from './native-event-map';
 
 // TODO: refactor me
-const IOSModelNameMap = {
+const IOSModelNameMap: Record<string, string> = {
     'iPhone3,1': 'iPhone 4',
     'iPhone3,2': 'iPhone 4',
     'iPhone3,3': 'iPhone 4',
@@ -70,8 +70,8 @@ const IOSModelNameMap = {
     'iPad3,6': 'iPad 4'
 };
 
-let className;
-let nativeFuncName;
+let className = '';
+let nativeFuncName = '';
 if (cc.sys.isNative && cc.sys.os === cc.sys.OS_IOS) {
     className = 'NativeEvent';
     nativeFuncName = 'call_native:';

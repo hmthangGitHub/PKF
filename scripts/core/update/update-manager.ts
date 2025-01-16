@@ -5,9 +5,15 @@ import { System } from '../system/system';
 import { http } from '../network/network-index';
 import { UpdateItem, UpdateState } from './update-item';
 import type { BundleEntry, IBundleOptions } from '../asset/asset-index';
-import { BundleManager } from '../asset/asset-index';
-import { InternalError, LoadRemoteManifestFailedError, InvalidURL, NoBundleFoundError } from '../defines/errors';
-import { AsyncOperation, sleep } from '../async/async-index';
+import { BundleManager, BundleState } from '../asset/asset-index';
+import {
+    InvalidOperationError,
+    InternalError,
+    LoadRemoteManifestFailedError,
+    InvalidURL,
+    NoBundleFoundError
+} from '../defines/errors';
+import { sleep, AsyncOperation } from '../async/async-index';
 
 const MANIFEST_FILENAME = 'bundle.json';
 const MAX_LOAD_REMOTE_MANIFEST_RETRY_COUNT = 5;
@@ -123,8 +129,6 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
 
     /** check update state of bundles */
     checkUpdate(): void {
-        cc.log(`${UpdateManager.moduleName} checkUpdate`);
-
         let update = false;
 
         if (this._remoteManifest.version.length > 0 && this._localManifest.version !== this._remoteManifest.version) {
@@ -149,14 +153,17 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
         }
 
         this._localManifest.bundles.forEach((bundleInfo, name) => {
-            let updateItem = this._updateItems.get(name);
-            if (!updateItem) {
-                updateItem = new UpdateItem(name, this.storagePath, this._localManifest.bundleServerAddress, () => {
+            const updateItem = new UpdateItem(
+                name,
+                this.storagePath,
+                this._localManifest.bundleServerAddress,
+                bundleInfo.dependencies,
+                () => {
                     // Note:
                     // force update item download
                     return -1;
-                });
-            }
+                }
+            );
 
             if (this._system.isBrowser || this._skipHotUpdate) {
                 updateItem.state = UpdateState.UP_TO_DATE;
@@ -187,7 +194,6 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
                 }
             }
 
-            cc.log(`${UpdateManager.moduleName} add UpdateItem ${name} state: ${updateItem.state}`);
             this._updateItems.set(name, updateItem);
         });
     }
@@ -257,7 +263,19 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
         return Promise.resolve();
     }
 
-    async loadBundle(updateItem: UpdateItem, options?: IBundleOptions): Promise<BundleEntry> {
+    /** Download and load bundle
+     * @description This function is used for downloading and loading bundle.
+     * In native platform, this function will download bundle to local storage first and then load bundle from local.
+     * We could also defines dependencies of a bundle in bundle manifest. This function is used for loading bundle recursively.
+     * @param updateItem
+     * @param options
+     * @param recursiveDepth
+     * The depth of recursively loading bundle.
+     * 0 means not load any dependencies.
+     * -1 means load dependencies until no dependencies found
+     * The default value is 1
+     */
+    async loadBundle(updateItem: UpdateItem, options?: IBundleOptions, recursiveDepth?: number): Promise<BundleEntry> {
         const bundleInfo = this._localManifest.bundles.get(updateItem.bundle);
 
         const version = bundleInfo?.md5 ?? '';
@@ -267,7 +285,11 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
             version: version
         };
 
+        let depth = recursiveDepth ?? 1;
+
         if (updateItem.state === UpdateState.READY_TO_UPDATE) {
+            // TODO:
+            // handle recursively download
             await this.download(updateItem);
         }
 
@@ -275,8 +297,16 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
             const url = this._skipHotUpdate
                 ? this._localManifest.bundleServerAddress + updateItem.bundle
                 : updateItem.getBundleUrl();
+            cc.log(`${UpdateManager.moduleName} load bundle ${url} ${newOptions.version}`);
 
-            cc.log(`load bundle ${url} ${newOptions.version}`);
+            // recursive load depend bundles
+            if (updateItem.dependencies && depth !== 0) {
+                // eslint-disable-next-line @typescript-eslint/prefer-for-of
+                for (let i = 0; i < updateItem.dependencies.length; i++) {
+                    const dependItem = this._updateItems.get(updateItem.dependencies[i]);
+                    await this.loadBundle(dependItem, newOptions, depth - 1);
+                }
+            }
 
             return this._bundleManager.loadBundle(url, newOptions);
         }
@@ -284,6 +314,83 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
         const errMsg = `${updateItem.bundle} is not ready to load. State: ${updateItem.state}`;
         cc.warn(errMsg);
         return Promise.reject(new InternalError(errMsg));
+    }
+
+    /** Enter bundle recursively
+     * @description We could defines dependencies of a bundle in bundle manifest. This function is used for entering bundle recursively.
+     * @param updateItemOrName Update item or bundle name
+     * @param options
+     * @param recursiveDepth
+     * The depth of recursive entering bundle.
+     * 0 means not enter any dependencies.
+     * -1 means enter dependencies until no dependencies found
+     * The default value is 1
+     */
+    async enterBundle(
+        updateItemOrName: UpdateItem | string,
+        options?: IBundleOptions,
+        recursiveDepth?: number
+    ): Promise<void> {
+        const updateItem = this._getUpdateItem(updateItemOrName);
+        cc.log(`${UpdateManager.moduleName} enter bundle ${updateItem.bundle}`);
+
+        let depth = recursiveDepth ?? 1;
+
+        const entry = this._bundleManager.getEntry(updateItem.bundle);
+        if (!entry || entry.state === BundleState.Unload || entry.state === BundleState.Loading) {
+            return Promise.reject(
+                new InvalidOperationError(
+                    `Cannot enter bundle ${updateItem.bundle}. Please load bundle before enter it`
+                )
+            );
+        }
+
+        if (updateItem.dependencies && depth !== 0) {
+            // eslint-disable-next-line @typescript-eslint/prefer-for-of
+            for (let i = 0; i < updateItem.dependencies.length; i++) {
+                const dependItem = this._updateItems.get(updateItem.dependencies[i]);
+                await this.enterBundle(dependItem, options, depth - 1);
+            }
+        }
+
+        if (entry.state === BundleState.Loaded) {
+            await entry.enter(options);
+        }
+    }
+
+    /** Exit bundle recursively
+     * @description We could defines dependencies of a bundle in bundle manifest. This function is used for exit bundle recursively.
+     * @param updateItemOrName Update item or bundle name
+     * @param recursiveDepth
+     * The depth of recursive exiting bundle.
+     * 0 means not exit any dependencies.
+     * -1 means exit dependencies until no dependencies found
+     * The default value is 1
+     */
+    async exitBundle(updateItemOrName: UpdateItem | string, recursiveDepth?: number): Promise<void> {
+        const updateItem = this._getUpdateItem(updateItemOrName);
+        cc.log(`${UpdateManager.moduleName} exit bundle ${updateItem.bundle}`);
+
+        let depth = recursiveDepth ?? 1;
+
+        const entry = this._bundleManager.getEntry(updateItem.bundle);
+        if (!entry || entry.state === BundleState.Entering) {
+            return Promise.reject(
+                new InvalidOperationError(`Cannot exit bundle ${updateItem.bundle}. Please enter bundle before exit it`)
+            );
+        }
+
+        if (entry.state === BundleState.Entered) {
+            await entry.exit();
+        }
+
+        if (updateItem.dependencies && depth !== 0) {
+            // eslint-disable-next-line @typescript-eslint/prefer-for-of
+            for (let i = 0; i < updateItem.dependencies.length; i++) {
+                const dependItem = this._updateItems.get(updateItem.dependencies[i]);
+                await this.exitBundle(dependItem, depth - 1);
+            }
+        }
     }
 
     loadLocalManifest(): boolean {
@@ -334,7 +441,7 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
 
                 cc.log('load remoteManifest ' + url);
 
-                http.get(url)
+                http.request(url)
                     .then((resp) => {
                         const bundleManifest = new BundleManifest();
                         bundleManifest.fromJson(resp.data);
@@ -358,5 +465,9 @@ export class UpdateManager extends EmittableModule<IUpdateEventEmitter> {
         bundleInfo.md5 = remoteBundleInfo.md5;
         bundleInfo.version = remoteBundleInfo.version;
         this.saveLocalManifest();
+    }
+
+    private _getUpdateItem(updateItemOrName: UpdateItem | string): Nullable<UpdateItem> {
+        return updateItemOrName instanceof UpdateItem ? updateItemOrName : this._updateItems.get(updateItemOrName);
     }
 }

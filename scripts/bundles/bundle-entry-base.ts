@@ -7,20 +7,20 @@ const { languageManager, bundleManager, addressableAssetManager } = core;
 export class BundleEntryBase extends BundleEntry {
     protected _language = '';
 
-    protected getLanguageStringPath(): Nullable<string> {
+    protected getLanguageStringPath(language?: string): Nullable<string> {
         return null;
     }
 
-    protected getAddressableConfigPath(): Nullable<string> {
+    protected getAddressableConfigPath(language?: string): Nullable<string> {
         return null;
     }
 
-    protected async loadLanguageStrings(): Promise<void> {
-        if (this._language === languageManager.currentLanguage) {
+    protected async loadLanguageStrings(language?: string): Promise<void> {
+        if (this._language === languageManager.currentLanguage && language === null) {
             return;
         }
 
-        const path = this.getLanguageStringPath();
+        const path = this.getLanguageStringPath(language);
 
         if (path) {
             const asset = await bundleManager.loadAsset<cc.JsonAsset>(this.bundle, path, cc.JsonAsset);
@@ -29,12 +29,12 @@ export class BundleEntryBase extends BundleEntry {
         }
     }
 
-    protected async loadAddressableConfig(): Promise<void> {
-        if (this._language === languageManager.currentLanguage) {
+    protected async loadAddressableConfig(language?: string): Promise<void> {
+        if (this._language === languageManager.currentLanguage && language === null) {
             return;
         }
 
-        const path = this.getAddressableConfigPath();
+        const path = this.getAddressableConfigPath(language);
 
         if (path) {
             const asset = await bundleManager.loadAsset<cc.JsonAsset>(this.bundle, path, cc.JsonAsset);
@@ -43,15 +43,16 @@ export class BundleEntryBase extends BundleEntry {
         }
     }
 
-    protected async loadConfigs(): Promise<void> {
-        if (this._language === languageManager.currentLanguage) {
+    protected async loadConfigs(language?: string): Promise<void> {
+        const targetLanguage = language === null ? languageManager.currentLanguage : language;
+        if (this._language === targetLanguage) {
             return;
         }
 
-        await this.loadLanguageStrings();
+        await this.loadLanguageStrings(targetLanguage);
 
-        await this.loadAddressableConfig();
+        await this.loadAddressableConfig(targetLanguage);
 
-        this._language = languageManager.currentLanguage;
+        this._language = targetLanguage;
     }
 }

@@ -6,11 +6,19 @@ export class DomainService extends Service {
 
     private _client: IPokerClient;
 
+    private _domains: IDomainInfo[];
+
     private _domainIndex = 0;
 
-    constructor(client: IPokerClient) {
+    constructor(clientOrDomains: IPokerClient | IDomainInfo[]) {
         super(DomainService.serviceName);
-        this._client = client;
+        if (Array.isArray(clientOrDomains)) {
+            this._domains = clientOrDomains;
+            this._client = null;
+        } else {
+            this._domains = null;
+            this._client = clientOrDomains;
+        }
     }
 
     get domainIndex() {
@@ -21,11 +29,11 @@ export class DomainService extends Service {
     }
 
     getDomainInfo(): IDomainInfo {
-        return this._client.getDomains()[this._domainIndex];
+        return this._domains ? this._domains[this._domainIndex] : this._client.getDomains()[this._domainIndex];
     }
 
     getDomains(): IDomainInfo[] {
-        return this._client.getDomains();
+        return this._domains ? this._domains : this._client.getDomains();
     }
 
     getAvatarUrl(avatarPath: string, plat: number): string {

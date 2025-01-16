@@ -26,11 +26,13 @@ export class WebSocketError extends Error {
 }
 
 export class ServerError extends Error {
+    /** cd时间，表示操作频繁，cd时间过后才可再次操作 */
+    cd: number;
     errorCode: number;
-    explanation: string;
-    constructor(message: string, errorCode: number) {
+    constructor(message: string, errorCode: number, cd?: number) {
         super(message);
         this.name = 'ServerError';
+        this.cd = cd;
         this.errorCode = errorCode;
     }
 }
@@ -88,6 +90,13 @@ export class NoBundleFoundError extends Error {
     constructor(message: string) {
         super(message);
         this.name = 'NoBundleFoundError';
+    }
+}
+
+export class NoConfigFoundError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'NoConfigFoundError';
     }
 }
 

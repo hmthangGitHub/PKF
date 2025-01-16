@@ -12,6 +12,9 @@ export interface IRequestParams {
     dmodel?: string;
     clientType?: number;
     language?: string;
+
+    user_id?: string;
+    token?: string;
 }
 
 export interface IResponseData {
@@ -25,6 +28,13 @@ export interface IResponseData {
 export interface ILoginParams extends IRequestParams {
     username: string;
     passwd: string;
+}
+
+export interface IUserProfileParams extends IRequestParams {
+    gender: string;
+    nick_name: string;
+    avatar_thumb: string;
+    img_ext: string;
 }
 
 export interface IDomainData {
@@ -57,8 +67,14 @@ export interface ILoginData {
     cdn: string;
     domain: IDomainData[];
     encry_switch: number[];
+    is_allow_update_name: boolean;
 }
 
 export interface ILoginResponseData extends IResponseData {
     data: ILoginData;
+}
+
+export interface IUploadAvatarParams extends IRequestParams {
+    avatar: string;
+    ext: string;
 }

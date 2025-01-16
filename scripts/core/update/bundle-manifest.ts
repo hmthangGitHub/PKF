@@ -1,6 +1,7 @@
 export interface IBundleInfo {
     version?: string;
     md5?: string;
+    dependencies?: string[];
     // url?: string;
 }
 

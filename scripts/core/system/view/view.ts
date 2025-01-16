@@ -277,28 +277,6 @@ export class View {
         // node.getComponent(cc.Canvas).fitWidth = false;
     }
 
-    /**
-     * 适配 widget(当前帧立即生效)
-     * @param node          要适配的节点
-     * @param bTransChild   是否遍历适配子节点(默认 false)
-     */
-    adaptWidget(node: cc.Node, bTransChild?: boolean): void {
-        if (!node) return;
-
-        const widget: cc.Widget = node.getComponent(cc.Widget);
-        if (widget && cc.isValid(widget, true)) {
-            widget.enabled = true;
-            widget.updateAlignment();
-            widget.enabled = false;
-        }
-
-        if (bTransChild) {
-            for (const row of node.children) {
-                this.adaptWidget(row, bTransChild);
-            }
-        }
-    }
-
     // TODO: refactor
     isIPhoneXScreen(): boolean {
         return this.width > this.height

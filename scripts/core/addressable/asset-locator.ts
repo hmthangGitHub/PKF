@@ -30,7 +30,7 @@ export class LocationIndicator {
         return indicator;
     }
 
-    static fromGroupAndName(group: string, name): LocationIndicator {
+    static fromGroupAndName(group: string, name: string): LocationIndicator {
         const key = `${group}.${name}`;
         const indicator = new LocationIndicator();
         indicator.key = key;

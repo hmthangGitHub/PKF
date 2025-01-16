@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import * as ws_protocol from 'ws_protocol';
 import pb = ws_protocol.pb;
+
 import type { Nullable } from '../../core/defines/types';
 import type {
     ISocket,
@@ -17,22 +18,32 @@ import type {
     IResponseCalmDownConfirm,
     IGetScalerQuoteResponse,
     IExchangeCurrencyResponse,
-    IGetEventStatusResponse,
-    IClaimRewardResponse
+    IResponseClubCurrentBoard,
+    IAuthVerifyResponse,
+    IResponseQuerySendFairReport,
+    IResponseFairPlayReport,
+    IResponseCurrentRoomJackpot,
+    IResponseGetJackpotData,
+    IResponseJackpotAwardRecord,
+    IRewardCheckResponse,
+    IRewardDrawResponse
 } from '../poker-socket';
 import type { IHeartBeatResponse } from '../poker-socket-types';
 import type { ISession, ISocketOptions } from '../poker-client-types';
 import { ServerType, GameId, SocketServerErrorCode, SystemInfo } from '../poker-client-types';
 import type { WebSocketAdapter, SocketOpenHandler } from '../websocket-adapter';
-import { Util } from '../../core/utils/util';
+import { DataUtil } from '../../core/utils/data-util';
 import { SocketMessage } from '../socket-message';
-import { InvalidOperationError, ServerError } from '../../core/defines/errors';
+import { InvalidOperationError, NotImplementError, ServerError } from '../../core/defines/errors';
 import type { IRequest } from '../socket-message-processor';
 import { SocketMessageProcessor } from '../socket-message-processor';
 import type { GameSession, GameSessionClass } from '../session/game-session';
 import { TypeSafeEventEmitter } from '../../core/event/event-emitter';
 import { AsyncOperation } from '../../core/async/async-operation';
 import { macros } from '../poker-client-macros';
+import { SecretKeyHelper } from '../encrypt/secret-key-helper';
+import type { IDataSession } from '../session/data-session';
+import type { IResponseMttAuth, IGetEventStatusResponse, IClaimRewardResponse } from '../socket/socket-index';
 
 export class PKWSocket extends SocketMessageProcessor implements ISocket {
     private _session: Nullable<ISession> = null;
@@ -45,6 +56,8 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     private _url = '';
     private _options: Nullable<ISocketOptions> = null;
+
+    private _secretKeyHelper: SecretKeyHelper = null;
 
     private _originOnClose: Nullable<SocketOpenHandler> = null;
     private _originOnMessage: Nullable<SocketOpenHandler> = null;
@@ -59,7 +72,10 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     constructor(websocketAdatper: WebSocketAdapter, session: ISession, options?: ISocketOptions) {
         super(ServerType.SeverType_World, GameId.World, session.userId, websocketAdatper);
         this._session = session;
-        Util.override(this._systemInfo, options);
+        DataUtil.override(this._systemInfo, options);
+
+        this._secretKeyHelper = new SecretKeyHelper();
+        this._secretKeyHelper.ecdhInit();
     }
 
     createGameSession<T extends GameSession>(gameSessionClass: GameSessionClass<T>): T {
@@ -94,6 +110,10 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
             this._messageProcessors.delete(session.serverId);
         }
+    }
+
+    createDataSession(): IDataSession {
+        throw new NotImplementError(`DataSession does not implement yet!`);
     }
 
     link(webSocket: WebSocket) {
@@ -186,6 +206,8 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         this.stopTick();
 
         this.cleanupRequests('socket disconnected');
+
+        this._secretKey = '';
 
         this._gameSessions.forEach((session) => {
             session.onDisconnect();
@@ -489,13 +511,16 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
     }
 
     async getEventStatus(): Promise<IGetEventStatusResponse> {
+        // @ts-ignore ingore here becasue some project does not has rebate definition
         const requestProto = new pb.GetEventStatusRequest();
 
         const response = await this.sendRequest(
             requestProto,
             pb.MSGID.MsgId_Rebate_GetEventStatus_Request,
+            // @ts-ignore
             pb.GetEventStatusRequest,
             pb.MSGID.MsgId_Rebate_GetEventStatus_Response,
+            // @ts-ignore
             pb.GetEventStatusResponse
         );
 
@@ -513,6 +538,7 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         betTimeIdx: number,
         rewardProgressIndex: number
     ): Promise<IClaimRewardResponse> {
+        // @ts-ignore
         const requestProto = new pb.ClaimRewardRequest();
 
         requestProto.event_id = eventId;
@@ -521,16 +547,113 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
         const response = await this.sendRequest(
             requestProto,
+            // @ts-ignore
             pb.MSGID.MsgId_Rebate_ReceiveReward_Request,
+            // @ts-ignore
             pb.ClaimRewardRequest,
+            // @ts-ignore
             pb.MSGID.MsgId_Rebate_ReceiveReward_Response,
+            // @ts-ignore
             pb.ClaimRewardResponse
         );
 
         const responseProto = response.payload;
 
+        // @ts-ignore
         this.checkResponseCode(responseProto.error, 'getRebateReward');
 
+        return responseProto;
+    }
+
+    getSecretKey(): string {
+        return this._secretKey;
+    }
+
+    async requestSecretKey(): Promise<void> {
+        const requestProto = new pb.SetSecretKeyExRequest();
+
+        requestProto.secret_type = 0;
+        requestProto.cli_public_key_x = this._secretKeyHelper.clientPubX;
+        requestProto.cli_public_key_y = this._secretKeyHelper.clientPubY;
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_SetSecretKeyEx_Request,
+            pb.SetSecretKeyExRequest,
+            pb.MSGID.MsgID_SetSecretKeyEx_Response,
+            pb.SetSecretKeyExResponse
+        );
+
+        const resp = response.payload;
+
+        if (resp.error === 1) {
+            const serverPubX = resp.svr_public_key_x;
+            const serverPubY = resp.svr_public_key_y;
+            this._secretKeyHelper.ecdhGenClientKey(serverPubX, serverPubY);
+            this._secretKey = this._secretKeyHelper.getFinalKey(resp.secret_type);
+        }
+    }
+
+    async requestAuthVerify(result: number | string): Promise<IAuthVerifyResponse> {
+        const requestProto = new pb.AuthVerifyRequest();
+        // @ts-ignore  The names and types of the pb fields are different in different platforms
+        requestProto.result = result;
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_AuthVerify_Request,
+            pb.AuthVerifyRequest,
+            pb.MSGID.MsgID_AuthVerify_Response,
+            pb.AuthVerifyResponse
+        );
+        const responseProto = response.payload;
+        // this.checkResponseCode(responseProto.error, 'requestAuthVerify');
+        return responseProto;
+    }
+
+    async requestQuerySendFairReport(
+        clubId: number,
+        roomUuidJs: string,
+        gameUuidJs: string
+    ): Promise<IResponseQuerySendFairReport> {
+        const requestProto = new pb.RequestQuerySendFairReport();
+        requestProto.club_id = clubId;
+        requestProto.room_uuid_js = roomUuidJs;
+        requestProto.game_uuid_js = gameUuidJs;
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_QuerySendFairReport_Request,
+            pb.RequestQuerySendFairReport,
+            pb.MSGID.MsgID_QuerySendFairReport_Response,
+            pb.ResponseQuerySendFairReport
+        );
+        const responseProto = response.payload;
+        return responseProto;
+    }
+
+    async requestAuditPlayers(
+        roomid: number,
+        clubId: number,
+        room_uuid: number,
+        game_uuid: number,
+        suspect_uids: number[],
+        contact: string
+    ): Promise<IResponseFairPlayReport> {
+        const requestProto = new pb.RequestFairPlayReport();
+        requestProto.roomid = roomid;
+        requestProto.clubid = clubId;
+        requestProto.room_uuid = room_uuid;
+        requestProto.game_uuid = game_uuid;
+        requestProto.suspect_uids = suspect_uids;
+        requestProto.contact = contact;
+        requestProto.detail = 'nice';
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_FairPlay_Report_Request,
+            pb.RequestFairPlayReport,
+            pb.MSGID.MsgID_FairPlay_Report_Response,
+            pb.ResponseFairPlayReport
+        );
+        const responseProto = response.payload;
         return responseProto;
     }
 
@@ -555,6 +678,105 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
         const responseProto = response.payload;
 
         return { ...responseProto };
+    }
+
+    async getClubCurrentBoard(): Promise<IResponseClubCurrentBoard> {
+        const requestProto = new pb.RequestClubCurrentBoard();
+
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_ClubCurrentBoard_Request,
+            pb.RequestClubCurrentBoard,
+            pb.MSGID.MsgID_ClubCurrentBoard_Response,
+            pb.ResponseClubCurrentBoard
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'getClubCurrentBoard');
+
+        return responseProto;
+    }
+
+    async requestCurrentRoomJackpot(
+        club: number,
+        roomID: number,
+        blindLevel: number
+    ): Promise<IResponseCurrentRoomJackpot> {
+        const requestProto = new pb.RequestCurrentRoomJackpot();
+        requestProto.club_id = club;
+        requestProto.room_id = roomID;
+        requestProto.blind_level = blindLevel;
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_CurrentRoomJackpot_Request,
+            pb.RequestCurrentRoomJackpot,
+            pb.MSGID.MsgID_CurrentRoomJackpot_Response,
+            pb.ResponseCurrentRoomJackpot
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'requestCurrentRoomJackpot');
+
+        return responseProto;
+    }
+
+    async requestGetJackpotData(clubID: number, roomID: number): Promise<IResponseGetJackpotData> {
+        const requestProto = new pb.RequestGetJackpotData();
+        requestProto.club_id = clubID;
+        requestProto.room_id = roomID;
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_GetJackpotData_Request,
+            pb.RequestGetJackpotData,
+            pb.MSGID.MsgID_GetJackpotData_Response,
+            pb.ResponseGetJackpotData
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'requestGetJackpotData');
+
+        return responseProto;
+    }
+
+    async requestJackpotAwardRecord(
+        club: number,
+        roomID: number,
+        blindLevel: number
+    ): Promise<IResponseJackpotAwardRecord> {
+        const requestProto = new pb.RequestJackpotAwardRecord();
+        requestProto.club_id = club;
+        requestProto.room_id = roomID;
+        requestProto.blind_level = blindLevel;
+        const response = await this.sendRequest(
+            requestProto,
+            pb.MSGID.MsgID_JackpotAwardRecord_Request,
+            pb.RequestJackpotAwardRecord,
+            pb.MSGID.MsgID_JackpotAwardRecord_Response,
+            pb.ResponseJackpotAwardRecord
+        );
+
+        const responseProto = response.payload;
+
+        this.checkResponseCode(responseProto.error, 'requestJackpotAwardRecord');
+
+        return responseProto;
+    }
+
+    async checkRewards(): Promise<IRewardCheckResponse> {
+        return {};
+    }
+
+    async claimRewards(dailyUuid?: string, registerUuid?: string): Promise<IRewardDrawResponse> {
+        return {};
+    }
+
+    // TODO:
+    // implement mtt relavite functions
+    async requestMttAuth(): Promise<IResponseMttAuth> {
+        throw new NotImplementError('requestMttAuth not implement yet');
     }
 
     startHeartBeat(): void {
@@ -647,6 +869,11 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     protected registerNotificationHandlers(): void {
         this.registerNotificationHandler(
+            pb.MSGID.MsgID_ClubCurrentBoard_Notice,
+            pb.NoticeClubCurrentBoard,
+            this.handleClubCurrentBoardNotify.bind(this)
+        );
+        this.registerNotificationHandler(
             pb.MSGID.MsgID_NotifyUserGoldNum_Notice,
             pb.NoticeNotifyUserGoldNum,
             this.handleUserGoldNumNotify.bind(this)
@@ -718,10 +945,34 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
             this.handleCalmDownNotify.bind(this)
         );
 
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_Login_Notice,
+            pb.NoticeLogin,
+            this.handleNoticeLogin.bind(this)
+        );
+
+        this.registerNotificationHandler(
+            pb.MSGID.MsgID_DupLogin_Notice,
+            pb.DupLoginNotice,
+            this.handleDuplicatedLogin.bind(this)
+        );
+
         // no protobuf class needed for MsgId_Rebate_GetEventStatus_Notice
         this._messageHandlers.set(pb.MSGID.MsgId_Rebate_GetEventStatus_Notice, (msg) => {
             this.handleRebateEventStatusNotify();
         });
+    }
+
+    protected handleNoticeLogin(protobuf: pb.INoticeLogin) {
+        this._notification.emit('noticeLogIn', protobuf);
+    }
+
+    protected handleDuplicatedLogin(): void {
+        this._notification.emit('duplicatedLogIn');
+    }
+
+    protected handleClubCurrentBoardNotify(protobuf: pb.INoticeClubCurrentBoard) {
+        this._notification.emit('clubCurrentBoard', protobuf);
     }
 
     protected handleUserGoldNumNotify(protobuf: pb.NoticeNotifyUserGoldNum) {
@@ -730,10 +981,10 @@ export class PKWSocket extends SocketMessageProcessor implements ISocket {
 
     protected handleGlobalMessageNotify(protobuf: pb.NoticeGlobalMessage) {
         console.log('global message', protobuf);
-        let sourceType = [];
+        let sourceType: GameId[] = [];
         if (protobuf.source_type) {
             sourceType = protobuf.source_type.map((gameId) => {
-                return gameId;
+                return gameId as number;
             });
         }
 

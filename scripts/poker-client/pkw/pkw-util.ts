@@ -2,8 +2,11 @@
 /* eslint-disable no-var */
 /* eslint-disable camelcase */
 
-import * as md5 from 'md5';
-import * as CryptoJS from './pf-crypto';
+import { TokenCrypto } from '../encrypt/encrypt-index';
+import md5 from 'md5';
+// import * as CryptoJS from './pf-crypto';
+import * as CryptoJS from 'crypto-js';
+import * as pako from 'pako';
 
 export class PKWUtil {
     private static getSortSign(): string {
@@ -112,7 +115,7 @@ export class PKWUtil {
         return result;
     }
 
-    static intTobytes(value) {
+    static intTobytes(value: number) {
         var a = new Uint8Array(4);
         a[0] = (value >> 24) & 0xff;
 
@@ -124,4 +127,30 @@ export class PKWUtil {
 
         return a;
     }
+
+    static unzip(response: string): string {
+        let strData = window.atob(response);
+        let charData = strData.split('').map((x) => {
+            return x.charCodeAt(0);
+        });
+        let binData = new Uint8Array(charData);
+        const result = pako.inflate(binData, { to: 'string' });
+        return result;
+    }
+
+    // =====================begin v3加解密 begin================================ //
+    static async generateV3Keys() {
+        return TokenCrypto.getInstance().generateRSAKeys();
+    }
+    static async decryptV3Token(encryptedToken: string, priKey: any) {
+        // eslint-disable-next-line no-useless-concat
+        let key: string = '@lnFi8' + '<eIKYazt:$_;' + 'MX9T/d(gk[JW3{Upcw';
+        key = key.substring(0, 32);
+        const base64Toket = PKWUtil.DecryptBase64(encryptedToken, key);
+        return md5(md5(TokenCrypto.getInstance().decryptToken(base64Toket, priKey)));
+    }
+    static createClientOneTimeV3Token(decryptedToken: string, reqBody: string) {
+        return TokenCrypto.getInstance().createClientOneTimeToken(decryptedToken, reqBody);
+    }
+    // =======================end v3加解密 end================================== //
 }

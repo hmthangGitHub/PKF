@@ -34,6 +34,7 @@ export class NativeSDK implements INativeSDK {
 
     init(): void {
         if (this.targetNativeSDK) return;
+
         if (!this._system.isNative) {
             this.targetNativeSDK = new SYNativeSDK(this);
         } else if (this._system.isNative && this._system.isIOS) {
