@@ -22,7 +22,7 @@ export class LocalStorage extends Module {
     }
 
     removeItem(key: string): void {
-        cc.sys.localStorage.removeItem();
+        cc.sys.localStorage.removeItem(key);
     }
 
     clear(): void {
