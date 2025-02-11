@@ -19,5 +19,5 @@ export class MiniGameContext implements IGameContext {
 
     updateWallet: () => void;
 
-    exitCallback: () => void;
+    exitCallback: (type: client.ExitType) => void;
 }
