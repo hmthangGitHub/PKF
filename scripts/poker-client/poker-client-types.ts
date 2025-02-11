@@ -282,6 +282,11 @@ export enum RedPacketLotteryMode {
     Diamond = 1
 }
 
+export enum ExitType {
+    Standard = 0,
+    NoLeaveRoom = 1
+}
+
 export interface GeolocationCoord {
     readonly latitude: number;
     readonly longitude: number;
